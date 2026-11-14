@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { caseIndexObject, caseObject, hostedCasesFrom, MAX_HOSTED_CASES, type CaseDirectory, type CreateAnswer, type HostEnv, type ListAnswer, type NewCasePlan } from "../core/case-host";
+import { caseIndexObject, caseObject, hostedCasesFrom, MAX_HOSTED_CASES, type CaseDirectory, type CreateAnswer, type HostEnv, type ListAnswer, type NewCasePlan, type ReleaseAnswer } from "../core/case-host";
 import { bucketObjectStore, type HostBucket } from "../core/case-host-stores";
 import { BASE_POLICY, VIEWER_STYLE_HASH } from "../core/workspace-response";
 import { IDENTITY_ALDER } from "./case-fixture";
@@ -52,13 +52,19 @@ const PLAN: NewCasePlan = {
   criterion: "  kept as typed  "
 };
 
-type Recorded = { creates: NewCasePlan[]; lists: number };
+type Recorded = { creates: NewCasePlan[]; lists: number; releases?: string[] };
 
-function directoryAnswering(create: CreateAnswer, list: ListAnswer = { ok: true, cases: [], limit: MAX_HOSTED_CASES }): { directory: CaseDirectory; recorded: Recorded } {
+function directoryAnswering(create: CreateAnswer, list: ListAnswer = { ok: true, cases: [], limit: MAX_HOSTED_CASES }, release: ReleaseAnswer = { ok: true }): { directory: CaseDirectory; recorded: Recorded; releases: string[] } {
   const recorded: Recorded = { creates: [], lists: 0 };
+  const releases: string[] = [];
   return {
     recorded,
+    releases,
     directory: {
+      release: async (_assertion, caseId) => {
+        releases.push(caseId);
+        return release;
+      },
       create: async (_assertion, plan) => {
         recorded.creates.push(structuredClone(plan) as NewCasePlan);
         return create;
@@ -93,8 +99,11 @@ test("the list page shows created cases, sets apart a create that did not finish
   assert.ok(page.includes("&lt;script&gt;window.listRan = 1&lt;/script&gt;"));
   assert.ok(page.includes('href="/cases/%22%3E%3Cscript%3Ewindow.listRan%20%3D%201%3C%2Fscript%3E"'));
   assert.ok(page.includes("at a time not recorded"));
-  // One form, posting to the list's own address, with every field of a plan and none for an id.
-  const forms = [...page.matchAll(/<form method="post" action="([^"]*)">([\s\S]*?)<\/form>/g)];
+  // One form for each create that did not finish, to release its id, with no field at all, and none for a created case.
+  const allForms = [...page.matchAll(/<form method="post" action="([^"]*)">([\s\S]*?)<\/form>/g)];
+  assert.deepEqual(allForms.filter((form) => form[1] !== "/cases").map((form) => [form[1], form[2]]), [[`/cases/${OTHER}/release`, '<button type="submit">Release this id</button>']]);
+  // One form to create, posting to the list's own address, with every field of a plan and none for an id.
+  const forms = allForms.filter((form) => form[1] === "/cases");
   assert.deepEqual(forms.map((form) => form[1]), ["/cases"]);
   const names = [...new Set([...forms[0][2].matchAll(/ name="([^"]*)"/g)].map((match) => match[1]))].sort();
   assert.deepEqual(names, ["chromium", "commit", "criterion", "fixture", "grammar-version", "instruments", "rea-integrity", "rea-node", "rea-release", "runner-image", "scanner-node", "slot"]);
@@ -340,4 +349,66 @@ test("the bucket's store refuses an object past the bound from its recorded size
   assert.equal(await bucketObjectStore(bucketHolding(0, 0), "p/").createOnly(digest, new Uint8Array(1)), "exists");
   assert.deepEqual(calls, [`put p/${digest} {"onlyIf":{"etagDoesNotMatch":"*"}}`]);
   await assert.rejects(bucketObjectStore(bucketHolding(0, 0), "p/").createOnly("../escape", new Uint8Array(1)));
+});
+
+test("a release asks the case first and the list only after the case says it holds no log", async () => {
+  const yes = hostedWith(() => json({ ok: true }));
+  assert.deepEqual(await yes.hosted.directory.release("a", MINTED), { ok: true });
+  assert.deepEqual([order(yes.caseCalls), order(yes.indexCalls)], [[`${MINTED}:abandon:${MINTED}`], [`case-index:release:${MINTED}`]]);
+  // A case that holds a log, refuses the assertion or does not answer: the list is never asked.
+  for (const [why, answer, expected] of [
+    ["a log exists", json({ ok: false, refusal: "log-exists", at: null }), { ok: false, refusal: "log-exists", at: null }],
+    ["the assertion is refused", json({ ok: false, refusal: "access-refused" }), { ok: false, refusal: "access-refused" }],
+    ["the object threw", new Error("the object went away"), { ok: false, refusal: "unavailable" }],
+    ["a status that is not 200", json({ ok: true }, 500), { ok: false, refusal: "unavailable" }]
+  ] as const) {
+    const no = hostedWith(() => (answer instanceof Error ? answer : answer.clone()));
+    assert.deepEqual(await no.hosted.directory.release("a", MINTED), expected, why);
+    assert.deepEqual(no.indexCalls, [], why);
+  }
+  // The list's own answer is the release's: a created case stays, and a list that is down reads as that.
+  const created = hostedWith(() => json({ ok: true }), () => json({ ok: false, refusal: "not-reserved", at: null }));
+  assert.deepEqual(await created.hosted.directory.release("a", MINTED), { ok: false, refusal: "not-reserved", at: null });
+  const down = hostedWith(() => json({ ok: true }), () => new Error("the list went away"));
+  assert.deepEqual(await down.hosted.directory.release("a", MINTED), { ok: false, refusal: "unavailable" });
+  // A slug names no object and no reservation.
+  const slug = hostedWith(() => json({ ok: true }));
+  assert.deepEqual(await slug.hosted.directory.release("a", "case-one"), { ok: false, refusal: "head-missing", at: null });
+  assert.deepEqual([slug.caseCalls, slug.indexCalls], [[], []]);
+});
+
+test("a create whose assertion expires between the reserve and the create strands its reservation: the release carries the same assertion, and the list refuses it", async () => {
+  // The list took the reserve, then refuses everything, as it does for an assertion that has since expired.
+  let reserved = false;
+  const stranded = hostedWith(
+    () => json({ ok: false, refusal: "access-refused" }),
+    (call) => (call.call === "reserve" && !reserved ? ((reserved = true), json({ ok: true })) : json({ ok: false, refusal: "access-refused" }))
+  );
+  assert.deepEqual(await stranded.hosted.directory.create("an-assertion-about-to-expire", PLAN), { ok: false, refusal: "access-refused" });
+  // The release was tried, with the same assertion, and refused. Nothing else follows, so the id stays reserved.
+  assert.deepEqual(stranded.indexCalls.map(({ call }) => [call.call, call.assertion]), [["reserve", "an-assertion-about-to-expire"], ["release", "an-assertion-about-to-expire"]]);
+});
+
+test("the release route sends the path's id to the directory, takes no field, and answers by the refusal's kind", async () => {
+  const ok = directoryAnswering({ ok: true, caseId: MINTED });
+  const world = await viewerWorld({ seeded: false, directory: ok.directory });
+  const released = await world.post(`/cases/${MINTED}/release`, []);
+  assert.deepEqual([released.status, released.headers.get("location")], [303, "/cases"]);
+  assert.deepEqual(ok.releases, [MINTED]);
+  assert.equal((await world.post(`/cases/${MINTED}/release`, [["force", "yes"]])).status, 400);
+  assert.equal((await world.post(`/cases/${MINTED}/release`, [], { token: world.serviceToken })).status, 401);
+  assert.equal((await world.post(`/cases/${MINTED}/release`, [], { origin: "https://elsewhere.example" })).status, 403);
+  assert.equal((await world.send(`/cases/${MINTED}/release`)).status, 405);
+  assert.deepEqual(ok.releases, [MINTED]);
+  for (const [answer, status, shows] of [
+    [{ ok: false, refusal: "log-exists", at: null }, 422, "<code>log-exists</code>. The list still holds it."],
+    [{ ok: false, refusal: "access-refused" }, 401, '{"error":"access-refused"}'],
+    [{ ok: false, refusal: "unavailable" }, 503, '{"error":"unavailable"}']
+  ] as const) {
+    const refusing = await viewerWorld({ seeded: false, directory: directoryAnswering({ ok: true, caseId: MINTED }, undefined, answer).directory });
+    const response = await refusing.post(`/cases/${MINTED}/release`, []);
+    assert.equal(response.status, status, answer.refusal);
+    assert.ok((await response.text()).includes(shows), answer.refusal);
+  }
+  assert.equal((await (await viewerWorld({ seeded: false })).post(`/cases/${MINTED}/release`, [])).status, 503);
 });

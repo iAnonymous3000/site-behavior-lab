@@ -1,6 +1,7 @@
 import { AccessKeySet } from "../core/access-token";
 import { sha256Hex } from "../core/canonical-json";
-import { caseIndexObject, caseObject, hostedCasesFrom, type HostEnv, type HostObject } from "../core/case-host";
+import { caseIndexObject, caseObject, hostedCasesFrom, type CaseHostObject, type HostEnv, type HostObject } from "../core/case-host";
+import type { Deadlines } from "../core/case-supervision";
 import { bucketObjectStore, sqlHeadStore, type HostBucket, type HostStorage } from "../core/case-host-stores";
 import { viewerRoutes } from "../core/viewer-routes";
 import { handleWorkspaceRequest } from "../core/workspace-gate";
@@ -15,12 +16,21 @@ import { handleWorkspaceRequest } from "../core/workspace-gate";
  * one that runs the stores through their contract inside the object and reports what each call
  * answered, and one that sets a head, so a case built in Node can be measured as the host
  * opens it. None of this is reachable from cloudflare/investigation-worker.ts.
+ *
+ * For the alarm suite it also fills the seam that stops a runner, with one that only records each
+ * stop it was asked for, and fails while a third marker exists. Its deadlines are the ones the
+ * suite binds, so an alarm comes due in under a second. Three more calls of the test's own show
+ * the object's deadline marks, its recorded stops and its alarm time, run the alarm's handler as
+ * a second delivery would, and empty the marks as a lost write would.
  */
 
 const FAULT_KEY = "test-fault/entry-put";
 const SLOW_KEY = "test-fault/slow-entry-put";
+const STOP_FAILS_KEY = "test-fault/stop-fails";
+const SLOW_EVIDENCE_KEY = "test-fault/slow-evidence-put";
 
-type ObjectState = Readonly<{ id: Readonly<{ name?: string }>; storage: HostStorage }>;
+type ObjectState = Readonly<{ id: Readonly<{ name?: string }>; storage: HostStorage & { getAlarm(): Promise<number | null> } }>;
+type TestEnv = HostEnv & { TEST_DEADLINES?: string };
 
 const keySets = new Map<string, AccessKeySet>();
 
@@ -45,6 +55,8 @@ function plantable(bucket: HostBucket, counts: { gets: number }): HostBucket {
       if (key.includes("/entries/") && (await bucket.head(FAULT_KEY)) !== null) throw new Error("The test's planted store failure");
       // Held back while the second marker exists, so two commands that read one head are both past that read before either swaps it.
       if (key.includes("/entries/") && (await bucket.head(SLOW_KEY)) !== null) await new Promise((resolve) => setTimeout(resolve, 150));
+      // A create held here has passed its own look at whether the case was abandoned, and has not yet started its log.
+      if (key.includes("/evidence/") && (await bucket.head(SLOW_EVIDENCE_KEY)) !== null) await new Promise((resolve) => setTimeout(resolve, 400));
       return bucket.put(key, value, options);
     }
   };
@@ -94,21 +106,60 @@ async function probeStores(storage: HostStorage, bucket: HostBucket): Promise<Re
 }
 
 export class InvestigationCase {
-  private readonly answer: HostObject;
-  private readonly storage: HostStorage;
+  private readonly answer: CaseHostObject;
+  private readonly storage: ObjectState["storage"];
   private readonly bucket: HostBucket;
 
-  constructor(state: ObjectState, env: HostEnv) {
+  constructor(state: ObjectState, env: TestEnv) {
     this.storage = state.storage;
     this.bucket = env.INVESTIGATION_OBJECTS as HostBucket;
-    this.answer = caseObject({ name: state.id.name, storage: state.storage, env: { ...env, INVESTIGATION_OBJECTS: plantable(this.bucket, { gets: 0 }) }, keySetFor, now: Date.now });
+    const { sql } = this.storage;
+    sql.exec("CREATE TABLE IF NOT EXISTS test_stops (slot TEXT NOT NULL, at_ms INTEGER NOT NULL, stopped INTEGER NOT NULL)").toArray();
+    this.answer = caseObject({
+      name: state.id.name,
+      storage: state.storage,
+      env: { ...env, INVESTIGATION_OBJECTS: plantable(this.bucket, { gets: 0 }) },
+      keySetFor,
+      now: Date.now,
+      deadlines: env.TEST_DEADLINES === undefined ? undefined : (JSON.parse(env.TEST_DEADLINES) as Deadlines),
+      // Every stop asked for is recorded, the ones that failed too.
+      stopRunner: async (slot) => {
+        const fails = (await this.bucket.head(STOP_FAILS_KEY)) !== null;
+        sql.exec("INSERT INTO test_stops (slot, at_ms, stopped) VALUES (?, ?, ?)", slot, Date.now(), fails ? 0 : 1).toArray();
+        if (fails) throw new Error("The test's planted stop failure");
+      }
+    });
   }
 
   async fetch(request: Request): Promise<Response> {
     const call = (await request.clone().json()) as { call?: string; head?: string };
+    const { sql } = this.storage;
     if (call.call === "test-probe-stores") return Response.json(await probeStores(this.storage, this.bucket));
     if (call.call === "test-seed-head") return Response.json({ ok: await sqlHeadStore(this.storage).compareAndSwap(null, call.head as string) });
+    if (call.call === "test-marks") {
+      return Response.json({
+        marks: sql.exec("SELECT kind, slot, due_at_ms, flagged_at_ms FROM due_marks ORDER BY kind, slot").toArray(),
+        stops: sql.exec("SELECT slot, stopped FROM test_stops ORDER BY at_ms, rowid").toArray(),
+        alarm: await this.storage.getAlarm()
+      });
+    }
+    if (call.call === "test-run-alarm") {
+      try {
+        await this.answer.alarm();
+        return Response.json({ ok: true });
+      } catch (error) {
+        return Response.json({ ok: false, error: String(error) });
+      }
+    }
+    if (call.call === "test-clear-marks") {
+      sql.exec("DELETE FROM due_marks").toArray();
+      return Response.json({ ok: true });
+    }
     return this.answer(request);
+  }
+
+  alarm(): Promise<void> {
+    return this.answer.alarm();
   }
 }
 
@@ -127,6 +178,6 @@ export class InvestigationCaseIndex {
 export default {
   fetch(request: Request, env: HostEnv): Promise<Response> {
     const hosted = hostedCasesFrom(env);
-    return handleWorkspaceRequest(request, env, { keySetFor, now: Date.now, routes: viewerRoutes({ env, service: hosted?.service ?? null, directory: hosted?.directory ?? null }) });
+    return handleWorkspaceRequest(request, env, { keySetFor, now: Date.now, routes: viewerRoutes({ env, service: hosted?.service ?? null, directory: hosted?.directory ?? null, commands: hosted?.commands ?? null }) });
   }
 };

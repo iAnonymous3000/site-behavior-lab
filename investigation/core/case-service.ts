@@ -28,6 +28,16 @@ import { openCase, runCommand, type CaseState, type CommandRefusal, type OpenCas
 /** The only events this seam writes. A test holds that every other type the log knows is refused. */
 export const CLAIM_EVENT_TYPES: readonly string[] = ["fact-recorded", "fact-superseded", "fact-retracted", "assertion-recorded", "assertion-retracted", "interpretation-recorded", "interpretation-reaffirmed"];
 
+/**
+ * The owner's commands a hosted case takes beside claims: what plans a case, freezes its plan,
+ * records an exception or the baseline rule, starts the next attempt, cancels, ends an attempt or
+ * the case by deadline, reconciles, and answers for an attempt's cleanup. Each is the owner's
+ * in the machine. A runner's events, a control, a changed configuration, a row and everything
+ * about a purge are not here, so this seam cannot write them. A test holds the two lists apart
+ * and holds that every other type is refused by each.
+ */
+export const OWNER_COMMAND_EVENT_TYPES: readonly string[] = ["case-planned", "plan-frozen", "exception-recorded", "baseline-rule-recorded", "attempt-started", "case-cancelled", "attempt-deadline", "case-deadline", "reconcile", "cleanup-confirmed", "cleanup-unconfirmed", "environment-destroyed"];
+
 /** How many bytes of an evidence object one page shows. */
 export const EVIDENCE_PAGE_BYTES = 32 * 1024;
 
@@ -76,6 +86,14 @@ export type EvidenceAnswer =
   | AccessAnswer
   | CaseRefusal
   | Readonly<{ ok: false; refusal: "not-named-by-this-case" | "offset-past-end" }>;
+
+/** What a command answers: a claim's answers, with its own name for an event that is no command. */
+export type CommandAnswer = Exclude<ClaimAnswer, Readonly<{ ok: false; refusal: "not-a-claim" }>> | Readonly<{ ok: false; refusal: "not-a-command" }>;
+
+/** The seam for the owner's commands. It is apart from the case service, so what serves claims alone cannot drive the machine. */
+export type CaseCommands = Readonly<{
+  command(assertion: string, caseId: string, viewedHead: string, event: LogEvent): Promise<CommandAnswer>;
+}>;
 
 export type CaseService = Readonly<{
   open(assertion: string, caseId: string): Promise<OpenAnswer>;
@@ -197,20 +215,64 @@ function pageOf(digest: string, bytes: Uint8Array, offset: number): EvidencePage
   };
 }
 
+function isEventOf(types: readonly string[], event: unknown): event is LogEvent {
+  return typeof event === "object" && event !== null && types.includes((event as { type?: unknown }).type as string);
+}
+
 function isClaimEvent(event: unknown): event is LogEvent {
-  return typeof event === "object" && event !== null && CLAIM_EVENT_TYPES.includes((event as { type?: unknown }).type as string);
+  return isEventOf(CLAIM_EVENT_TYPES, event);
+}
+
+type Opened = Readonly<{ ok: true; stores: LogStores; case: OpenCase }> | CaseRefusal;
+
+async function openedIn(world: CaseServiceWorld, caseId: string, seen: EvidenceSeen | null = null): Promise<Opened> {
+  const stores = world.storesFor(caseId);
+  if (stores === null) return NO_LOG;
+  const result = await openCase(stores, caseId, seen);
+  return result.ok ? { ok: true, stores, case: result.case } : { ok: false, refusal: result.refusal, at: result.at };
+}
+
+type Written = Exclude<ClaimAnswer, AccessAnswer | Readonly<{ ok: false; refusal: "not-a-claim" }>>;
+
+/**
+ * One event written against the head its writer viewed, by an actor already derived here. A claim
+ * and a command are both written this way, and neither any other.
+ */
+async function writeViewed(world: CaseServiceWorld, owner: OwnerActor, caseId: string, viewedHead: string, event: LogEvent): Promise<Written> {
+  const result = await openedIn(world, caseId);
+  if (!result.ok) return result;
+  // The head the writer viewed must still be the head. Otherwise what they read is not
+  // what they would be writing against, and nothing is written.
+  if (result.case.head !== viewedHead) return { ok: false, refusal: "conflict", case: viewOf(result.case) };
+  const written = await runCommand(result.stores, result.case, { actor: owner, event, now: world.now });
+  if (written.ok) return { ok: true, case: viewOf(written.case) };
+  if (written.refusal === "conflict") {
+    const current = await openedIn(world, caseId);
+    return current.ok ? { ok: false, refusal: "conflict", case: viewOf(current.case) } : current;
+  }
+  return { ok: false, refusal: written.refusal, at: written.at, case: viewOf(result.case) };
+}
+
+/**
+ * The owner's commands over the log's stores, each verified and written as a claim is: the
+ * assertion again, here, and the head the owner viewed. Only the types listed above pass.
+ */
+export function caseCommandsOver(world: CaseServiceWorld): CaseCommands {
+  return {
+    async command(assertion, caseId, viewedHead, event) {
+      const owner = await ownerFromAssertion(world, assertion);
+      if ("ok" in owner) return owner;
+      if (!isEventOf(OWNER_COMMAND_EVENT_TYPES, event)) return { ok: false, refusal: "not-a-command" };
+      return writeViewed(world, owner, caseId, viewedHead, event);
+    }
+  };
 }
 
 /** The in-process service over the log's stores. */
 export function caseServiceOver(world: CaseServiceWorld): CaseService {
   const ownerFrom = (assertion: unknown): Promise<OwnerActor | AccessAnswer> => ownerFromAssertion(world, assertion);
 
-  async function opened(caseId: string, seen: EvidenceSeen | null = null): Promise<Readonly<{ ok: true; stores: LogStores; case: OpenCase }> | CaseRefusal> {
-    const stores = world.storesFor(caseId);
-    if (stores === null) return NO_LOG;
-    const result = await openCase(stores, caseId, seen);
-    return result.ok ? { ok: true, stores, case: result.case } : { ok: false, refusal: result.refusal, at: result.at };
-  }
+  const opened = (caseId: string, seen: EvidenceSeen | null = null): Promise<Opened> => openedIn(world, caseId, seen);
 
   return {
     async open(assertion, caseId) {
@@ -243,18 +305,7 @@ export function caseServiceOver(world: CaseServiceWorld): CaseService {
       const owner = await ownerFrom(assertion);
       if ("ok" in owner) return owner;
       if (!isClaimEvent(event)) return { ok: false, refusal: "not-a-claim" };
-      const result = await opened(caseId);
-      if (!result.ok) return result;
-      // The head the writer viewed must still be the head. Otherwise what they read is not
-      // what they would be writing against, and nothing is written.
-      if (result.case.head !== viewedHead) return { ok: false, refusal: "conflict", case: viewOf(result.case) };
-      const written = await runCommand(result.stores, result.case, { actor: owner, event, now: world.now });
-      if (written.ok) return { ok: true, case: viewOf(written.case) };
-      if (written.refusal === "conflict") {
-        const current = await opened(caseId);
-        return current.ok ? { ok: false, refusal: "conflict", case: viewOf(current.case) } : current;
-      }
-      return { ok: false, refusal: written.refusal, at: written.at, case: viewOf(result.case) };
+      return writeViewed(world, owner, caseId, viewedHead, event);
     }
   };
 }

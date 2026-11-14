@@ -141,6 +141,7 @@ test("every core module is walked, including the summary tier the entry does not
     "investigation/core/case-service.ts",
     "investigation/core/case-host.ts",
     "investigation/core/case-host-stores.ts",
+    "investigation/core/case-supervision.ts",
     "investigation/core/viewer-pages.ts",
     "investigation/core/viewer-routes.ts",
     "investigation/core/viewer-text.ts",
@@ -162,7 +163,7 @@ test("the Worker's entry reaches the viewer, the case host and through them the 
     assert.ok(graph.has(`${CORE}/${file}`), file);
   }
   // The entry's two Durable Object classes run the case host, which answers the case service's calls inside an object.
-  for (const file of ["case-host.ts", "case-host-stores.ts", "case-service.ts", "ids.ts"]) assert.ok(graph.has(`${CORE}/${file}`), file);
+  for (const file of ["case-host.ts", "case-host-stores.ts", "case-supervision.ts", "case-service.ts", "ids.ts"]) assert.ok(graph.has(`${CORE}/${file}`), file);
   // The viewer still names both seams by their types alone: only the host reaches the service at run time.
   for (const viewer of ["viewer-routes.ts", "viewer-pages.ts"]) {
     const reached = graphOf([`${CORE}/${viewer}`], readProject);

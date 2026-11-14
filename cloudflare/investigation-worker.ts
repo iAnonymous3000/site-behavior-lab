@@ -15,9 +15,11 @@
 //
 // Each class below only hands its storage, its name and its environment to
 // investigation/core/case-host.ts, which holds everything an object does. Every call an
-// object takes verifies the Access assertion again, inside the object.
+// object takes verifies the Access assertion again, inside the object. A case's alarm
+// holds no assertion, and writes nothing to a case's log: it flags a deadline that came due,
+// and stops no runner, since none exists yet.
 import { AccessKeySet } from "../investigation/core/access-token";
-import { caseIndexObject, caseObject, hostedCasesFrom, type HostEnv, type HostObject } from "../investigation/core/case-host";
+import { caseIndexObject, caseObject, hostedCasesFrom, type CaseHostObject, type HostEnv, type HostObject } from "../investigation/core/case-host";
 import { viewerRoutes } from "../investigation/core/viewer-routes";
 import { handleWorkspaceRequest } from "../investigation/core/workspace-gate";
 
@@ -32,9 +34,9 @@ function keySetFor(issuer: string): AccessKeySet {
   return keySet;
 }
 
-/** One case, as its single writer. */
+/** One case, as its single writer, and the alarm that watches its deadlines. */
 export class InvestigationCase {
-  private readonly answer: HostObject;
+  private readonly answer: CaseHostObject;
 
   constructor(state: DurableObjectState, env: HostEnv) {
     this.answer = caseObject({ name: state.id.name, storage: state.storage, env, keySetFor, now: Date.now });
@@ -42,6 +44,11 @@ export class InvestigationCase {
 
   fetch(request: Request): Promise<Response> {
     return this.answer(request);
+  }
+
+  /** Flags a deadline that came due, in the object's own storage. It writes nothing to the case's log. */
+  alarm(): Promise<void> {
+    return this.answer.alarm();
   }
 }
 
@@ -61,6 +68,6 @@ export class InvestigationCaseIndex {
 export default {
   fetch(request: Request, env: HostEnv): Promise<Response> {
     const hosted = hostedCasesFrom(env);
-    return handleWorkspaceRequest(request, env, { keySetFor, now: Date.now, routes: viewerRoutes({ env, service: hosted?.service ?? null, directory: hosted?.directory ?? null }) });
+    return handleWorkspaceRequest(request, env, { keySetFor, now: Date.now, routes: viewerRoutes({ env, service: hosted?.service ?? null, directory: hosted?.directory ?? null, commands: hosted?.commands ?? null }) });
   }
 };

@@ -81,8 +81,15 @@ export type HostWorld = Readonly<{
   dispose: () => Promise<void>;
 }>;
 
+export type HostWorldOptions = Readonly<{
+  /** More bindings beside the workspace's own, such as the test entry's deadlines. */
+  bindings?: Readonly<Record<string, string>>;
+  /** A folder the objects' storage and the bucket are kept in, so a second world over it finds what the first left. */
+  persist?: string;
+}>;
+
 /** Bundle this entry, or the production entry when none is named, and serve it with the host's three bindings. */
-export async function hostWorld(entry: string | null, bundleName: string): Promise<HostWorld> {
+export async function hostWorld(entry: string | null, bundleName: string, options: HostWorldOptions = {}): Promise<HostWorld> {
   const directory = mkdtempSync(path.join(tmpdir(), "sbl-case-host-"));
   const signing = await generateSigningKey("key-1");
   const forger = await generateSigningKey("key-1");
@@ -96,7 +103,8 @@ export async function hostWorld(entry: string | null, bundleName: string): Promi
     modulesRoot: directory,
     compatibilityDate: COMPATIBILITY_DATE,
     log: new Log(LogLevel.ERROR),
-    bindings: VIEWER_ENV as Record<string, string>,
+    bindings: { ...(VIEWER_ENV as Record<string, string>), ...options.bindings },
+    ...(options.persist === undefined ? {} : { durableObjectsPersist: path.join(options.persist, "objects"), r2Persist: path.join(options.persist, "bucket") }),
     durableObjects: { [CASES_BINDING]: { className: "InvestigationCase", useSQLite: true }, [INDEX_BINDING]: { className: "InvestigationCaseIndex", useSQLite: true } },
     r2Buckets: [OBJECTS_BINDING],
     outboundService: outbound.handler

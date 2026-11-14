@@ -22,8 +22,9 @@
 
 import { aggregate, evidenceForAttempt, limitsOfReading, type AggregateGroup, type Measure } from "./aggregates";
 import { configurationKey, MAX_TEXT_CHARS } from "./case-events";
-import { continuationOf, denominatorOf, retentionOf, SLOT_NAMES, visitBasisOf, type AttemptState, type MachineState } from "./case-machine";
+import { continuationOf, denominatorOf, isRunningPhase, retentionOf, SLOT_NAMES, visitBasisOf, type AttemptState, type MachineState } from "./case-machine";
 import type { ListedCase } from "./case-host";
+import type { DueMark } from "./case-supervision";
 import type { CaseView, EvidencePage } from "./case-service";
 import { aggregateRowsOfCase, type CaseState } from "./case-store";
 import { readRow, sourceIdentityOf, type EvidenceRecord, type EvidenceRow, type Fact, type Interpretation, type RowReading, type RowWindow } from "./evidence-model";
@@ -213,10 +214,17 @@ ${interpretation.flags.length === 0 ? html`` : html`<ul>${interpretation.flags.m
 ${review}</section>`;
 }
 
-/** One case, whole: where its attempts stand, and every claim with its evidence. */
-export function casePage(view: CaseView, notice: Notice | null = null): string {
+/**
+ * One case, whole: where its attempts stand, and every claim with its evidence. A hosted case's
+ * page is also given the deadline marks an alarm has flagged, and then shows them and the owner's
+ * commands. With no marks given, as for a case that is not hosted, it shows neither.
+ */
+export function casePage(view: CaseView, notice: Notice | null = null, due: readonly DueMark[] | null = null): string {
   const { caseId, state } = view;
-  if (state === null) return documentOf(`Case ${caseId}`, caseId, html`<h1>Case ${caseId}</h1><p>This case has a log and no plan yet, so there is nothing to read.</p>`, noticeOf(notice));
+  if (state === null) {
+    const plan = due === null ? html`` : html`<h2>Plan this case</h2><p>The create that made this case stopped after its log began and before its plan was written. Planning it here writes that plan.</p>${postForm(["cases", caseId, "plan"], view.head, "Plan the case", planFields())}`;
+    return documentOf(`Case ${caseId}`, caseId, html`<h1>Case ${caseId}</h1><p>This case has a log and no plan yet, so there is nothing to read.</p>${plan}`, noticeOf(notice));
+  }
   const { machine, record } = state;
   const counts = denominatorOf(machine);
   const continuation = continuationOf(machine);
@@ -258,7 +266,7 @@ ${postForm(["cases", caseId, "facts"], view.head, "Record fact", html`${textFiel
 ${postForm(["cases", caseId, "assertions"], view.head, "Record assertion", html`${textField("id", "Assertion id")}${areaField("statement", "What was said")}`)}
 ${postForm(["cases", caseId, "interpretations"], view.head, "Record interpretation", html`${textField("id", "Interpretation id")}${areaField("statement", "Statement")}<fieldset><legend>The current facts it cites, at their current versions</legend>${currentFacts.length === 0 ? html`<span class="muted">No current facts.</span>` : currentFacts.map((fact) => html`<label><input type="checkbox" name="cite" value="${attribute(`${fact.id}:${fact.version}`)}"> ${fact.id}, version ${fact.version}</label>`)}</fieldset>`)}`;
 
-  const body = html`<h1>Case ${caseId}</h1>${overview}
+  const body = html`<h1>Case ${caseId}</h1>${due === null ? html`` : dueSection(caseId, machine, due)}${overview}
 <h2>Attempts</h2>${attempts}<h3>Denominator</h3>${denominator}
 <h2>Configurations</h2>${configurations}
 <h2>Facts</h2>${facts}
@@ -266,6 +274,7 @@ ${postForm(["cases", caseId, "interpretations"], view.head, "Record interpretati
 <h2>Assertions</h2>${assertions}
 <h2>Unknowns</h2>${unknowns}
 <h2>Objects this case keeps</h2>${keptObjects}
+${due === null ? html`` : commandSection(caseId, view, machine)}
 ${writes}`;
   return documentOf(`Case ${caseId}`, caseId, body, noticeOf(notice));
 }
@@ -399,18 +408,63 @@ function reservedAt(ms: number): string {
   return Number.isSafeInteger(ms) && Math.abs(ms) <= 8.64e15 ? new Date(ms).toISOString() : "at a time not recorded";
 }
 
-function listedRows(cases: readonly ListedCase[]): Markup {
-  return html`<table><tr><th>Case</th><th>Create started</th></tr>${cases.map(({ caseId, reservedAtMs }) => html`<tr><td>${linkTo(["cases", caseId], caseId)}</td><td>${reservedAt(reservedAtMs)}</td></tr>`)}</table>`;
+function listedRows(cases: readonly ListedCase[], releasable = false): Markup {
+  return html`<table><tr><th>Case</th><th>Create started</th>${releasable ? html`<th>Give the id back</th>` : html``}</tr>${cases.map(
+    ({ caseId, reservedAtMs }) => html`<tr><td>${linkTo(["cases", caseId], caseId)}</td><td>${reservedAt(reservedAtMs)}</td>${releasable ? html`<td><form method="post" action="${attribute(pathOf(["cases", caseId, "release"]))}"><button type="submit">Release this id</button></form></td>` : html``}</tr>`
+  )}</table>`;
+}
+
+/** The fields of a plan, for the form that makes a case and the one that plans a log with no plan. */
+function planFields(): Markup {
+  return html`<fieldset><legend>Slots the plan holds</legend>${SLOT_NAMES.map((slot) => html`<label><input type="checkbox" name="slot" value="${attribute(slot)}"> ${slot}</label>`)}</fieldset>
+<fieldset><legend>Configuration</legend>${textField("commit", "Scanner commit, 40 hex digits")}${textField("runner-image", "Runner image digest, sha256: and 64 hex digits")}${textField("rea-release", "REA release")}${textField("rea-integrity", "REA integrity, as sha256-, sha384- or sha512- and base64")}${textField("scanner-node", "Scanner Node version")}${textField("rea-node", "REA Node version")}${textField("chromium", "Chromium version")}${textField("instruments", "Instruments, separated by spaces")}${textField("grammar-version", "Grammar version, a whole number")}</fieldset>
+${areaField("fixture", `Control fixture, as text of at most ${MAX_TEXT_CHARS} characters`)}${areaField("criterion", `Control criterion, as text of at most ${MAX_TEXT_CHARS} characters`)}
+<p>The fixture and the criterion are stored as the bytes of this text in UTF-8, with each line break one line feed, and the plan names each by the digest of those bytes. Neither can be longer than ${MAX_TEXT_CHARS} characters: this workspace has no other way to store one. The attempt ids and the control run's id are minted by the workspace. This starts nothing: it records a plan.</p>`;
+}
+
+const DUE_TEXT: Readonly<Record<DueMark["kind"], string>> = {
+  "attempt-deadline": "The attempt's deadline passed.",
+  reconcile: "Reconcile is due.",
+  "case-deadline": "The case's deadline passed."
+};
+
+function atTime(ms: number): string {
+  return Number.isSafeInteger(ms) && Math.abs(ms) <= 8.64e15 ? new Date(ms).toISOString() : "a time not recorded";
+}
+
+/** What an alarm flagged, and that nothing was written for it. Each flag sits beside the command that writes it. */
+function dueSection(caseId: string, machine: MachineState, due: readonly DueMark[]): Markup {
+  if (due.length === 0) return html``;
+  return html`<div class="banner" role="alert"><strong>A deadline is due, and nothing has been written for it.</strong> An alarm flagged what is below. An alarm holds no token of yours, so it wrote nothing to this case's log, and the case still reads as it did before the deadline. Only a command you send writes it, at the time you send it. No runner exists in this workspace yet, so nothing was stopped.
+<ul>${due.map((mark) => html`<li>${DUE_TEXT[mark.kind]}${mark.slot === null ? "" : html` Slot <code>${mark.slot}</code>.`} Due ${atTime(mark.dueAtMs)}, flagged ${mark.flaggedAtMs === null ? "not yet" : atTime(mark.flaggedAtMs)}.</li>`)}</ul>
+${machine.attempts.some(({ phase }) => isRunningPhase(phase)) ? html`<p class="flag">While a flagged attempt still reads as running, the next visit cannot start. Write the attempt's deadline, or reconcile, first.</p>` : html``}
+<p>A runner that was stopped cannot answer for its own cleanup. That line is yours to write too. If you reconcile instead, the cleanup is left unconfirmed, and an unconfirmed cleanup blocks the next visit until you settle it.</p>
+<p>${linkTo(["cases", caseId], "Read the case again")} before you write, so the head your command names is the head.</p></div>`;
+}
+
+/** The owner's commands on a hosted case. Every form here is refused by the case's own rules when it does not apply, and then writes nothing. */
+function commandSection(caseId: string, view: CaseView, machine: MachineState): Markup {
+  const base = ["cases", caseId];
+  const planned = machine.attempts.filter(({ phase }) => phase === "planned");
+  const running = machine.attempts.filter(({ phase }) => isRunningPhase(phase));
+  // A cleanup can be answered for once its attempt has stopped running, and until it is settled.
+  const unsettled = machine.attempts.filter(({ phase, cleanup }) => !isRunningPhase(phase) && (cleanup === "pending" || cleanup === "unconfirmed"));
+  const next = planned[0];
+  return html`<h2>Commands</h2>
+<p>Each command is written to this case's log as yours, at the head you are viewing, and the case's own rules refuse one that does not apply. A command carries no key of its own: if an answer never reaches you, read the case again before sending the command a second time, since a second send is refused as a conflict when the first one landed. A command is refused once your sign-in has expired, so a start sent at the end of a session can be refused for that alone. Nothing here approves, publishes or exports anything, and no visit is made: this workspace has no runner yet, so a started attempt stays in <code>starting</code> until its deadline or a reconcile is written.</p>
+${machine.planDigest === null ? postForm([...base, "plan", "freeze"], view.head, "Freeze the plan", areaField("plan", `The plan, as text of at most ${MAX_TEXT_CHARS} characters`)) : html``}
+${planned.length === 0 ? html`` : postForm([...base, "exception"], view.head, "Record an exception", html`<label>Slot<select name="slot">${planned.map(({ slot }) => html`<option value="${attribute(slot)}">${slot}</option>`)}</select></label>${areaField("reason", "Reason")}<p>An exception marks the case exploratory, and nothing clears the mark.</p>`)}
+${machine.baselineRule === "pending" ? postForm([...base, "baseline-rule"], view.head, "Record the baseline rule", html`<label>Result<select name="result"><option value="met">met</option><option value="not_met">not_met</option></select></label>`) : html``}
+${next === undefined ? html`` : postForm([...base, "attempts", next.slot, "start"], view.head, `Start attempt ${next.slot}`, html``)}
+${running.map(({ slot }) => postForm([...base, "attempts", slot, "deadline"], view.head, `Write the deadline of attempt ${slot}`, html``))}
+${unsettled.map(({ slot }) => postForm([...base, "attempts", slot, "cleanup"], view.head, `Record the cleanup of attempt ${slot}`, html`<label>Cleanup<select name="cleanup"><option value="confirmed">confirmed</option><option value="unconfirmed">unconfirmed</option><option value="environment-destroyed">environment destroyed</option></select></label>`))}
+${running.length > 0 || machine.attempts.some(({ cleanup }) => cleanup === "pending") ? postForm([...base, "reconcile"], view.head, "Reconcile", html`<p>Reconcile reads a running attempt as failed with its cleanup unconfirmed, or, with none running, reads a pending cleanup as unconfirmed.</p>`) : html``}
+${machine.closedBy === null ? html`${postForm([...base, "deadline"], view.head, "Write the case's deadline", html``)}${postForm([...base, "cancel"], view.head, "Cancel the case", html``)}` : html``}`;
 }
 
 /** The form that makes a case. It carries no id: the workspace mints one. */
 function createForm(): Markup {
-  return html`<form method="post" action="${attribute(pathOf(["cases"]))}">
-<fieldset><legend>Slots the plan holds</legend>${SLOT_NAMES.map((slot) => html`<label><input type="checkbox" name="slot" value="${attribute(slot)}"> ${slot}</label>`)}</fieldset>
-<fieldset><legend>Configuration</legend>${textField("commit", "Scanner commit, 40 hex digits")}${textField("runner-image", "Runner image digest, sha256: and 64 hex digits")}${textField("rea-release", "REA release")}${textField("rea-integrity", "REA integrity, as sha256-, sha384- or sha512- and base64")}${textField("scanner-node", "Scanner Node version")}${textField("rea-node", "REA Node version")}${textField("chromium", "Chromium version")}${textField("instruments", "Instruments, separated by spaces")}${textField("grammar-version", "Grammar version, a whole number")}</fieldset>
-${areaField("fixture", `Control fixture, as text of at most ${MAX_TEXT_CHARS} characters`)}${areaField("criterion", `Control criterion, as text of at most ${MAX_TEXT_CHARS} characters`)}
-<p>The fixture and the criterion are stored as the bytes of this text in UTF-8, with each line break one line feed, and the plan names each by the digest of those bytes. The case's id, its attempt ids and its control run's id are minted by the workspace. This starts nothing: it records a plan.</p>
-<button type="submit">Create the case</button></form>`;
+  return html`<form method="post" action="${attribute(pathOf(["cases"]))}">${planFields()}<button type="submit">Create the case</button></form>`;
 }
 
 /** Every case this namespace lists, and the form that makes another. */
@@ -419,7 +473,7 @@ export function casesPage(cases: readonly ListedCase[], limit: number): string {
   const unfinished = cases.filter((listed) => !listed.created);
   const body = html`<h1>Cases</h1><p>Created: ${created.length}. This workspace lists at most ${limit} ids, counting creates that did not finish. The list is the ids this workspace minted for a create. It does not open any case, so it says nothing of what a case's log holds.</p>
 ${created.length === 0 ? html`<p class="muted">No case yet.</p>` : listedRows(created)}
-${unfinished.length === 0 ? html`` : html`<h2>Creates that did not finish</h2><p class="flag">Each id below was reserved by a create that was never marked finished. Its case may hold a whole plan, a log and no plan, or nothing. Open it to see which. Each still counts toward the ${limit}.</p>${listedRows(unfinished)}`}
+${unfinished.length === 0 ? html`` : html`<h2>Creates that did not finish</h2><p class="flag">Each id below was reserved by a create that was never marked finished. Its case may hold a whole plan, a log and no plan, or nothing. Open it to see which. Each still counts toward the ${limit}. An id whose case has no log at all can be released, which gives its place back: the case is asked first, and one that holds a log, even a log with no plan, refuses and is planned from its own page instead. A released id is never used again.</p>${listedRows(unfinished, true)}`}
 <h2>Create a case</h2>${createForm()}`;
   return documentOf("Cases", null, body);
 }
@@ -428,6 +482,12 @@ ${unfinished.length === 0 ? html`` : html`<h2>Creates that did not finish</h2><p
 export function createRefusalPage(refusal: string, at: string | null, why: string | null = null): string {
   const body = html`<h1>That case was not created</h1><p><code>${refusalName(refusal)}</code>${refusalPlace(at)}.${why === null ? "" : ` ${why}`} No case was made, and the list holds no id for it.</p><p>${linkTo(["cases"], "Back to the cases")}</p>`;
   return documentOf("Case not created", null, body);
+}
+
+/** A release that was refused, by the refusal's name. The id stays listed. */
+export function releaseRefusalPage(caseId: string, refusal: string): string {
+  const body = html`<h1>That id was not released</h1><p><code>${refusalName(refusal)}</code>. The list still holds it. A case that holds a log is not released: open it, and plan it there if it has no plan.</p><p>${linkTo(["cases", caseId], "Open the case")} ${linkTo(["cases"], "Back to the cases")}</p>`;
+  return documentOf("Id not released", null, body);
 }
 
 export function methodPage(): string {

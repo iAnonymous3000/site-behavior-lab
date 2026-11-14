@@ -49,8 +49,9 @@ const FIELDS: Readonly<Record<string, readonly (readonly [string, string])[]>> =
   "reaffirm-interpretation": [["cite", "fact-lantern-host:2"]]
 };
 
-/** The routes that name a case, which this suite walks. The list's two, which the directory answers, are held by case-directory.test.ts. */
-const CASE_ROUTES = VIEWER_ROUTES.filter(({ path }) => path.startsWith("/cases/:case/") || path === "/cases/:case");
+/** The routes that read a case or write a claim, which this suite walks. The list's two, which the directory answers, are held by case-directory.test.ts, and the owner's commands by case-commands.test.ts. */
+const COMMAND_PATH = /\/(?:plan|plan\/freeze|exception|baseline-rule|start|deadline|cleanup|reconcile|cancel|release)$/;
+const CASE_ROUTES = VIEWER_ROUTES.filter(({ path }) => (path.startsWith("/cases/:case/") || path === "/cases/:case") && !COMMAND_PATH.test(path));
 const WRITES = CASE_ROUTES.filter(({ method }) => method === "POST");
 const READS = CASE_ROUTES.filter(({ method }) => method === "GET");
 
@@ -68,6 +69,7 @@ const OWNER_ESCAPED = 'CANARY-OWNER &lt;script&gt;window.ownerRan = 1&lt;/script
 const ROUTE_TABLE = [
   "GET /cases",
   "POST /cases",
+  "POST /cases/:case/release",
   "GET /cases/:case",
   "GET /cases/:case/attempts/:slot",
   "GET /cases/:case/attempts/:slot/rows/:row",
@@ -80,10 +82,20 @@ const ROUTE_TABLE = [
   "POST /cases/:case/assertions",
   "POST /cases/:case/assertions/:assertion/retract",
   "POST /cases/:case/interpretations",
-  "POST /cases/:case/interpretations/:interpretation/reaffirm"
+  "POST /cases/:case/interpretations/:interpretation/reaffirm",
+  "POST /cases/:case/plan",
+  "POST /cases/:case/plan/freeze",
+  "POST /cases/:case/exception",
+  "POST /cases/:case/baseline-rule",
+  "POST /cases/:case/attempts/:slot/start",
+  "POST /cases/:case/attempts/:slot/deadline",
+  "POST /cases/:case/attempts/:slot/cleanup",
+  "POST /cases/:case/reconcile",
+  "POST /cases/:case/deadline",
+  "POST /cases/:case/cancel"
 ];
 
-/** Addresses no route may answer: what drives the machine, purges, approves, publishes, exports or downloads, and malformed ids. */
+/** Addresses no route may answer: what writes a runner's event or a control, purges, approves, publishes, exports or downloads, and malformed ids. The owner's commands have routes of their own, held by case-commands.test.ts. */
 const NOT_ROUTES = [
   "/",
   "/cases/",
@@ -98,13 +110,13 @@ const NOT_ROUTES = [
   `${CASE}/summary`,
   `${CASE}/log`,
   `${CASE}/head`,
-  `${CASE}/plan`,
   `${CASE}/start`,
-  `${CASE}/attempts/B1/start`,
-  `${CASE}/attempts/B1/deadline`,
-  `${CASE}/deadline`,
-  `${CASE}/cancel`,
-  `${CASE}/exception`,
+  `${CASE}/freeze`,
+  `${CASE}/attempts/B1/retry`,
+  `${CASE}/attempts/B1/finish`,
+  `${CASE}/attempts/B1/capture`,
+  `${CASE}/attempts/B1/evidence`,
+  `${CASE}/configuration`,
   `${CASE}/rule`,
   `${CASE}/control`,
   `${CASE}/unknowns`,
@@ -126,7 +138,7 @@ const NOT_ROUTES = [
 
 const METHODS = ["GET", "HEAD", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"];
 
-const CLOSED = "the viewer answers exactly its route table, by the method each route names, and nothing that approves, publishes, exports, downloads, purges or drives the machine";
+const CLOSED = "the viewer answers exactly its route table, by the method each route names, and nothing that approves, publishes, exports, downloads, purges or writes what only a runner or a control run may";
 
 async function checkRouteSet(routes: typeof VIEWER_ROUTES, options: WorldOptions): Promise<void> {
   holds(CLOSED, JSON.stringify(routes.map(({ method, path }) => `${method} ${path}`)) === JSON.stringify(ROUTE_TABLE), () => routes);
@@ -149,7 +161,7 @@ async function checkRouteSet(routes: typeof VIEWER_ROUTES, options: WorldOptions
   holds(CLOSED, storedHead(world) === head, () => "a probe wrote to the log");
 }
 
-test("ruling 2: the route table is exactly these, served by its own methods, and nothing approves, publishes, exports, downloads, purges or drives the machine", async () => {
+test("ruling 2: the route table is exactly these, served by its own methods, and nothing approves, publishes, exports, downloads, purges or writes what only a runner or a control run may", async () => {
   await checkRouteSet(VIEWER_ROUTES, {});
   const routesPath = require.resolve("../core/viewer-routes");
   const added = (route: string) => loadVariant<typeof viewerRoutesModule>(routesPath, [{ find: '    { name: "case", method: "GET", path: "/cases/:case" },', replace: `    { name: "case", method: "GET", path: "/cases/:case" },\n    ${route},` }]);

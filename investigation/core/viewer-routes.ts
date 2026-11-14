@@ -4,24 +4,29 @@
 //
 // Reads: the list of cases, a case, one attempt, one row inside its attempt, one fact, the counts
 // across attempts, and one page of an evidence object the case names. Writes: a new case, through
-// the directory, which mints its id, so no route takes an id for one; and claims, each through
-// the case service, which takes only claim events. There is no route that starts, deadlines,
-// cancels, excepts or rules anything, nor one that plans a case that exists, which belongs with
-// the runner; none that purges or lists a manifest, which W2's open items block; and none that
-// approves, publishes, exports or downloads anything. Revising or withdrawing an interpretation is not in W2's model,
+// the directory, which mints its id, so no route takes an id for one; the release of a reserved
+// id whose case holds no log, through the directory too; claims, each through the
+// case service, which takes only claim events; and the owner's commands, each through the
+// commands seam, which takes only the events case-service.ts lists as commands. Those plan a case
+// whose create stopped short, freeze a plan, record an exception or the baseline rule, start the
+// next attempt, cancel, write an attempt's or the case's deadline, reconcile, and answer for an
+// attempt's cleanup. No route writes a runner's event, a control or a changed configuration; none
+// purges or lists a manifest, which W2's open items block; and none approves, publishes, exports
+// or downloads anything. Revising or withdrawing an interpretation is not in W2's model,
 // so it is not here either.
 //
 // The gate has already verified the owner, refused a service token, and refused a write from any
 // origin but this one. With no case service configured, every case route answers 503, as a missing
 // configuration does, and nothing else is reachable but health. The two routes of the list answer
-// 503 the same way with no directory.
+// 503 the same way with no directory, and the command routes with no commands seam.
 
 import { isSlug, MAX_LIST_ITEMS, MAX_SLUG_CHARS, MAX_TEXT_CHARS } from "./case-events";
-import type { CaseDirectory, NewCasePlan } from "./case-host";
+import type { CaseDirectory, HostedCommands, NewCasePlan, PlanAnswer } from "./case-host";
 import { isCaseId, isDigest, type LogEvent } from "./case-log";
 import { SLOT_NAMES } from "./case-machine";
-import type { AccessAnswer, CaseRefusal, CaseService } from "./case-service";
-import { aggregatesPage, attemptPage, casePage, casesPage, createRefusalPage, evidencePage, evidenceRefusalPage, factPage, formRefusalPage, methodPage, notFoundPage, refusalPage, rowPage } from "./viewer-pages";
+import type { AccessAnswer, CaseRefusal, CaseService, CommandAnswer } from "./case-service";
+import { isDueMark } from "./case-supervision";
+import { aggregatesPage, attemptPage, casePage, casesPage, createRefusalPage, evidencePage, evidenceRefusalPage, factPage, formRefusalPage, methodPage, notFoundPage, refusalPage, releaseRefusalPage, rowPage } from "./viewer-pages";
 import { pathOf } from "./viewer-text";
 import { HEALTH_PATH, healthResponse, type WorkspaceEnv, type WorkspaceRoutes } from "./workspace-gate";
 import { htmlResponse, refusalResponse } from "./workspace-response";
@@ -32,6 +37,7 @@ type Param = "case" | "slot" | "row" | "fact" | "assertion" | "interpretation" |
 export const VIEWER_ROUTES = [
   { name: "cases", method: "GET", path: "/cases" },
   { name: "create-case", method: "POST", path: "/cases" },
+  { name: "release-case", method: "POST", path: "/cases/:case/release" },
   { name: "case", method: "GET", path: "/cases/:case" },
   { name: "attempt", method: "GET", path: "/cases/:case/attempts/:slot" },
   { name: "row", method: "GET", path: "/cases/:case/attempts/:slot/rows/:row" },
@@ -44,7 +50,17 @@ export const VIEWER_ROUTES = [
   { name: "record-assertion", method: "POST", path: "/cases/:case/assertions" },
   { name: "retract-assertion", method: "POST", path: "/cases/:case/assertions/:assertion/retract" },
   { name: "record-interpretation", method: "POST", path: "/cases/:case/interpretations" },
-  { name: "reaffirm-interpretation", method: "POST", path: "/cases/:case/interpretations/:interpretation/reaffirm" }
+  { name: "reaffirm-interpretation", method: "POST", path: "/cases/:case/interpretations/:interpretation/reaffirm" },
+  { name: "plan-case", method: "POST", path: "/cases/:case/plan" },
+  { name: "freeze-plan", method: "POST", path: "/cases/:case/plan/freeze" },
+  { name: "record-exception", method: "POST", path: "/cases/:case/exception" },
+  { name: "record-baseline-rule", method: "POST", path: "/cases/:case/baseline-rule" },
+  { name: "start-attempt", method: "POST", path: "/cases/:case/attempts/:slot/start" },
+  { name: "attempt-deadline", method: "POST", path: "/cases/:case/attempts/:slot/deadline" },
+  { name: "attempt-cleanup", method: "POST", path: "/cases/:case/attempts/:slot/cleanup" },
+  { name: "reconcile", method: "POST", path: "/cases/:case/reconcile" },
+  { name: "case-deadline", method: "POST", path: "/cases/:case/deadline" },
+  { name: "cancel-case", method: "POST", path: "/cases/:case/cancel" }
 ] as const;
 
 type RouteName = (typeof VIEWER_ROUTES)[number]["name"];
@@ -80,8 +96,10 @@ const VERSION = /^[1-9][0-9]{0,8}$/;
 
 type Params = Readonly<Partial<Record<Param, string>>>;
 /** The routes of the list, which name no case and are answered by the directory. Every other route names one. */
-const DIRECTORY_ROUTES: readonly RouteName[] = ["cases", "create-case"];
-type Context = Readonly<{ request: Request; url: URL; params: Params; service: CaseService; directory: CaseDirectory | null; assertion: string; caseId: string }>;
+const DIRECTORY_ROUTES: readonly RouteName[] = ["cases", "create-case", "release-case"];
+/** The owner's commands, which the commands seam answers. */
+const COMMAND_ROUTES: readonly RouteName[] = ["plan-case", "freeze-plan", "record-exception", "record-baseline-rule", "start-attempt", "attempt-deadline", "attempt-cleanup", "reconcile", "case-deadline", "cancel-case"];
+type Context = Readonly<{ request: Request; url: URL; params: Params; service: CaseService; directory: CaseDirectory | null; commands: HostedCommands | null; assertion: string; caseId: string }>;
 type Handler = (context: Context) => Promise<Response>;
 
 function matchPath(pattern: string, pathname: string): Params | null {
@@ -132,8 +150,8 @@ const WHOLE_NUMBER = /^(?:0|[1-9][0-9]{0,8})$/;
 /** A new case's plan from the create form. The form has no field for an id, and one sent anyway is refused with the rest it does not know. */
 const PLAN_FIELDS = ["slot", "commit", "runner-image", "rea-release", "rea-integrity", "scanner-node", "rea-node", "chromium", "instruments", "grammar-version", "fixture", "criterion"];
 
-function planOf(form: URLSearchParams): NewCasePlan {
-  for (const name of form.keys()) if (!PLAN_FIELDS.includes(name)) throw new FormFault("malformed-form", null, 400, "The form held a field a new case does not take.");
+function planOf(form: URLSearchParams, also: readonly string[] = []): NewCasePlan {
+  for (const name of form.keys()) if (!PLAN_FIELDS.includes(name) && !also.includes(name)) throw new FormFault("malformed-form", null, 400, "The form held a field a new case does not take.");
   const grammarVersion = one(form, "grammar-version").trim();
   if (!WHOLE_NUMBER.test(grammarVersion)) throw new FormFault("malformed-form", "grammar-version", 400);
   const field = (name: string): string => one(form, name).trim();
@@ -254,7 +272,74 @@ function claimRoute(build: (form: URLSearchParams, params: Params, caseId: strin
 
 const event = (type: string, data: Record<string, unknown>): LogEvent => ({ type, data }) as unknown as LogEvent;
 
+/** What a plan or a freeze is refused for before any command is tried: the text or the fields given, or an object the store would not take. */
+const PLAN_REFUSALS: readonly string[] = ["malformed-plan", "evidence-too-large", "object-collision"];
+
+/** One command's answer as a response. A command that is written sends the owner back to the case. */
+function commandAnswered(caseId: string, answer: CommandAnswer | PlanAnswer): Response {
+  if (answer.ok) return htmlResponse(303, "", { location: pathOf(["cases", caseId]) });
+  if (answer.refusal === "not-a-command") return htmlResponse(400, formRefusalPage(caseId, answer.refusal, null));
+  if ("case" in answer) {
+    // Nothing was written. The page is the case as it stands, with why.
+    if (answer.refusal === "conflict") return htmlResponse(409, casePage(answer.case, { kind: "conflict" }));
+    return htmlResponse(422, casePage(answer.case, { kind: "refused", refusal: answer.refusal, at: answer.at }));
+  }
+  if ("at" in answer && PLAN_REFUSALS.includes(answer.refusal)) return htmlResponse(422, formRefusalPage(caseId, answer.refusal, answer.at));
+  return answerRefused(caseId, answer as AccessAnswer | CaseRefusal);
+}
+
+/** A command's form, read, and sent through the commands seam with the head the owner viewed. */
+function commandRoute(send: (commands: HostedCommands, context: Context, head: string, form: URLSearchParams) => Promise<CommandAnswer | PlanAnswer>, fields: readonly string[] = []): Handler {
+  return async (context) => {
+    let form: URLSearchParams;
+    let head: string;
+    try {
+      form = await readForm(context.request);
+      head = one(form, "head");
+      if (!isDigest(head)) throw new FormFault("malformed-form", "head", 400);
+      // A command's form holds its own fields and the head. Anything else is refused, not ignored.
+      for (const name of form.keys()) if (name !== "head" && !fields.includes(name)) throw new FormFault("malformed-form", null, 400, "The form held a field this command does not take.");
+      return commandAnswered(context.caseId, await send(context.commands as HostedCommands, context, head, form));
+    } catch (error) {
+      if (error instanceof FormFault) return htmlResponse(error.status, formRefusalPage(context.caseId, error.refusal, error.field, error.why));
+      throw error;
+    }
+  };
+}
+
+/** A command that is one event with no field of its own, or only the slot its path names. */
+const plainCommand = (type: string, withSlot: boolean): Handler => commandRoute((commands, context, head) => commands.command(context.assertion, context.caseId, head, event(type, withSlot ? { slot: context.params.slot } : {})));
+
+const CLEANUP_EVENTS: ReadonlyMap<string, string> = new Map([["confirmed", "cleanup-confirmed"], ["unconfirmed", "cleanup-unconfirmed"], ["environment-destroyed", "environment-destroyed"]]);
+
 const HANDLERS: Readonly<Record<RouteName, Handler>> = {
+  "release-case": async (context) => {
+    // The form holds nothing: the id is the path's, and no head exists for a case with no log.
+    try {
+      for (const name of (await readForm(context.request)).keys()) if (name !== undefined) throw new FormFault("malformed-form", null, 400, "A release takes no field.");
+    } catch (error) {
+      if (error instanceof FormFault) return htmlResponse(error.status, createRefusalPage(error.refusal, error.field, error.why));
+      throw error;
+    }
+    const answer = await (context.directory as CaseDirectory).release(context.assertion, context.caseId);
+    if (answer.ok) return htmlResponse(303, "", { location: pathOf(["cases"]) });
+    if (!("at" in answer)) return answerRefused("", answer);
+    return htmlResponse(422, releaseRefusalPage(context.caseId, answer.refusal));
+  },
+  "plan-case": commandRoute((commands, context, head, form) => commands.plan(context.assertion, context.caseId, head, planOf(form, ["head"])), PLAN_FIELDS),
+  "freeze-plan": commandRoute((commands, context, head, form) => commands.freeze(context.assertion, context.caseId, head, one(form, "plan")), ["plan"]),
+  "record-exception": commandRoute((commands, context, head, form) => commands.command(context.assertion, context.caseId, head, event("exception-recorded", { slot: one(form, "slot"), reason: one(form, "reason") })), ["slot", "reason"]),
+  "record-baseline-rule": commandRoute((commands, context, head, form) => commands.command(context.assertion, context.caseId, head, event("baseline-rule-recorded", { result: one(form, "result") })), ["result"]),
+  "start-attempt": plainCommand("attempt-started", true),
+  "attempt-deadline": plainCommand("attempt-deadline", true),
+  "attempt-cleanup": commandRoute((commands, context, head, form) => {
+    const type = CLEANUP_EVENTS.get(one(form, "cleanup"));
+    if (type === undefined) throw new FormFault("malformed-form", "cleanup", 400);
+    return commands.command(context.assertion, context.caseId, head, event(type, { slot: context.params.slot }));
+  }, ["cleanup"]),
+  reconcile: plainCommand("reconcile", false),
+  "case-deadline": plainCommand("case-deadline", false),
+  "cancel-case": plainCommand("case-cancelled", false),
   cases: async (context) => {
     const answer = await (context.directory as CaseDirectory).list(context.assertion);
     // The list refuses only for the assertion or for an outage, and answers as a case does for either.
@@ -273,7 +358,14 @@ const HANDLERS: Readonly<Record<RouteName, Handler>> = {
     if (!("at" in answer)) return answerRefused("", answer);
     return htmlResponse(422, createRefusalPage(answer.refusal, answer.at));
   },
-  case: (context) => withCase(context, (view) => casePage(view)),
+  case: async (context) => {
+    const answer = await context.service.open(context.assertion, context.caseId);
+    if (!answer.ok) return answerRefused(context.caseId, answer);
+    // A hosted case answers with the deadline marks an alarm has flagged. Each is held to a mark's shape before a page shows it,
+    // and with no commands seam the page shows neither marks nor commands.
+    const due = (answer as { due?: unknown }).due;
+    return htmlResponse(200, casePage(answer.case, null, context.commands !== null && Array.isArray(due) ? due.filter(isDueMark) : null));
+  },
   attempt: (context) => withCase(context, (view) => attemptPage(view, context.params.slot as string)),
   row: (context) => withCase(context, (view) => rowPage(view, context.params.slot as string, context.params.row as string)),
   fact: (context) => withCase(context, (view) => factPage(view, context.params.fact as string)),
@@ -307,10 +399,10 @@ const HANDLERS: Readonly<Record<RouteName, Handler>> = {
   "reaffirm-interpretation": claimRoute((form, params, caseId) => ({ event: event("interpretation-reaffirmed", { interpretation: params.interpretation, cites: citesOf(form) }), then: ["cases", caseId] }))
 };
 
-export type ViewerOptions = Readonly<{ env: WorkspaceEnv; service: CaseService | null; directory?: CaseDirectory | null }>;
+export type ViewerOptions = Readonly<{ env: WorkspaceEnv; service: CaseService | null; directory?: CaseDirectory | null; commands?: HostedCommands | null }>;
 
 /** The viewer's route table as the gate calls it. With no service, every case route fails closed, and with no directory the list's two do. */
-export function viewerRoutes({ env, service, directory = null }: ViewerOptions): WorkspaceRoutes {
+export function viewerRoutes({ env, service, directory = null, commands = null }: ViewerOptions): WorkspaceRoutes {
   return async (request, _identity, assertion) => {
     const url = new URL(request.url);
     // Health says whether any case can be reached: deny-all with no service, as the production entry has.
@@ -323,8 +415,10 @@ export function viewerRoutes({ env, service, directory = null }: ViewerOptions):
     if (service === null) return refusalResponse(503);
     // The list's routes are the directory's. With none they answer as a case route does with no service.
     if (directory === null && matches.some(({ route }) => DIRECTORY_ROUTES.includes(route.name))) return refusalResponse(503);
+    // The owner's commands are the commands seam's. With none they answer the same way.
+    if (commands === null && matches.some(({ route }) => COMMAND_ROUTES.includes(route.name))) return refusalResponse(503);
     const match = matches.find(({ route }) => route.method === request.method);
     if (match === undefined) return htmlResponse(405, methodPage(), { allow: [...new Set(matches.map(({ route }) => route.method))].join(", ") });
-    return HANDLERS[match.route.name]({ request, url, params: match.params, service, directory, assertion, caseId: match.params.case as string });
+    return HANDLERS[match.route.name]({ request, url, params: match.params, service, directory, commands, assertion, caseId: match.params.case as string });
   };
 }

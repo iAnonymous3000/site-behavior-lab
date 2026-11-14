@@ -25,13 +25,36 @@
 // The plan's fixture and criterion arrive as text and are stored as this case's first two
 // objects, at the digests the plan then names. Each is bounded as an owner's text is.
 //
-// There is no call here that plans a case after a kill, starts, deadlines, cancels, excepts,
-// rules, purges or deletes, and no alarm.
+// A case object also takes the owner's commands: the plan of a case whose create stopped after
+// its log began, the freeze of a plan, and the events case-service.ts lists as commands. A plan's
+// ids are minted here, and a frozen plan's digest is worked out here from the text stored, so
+// neither event is taken ready made. Each command is written against the head the owner viewed,
+// as a claim is. No command carries a key of its own, so a command sent again after an answer
+// that never arrived is refused as a conflict when the first one landed: the case handed back
+// with that refusal is how the owner learns it did.
+//
+// The object watches its case's deadlines with an alarm, which writes nothing to the log:
+// case-supervision.ts says what it does and why. Every answer that carries a case's state has
+// brought the marks back to that state first.
+//
+// A reservation can be stranded with no log behind it: a create whose assertion expired between
+// the list's reserve and the case's create is refused by the case, and the release that follows
+// carries the same expired assertion, so the list refuses that too. The owner can give such a
+// place back. The case's object is asked first, and answers only when it holds no log: it then
+// marks itself abandoned, in its own storage, and from then on refuses to start a log, so a
+// create that was still on its way cannot land on an id the list no longer holds. Only then is
+// the list asked to release, and the list releases only a reservation never marked created. A
+// case with a log, even one with no entry, is never released this way: it is planned instead.
+// Objects a stopped create stored under an abandoned id stay in the bucket, named by nothing.
+//
+// There is no call here that purges or deletes, none that writes a runner's event, a control
+// or a changed configuration, and no runner: stopping one is a seam nothing fills yet.
 
 import { sha256Hex } from "./canonical-json";
 import { configurationKey, isConfigurationIdentity, MAX_TEXT_CHARS, type ConfigurationIdentity } from "./case-events";
 import { MAX_HEAD_CHARS, putEvidence, type LogEvent } from "./case-log";
-import { caseServiceOver, ownerFromAssertion, type AccessAnswer, type AccessWorld, type CaseRefusal, type CaseService, type CaseView, type ClaimAnswer, type EvidenceAnswer, type OpenAnswer } from "./case-service";
+import { caseCommandsOver, caseServiceOver, ownerFromAssertion, type AccessAnswer, type AccessWorld, type CaseRefusal, type CaseService, type CaseView, type ClaimAnswer, type CommandAnswer, type EvidenceAnswer, type OpenAnswer } from "./case-service";
+import { DEFAULT_DEADLINES, isAlarmStorage, supervisionOver, type Deadlines, type DueMark } from "./case-supervision";
 import { createCase, mintedSlots } from "./case-store";
 import { hostedStores, isHostBucket, isHostStorage } from "./case-host-stores";
 import { mintAttemptId, mintCaseId } from "./ids";
@@ -69,9 +92,13 @@ export type ListedCase = Readonly<{ caseId: string; reservedAtMs: number; create
 export type ListAnswer = Readonly<{ ok: true; cases: readonly ListedCase[]; limit: number }> | AccessAnswer;
 
 /** The seam for the two things no single case answers: making a new one, and listing those there are. */
+export type ReleaseAnswer = Readonly<{ ok: true }> | AccessAnswer | Readonly<{ ok: false; refusal: string; at: string | null }>;
+
+/** The seam for what no single case answers: making a new one, listing those there are, and giving back a reserved id whose case has no log. */
 export type CaseDirectory = Readonly<{
   create(assertion: string, plan: NewCasePlan): Promise<CreateAnswer>;
   list(assertion: string): Promise<ListAnswer>;
+  release(assertion: string, caseId: string): Promise<ReleaseAnswer>;
 }>;
 
 export type HostObjectWorld = Readonly<{
@@ -82,9 +109,31 @@ export type HostObjectWorld = Readonly<{
   env: HostEnv;
   keySetFor: AccessWorld["keySetFor"];
   now: () => number;
+  /** How long each deadline runs. The defaults of case-supervision.ts unless a test sets its own. */
+  deadlines?: Deadlines;
+  /** Stops the runner of one slot's attempt. No runner exists yet, so the production entry gives none and nothing is stopped. */
+  stopRunner?: (slot: SlotName) => Promise<void>;
 }>;
 
 export type HostObject = (request: Request) => Promise<Response>;
+
+/** A case's object: its calls, and what its alarm runs. */
+export type CaseHostObject = HostObject & Readonly<{ alarm: () => Promise<void> }>;
+
+/** An open as a hosted case answers it: the case, and the deadline marks an alarm has flagged that its state still wants. */
+export type HostedOpenAnswer = OpenAnswer | Readonly<{ ok: true; case: CaseView; due: readonly DueMark[] }>;
+
+/** What planning or freezing answers: a command's answers, or the field of the plan that is wrong. */
+export type PlanAnswer = CommandAnswer | Readonly<{ ok: false; refusal: string; at: string | null }>;
+
+/** The seam for the owner's commands on a hosted case. */
+export type HostedCommands = Readonly<{
+  command(assertion: string, caseId: string, viewedHead: string, event: LogEvent): Promise<CommandAnswer>;
+  /** Plan a case whose log holds no plan. The ids are minted where the plan is written. */
+  plan(assertion: string, caseId: string, viewedHead: string, plan: NewCasePlan): Promise<PlanAnswer>;
+  /** Freeze the plan as this text, stored as an object the plan then names. */
+  freeze(assertion: string, caseId: string, viewedHead: string, text: string): Promise<PlanAnswer>;
+}>;
 
 const UNAVAILABLE: AccessAnswer = Object.freeze({ ok: false, refusal: "unavailable" });
 const NO_LOG: CaseRefusal = Object.freeze({ ok: false, refusal: "head-missing", at: null });
@@ -139,18 +188,92 @@ async function checkedPlan(plan: unknown): Promise<Readonly<{ ok: true; slots: r
 
 type CaseCreateAnswer = Readonly<{ ok: true; case: CaseView }> | AccessAnswer | Readonly<{ ok: false; refusal: string; at: string | null; logStarted: boolean }>;
 
-/** One case's object: the three calls of the case service, and the one that makes this case. */
-export function caseObject(world: HostObjectWorld): HostObject {
+/** The events the generic command call writes. A plan and a freeze are built here, by their own calls, and never taken ready made. */
+const BUILT_HERE: readonly string[] = ["case-planned", "plan-frozen"];
+
+/** One case's object: the three calls of the case service, the one that makes this case, the owner's commands, and its alarm. */
+export function caseObject(world: HostObjectWorld): CaseHostObject {
   const config = workspaceConfigFrom(world.env);
   const { name, storage } = world;
   const bucket = world.env.INVESTIGATION_OBJECTS;
-  if (config === null || !isHostedCaseId(name) || !isHostStorage(storage) || !isHostBucket(bucket)) return unavailableObject;
+  // An object that serves nothing watches nothing: its alarm, if one is ever delivered, does nothing.
+  if (config === null || !isHostedCaseId(name) || !isHostStorage(storage) || !isAlarmStorage(storage) || !isHostBucket(bucket)) return Object.assign(((request: Request) => unavailableObject(request)) as HostObject, { alarm: async () => {} });
 
   const named: string = name;
-  const stores = hostedStores(storage, bucket, named);
+  const own = storage;
+  own.sql.exec("CREATE TABLE IF NOT EXISTS abandoned (slot INTEGER PRIMARY KEY CHECK (slot = 0), at_ms INTEGER NOT NULL)").toArray();
+  const isAbandoned = (): boolean => own.sql.exec("SELECT slot FROM abandoned").toArray().length > 0;
+  const hosted = hostedStores(own, bucket, named);
+  // An abandoned case never starts a log. The mark is read and the head written with no await between, so neither can slip past the other.
+  const stores = Object.freeze({ ...hosted, head: { read: hosted.head.read, compareAndSwap: async (expected: string | null, next: string): Promise<boolean> => (expected === null && isAbandoned() ? false : hosted.head.compareAndSwap(expected, next)) } });
+
+  /** Mark this case abandoned, if it holds no log. Asked again of an abandoned case, it answers the same. */
+  async function abandon(assertion: unknown, caseId: unknown): Promise<ReleaseAnswer> {
+    const owner = await ownerFromAssertion(access, assertion);
+    if ("ok" in owner) return owner;
+    if (caseId !== name) return NO_LOG;
+    const atMs = world.now();
+    return own.transactionSync<ReleaseAnswer>(() => {
+      // Whether a log exists is read from the head's own row, in the same step as the mark is written.
+      if (own.sql.exec("SELECT slot FROM log_head").toArray().length > 0) return { ok: false, refusal: "log-exists", at: null };
+      own.sql.exec("INSERT INTO abandoned (slot, at_ms) VALUES (0, ?) ON CONFLICT (slot) DO NOTHING", atMs).toArray();
+      return { ok: true };
+    });
+  }
   const access: AccessWorld = { policy: config.policy, keySetFor: world.keySetFor, now: world.now };
   // Only this object's own case has stores here. Any other id reads as a log never created.
-  const service = caseServiceOver({ ...access, storesFor: (caseId) => (caseId === name ? stores : null) });
+  const serviceWorld = { ...access, storesFor: (caseId: string) => (caseId === name ? stores : null) };
+  const service = caseServiceOver(serviceWorld);
+  const commands = caseCommandsOver(serviceWorld);
+  const supervision = supervisionOver({ storage, now: world.now, deadlines: world.deadlines ?? DEFAULT_DEADLINES, stopRunner: world.stopRunner ?? (async () => {}) });
+
+  /** Bring the deadline marks to the state an answer carries, when it carries one. */
+  async function synced<A>(answer: A): Promise<A> {
+    const view = (answer as { case?: CaseView }).case;
+    if (view !== undefined) await supervision.sync(view.state?.machine ?? null);
+    return answer;
+  }
+
+  async function open(assertion: string, caseId: string): Promise<HostedOpenAnswer> {
+    const answer = await synced(await service.open(assertion, caseId));
+    return answer.ok ? { ...answer, due: supervision.flagged(answer.case.state?.machine ?? null) } : answer;
+  }
+
+  /** One of the owner's commands, with an attempt's marks written ahead of the command that starts it. */
+  async function command(assertion: string, caseId: string, viewedHead: string, event: LogEvent): Promise<CommandAnswer> {
+    const slot = (event as { data?: { slot?: unknown } } | null)?.data?.slot;
+    if ((event as { type?: unknown } | null)?.type === "attempt-started" && caseId === name && (SLOT_NAMES as readonly unknown[]).includes(slot)) {
+      const owner = await ownerFromAssertion(access, assertion);
+      if ("ok" in owner) return owner;
+      await supervision.prepareStart(slot as SlotName);
+    }
+    return synced(await commands.command(assertion, caseId, viewedHead, event));
+  }
+
+  async function plan(assertion: string, caseId: string, viewedHead: string, given: unknown): Promise<PlanAnswer> {
+    const owner = await ownerFromAssertion(access, assertion);
+    if ("ok" in owner) return owner;
+    if (caseId !== name) return NO_LOG;
+    const checked = await checkedPlan(given);
+    if (!checked.ok) return checked;
+    for (const bytes of checked.objects) {
+      const put = await putEvidence(stores, bytes);
+      if (!put.ok) return { ok: false, refusal: put.refusal, at: put.at ?? null };
+    }
+    const event = { type: "case-planned", data: { slots: mintedSlots(checked.slots), controlRunId: mintAttemptId(), configuration: checked.configuration } } as unknown as LogEvent;
+    return synced(await commands.command(assertion, caseId, viewedHead, event));
+  }
+
+  async function freeze(assertion: string, caseId: string, viewedHead: string, text: unknown): Promise<PlanAnswer> {
+    const owner = await ownerFromAssertion(access, assertion);
+    if ("ok" in owner) return owner;
+    if (caseId !== name) return NO_LOG;
+    const bytes = textBytes(text);
+    if (bytes === null) return { ok: false, refusal: "malformed-plan", at: "plan" };
+    const put = await putEvidence(stores, bytes);
+    if (!put.ok) return { ok: false, refusal: put.refusal, at: put.at ?? null };
+    return synced(await commands.command(assertion, caseId, viewedHead, { type: "plan-frozen", data: { planDigest: put.digest } }));
+  }
   const logStarted = async (): Promise<boolean> => (await stores.head.read(MAX_HEAD_CHARS)) !== null;
 
   async function create(assertion: unknown, caseId: unknown, plan: unknown): Promise<CaseCreateAnswer> {
@@ -158,6 +281,7 @@ export function caseObject(world: HostObjectWorld): HostObject {
     if ("ok" in owner) return owner;
     // The id of a new case is this object's own name, which has the minted shape. A slug, or another case's id, is refused.
     if (caseId !== name) return { ok: false, refusal: "case-id-not-minted", at: null, logStarted: false };
+    if (isAbandoned()) return { ok: false, refusal: "case-abandoned", at: null, logStarted: false };
     const checked = await checkedPlan(plan);
     if (!checked.ok) return { ...checked, logStarted: false };
     // Asked before anything is stored, so a second create of a case leaves the first one's objects alone.
@@ -171,24 +295,40 @@ export function caseObject(world: HostObjectWorld): HostObject {
     return { ok: false, refusal: created.refusal, at: created.at, logStarted: await logStarted() };
   }
 
-  return async (request) => {
+  const answer: HostObject = async (request) => {
     const call = await callOf(request);
     if (call === null) return jsonResponse(400, MALFORMED_CALL);
     const assertion = call.assertion as string;
     const caseId = call.caseId as string;
+    const viewedHead = call.viewedHead as string;
     switch (call.call) {
       case "open":
-        return jsonResponse(200, await service.open(assertion, caseId));
+        return jsonResponse(200, await open(assertion, caseId));
       case "evidence":
         return jsonResponse(200, await service.evidence(assertion, caseId, call.digest as string, call.offset as number));
       case "claim":
-        return jsonResponse(200, await service.claim(assertion, caseId, call.viewedHead as string, call.event as LogEvent));
+        return jsonResponse(200, await synced(await service.claim(assertion, caseId, viewedHead, call.event as LogEvent)));
       case "create":
-        return jsonResponse(200, await create(assertion, caseId, call.plan));
+        return jsonResponse(200, await synced(await create(assertion, caseId, call.plan)));
+      case "command":
+        // A plan or a freeze sent ready made is refused as no command, before the assertion is even read.
+        if (BUILT_HERE.includes((call.event as { type?: unknown } | null)?.type as string)) return jsonResponse(200, { ok: false, refusal: "not-a-command" });
+        return jsonResponse(200, await command(assertion, caseId, viewedHead, call.event as LogEvent));
+      case "plan":
+        return jsonResponse(200, await plan(assertion, caseId, viewedHead, call.plan));
+      case "freeze":
+        return jsonResponse(200, await freeze(assertion, caseId, viewedHead, call.text));
+      case "abandon":
+        return jsonResponse(200, await abandon(assertion, caseId));
       default:
         return jsonResponse(400, MALFORMED_CALL);
     }
   };
+  return Object.assign(answer, {
+    alarm: async () => {
+      await supervision.alarm();
+    }
+  });
 }
 
 type IndexAnswer = Readonly<{ ok: true }> | AccessAnswer | Readonly<{ ok: false; refusal: "malformed-case-id" | "index-full" | "case-id-taken" | "not-reserved"; at: null }>;
@@ -269,7 +409,7 @@ async function callObject(namespace: HostNamespace, name: string, body: Readonly
   }
 }
 
-export type HostedCases = Readonly<{ service: CaseService; directory: CaseDirectory }>;
+export type HostedCases = Readonly<{ service: CaseService; directory: CaseDirectory; commands: HostedCommands }>;
 
 /**
  * The case service and the directory as the front Worker holds them, each call sent to the object
@@ -292,6 +432,16 @@ export function hostedCasesFrom(env: HostEnv, mint: () => string = mintCaseId): 
       evidence: (assertion, caseId, digest, offset) => toCase<EvidenceAnswer>(caseId, { call: "evidence", assertion, caseId, digest, offset }),
       claim: (assertion, caseId, viewedHead, event) => toCase<ClaimAnswer>(caseId, { call: "claim", assertion, caseId, viewedHead, event })
     },
+    commands: {
+      command: (assertion, caseId, viewedHead, event) => toCase<CommandAnswer>(caseId, { call: "command", assertion, caseId, viewedHead, event }),
+      async plan(assertion, caseId, viewedHead, plan) {
+        const answer = await toCase<PlanAnswer>(caseId, { call: "plan", assertion, caseId, viewedHead, plan });
+        // The create that reserved this id never marked it created. If this fails the list still shows it as not finished.
+        if (answer.ok) await toIndex({ call: "confirm", assertion, caseId });
+        return answer;
+      },
+      freeze: (assertion, caseId, viewedHead, text) => toCase<PlanAnswer>(caseId, { call: "freeze", assertion, caseId, viewedHead, text })
+    },
     directory: {
       async create(assertion, plan) {
         const caseId = mint();
@@ -309,6 +459,14 @@ export function hostedCasesFrom(env: HostEnv, mint: () => string = mintCaseId): 
         // If this fails the case is whole and its reservation stays unmarked, which the list shows.
         await toIndex({ call: "confirm", assertion, caseId });
         return { ok: true, caseId };
+      },
+      async release(assertion, caseId) {
+        if (!isHostedCaseId(caseId)) return NO_LOG;
+        // The case answers first, and only a case with no log answers yes. The list is asked only after that.
+        const abandoned = (await callObject(cases, caseId, { call: "abandon", assertion, caseId })) as ReleaseAnswer | null;
+        if (abandoned === null) return UNAVAILABLE;
+        if (!abandoned.ok) return abandoned;
+        return ((await toIndex({ call: "release", assertion, caseId })) as ReleaseAnswer | null) ?? UNAVAILABLE;
       },
       async list(assertion) {
         return ((await toIndex({ call: "list", assertion })) as ListAnswer | null) ?? UNAVAILABLE;
