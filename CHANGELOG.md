@@ -448,6 +448,18 @@ public API or a 1.0 release.
   development exclusion table as a file a tree may lack. Before, no 1.0
   candidate and carrier pair could pass the unit suite. The release guide
   names the 1.0 binding file in three ceremony steps.
+- The release guide states four things about a 1.0 ceremony that the code
+  enforced and the guide did not say. After a `1.0.0-rc.N` release the final
+  `1.0.0` candidate must delete the six evidence files and the binding,
+  because a carrier that rewrites them is refused. The governance receipt's
+  one day covers a chain (the capture, the carrier's CI run, promotion, the
+  two Actions variables, the dispatch and the tag job), and an expired
+  receipt is recovered by a new candidate; the recapture the guide described
+  is refused under `investigative-v1`. After a 1.0 release,
+  `npm run release:readiness` on later commits of `main` reports three gates
+  failing by design, because the binding holds only at its carrier.
+  `CITATION.cff` returns to `0.6.0` in the commit that declares `1.0.0` after
+  a release candidate. No code changes.
 - The address classifier no longer reads a dotted quad before a closing `::`
   as an address (`2600:8.8.8.8::`, for one). It read the text as an address
   and judged the words before the quad alone, so it could call such a text
