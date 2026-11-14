@@ -384,6 +384,33 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- Report wording that said less, or other, than the stored record. No stored
+  report, evaluator or detector changes, and no correction event is taken:
+  each change names or narrows what a sentence already said.
+  - A two-visit report's headline named "this visit" without saying which.
+    It now gives the label the report shows for that visit. The headline
+    changes on 143 committed comparison reports, and the report index
+    (`public/reports/index.json`) is regenerated for them. The subhead
+    clause "It also looks like ..." names the visit the same way, on 153
+    committed two-visit reports.
+  - Where a comparison withholds its exact fingerprinting or ad-pixel delta,
+    the note said that a visit "did not complete" the measurement, on every
+    such pair. It now states the recorded cause: v1 recorded no detector
+    versions, the pair recorded no egress region, a visit's record lacks the
+    measurement, or a named visit did not finish it. The note changes on the
+    877 committed comparisons with an allowed pair; no delta opens.
+  - On comparison rows, a host's catalog label now says how many of the
+    host's requests carry the match where only some do, counted from the
+    retained request rows.
+  - The Site history picker no longer offers a report that Compare then
+    refuses for its published correction context, and says so. On the
+    committed index it offers 337 reports in 110 histories, where it offered
+    598 in 188.
+  - A scan submitted after editing a check or inspection link no longer
+    shows "not saved" beside a scan whose report is saved.
+  - The consent registration sentence sets a contradicted state against a
+    click only when the record holds an activation. No page showed the other
+    form.
 - On the Cloudflare Containers topology, a `HEAD` of a scan job
   (`/api/scans/:id`) is answered 405 at the edge with the allowed methods. It
   was forwarded to the container past the job's access check, status quota
