@@ -144,6 +144,14 @@ const METHODS = ["exhaustive", "bounded", "reachable states", "trace conformance
 const MODEL_CHECKED = "model checked";
 /** Rests on a tool the unit suite does not run, so a row says in Checked by what runs it, and may state no test. */
 const MACHINE_CHECKED = "machine-checked argument";
+/**
+ * The one place a refused phrase stands outside the list of refused words: this sentence, word for word, as the close
+ * of the Methods entry for the machine-checked argument. It defines the phrase for that method once. The same words in
+ * a row, in another entry, altered, or anywhere but that entry's end are refused like any others.
+ */
+const ADMITTED_SENTENCE =
+  "In the field's usual terms, a function Verus accepts for every value is formally verified against its written specification, under the trust this entry states. This register says that of the functions the kernel rows name and of nothing else, and never of the scanner.";
+const ADMITTED_ENTRY = `- \`${MACHINE_CHECKED}\`: `;
 
 /**
  * Refused anywhere in the register but in its own list, each group with one reason there. A
@@ -915,10 +923,14 @@ function checkText(inputs: Inputs): Register {
 
   // Words, over the whole file as words, but the cited titles (held below under their own
   // property) and the code spans that name each refused word in its own list.
+  // The pinned sentence is read out of one line only: the Methods entry it closes. Everywhere else its words are words.
+  const methodLines = new Set(sectionLines(inputs.doc.split("\n"), "Methods").map(({ line }) => line));
+  const withoutAdmitted = (line: string, index: number) =>
+    methodLines.has(index) && line.startsWith(ADMITTED_ENTRY) && line.endsWith(` ${ADMITTED_SENTENCE}`) ? line.slice(0, -ADMITTED_SENTENCE.length) : line;
   const scanned = plainWords(
     inputs.doc
       .split("\n")
-      .map((line, index) => (register.citationLines.has(index) ? "" : register.wordListLines.has(index) ? line.replace(/^- ((?:`[^`]+`, )*`[^`]+`):/, "- :") : line))
+      .map((line, index) => (register.citationLines.has(index) ? "" : register.wordListLines.has(index) ? line.replace(/^- ((?:`[^`]+`, )*`[^`]+`):/, "- :") : withoutAdmitted(line, index)))
       .join("\n")
   );
   const refused = refusedIn(scanned);
@@ -1230,6 +1242,7 @@ const OPEN_IP4_TESTS = '- **Tests:**\n  - `lib/fv-ipv4-classifier.test.ts`: "ope
 const EB2_FIRST_TEST = "  - `lib/fv-producer-identity.test.ts`: \"EB2: every row's obligations are the contract its detector registry is held to\"\n";
 const HOLD_CONFORMANCE = "scripts/tla-worker-hold-conformance.test.mjs";
 const DEFAULT_IMPORT_TEST = 'import test from "node:test";';
+const MODEL_CHECKED_END = "which a hosted workflow compares with TLC's own output.\n";
 const TLA_CASE_METHOD = "- **Method:** model checked, reachable states, trace conformance\n";
 const TK_ENC_TESTS = "- **Tests:** none: the unit suite has none.\n";
 const TK_ENC_CHECKED = `- **Checked by:** as TK-A4.\n${TK_ENC_TESTS}`;
@@ -1326,6 +1339,13 @@ const TEXT_VARIANTS: ReadonlyArray<readonly [string, string, () => Partial<Input
   ["a form of guarantee", P.refusedWord, () => added("The table is guaranteeing it.")],
   ["a form of sound", P.refusedWord, () => added("It holds soundly.")],
   ["formally verifying", P.refusedWord, () => added("The suite is formally verifying it.")],
+  ["the pinned Methods sentence, in a row", P.refusedWord, () => added(ADMITTED_SENTENCE)],
+  ["the pinned Methods sentence, closing another Methods entry", P.refusedWord, () => ({ doc: planted(MODEL_CHECKED_END, `${MODEL_CHECKED_END.slice(0, -1)} ${ADMITTED_SENTENCE}\n`) })],
+  ["the pinned Methods sentence with a word left out", P.refusedWord, () => ({ doc: planted("is formally verified against its written specification, under", "is formally verified against its specification, under") })],
+  ["the pinned Methods sentence widened to the scanner", P.refusedWord, () => ({ doc: planted("and of nothing else, and never of the scanner.\n", "and of the scanner.\n") })],
+  ["the pinned Methods sentence with words after it", P.refusedWord, () => ({ doc: planted("and of nothing else, and never of the scanner.\n", "and of nothing else, and never of the scanner. The scanner is formally verified too.\n") })],
+  ["the pinned Methods sentence twice in its entry", P.refusedWord, () => ({ doc: planted(`${ADMITTED_SENTENCE}\n`, `${ADMITTED_SENTENCE} ${ADMITTED_SENTENCE}\n`) })],
+  ["the pinned Methods sentence under another section", P.refusedWord, () => ({ doc: planted(PROSE_SPOT, `${PROSE_SPOT}\n${ADMITTED_ENTRY}it holds. ${ADMITTED_SENTENCE}\n`) })],
   ["a refused word in a justification of the list itself", P.refusedWord, () => ({ doc: planted("and these words claim more than that.", "and these proofs claim more than that.") })],
   ["a quantifier over sites", P.quantifier, () => ({ doc: planted(EB2_PROPERTY_END, `${EB2_PROPERTY_END} It holds on any site.`) })],
   ["every single site", P.quantifier, () => ({ doc: planted(EB2_PROPERTY_END, `${EB2_PROPERTY_END} It holds for every single site.`) })],

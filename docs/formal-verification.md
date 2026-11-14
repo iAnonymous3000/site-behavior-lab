@@ -78,7 +78,7 @@ pins what the code does, not what it should do.
 - `sampled`: written-out cases from a wider domain passed, and nothing is said of the rest of that domain.
 - `restatement`: the oracle restates the production rule, from a docblock, a commit or the code, so it catches the code drifting from that rule and never a wrong rule. It qualifies another method and never stands alone.
 - `model checked`: TLC held the row's invariants on every state it reached from the first state of each configuration the row names, over that configuration's alphabet and bounds, under the switches it sets. It holds a specification and not the code; a further method in the same row says how far the code is held to the specification. TLC's side of each comparison in the unit suite is a committed export, which a hosted workflow compares with TLC's own output.
-- `machine-checked argument`: Verus accepted that an executable Rust function returns what a written specification says, for every value of the type the Domain states, with no bound. It holds the function to the specification as written. It holds the specification to nothing, and it says nothing of compiled bytes or of the code that calls the function. It trusts Verus, Z3, vstd, the Rust compiler and the specification.
+- `machine-checked argument`: Verus accepted that an executable Rust function returns what a written specification says, for every value of the type the Domain states, with no bound. It holds the function to the specification as written. It holds the specification to nothing, and it says nothing of compiled bytes or of the code that calls the function. It trusts Verus, Z3, vstd, the Rust compiler and the specification. In the field's usual terms, a function Verus accepts for every value is formally verified against its written specification, under the trust this entry states. This register says that of the functions the kernel rows name and of nothing else, and never of the scanner.
 
 Where a row walks every variation of cases the suite writes out (every cut of
 every prefix of its paths, say), the walk is exhaustive over those variations
@@ -93,14 +93,16 @@ no such count.
 ## Wording
 
 The guard refuses each of these words and phrases anywhere in this file, as a
-whole word and in any case, except in this list. A space in a phrase also
+whole word and in any case, except in this list and in one sentence that
+closes the Methods entry for `machine-checked argument`, which the guard holds
+word for word and admits in that place only. A space in a phrase also
 matches a hyphen or a slash, a trailing star stands for any ending of the word,
 and emphasis and link marks are read through:
 
 - `proof`, `proofs`, `prove`, `proves`, `proved`, `proven`, `proving`, `provable`, `provably`: a finite check holds a property over its domain at a commit, and these words claim more than that. The kernel rows state an argument for every value of a type, and name it by their method, `machine-checked argument`, and by no other word.
 - `theorem`, `theorems`: these name a statement settled by such an argument, which no row is.
 - `guarant*`, `bulletproof`: these words promise behavior on whatever input arrives, and a row speaks only of its domain, bounds and axioms.
-- `formally verif*`: this names a whole program held to a specification. No row here says that of the scanner. The kernel rows say it of the functions they name and of nothing else, in their own words. "Formal verification" names the program and its release gate, and stays allowed.
+- `formally verif*`: this names code held to a written specification by a machine-checked argument. No finite check here is one, and nothing here says it of the scanner. The Methods entry for `machine-checked argument` says it once, of the functions the kernel rows name and of nothing else; the rows name their method and do not use the phrase. "Formal verification" names the program and its release gate, and stays allowed.
 - `verified`, `verifies`, `certified`, `certifies`: these give the code a verdict against a standard, where a row says only that its tests held over their domain.
 - `sound*`: these speak of a method beyond the domain it was run on, and a row speaks of one domain.
 - `correct`, `correctly`, `correctness`, `incorrect`, `incorrectly`: as a verdict this says the code is right or wrong. A restated oracle catches drift from a rule and never a wrong rule, and a check against a hand-written table holds only that table.
