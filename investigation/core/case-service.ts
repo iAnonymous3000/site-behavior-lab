@@ -83,13 +83,30 @@ export type CaseService = Readonly<{
   claim(assertion: string, caseId: string, viewedHead: string, event: LogEvent): Promise<ClaimAnswer>;
 }>;
 
-export type CaseServiceWorld = Readonly<{
+/** What verifying an assertion needs: the policy, the team's keys and a clock. */
+export type AccessWorld = Readonly<{
   policy: AccessPolicy;
   keySetFor: (issuer: string) => Pick<AccessKeySet, "keyFor">;
   now: () => number;
-  /** The stores holding this case's log, or null when none does, which reads as a log never created. */
-  storesFor: (caseId: string) => LogStores | null;
 }>;
+
+export type CaseServiceWorld = AccessWorld &
+  Readonly<{
+    /** The stores holding this case's log, or null when none does, which reads as a log never created. */
+    storesFor: (caseId: string) => LogStores | null;
+  }>;
+
+/**
+ * The owner's actor from this assertion, verified here, or why there is none. Every call that
+ * reaches a case derives its actor through this one function, in the isolate that will use it:
+ * the three calls below, and the host's own calls in case-host.ts.
+ */
+export async function ownerFromAssertion(world: AccessWorld, assertion: unknown): Promise<OwnerActor | AccessAnswer> {
+  const decision = await verifyAccessToken(typeof assertion === "string" ? assertion : null, world.policy, world.keySetFor(world.policy.issuer), world.now);
+  if (!decision.ok) return { ok: false, refusal: decision.refusal === "keys-unavailable" ? "unavailable" : "access-refused" };
+  // A service token's identity gives no actor, so it reaches no case.
+  return ownerActorFrom(decision.identity) ?? { ok: false, refusal: "access-refused" };
+}
 
 const NO_LOG: CaseRefusal = Object.freeze({ ok: false, refusal: "head-missing", at: null });
 
@@ -186,13 +203,7 @@ function isClaimEvent(event: unknown): event is LogEvent {
 
 /** The in-process service over the log's stores. */
 export function caseServiceOver(world: CaseServiceWorld): CaseService {
-  /** The owner's actor from this assertion, verified here, or why there is none. */
-  async function ownerFrom(assertion: unknown): Promise<OwnerActor | AccessAnswer> {
-    const decision = await verifyAccessToken(typeof assertion === "string" ? assertion : null, world.policy, world.keySetFor(world.policy.issuer), world.now);
-    if (!decision.ok) return { ok: false, refusal: decision.refusal === "keys-unavailable" ? "unavailable" : "access-refused" };
-    // A service token's identity gives no actor, so it reaches no case.
-    return ownerActorFrom(decision.identity) ?? { ok: false, refusal: "access-refused" };
-  }
+  const ownerFrom = (assertion: unknown): Promise<OwnerActor | AccessAnswer> => ownerFromAssertion(world, assertion);
 
   async function opened(caseId: string, seen: EvidenceSeen | null = null): Promise<Readonly<{ ok: true; stores: LogStores; case: OpenCase }> | CaseRefusal> {
     const stores = world.storesFor(caseId);
