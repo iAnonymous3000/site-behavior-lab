@@ -38,20 +38,20 @@ as quickly as is practical for a volunteer-maintained project.
   exports, or logs. Cookie values are omitted. Storage values are omitted while
   their byte counts may remain. Report URLs omit credentials and fragments;
   query values always drop, and only reviewed exact query-key literals may
-  survive, with all others generalized. Shareable
-  reports are persisted as screenshot-stripped JSON under the configured
-  filesystem or R2 report store. Report links use random IDs and report reads are
-  rate-limited. Public and horizontally scaled deployments should use a protected
-  shared store such as R2; the reference deployment does.
+  survive, with all others generalized. Shareable reports are persisted as
+  screenshot-stripped JSON under the configured filesystem or R2 report store.
+  Report links use random IDs and report reads are rate-limited. Public and
+  horizontally scaled deployments should use a protected shared store such as
+  R2; the reference deployment does.
 - **Resource exhaustion.** Crashing or hanging the server via a hostile target.
   The app includes basic request-size, rate, concurrency, scan-duration, and
   per-scan request-count guardrails. The Node scanner also blocks Service
   Workers and independently caps proxy transactions, unique network targets,
   response bytes, and upload bytes; an HTTPS CONNECT tunnel is one opaque proxy
   transaction, so the byte caps remain the bound inside a reused tunnel. GPC,
-  Shields, and consent comparisons each
-  consume two rate-limit tokens but occupy one scan slot until both sequential
-  visits finish. The configured report store prunes by age and count. Node keeps a
+  Shields, and consent comparisons each consume two rate-limit tokens but
+  occupy one scan slot until both sequential visits finish. The configured
+  report store prunes by age and count. Node keeps a
   per-process defense; the reference Containers deployment additionally charges
   its minute and day quotas atomically in Durable Object SQLite and uses edge WAF
   controls. Other public or horizontally scaled deployments still need an
@@ -61,11 +61,9 @@ as quickly as is practical for a volunteer-maintained project.
   An intentionally open Containers deployment must instead use Turnstile plus
   atomic quotas and edge abuse controls. A token or human check is a deployment
   control, not a complete abuse-prevention system; pair it with proxy, firewall,
-  and monitoring limits.
-  The legacy Cloudflare Browser Run worker was DELETED rather than kept gated:
-  its DNS-over-HTTPS preflight could not pin the browser's eventual connection,
-  so it could not offer the connect-time IP pinning the container scanner does.
-  The only supported scanner is the Node/Playwright container.
+  and monitoring limits. The only supported scanner is the Node/Playwright
+  container; the legacy Browser Run worker was deleted for the reason given
+  under network-boundary escapes above.
 - **A scanner with no token answers any web page.** With
   `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` unset and
   `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` at its default `*`, the scan API accepts
