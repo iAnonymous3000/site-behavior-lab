@@ -400,6 +400,155 @@ test("v1 rejects hidden source changes even when they are reverted before the fi
   assert.throws(() => c.verifyV1ReleaseBinding(f.root, f.instruments, f.options), /post-candidate change/);
 });
 
+// The carrier rules of verifyV1ReleaseBinding, each held to its exact message.
+// RELEASE.md rests three statements on them: a final 1.0.0 after an rc must
+// first delete the rc's evidence and binding, the binding is committed with
+// its evidence in one carrier, and readiness fails on any later commit.
+//
+// Stubbed, as everywhere in this file: the two content verifiers
+// (verifySourceEvidenceManifest and verifyContainerPackageInventory) and the
+// attestation verifier that would call `gh attestation verify`. Git, the
+// commit walk, the bytes, the digests and the canonical JSON reads are real.
+const BINDING = "research/v1-release-binding.json";
+const BINDING_ONCE = "v1 binding must be added once in the final carrier commit";
+const notSingleIntroduction = (relative: string) => `post-candidate change is not single-introduction evidence: ${relative}`;
+const receiptPath = (digit: string) => `research/ops-receipts/release-tag-governance/${digit.repeat(64)}.json`;
+const refusedWith = (message: string) => (error: Error) => error.message === message;
+
+/**
+ * A later candidate on a fixture that already holds a carrier, as a final
+ * 1.0.0 is after an rc. `prepare` makes the candidate's own change. Returns
+ * the candidate, a binding for it, and instruments whose content verifiers
+ * expect this candidate and not the fixture's first.
+ */
+function laterCandidate(f: ReturnType<typeof fixture>, prepare: () => void) {
+  prepare();
+  const candidate = f.commit("Second candidate");
+  const candidateTree = f.git("rev-parse", "HEAD^{tree}");
+  const calls: Any[] = [];
+  const instruments = { ...canonical,
+    verifySourceEvidenceManifest: (value: unknown, c: string, tree: string) => {
+      assert.deepEqual(value, { fixture: "source" }); assert.equal(c, candidate); assert.equal(tree, candidateTree); return { fixture: "container" };
+    },
+    verifyContainerPackageInventory: (value: unknown, c: string, container: unknown) => {
+      assert.deepEqual(value, { fixture: "inventory" }); assert.equal(c, candidate); assert.deepEqual(container, { fixture: "container" });
+    }
+  };
+  const rows = (paths: [string, string][]) => paths.map(([relative, category]) =>
+    ({ category, path: relative, change: "added", sha256: hash(readFileSync(path.join(f.root, relative))) }));
+  const binding = (evidence: Any[]) => ({ schemaVersion: 1, artifactKind: "site-behavior-v1-release-binding",
+    repository: "iAnonymous3000/site-behavior-lab", targetRelease: "1.0.0", candidateCommit: candidate, candidateTree, evidence });
+  return { candidate, candidateTree, instruments, calls, rows, binding, options: { attestationVerifier: (request: Any) => { calls.push(request); } } };
+}
+
+// Two of the rule's three conditions refuse this history: the binding's own
+// commit is not the final one, and the later commit modifies the path. The
+// third (the binding was not introduced before) is reached only behind the
+// other two: any earlier commit that touches the path is refused for not
+// being the carrier. Removing it alone changes no verdict, so no test can
+// fail on that edit alone. This test is the one that fails when all three go.
+test("the binding rewritten in a later commit after its carrier is refused", async (t) => {
+  const c = await contract(); const f = fixture(t); const binding = f.bind();
+  assert.equal(c.verifyV1ReleaseBinding(f.root, f.instruments, f.options).carrierCommit, f.git("rev-parse", "HEAD"), "the carrier itself verifies");
+  f.calls.length = 0;
+  // The same rows in another order: a valid binding for the same candidate, in other bytes.
+  f.write(BINDING, { ...binding, evidence: [...binding.evidence].reverse() });
+  f.commit("Rewrite the binding");
+  assert.equal(f.git("diff", "--name-status", "HEAD~1", "HEAD"), `M\t${BINDING}`);
+  assert.throws(() => c.verifyV1ReleaseBinding(f.root, f.instruments, f.options), refusedWith(BINDING_ONCE));
+  assert.equal(f.calls.length, 0, "nothing is sent for authentication");
+});
+
+test("the binding added in a commit that is not the carrier is refused, whatever the later commit holds", async (t) => {
+  const c = await contract();
+  const binding = (f: ReturnType<typeof fixture>) => ({ schemaVersion: 1, artifactKind: "site-behavior-v1-release-binding",
+    repository: "iAnonymous3000/site-behavior-lab", targetRelease: "1.0.0", candidateCommit: f.candidate, candidateTree: f.candidateTree, evidence: f.evidence });
+
+  // HEAD is one commit after the binding's and adds bound evidence: the
+  // governance receipt. Every other rule is met (each bound file is added
+  // once after the candidate, and the binding is added once), so only the
+  // rule that the binding's commit is the carrier refuses this history.
+  const split = fixture(t); const receipt = receiptPath("a");
+  split.write(BINDING, binding(split));
+  split.git("add", "."); split.git("reset", "-q", "--", receipt); split.git("commit", "-m", "Binding and six files");
+  assert.equal(split.git("status", "--porcelain", "--untracked-files=all"), `?? ${receipt}`);
+  split.commit("Receipt, one commit later");
+  assert.equal(split.git("diff", "--name-status", "HEAD~1", "HEAD"), `A\t${receipt}`);
+  assert.equal(split.git("log", "--format=%H", "--diff-filter=A", "--", BINDING), split.git("rev-parse", "HEAD~1"));
+  assert.throws(() => c.verifyV1ReleaseBinding(split.root, split.instruments, split.options), refusedWith(BINDING_ONCE));
+  assert.equal(split.calls.length, 0);
+
+  // HEAD is one commit after a complete carrier and changes nothing.
+  const empty = fixture(t); empty.bind();
+  assert.equal(c.verifyV1ReleaseBinding(empty.root, empty.instruments, empty.options).candidateCommit, empty.candidate);
+  empty.calls.length = 0;
+  empty.git("commit", "--allow-empty", "-m", "An empty commit after the carrier");
+  assert.equal(empty.git("diff", "--name-status", "HEAD~1", "HEAD"), "");
+  assert.throws(() => c.verifyV1ReleaseBinding(empty.root, empty.instruments, empty.options), refusedWith(BINDING_ONCE));
+  assert.equal(empty.calls.length, 0);
+});
+
+test("a carrier that rewrites a binding its candidate already holds is refused", async (t) => {
+  const c = await contract();
+  // The candidate holds a binding file, as a second candidate does when it
+  // keeps the rc's. The carrier's commit is the final one and the only one
+  // that touches the path, so only the commit's status refuses it.
+  const f = fixture(t, { [BINDING]: { fixture: "the binding of an earlier carrier" } }); f.bind();
+  assert.equal(f.git("diff", "--name-status", "HEAD~1", "HEAD", "--", BINDING), `M\t${BINDING}`);
+  assert.equal(f.git("rev-list", "--count", `${f.candidate}..HEAD`), "1");
+  assert.throws(() => c.verifyV1ReleaseBinding(f.root, f.instruments, f.options), refusedWith(BINDING_ONCE));
+  assert.equal(f.calls.length, 0);
+});
+
+test("a carrier after an rc that rewrites one of the six fixed evidence files is refused", async (t) => {
+  const c = await contract();
+  const fixed = fixture(t).evidence.filter((e: Any) => e.category !== "release-tag-governance-receipt").map((e: Any) => [e.path, e.category] as [string, string]);
+  assert.equal(fixed.length, 6);
+  for (const [rewritten] of fixed) {
+    const f = fixture(t); f.bind();
+    assert.equal(c.verifyV1ReleaseBinding(f.root, f.instruments, f.options).candidateCommit, f.candidate, "the rc's carrier verifies");
+    // The second candidate keeps the rc's six files and its binding.
+    const next = laterCandidate(f, () => f.write("app.js", "source version two\n"));
+    f.write(rewritten, { fixture: "rewritten for the second candidate" });
+    f.write(receiptPath("b"), { fixture: "governance, second capture" });
+    f.write(BINDING, next.binding(next.rows([...fixed, [receiptPath("b"), "release-tag-governance-receipt"]])));
+    f.commit("Second carrier");
+    assert.equal(f.git("diff", "--name-status", "HEAD~1", "HEAD", "--", rewritten), `M\t${rewritten}`);
+    assert.throws(() => c.verifyV1ReleaseBinding(f.root, next.instruments, next.options), refusedWith(notSingleIntroduction(rewritten)), rewritten);
+    assert.equal(next.calls.length, 0);
+  }
+});
+
+test("a second candidate that deletes the six files and the binding, then a carrier that adds them, is accepted", async (t) => {
+  const c = await contract(); const f = fixture(t); f.bind();
+  const rc = c.verifyV1ReleaseBinding(f.root, f.instruments, f.options);
+  const fixed = f.evidence.filter((e: Any) => e.category !== "release-tag-governance-receipt").map((e: Any) => [e.path, e.category] as [string, string]);
+  assert.equal(fixed.length, 6);
+  const kept = new Map(fixed.map(([relative]) => [relative, readFileSync(path.join(f.root, relative))]));
+  const next = laterCandidate(f, () => {
+    for (const [relative] of fixed) unlinkSync(path.join(f.root, relative));
+    unlinkSync(path.join(f.root, BINDING));
+  });
+  assert.deepEqual(f.git("diff", "--name-status", "HEAD~1", "HEAD").split("\n").sort(), [...fixed.map(([relative]) => `D\t${relative}`), `D\t${BINDING}`].sort());
+  // The rc's receipt stays in the second candidate. It is not bound again.
+  assert.equal(f.git("ls-tree", "--name-only", next.candidate, "--", receiptPath("a")), receiptPath("a"));
+  for (const [relative, bytes] of kept) writeFileSync(path.join(f.root, relative), bytes);
+  f.write(receiptPath("b"), { fixture: "governance, second capture" });
+  f.write(BINDING, next.binding(next.rows([...fixed, [receiptPath("b"), "release-tag-governance-receipt"]])));
+  const carrier = f.commit("Second carrier");
+  const accepted = c.verifyV1ReleaseBinding(f.root, next.instruments, next.options);
+  assert.equal(accepted.candidateCommit, next.candidate);
+  assert.notEqual(accepted.candidateCommit, rc.candidateCommit);
+  assert.equal(accepted.carrierCommit, carrier);
+  assert.deepEqual(accepted.acceptedProducerCommits, [next.candidate, carrier]);
+  assert.deepEqual(Object.keys(accepted.evidenceIntroducedAt).sort(), [...fixed.map(([relative]) => relative), receiptPath("b")].sort());
+  assert.equal(next.calls.length, 3);
+  for (const call of next.calls) { assert.equal(call.signerDigest, next.candidate); assert.equal(call.sourceDigest, next.candidate); }
+  // The first candidate's instruments refuse this carrier: the content
+  // verifiers are asked about the second candidate, never the rc's.
+  assert.throws(() => c.verifyV1ReleaseBinding(f.root, f.instruments, f.options));
+});
+
 test("v1 rejects unbound bytes, duplicate evidence and missing build evidence", async (t) => {
   const c = await contract();
   for (const mutate of [
