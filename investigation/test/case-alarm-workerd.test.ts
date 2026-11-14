@@ -196,6 +196,27 @@ test("marks are brought back to the case's state on every open: lost marks retur
   assert.notEqual(back.alarm, null);
 });
 
+test("a start whose log write fails has its marks written already, so a start that did land could not be left unwatched, and the next open removes them", { timeout: 120_000 }, async () => {
+  const bucket = await world.miniflare.getR2Bucket(OBJECTS_BINDING);
+  const caseId = await world.create();
+  for (const [pathname, fields] of [["/plan/freeze", [["plan", "a plan for a start that fails"]]], ["/exception", [["slot", "B1"], ["reason", "No control run exists yet."]]]] as const) {
+    assert.equal((await command(world, caseId, pathname, fields)).status, 303, pathname);
+  }
+  const { head } = (await opened(world, caseId)).case;
+  await bucket.put(FAULT_KEY, "armed");
+  const failed = await world.send(`/cases/${caseId}/attempts/B1/start`, { fields: [["head", head]] });
+  await bucket.delete(FAULT_KEY);
+  assert.equal(failed.status, 503);
+  // The store failed before the entry was written, and the attempt's marks were there first, with the alarm set.
+  const during = await marksOf(world, caseId);
+  assert.deepEqual(shape(during), WAITING);
+  assert.equal(during.alarm, Math.min(...during.marks.map(({ due_at_ms }) => due_at_ms)));
+  // The start did not happen, so the next fold finds no running attempt and removes them.
+  const after = await opened(world, caseId);
+  assert.deepEqual([after.case.head, after.case.state?.machine.attempts[0].phase], [head, "planned"]);
+  assert.deepEqual(shape(await marksOf(world, caseId)), ["case-deadline::waiting"]);
+});
+
 test("a case planned after a killed create is watched from its plan, and the list then shows it as created", { timeout: 120_000 }, async () => {
   const bucket = await world.miniflare.getR2Bucket(OBJECTS_BINDING);
   const before = await world.listed();

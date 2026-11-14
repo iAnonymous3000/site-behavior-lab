@@ -221,7 +221,7 @@ test("called past the gate, a case object refuses a command, a plan and a freeze
   assert.deepEqual((await world.direct(CASES_BINDING, caseId, { call: "claim", ...owner, event: cancel })).answer, { ok: false, refusal: "not-a-claim" });
   // An object answers commands for its own case alone.
   const other = await world.create();
-  for (const call of [{ call: "command", event: cancel }, { call: "plan", plan: CREATE_PLAN }, { call: "freeze", text: "a plan" }]) {
+  for (const call of [{ call: "command", event: cancel }, { call: "plan", plan: { ...CREATE_PLAN, fixture: "a fixture meant for another case" } }, { call: "freeze", text: "a plan meant for another case" }]) {
     assert.deepEqual((await world.direct(CASES_BINDING, caseId, { ...call, ...owner, caseId: other })).answer, { ok: false, refusal: "head-missing", at: null }, call.call);
   }
   assert.deepEqual((await viewOf(caseId)).head, head);
