@@ -38,8 +38,8 @@ import path from "node:path";
  *
  * Later on 2026-11-14 the second card route, `twitter-image`, was removed: it
  * published the same bytes as `opengraph-image` at 1,030 more paths, 100.2 MiB
- * of that 641.0. What is left measures 540.7 MiB in 10,233 files, nine of them
- * under out/reports for each report. The ceiling stays at 800 MiB, now about
+ * of that 641.0. The export built without it measures 540.8 MiB in 10,231
+ * files, nine of them under out/reports for each report. The ceiling stays at 800 MiB, now about
  * half again what is measured; it still fails before the export doubles, and
  * moving it down only to move it up for the next intended growth would make
  * the number noise.
