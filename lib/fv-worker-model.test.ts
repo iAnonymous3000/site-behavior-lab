@@ -189,6 +189,25 @@ const PRODUCTION_KERNELS = productionRealm as unknown as Kernels;
 const modelPath = require.resolve("./fv-worker-model");
 const PRODUCTION_MODULES: Modules = { attacher: productionAttacher, realm: productionRealm };
 
+/** The two exclusion rows. From fingerprint-observer@14 no shared worker is excluded, so production keeps both with nothing to judge. */
+const EXCLUSION_ROWS: readonly Property[] = ["excluded-implies-no-page-code-before-the-freeze", "excluded-implies-no-unobserved-page-code-before-the-freeze"];
+
+// Fingerprint-observer@13's three shared exclusions, as edits of the emitted module, each of which can be put back alone, and the
+// line of the landing that gave an excluded worker its term. Every variant that excludes a shared worker carries that line.
+const AT_13_EXCLUDED = 'return { record, state: "excluded", reason: "pausedAtReadout" };';
+const AT_14_UNPLACED = 'return { record, state: "unread", reason: "holdUnplaced" };';
+const AT_13_HELD: SourceEdit = { find: `if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    ${AT_14_UNPLACED}`, replace: `if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    ${AT_13_EXCLUDED}` };
+const AT_13_REACHING: SourceEdit = { find: `if (worker.hold === "released")\n        ${AT_14_UNPLACED}`, replace: `if (worker.hold === "released")\n        ${AT_13_EXCLUDED}` };
+const AT_13_SECOND_PASS: SourceEdit = { find: `if (options.attachedAfterFreeze)\n        ${AT_14_UNPLACED}`, replace: `if (options.attachedAfterFreeze)\n        ${AT_13_EXCLUDED}` };
+const LANDS_EXCLUDED: SourceEdit = { find: 'if (resolved.state === "unread")\n        return { term: resolved.reason, snapshot: null };\n    if (resolved.state === "ended-at-once")', replace: 'if (resolved.state === "excluded" || resolved.state === "unread")\n        return { term: resolved.reason, snapshot: null };\n    if (resolved.state === "ended-at-once")' };
+const AT_13_SHARED: readonly SourceEdit[] = [AT_13_HELD, AT_13_REACHING, AT_13_SECOND_PASS, LANDS_EXCLUDED];
+let at13: Modules | null = null;
+/** The real thread and mirror, with the readout's kernels as fingerprint-observer@13 had them for a shared worker. */
+function at13Modules(): Modules {
+  at13 ??= { attacher: productionAttacher, realm: realmVariant(AT_13_SHARED) };
+  return at13;
+}
+
 type Built = { world: SharedWorld; model: SharedWorkerModel; graph: Graph; verdicts: Int32Array; verdictsUnder: Map<number, number> };
 
 const builtWorlds = new Map<string, Built>();
@@ -569,11 +588,11 @@ test("every world reaches each term it is meant to, and no state short of a fini
     }
     return [...landed].sort();
   };
-  const everyHoldTerm = ["attachedLate", "channelLostAlive", "cutOff", "diedHeld", "endedAtOnce", "installFailed", "nowhere", "pausedAtReadout", "readable", "unattached", "unreached"];
+  const everyHoldTerm = ["attachedLate", "channelLostAlive", "cutOff", "diedHeld", "endedAtOnce", "holdUnplaced", "installFailed", "nowhere", "readable", "unattached", "unreached"];
   assert.deepEqual(terms(built(HOLD_WORLD), 0), everyHoldTerm);
   assert.deepEqual(terms(built(HOLD_WORLD), maskOf(PLAN_ALL)), everyHoldTerm);
   assert.deepEqual(terms(built(STREAM_WORLD), 0), ["channelLostAlive", "cutOff", "readable", "streamBroken"]);
-  assert.deepEqual(terms(built(TWO_WORKER_WORLD), 0), ["attachedLate", "channelLostAlive", "cutOff", "diedHeld", "nowhere", "pausedAtReadout", "readable", "unreached"]);
+  assert.deepEqual(terms(built(TWO_WORKER_WORLD), 0), ["attachedLate", "channelLostAlive", "cutOff", "diedHeld", "holdUnplaced", "nowhere", "readable", "unreached"]);
   // Each set that matters, in each world: a state with no move left would make a property pass by never getting there.
   for (const world of [HOLD_WORLD, STREAM_WORLD, TWO_WORKER_WORLD]) {
     const known = built(world);
@@ -596,8 +615,8 @@ test("both workers land in the two-worker world", () => {
   for (const key of known.graph.keys) {
     if (known.model.isFinished(key)) known.model.termsOf(key).forEach(({ term }, w) => byWorker[w].add(term));
   }
-  assert.deepEqual([...byWorker[0]].sort(), ["attachedLate", "channelLostAlive", "cutOff", "diedHeld", "nowhere", "pausedAtReadout", "readable", "unreached"]);
-  assert.deepEqual([...byWorker[1]].sort(), ["channelLostAlive", "cutOff", "nowhere", "pausedAtReadout", "readable", "unreached"]);
+  assert.deepEqual([...byWorker[0]].sort(), ["attachedLate", "channelLostAlive", "cutOff", "diedHeld", "holdUnplaced", "nowhere", "readable", "unreached"]);
+  assert.deepEqual([...byWorker[1]].sort(), ["channelLostAlive", "cutOff", "holdUnplaced", "nowhere", "readable", "unreached"]);
 });
 
 /**
@@ -908,16 +927,19 @@ type TableRow = { property: Property; plan: string[][]; byWorld: Record<"hold" |
  *
  * What it can and cannot say. `byWorld` says which world holds each row. The read rows are decided
  * in one world each, the observer's in the hold world and the read's age in the stream world. The
- * three rows that hold under no set fail in the hold world and the two-worker world alike, so a
- * change in the second alone is hidden by the first: only the first of them has a witness there. A
- * row that holds under no set cannot get worse, so the table does not move if the code weakens
- * further under it: the pins do. The heard-lands row cannot fail in the model, whose kernels return
+ * one row that holds under no set, the no-term row, fails in the hold world and the two-worker world
+ * alike, so a change in the second alone is hidden by the first. A row that holds under no set
+ * cannot get worse, so the table does not move if the code weakens further under it: the pins do.
+ * The two exclusion rows hold under the empty set from fingerprint-observer@14, and for a plain
+ * reason: no shared worker is excluded, so they have no landing to judge. Through @13 they held
+ * under no set. What gives them force now is each of @13's exclusions put back, below, which each
+ * row catches in the model and in the real code. The heard-lands row cannot fail in the model, whose kernels return
  * one term, and it has force only in the replay's sums of the real readout. The mass replays judge
  * the real code by `keptUnder`, which comes from the model's own verdict.
  */
 const TABLE: readonly TableRow[] = [
-  { property: "excluded-implies-no-page-code-before-the-freeze", plan: [], byWorld: { hold: [], stream: [[]], two: [] } },
-  { property: "excluded-implies-no-unobserved-page-code-before-the-freeze", plan: [], byWorld: { hold: [], stream: [[]], two: [] } },
+  { property: "excluded-implies-no-page-code-before-the-freeze", plan: [[]], byWorld: { hold: [[]], stream: [[]], two: [[]] } },
+  { property: "excluded-implies-no-unobserved-page-code-before-the-freeze", plan: [[]], byWorld: { hold: [[]], stream: [[]], two: [[]] } },
   { property: "read-implies-the-observer-preceded-every-statement", plan: [["A1", "A2"]], byWorld: { hold: [["A1", "A2"]], stream: [[]], two: [[]] } },
   { property: "a-read-state-is-no-older-than-the-freeze", plan: [["A1", "notA3", "A5fifo"]], byWorld: { hold: [[]], stream: [["A1", "notA3", "A5fifo"]], two: [[]] } },
   { property: "every-worker-the-readout-heard-of-lands-in-one-term", plan: [[]], byWorld: { hold: [[]], stream: [[]], two: [[]] } },
@@ -974,7 +996,9 @@ test("the dedicated world is where A4 acts: a worker held at its attach and excl
     return DEDICATED_PROPERTIES.filter((property) => (found & dedicatedPropertyMask(property)) !== 0);
   };
   assert.deepEqual(verdict([]), DEDICATED_PROPERTIES);
-  assert.deepEqual(verdict(["A4"]), ["a-dedicated-worker-excluded-ran-no-page-code-before-the-freeze"]);
+  // Through fingerprint-observer@13 one property stayed broken under A4: a worker already running at its attach was excluded
+  // inside the arming's round trip. A4 speaks of a held worker, and that one was never held.
+  assert.deepEqual(verdict(["A4"]), []);
   // No other axiom has a transition here to remove, so nothing else is in its smallest set.
   for (let edge = 0; edge < graph.edgeBlockedBy.length; edge += 1) assert.ok(graph.edgeBlockedBy[edge] === 0 || graph.edgeBlockedBy[edge] === maskOf(["A4"]));
 });
@@ -986,8 +1010,10 @@ test("the dedicated world is where A4 acts: a worker held at its attach and excl
 test("beyond the plan's axioms: C1, D1 and Z are not axioms, and each says only what it says", () => {
   const worlds = SHARED_WORLDS();
   const keeps = (property: Property, assumptions: readonly Assumption[]) => worlds.every((known) => (verdictUnder(known, maskOf(assumptions)) & propertyMask(property)) === 0);
-  // Measuring latency cannot close the safety rows: with both latencies assumed on top of every axiom, they still fail.
-  for (const property of ["excluded-implies-no-page-code-before-the-freeze", "excluded-implies-no-unobserved-page-code-before-the-freeze"] as const) assert.equal(keeps(property, WITH_C1_D1), false, property);
+  // The exclusion rows need none of them, since nothing is excluded. Through fingerprint-observer@13 they failed with both
+  // latencies assumed on top of every axiom, so measuring latency could not close them, and of every switch only A5's order
+  // with Z did: the @13 rule put back, below, still shows both.
+  for (const property of ["excluded-implies-no-page-code-before-the-freeze", "excluded-implies-no-unobserved-page-code-before-the-freeze"] as const) assert.equal(keeps(property, []), true, property);
   // In the model, a worker that ran lands in a term once the frame tree answers behind what the browser emitted before the freeze: D1
   // closes the row, but only in the hold and stream worlds, which wait for the tree. The two-worker world takes it as answered, so its
   // own trace stays, and over every world only Z closes it. D1 is not what the real order rests on: that is the page connection's
@@ -996,10 +1022,10 @@ test("beyond the plan's axioms: C1, D1 and Z are not axioms, and each says only 
   const keepsWhereTheTreeIsWaitedFor = (assumptions: readonly Assumption[]) => waitingWorlds.every((known) => (verdictUnder(known, maskOf(assumptions)) & propertyMask("a-worker-that-ran-before-the-freeze-lands-in-a-term")) === 0);
   assert.equal(keepsWhereTheTreeIsWaitedFor(WITH_C1), false);
   assert.equal(keepsWhereTheTreeIsWaitedFor(["D1"]), true);
-  // Z restates the safety property's premise, so that these hold is no evidence for them. It shows the empty rows have no
-  // other way to fail: with the mirror current at the freeze, and the port in order, nothing else breaks them.
+  // Z says the mirror is current at the freeze, so that the no-term row holds under it is no evidence for the row. It shows
+  // the row has no other way to fail.
   const everySwitch = maskOf(ASSUMPTIONS.filter((assumption) => assumption !== "A4"));
-  for (const property of ["excluded-implies-no-page-code-before-the-freeze", "excluded-implies-no-unobserved-page-code-before-the-freeze"] as const) assert.deepEqual(smallestSets(worlds, property, everySwitch), [["A5fifo", "Z"]], property);
+  for (const property of ["excluded-implies-no-page-code-before-the-freeze", "excluded-implies-no-unobserved-page-code-before-the-freeze"] as const) assert.deepEqual(smallestSets(worlds, property, everySwitch), [[]], property);
   assert.deepEqual(smallestSets(worlds, "a-worker-that-ran-before-the-freeze-lands-in-a-term", everySwitch), [["Z"]]);
   assert.deepEqual(smallestSets(waitingWorlds, "a-worker-that-ran-before-the-freeze-lands-in-a-term", everySwitch), [["D1"], ["Z"]]);
 });
@@ -1008,8 +1034,11 @@ test("beyond the plan's axioms: C1, D1 and Z are not axioms, and each says only 
 // The trace to look for: held at the freeze and still at the bound, having run unobserved.
 // ---------------------------------------------------------------------------------------
 
-/** Where the readout can end on the named trace, excluding the worker, by how the freeze found it and where the word that would say so was. */
-function namedForms(known: Built, assumptions: readonly Assumption[]): string[] {
+/** The term the named trace lands in from fingerprint-observer@14, an unread one. Through @13 it was `pausedAtReadout`, an exclusion. */
+const NAMED_TRACE_TERM = "holdUnplaced";
+
+/** Where the readout can end on the named trace, landing the worker in `term`, by how the freeze found it and where the word that would say so was. */
+function namedForms(known: Built, assumptions: readonly Assumption[], term = NAMED_TRACE_TERM): string[] {
   const mask = maskOf(assumptions);
   const found = new Set<string>();
   const { seen } = reachable(known.graph, mask);
@@ -1020,7 +1049,7 @@ function namedForms(known: Built, assumptions: readonly Assumption[]): string[] 
     for (let edge = known.graph.firstEdge[state]; edge < known.graph.firstEdge[state + 1]; edge += 1) {
       if ((known.graph.edgeBlockedBy[edge] & mask) !== 0) continue;
       const to = known.graph.keys[known.graph.edgeTo[edge]];
-      if (known.model.isFinished(to) && known.model.termsOf(to)[0].term === "pausedAtReadout") found.add(`${named.form}:${named.cause}`);
+      if (known.model.isFinished(to) && known.model.termsOf(to)[0].term === term) found.add(`${named.form}:${named.cause}`);
     }
   }
   return [...found].sort();
@@ -1035,7 +1064,7 @@ function namedWitness(known: Built, assumptions: readonly Assumption[], form: Na
     if (named === null || named.form !== form || named.cause !== cause) continue;
     for (let edge = known.graph.firstEdge[state]; edge < known.graph.firstEdge[state + 1]; edge += 1) {
       const to = known.graph.keys[known.graph.edgeTo[edge]];
-      if ((known.graph.edgeBlockedBy[edge] & mask) !== 0 || !known.model.isFinished(to) || known.model.termsOf(to)[0].term !== "pausedAtReadout") continue;
+      if ((known.graph.edgeBlockedBy[edge] & mask) !== 0 || !known.model.isFinished(to) || known.model.termsOf(to)[0].term !== NAMED_TRACE_TERM) continue;
       const traced = keysAndLabelsTo(known, reach, state);
       return { labels: [...traced.labels, known.graph.labels[known.graph.edgeLabel[edge]]], keys: [...traced.keys, to] };
     }
@@ -1063,6 +1092,29 @@ test("the named trace is reachable, frozen as held, as reaching, and by the seco
   assert.deepEqual(namedForms(known, WITH_D1), stay);
   // What neither closes: the thread concluded first, so no late is ever posted, with or without a connection closing after the freeze.
   assert.deepEqual(namedForms(known, WITH_C1_D1), stay);
+  // Reachable in every one of those forms, and in none of them excluded: under no set of switches does the trace end in an exclusion.
+  for (const assumptions of [[], ["A1", "A2", "notA3", "A4", "A5fifo"], PLAN_ALL, WITH_C1, WITH_D1, WITH_C1_D1] as const) {
+    for (const excluded of ["pausedAtReadout", "diedPaused"]) assert.deepEqual(namedForms(known, assumptions, excluded), [], `${assumptions.join()} ${excluded}`);
+  }
+});
+
+test("no shared worker is excluded in any world, under no assumption, and each world but the stream's lands one as a hold the freeze cannot place", () => {
+  for (const world of [HOLD_WORLD, STREAM_WORLD, TWO_WORKER_WORLD, SMALL_WORLD]) {
+    const known = built(world);
+    let unplaced = 0;
+    let landings = 0;
+    for (const key of known.graph.keys) {
+      if (!known.model.isFinished(key)) continue;
+      for (const { term } of known.model.termsOf(key)) {
+        landings += 1;
+        assert.ok(term !== "pausedAtReadout" && term !== "diedPaused", `${world.name} excludes a worker as ${term}`);
+        if (term === "holdUnplaced") unplaced += 1;
+      }
+    }
+    assert.ok(landings > 0, world.name);
+    // The stream world starts with its worker released and the mirror current, so no hold is left to place.
+    assert.equal(unplaced > 0, world !== STREAM_WORLD, world.name);
+  }
 });
 
 // ---------------------------------------------------------------------------------------
@@ -1386,7 +1438,7 @@ test("replay: the real session, installer and readout hear every sequence of the
   assertRanAllItWasHanded(await replayDedicated(productionRealm, model, graph, automaton, new Set()), countInputSequences(automaton), "the dedicated world");
   // Under A4, a worker held at its attach is judged by the world's facts too.
   const underA4 = inputAutomaton(graph, maskOf(["A4"]), hears, (step) => step.ended ?? "");
-  assertRanAllItWasHanded(await replayDedicated(productionRealm, model, graph, underA4, new Set(["a-dedicated-worker-held-at-its-attach-and-excluded-ran-no-page-code-before-the-freeze", "a-dedicated-worker-read-had-the-observer-before-every-statement"])), countInputSequences(underA4), "the dedicated world under A4");
+  assertRanAllItWasHanded(await replayDedicated(productionRealm, model, graph, underA4, new Set<DedicatedProperty>(DEDICATED_PROPERTIES)), countInputSequences(underA4), "the dedicated world under A4");
 });
 
 async function replayDedicated(realm: Modules["realm"], model: DedicatedWorkerModel, graph: Graph, automaton: InputAutomaton, mustHold: ReadonlySet<DedicatedProperty>, sessionClass: typeof DedicatedWorkerAttachSession = DedicatedWorkerAttachSession): Promise<number> {
@@ -1422,8 +1474,8 @@ const WHOLE_COVER: Record<string, number> = { hold: 10_598, stream: 955 };
 const TWO_WORKER_COVERS: [number, number] = [3_830, 4_142];
 const TWO_WORKER_LANDINGS = 834;
 const DEDICATED_SEQUENCES = 61;
-const DEDICATED_COUNT: [number, number] = [161, 359];
-const DEDICATED_COUNT_UNDER_A4: [number, number] = [124, 245];
+const DEDICATED_COUNT: [number, number] = [159, 359];
+const DEDICATED_COUNT_UNDER_A4: [number, number] = [122, 245];
 const EVERY_DROPPED_WORD = ["ack", "ack-listed", "closed", "first", "install-bad", "install-ok", "off-answer", "open", "parsed", "pause-main", "pause-script", "pause-statement", "probe-answer", "resumed"];
 const HOLD_OVERTAKING = { hears: 5, lands: 3, "mirror-hears": 6 };
 const STREAM_OVERTAKING = { hears: 2, lands: 0, "mirror-hears": 4 };
@@ -1506,15 +1558,12 @@ const without = (assumption: Assumption): Assumption[] => PLAN_ALL.filter((name)
  * nothing, compare the landing on traces that land a worker nowhere.
  */
 const WITNESSES: readonly { world: SharedWorld; assumptions: readonly Assumption[]; property: Property }[] = [
-  { world: HOLD_WORLD, assumptions: PLAN_ALL, property: "excluded-implies-no-page-code-before-the-freeze" },
-  { world: HOLD_WORLD, assumptions: PLAN_ALL, property: "excluded-implies-no-unobserved-page-code-before-the-freeze" },
   { world: HOLD_WORLD, assumptions: PLAN_ALL, property: "a-worker-that-ran-before-the-freeze-lands-in-a-term" },
   { world: HOLD_WORLD, assumptions: without("A1"), property: "read-implies-the-observer-preceded-every-statement" },
   { world: HOLD_WORLD, assumptions: without("A2"), property: "read-implies-the-observer-preceded-every-statement" },
   { world: STREAM_WORLD, assumptions: without("A1"), property: "a-read-state-is-no-older-than-the-freeze" },
   { world: STREAM_WORLD, assumptions: without("notA3"), property: "a-read-state-is-no-older-than-the-freeze" },
-  { world: STREAM_WORLD, assumptions: without("A5fifo"), property: "a-read-state-is-no-older-than-the-freeze" },
-  { world: TWO_WORKER_WORLD, assumptions: PLAN_ALL, property: "excluded-implies-no-page-code-before-the-freeze" }
+  { world: STREAM_WORLD, assumptions: without("A5fifo"), property: "a-read-state-is-no-older-than-the-freeze" }
 ];
 
 for (const { world, assumptions, property } of WITNESSES) {
@@ -1525,7 +1574,8 @@ for (const { world, assumptions, property } of WITNESSES) {
   });
 }
 
-// Each of the named trace's forms, of the real code, by the first trace to it. Excluded all, though each ran unobserved.
+// Each of the named trace's forms, of the real code, by the first trace to it. Each ran unobserved, and each is an unread realm.
+// With fingerprint-observer@13's three exclusions put back, each is excluded again, and the world's facts say so.
 for (const [form, cause, assumptions] of [
   ["held", "late-posted-before-the-freeze", ["A1", "A2", "notA3", "A4", "A5fifo"]],
   ["held", "late-posted-after-the-freeze", PLAN_ALL],
@@ -1537,11 +1587,13 @@ for (const [form, cause, assumptions] of [
   ["second-pass", "resume-still-on-the-socket", PLAN_ALL],
   ["second-pass", "thread-concluded-first", WITH_C1_D1]
 ] as const) {
-  test(`the named trace frozen as ${form}, with ${cause}, goes through the real code: the real readout excludes a worker that ran unobserved`, async () => {
+  test(`the named trace frozen as ${form}, with ${cause}, goes through the real code: the real readout counts a worker that ran unobserved as an unread realm, where @13's rule excludes it`, async () => {
     const known = built(HOLD_WORLD);
     const found = namedWitness(known, assumptions, form, cause);
-    assert.equal(known.model.termsOf(found.keys[found.keys.length - 1])[0].term, "pausedAtReadout");
-    await assertCaughtBy(`${form}, ${cause}`, "excluded-implies-no-unobserved-page-code-before-the-freeze", () => underReplayClock((clock) => replayPath(clock, PRODUCTION_MODULES, known, found, new Set<Property>(["excluded-implies-no-unobserved-page-code-before-the-freeze"]))));
+    const [landing] = known.model.termsOf(found.keys[found.keys.length - 1]);
+    assert.deepEqual([landing.term, landing.ranUnobservedAtFreeze, judged(landing)], [NAMED_TRACE_TERM, true, []]);
+    await underReplayClock((clock) => replayPath(clock, PRODUCTION_MODULES, known, found, new Set<Property>(EXCLUSION_ROWS)));
+    await assertCaughtBy(`${form}, ${cause}`, "excluded-implies-no-unobserved-page-code-before-the-freeze", () => underReplayClock((clock) => replayPath(clock, at13Modules(), known, found, new Set<Property>(["excluded-implies-no-unobserved-page-code-before-the-freeze"]))));
   });
 }
 
@@ -1592,26 +1644,30 @@ const EXCLUDED_THOUGH_IT_RAN_UNOBSERVED: Property[] = ["excluded-implies-no-page
 type Pin = {
   name: string;
   kind: "implementation" | "environment axiom";
-  /** What would rule it out. */
+  /** What would rule it out, for a pin still open. For one closed at fingerprint-observer@14, what its exclusion rested on through @13. */
   rests: string;
   /** Under these, the same trace is no transition at all: the switch is what rules it out. */
   closedBy?: readonly Assumption[];
   assumptions: readonly Assumption[];
   labels: readonly string[];
   term: string;
+  /** What the landing breaks. */
   broken: Property[];
+  /** For a pin closed at fingerprint-observer@14: what the same trace broke through @13, where it landed `pausedAtReadout`. */
+  brokeAt13?: Property[];
 };
 
-const PINS: readonly Pin[] = [
+const CLOSED_PINS: readonly Pin[] = [
   {
     // No other client and no bound. The worker runs with its observer, and the mirror hears of it one hop later, before the bound.
-    name: "an ordinary hold whose release is one hop from the mirror at the freeze, frozen as held, is excluded though it ran, with its observer in",
+    name: "an ordinary hold whose release is one hop from the mirror at the freeze, frozen as held, ran with its observer in and is an unread realm",
     kind: "implementation",
     rests: "nothing: every report arrives before the bound and before the frame tree",
     assumptions: WITH_C1_D1,
     labels: [...QUIET_START, ...INSTALLED_AND_OFF, ...MIRROR_SEES_HELD, ...REPORTS_OF_AN_ORDINARY_HOLD, "freeze||", "hears:0:off-answer|0:released:on|", "mirror-hears:0:released||#drain"],
-    term: "pausedAtReadout",
-    broken: EXCLUDED_THOUGH_IT_RAN
+    term: "holdUnplaced",
+    broken: [],
+    brokeAt13: EXCLUDED_THOUGH_IT_RAN
   },
   {
     // The same with the mirror a word further behind: "reaching" takes a release as coming after the call.
@@ -1620,8 +1676,9 @@ const PINS: readonly Pin[] = [
     rests: "nothing, as above",
     assumptions: WITH_C1_D1,
     labels: [...QUIET_START, ...INSTALLED_AND_OFF, "mirror-hears:0:attached||", "freeze||", "hears:0:off-answer|0:released:on|", "mirror-hears:0:held||", ...REPORTS_OF_AN_ORDINARY_HOLD, "mirror-hears:0:released||#drain"],
-    term: "pausedAtReadout",
-    broken: EXCLUDED_THOUGH_IT_RAN
+    term: "holdUnplaced",
+    broken: [],
+    brokeAt13: EXCLUDED_THOUGH_IT_RAN
   },
   {
     // The second pass needs no second worker: the drain ends at the call, and every report crosses while the readout waits for the frame tree.
@@ -1630,73 +1687,84 @@ const PINS: readonly Pin[] = [
     rests: "nothing, as above",
     assumptions: WITH_C1_D1,
     labels: [...QUIET_START, ...INSTALLED_AND_OFF, "hears:0:off-answer|0:released:on|", "documents-late||&freeze||#drain-waits", ...MIRROR_SEES_HELD, ...REPORTS_OF_AN_ORDINARY_HOLD, "mirror-hears:0:released||", "documents-answered||#documents"],
-    term: "pausedAtReadout",
-    broken: EXCLUDED_THOUGH_IT_RAN
+    term: "holdUnplaced",
+    broken: [],
+    brokeAt13: EXCLUDED_THOUGH_IT_RAN
   },
   {
     // Row 2 has this form too, so measuring latency cannot close it: an install that failed leaves no observer, and its release reads the same.
-    name: "a failed install in the same window is excluded though the worker ran with no observer",
+    name: "a failed install in the same window ran with no observer and is an unread realm",
     kind: "implementation",
     rests: "nothing, as above",
     assumptions: WITH_C1_D1,
     labels: [...QUIET_START, "lands:0:install:bad||", "hears:0:install-bad|0:installed:bad|0:off+remove", "lands:0:off||", ...MIRROR_SEES_HELD, "mirror-hears:0:installed-bad||", "freeze||", "hears:0:off-answer|0:released:on|", "mirror-hears:0:released||#drain"],
-    term: "pausedAtReadout",
-    broken: EXCLUDED_THOUGH_IT_RAN_UNOBSERVED
+    term: "holdUnplaced",
+    broken: [],
+    brokeAt13: EXCLUDED_THOUGH_IT_RAN_UNOBSERVED
   },
   {
     // The form the plan looked for.
-    name: "held at the freeze and at the bound, with its late on the port, is excluded though it ran unobserved",
+    name: "held at the freeze and at the bound, with its late on the port, ran unobserved and is an unread realm",
     kind: "environment axiom",
     rests: "A5's latency half: a message posted before the freeze is processed before the bound",
     closedBy: PLAN_ALL,
     assumptions: ["A1", "A2", "notA3", "A4", "A5fifo"],
     labels: [...QUIET_START, "other-release:0||", "hears:0:resumed|0:late:resumed-while-held|0:off+remove", ...MIRROR_SEES_HELD, "freeze||", "settle-bound||#bound"],
-    term: "pausedAtReadout",
-    broken: EXCLUDED_THOUGH_IT_RAN_UNOBSERVED
+    term: "holdUnplaced",
+    broken: [],
+    brokeAt13: EXCLUDED_THOUGH_IT_RAN_UNOBSERVED
   },
   {
     // Posted after the freeze, so A5's latency half has nothing to say.
-    name: "held at the freeze and at the bound, with its late posted after the freeze, is excluded though it ran unobserved",
+    name: "held at the freeze and at the bound, with its late posted after the freeze, ran unobserved and is an unread realm",
     kind: "environment axiom",
     rests: "C1: from the socket to the port's far end, for what the browser emitted before the freeze, within the bound. Not in A1 to A5",
     closedBy: WITH_C1,
     assumptions: PLAN_ALL,
     labels: [...THE_THREAD_S_OWN_RELEASE_REACHES_A_PAUSE, ...MIRROR_SEES_HELD, "freeze||", "hears:0:resumed|0:late:resumed-while-held|0:off+remove", "settle-bound||#bound"],
-    term: "pausedAtReadout",
-    broken: EXCLUDED_THOUGH_IT_RAN_UNOBSERVED
+    term: "holdUnplaced",
+    broken: [],
+    brokeAt13: EXCLUDED_THOUGH_IT_RAN_UNOBSERVED
   },
   {
     // The form the plan did not expect: nothing is on the port at the freeze, so A5's latency half has nothing to say.
-    name: "held at the freeze and at the bound, with its resume still on the thread's socket, is excluded though it ran unobserved",
+    name: "held at the freeze and at the bound, with its resume still on the thread's socket, ran unobserved and is an unread realm",
     kind: "environment axiom",
     rests: "C1, as above",
     closedBy: WITH_C1,
     assumptions: PLAN_ALL,
     labels: [...THE_THREAD_S_OWN_RELEASE_REACHES_A_PAUSE, ...MIRROR_SEES_HELD, "freeze||", "settle-bound||#bound"],
-    term: "pausedAtReadout",
-    broken: EXCLUDED_THOUGH_IT_RAN_UNOBSERVED
+    term: "holdUnplaced",
+    broken: [],
+    brokeAt13: EXCLUDED_THOUGH_IT_RAN_UNOBSERVED
   },
   {
     // No late is ever posted: a resume behind the thread's own conclusion is taken for the hold's end, and the install never answered.
-    name: "held at the freeze, its hold's bound fires before the resume is heard, and it is excluded though it ran unobserved",
+    name: "held at the freeze, its hold's bound fires before the resume is heard, and it ran unobserved and is an unread realm",
     kind: "environment axiom",
     rests: "the thread hears a session's event within its hold bound. In this trace the resume is behind the pause that set the bound, so this needs a resume at least 3 s on the socket. Not in A1 to A5",
     assumptions: WITH_C1_D1,
     labels: [...THE_THREAD_S_OWN_RELEASE_REACHES_A_PAUSE, ...MIRROR_SEES_HELD, "freeze||", "hold-bound:0|0:installed:none|0:off+remove", "settle-bound||#bound"],
-    term: "pausedAtReadout",
-    broken: EXCLUDED_THOUGH_IT_RAN_UNOBSERVED
+    term: "holdUnplaced",
+    broken: [],
+    brokeAt13: EXCLUDED_THOUGH_IT_RAN_UNOBSERVED
   },
   {
     // The resume goes down with the connection, and the report of that is posted after the freeze, so A5's latency half has nothing to say.
-    name: "held at the freeze, the connection closes behind it with the resume on its socket, and it is excluded though it ran unobserved",
+    name: "held at the freeze, the connection closes behind it with the resume on its socket, and it ran unobserved and is an unread realm",
     kind: "environment axiom",
     rests: "C1 read as one bound on the socket and the port together: the connection does not close on what the browser emitted before the freeze. Not in A1 to A5",
     closedBy: WITH_C1,
     assumptions: PLAN_ALL,
     labels: [...THE_THREAD_S_OWN_RELEASE_REACHES_A_PAUSE, ...MIRROR_SEES_HELD, "freeze||", "connection-closes|0:lost|", "settle-bound||#bound"],
-    term: "pausedAtReadout",
-    broken: EXCLUDED_THOUGH_IT_RAN_UNOBSERVED
-  },
+    term: "holdUnplaced",
+    broken: [],
+    brokeAt13: EXCLUDED_THOUGH_IT_RAN_UNOBSERVED
+  }
+];
+
+/** Still open: a worker the readout never heard of has no term to move. */
+const PINS: readonly Pin[] = [
   {
     // Empty in the model's alphabet, where discovery is a free step that this trace never takes. Production reads the page connection's
     // discovery after the frame tree, and a worker it found with no report lands `unattached`, unread. So in no term needs the frame tree
@@ -1725,6 +1793,26 @@ const PINS: readonly Pin[] = [
   }
 ];
 
+// Closed at fingerprint-observer@14. Each trace is the one pinned open through @13, walked transition by transition under the
+// same axioms, and the worker ran before the freeze as it did then. It lands an unread realm, the world's facts find nothing
+// broken in that, and the real code lands it there with both exclusion rows required of it. With @13's three exclusions put
+// back, the real code excludes it again and each row the pin named catches that.
+for (const { name, kind, closedBy, assumptions, labels, term, broken, brokeAt13 } of CLOSED_PINS) {
+  test(`F4, closed at fingerprint-observer@14 (${kind}): ${name}`, async () => {
+    const known = built(HOLD_WORLD);
+    if (closedBy) assert.throws(() => walk(known, closedBy, labels), /no transition/);
+    const path = walk(known, assumptions, labels);
+    const landing = known.model.termsOf(path.keys[path.keys.length - 1])[0];
+    assert.equal(landing.term, term);
+    assert.deepEqual(judged(landing), broken);
+    const at13 = brokeAt13 ?? [];
+    assert.ok(at13.length > 0, "a closed pin names what it broke");
+    assert.deepEqual([landing.ranAtFreeze, landing.ranUnobservedAtFreeze], [true, at13.includes("excluded-implies-no-unobserved-page-code-before-the-freeze")]);
+    await underReplayClock((clock) => replayPath(clock, PRODUCTION_MODULES, known, path, new Set<Property>(EXCLUSION_ROWS)));
+    for (const property of at13) await assertCaughtBy(name, property, () => underReplayClock((clock) => replayPath(clock, at13Modules(), known, path, new Set([property]))));
+  });
+}
+
 for (const { name, kind, rests, closedBy, assumptions, labels, term, broken } of PINS) {
   test(`open (F4, ${kind}): ${name}, which rests on ${rests}`, async () => {
     const known = built(HOLD_WORLD);
@@ -1745,7 +1833,7 @@ test("the named trace asks that the worker ran unobserved: an ordinary hold, whi
     const { keys } = walk(known, pin.assumptions, pin.labels);
     return keys[keys.length - 2];
   };
-  const [ordinary, , , failedInstall] = PINS;
+  const [ordinary, , , failedInstall] = CLOSED_PINS;
   assert.equal(known.model.namedTraceAt(lastBeforeLanding(ordinary), 0), null);
   assert.deepEqual(known.model.namedTraceAt(lastBeforeLanding(failedInstall), 0), { form: "held", cause: "thread-concluded-first" });
 });
@@ -1798,12 +1886,12 @@ test("open (F4, environment axiom): with the page's channel lost at the freeze, 
 });
 
 /**
- * Open (F4, implementation), the second pass again, with another worker holding the drain open, and
- * the plainest form of it: the drain ends on what it waited for, with the attacher alive. Its docblock
- * says "whatever it did came after the call, unless it was not held at its main script". Under C1 and
- * D1 too, so no latency bound closes it: the reports do arrive before the bound.
+ * Closed at fingerprint-observer@14: the second pass again, with another worker holding the drain open,
+ * and the plainest form of it, where the drain ends on what it waited for with the attacher alive. The
+ * worker ran before the freeze, the mirror heard of it after, and its release since. Through @13 the
+ * second pass excluded it, under C1 and D1 too, so no latency bound closed it. It is an unread realm.
  */
-test("open (F4, implementation): attached after the freeze by the mirror's clock, released, and excluded, though it ran before the freeze, with another worker's drain open", async () => {
+test("F4, closed at fingerprint-observer@14 (implementation): attached after the freeze by the mirror's clock and released, having run before the freeze, with another worker's drain open, is an unread realm", async () => {
   const known = built(TWO_WORKER_WORLD);
   const reach = reachable(known.graph, maskOf(WITH_C1_D1));
   let found: TracedPath | null = null;
@@ -1814,7 +1902,7 @@ test("open (F4, implementation): attached after the freeze by the mirror's clock
       const label = known.graph.labels[known.graph.edgeLabel[edge]];
       if ((known.graph.edgeBlockedBy[edge] & maskOf(WITH_C1_D1)) !== 0 || !known.model.isFinished(key) || !label.endsWith("#drain")) continue;
       const [landing] = known.model.termsOf(key);
-      if (landing.term !== "pausedAtReadout" || !landing.attacherLives) continue;
+      if (landing.term !== "holdUnplaced" || !landing.attacherLives || !landing.ranAtFreeze) continue;
       const to = keysAndLabelsTo(known, reach, state);
       found = { labels: [...to.labels, label], keys: [...to.keys, key] };
       break;
@@ -1822,26 +1910,30 @@ test("open (F4, implementation): attached after the freeze by the mirror's clock
   }
   assert.notEqual(found, null, "the world has no such trace, ending by the drain with the attacher alive");
   const path = found as TracedPath;
-  await assertCaughtBy("attached after the freeze", "excluded-implies-no-page-code-before-the-freeze", () => underReplayClock((clock) => replayPath(clock, PRODUCTION_MODULES, known, path, new Set<Property>(["excluded-implies-no-page-code-before-the-freeze"]))));
+  await underReplayClock((clock) => replayPath(clock, PRODUCTION_MODULES, known, path, new Set<Property>(EXCLUSION_ROWS)));
+  await assertCaughtBy("attached after the freeze", "excluded-implies-no-page-code-before-the-freeze", () => underReplayClock((clock) => replayPath(clock, at13Modules(), known, path, new Set<Property>(["excluded-implies-no-page-code-before-the-freeze"]))));
 });
 
 /**
- * Open (dedicated), implementation. The readout counts an attached worker with no record as held,
- * and the channel takes a detach before its resume as dying paused, and neither reads
- * `waitingForDebugger`: A4 speaks of a held worker, and this one was already running when it
- * attached. The window is the recursion's arming, one round trip, and the second form is final:
- * gone in that window, it is excluded at every later readout. It can reach a saved report as a
- * worker that is no unread realm. How often a dedicated worker attaches already running is not
- * measured. "Already running when it attached" reads `attachedLate` in the terms' docblock, so
- * the change is one word of evidence and an epoch: the owner's call.
+ * Closed at fingerprint-observer@14 (dedicated). Through @13 the readout counted an attached worker
+ * with no record as held, and took a detach before the channel's resume as dying paused, and neither
+ * read `waitingForDebugger`: A4 speaks of a held worker, and this one was already running when it
+ * attached. Inside the arming's round trip it read held, and gone in that window it read died paused
+ * at every later readout. Both now read `attachedLate`, an unread realm, which is what the terms'
+ * docblock always said of a worker already running when it attached. How often a dedicated worker
+ * attaches already running is still not measured.
  */
-test("open (dedicated): a worker already running when it attached is excluded inside the arming's round trip", async () => {
+const AT_13_NO_RECORD_IS_HELD: SourceEdit = { find: "if (worker.waitingForDebugger)\n                heldBeforeInstall += 1;\n            else\n                runningBeforeInstall += 1;", replace: "heldBeforeInstall += 1;" };
+const AT_13_DIED_PAUSED: SourceEdit = { find: 'if (worker.detachedWhilePaused) {\n        return worker.waitingForDebugger\n            ? { record, state: "excluded", reason: "diedPaused" }\n            : { record, state: "unread", reason: "attachedLate" };\n    }', replace: 'if (worker.detachedWhilePaused)\n        return { record, state: "excluded", reason: "diedPaused" };' };
+
+test("closed at fingerprint-observer@14 (dedicated): a worker already running when it attached is an unread realm inside the arming's round trip, and gone in it, where @13 excluded it", async () => {
   const { model, graph } = dedicated();
+  const property: DedicatedProperty = "a-dedicated-worker-excluded-ran-no-page-code-before-the-freeze";
   const pinned = [
-    { steps: ["born:running", "hears-attach:running", "freeze"], term: "pausedAtReadout" },
-    { steps: ["born:running", "ends", "hears-attach:running", "hears-detach", "arm-answered", "freeze"], term: "diedPaused" }
+    { steps: ["born:running", "hears-attach:running", "freeze"], at13: "pausedAtReadout", edit: AT_13_NO_RECORD_IS_HELD },
+    { steps: ["born:running", "ends", "hears-attach:running", "hears-detach", "arm-answered", "freeze"], at13: "diedPaused", edit: AT_13_DIED_PAUSED }
   ];
-  for (const { steps, term } of pinned) {
+  for (const { steps, at13: excludedAs, edit } of pinned) {
     let at = 0;
     for (const name of steps) {
       let next = -1;
@@ -1851,20 +1943,31 @@ test("open (dedicated): a worker already running when it attached is excluded in
       assert.notEqual(next, -1, name);
       at = next;
     }
-    assert.equal(model.termOf(graph.keys[at]), term);
-    await assertCaughtBy(term, "a-dedicated-worker-excluded-ran-no-page-code-before-the-freeze", () =>
+    const truth = model.truthOf(graph.keys[at]);
+    assert.deepEqual([model.termOf(graph.keys[at]), truth.ranAtFreeze, truth.heldAtAttach], ["attachedLate", true, false]);
+    const through = (realm: Modules["realm"], term: string) =>
       underReplayClock(async (clock) => {
-        const replay = new DedicatedReplay(clock, productionRealm);
+        const replay = new DedicatedReplay(clock, realm);
         try {
           await replay.open();
           for (const name of steps) if (!/^(born|ends)/.test(name)) await replay.step(name);
-          replay.checkLanding(term, [model.truthOf(graph.keys[at])], new Set<DedicatedProperty>(["a-dedicated-worker-excluded-ran-no-page-code-before-the-freeze"]), () => steps);
+          replay.checkLanding(term, [truth], new Set<DedicatedProperty>([property]), () => steps);
         } finally {
           replay.close();
         }
-      })
-    );
+      });
+    await through(productionRealm, "attachedLate");
+    await assertCaughtBy(excludedAs, property, () => through(realmVariant([edit]), excludedAs));
   }
+  // Over the whole dedicated world, under no assumption: no worker that was already running at its attach lands in an exclusion.
+  let neverHeld = 0;
+  for (const key of graph.keys) {
+    const term = model.termOf(key);
+    if (term === null || model.truthOf(key).heldAtAttach || term === "nowhere") continue;
+    neverHeld += 1;
+    assert.ok(term !== "pausedAtReadout" && term !== "diedPaused", `already running at its attach, and ${term}`);
+  }
+  assert.ok(neverHeld > 0);
 });
 
 // ---------------------------------------------------------------------------------------
@@ -1878,22 +1981,41 @@ const realmVariant = (edits: readonly SourceEdit[]) => loadVariant<typeof produc
 const attacherVariant = (edits: readonly SourceEdit[]) => loadVariant<typeof productionAttacher>(attacherPath, edits);
 
 const FREEZE_DIED_HELD: SourceEdit = { find: 'if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    // Held as far as', replace: 'if (worker.detachedWhilePaused)\n        return { record, state: "excluded", reason: "pausedAtReadout" };\n    // Held as far as' };
-const RESOLVE_DIED_HELD: SourceEdit = { find: 'if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    return { record, state: "excluded", reason: "pausedAtReadout" };', replace: 'return { record, state: "excluded", reason: "pausedAtReadout" };' };
-const FREEZE_LOST: SourceEdit = { find: 'if (record.lostWithChannel)\n        return { record, state: "unread", reason: "channelLostAlive" };\n    // Gone held with', replace: "// Gone held with" };
-const REACHING_LOST: SourceEdit = { find: 'if (record.lostWithChannel)\n        return { record, state: "unread", reason: "channelLostAlive" };\n    // Paused at its main script after', replace: "// Paused at its main script after" };
-const HELD_LOST: SourceEdit = { find: 'if (worker.hold === "held" && record.lostWithChannel)\n        return { record, state: "unread", reason: "channelLostAlive" };\n', replace: "" };
+/** @11's rule for a worker gone held in the drain, with @14's rule left in place for every other hold. */
+const RESOLVE_DIED_HELD: SourceEdit = { find: `if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    ${AT_14_UNPLACED}`, replace: `if (worker.detachedWhilePaused)\n        ${AT_13_EXCLUDED}\n    ${AT_14_UNPLACED}` };
 
-/** The kernels' own variants, each against the model, under a set where production keeps the property. */
+/**
+ * The kernels' own variants, each against the model, under a set where production keeps the property.
+ * One that was here through fingerprint-observer@13 is gone: kernels that ignore `lostWithChannel`. There
+ * a worker the closed channel left running read as held and was excluded. With no exclusion to fall into
+ * it is an unread realm under another term, which no property of the model tells apart: the classifier's
+ * own walk in lib/fv-worker-readout.test.ts holds the term ("a worker the channel left at the freeze is
+ * read on", and the loss of a channel during a hold).
+ */
 const KERNEL_VARIANTS: readonly { name: string; property: Property; world: SharedWorld; assumptions: readonly Assumption[]; edits: readonly SourceEdit[] }[] = [
-  { name: "the @11 shared rule is restored: a worker gone held is excluded", property: "excluded-implies-no-page-code-before-the-freeze", world: SMALL_WORLD, assumptions: ["Z"], edits: [FREEZE_DIED_HELD, RESOLVE_DIED_HELD] },
-  { name: "lostWithChannel is ignored: a worker the closed channel left running reads as held", property: "excluded-implies-no-page-code-before-the-freeze", world: SMALL_WORLD, assumptions: ["Z"], edits: [FREEZE_LOST, REACHING_LOST, HELD_LOST] },
-  { name: "a worker the mirror knows is late is excluded", property: "excluded-implies-no-unobserved-page-code-before-the-freeze", world: SMALL_WORLD, assumptions: ["Z"], edits: [{ find: 'if (worker.hold === "late")\n        return { record, state: "unread", reason: "attachedLate" };\n    if (worker.hold === "pending") {', replace: 'if (worker.hold === "late")\n        return { record, state: "excluded", reason: "pausedAtReadout" };\n    if (worker.hold === "pending") {' }] },
+  { name: "the @11 shared rule is restored: a worker gone held is excluded", property: "excluded-implies-no-page-code-before-the-freeze", world: SMALL_WORLD, assumptions: ["Z"], edits: [FREEZE_DIED_HELD, RESOLVE_DIED_HELD, LANDS_EXCLUDED] },
+  { name: "a worker the mirror knows is late is excluded", property: "excluded-implies-no-unobserved-page-code-before-the-freeze", world: SMALL_WORLD, assumptions: ["Z"], edits: [{ find: 'if (worker.hold === "late")\n        return { record, state: "unread", reason: "attachedLate" };\n    if (worker.hold === "pending") {', replace: 'if (worker.hold === "late")\n        return { record, state: "excluded", reason: "pausedAtReadout" };\n    if (worker.hold === "pending") {' }, LANDS_EXCLUDED] },
   { name: "a running worker's last word at the call is its state, with no barrier", property: "a-read-state-is-no-older-than-the-freeze", world: STREAM_WORLD, assumptions: ["A1", "notA3", "A5fifo"], edits: [{ find: 'if (!record.worker.detached)\n        return { record, state: "running" };\n', replace: "" }] },
   { name: "a worker gone with no pause, past the bound, is read as ended at once", property: "at-12-only-moves-toward-unread", world: SMALL_WORLD, assumptions: [], edits: [{ find: '// saw it run and its life fits the bound.\n            return (0, shared_worker_attacher_1.sharedWorkerEndedAtOnce)(worker)\n                ? { record, state: "ended-at-once" }\n                : { record, state: "unread", reason: "unreached" };', replace: '// saw it run and its life fits the bound.\n            return { record, state: "ended-at-once" };' }] }
 ];
 
 for (const { name, property, world, assumptions, edits } of KERNEL_VARIANTS) {
   test(`the model catches a variant of the kernels: ${name}`, async () => {
+    checkModel(PRODUCTION_KERNELS, world, assumptions, property);
+    await assertCaughtBy(name, property, () => checkModel(realmVariant(edits) as unknown as Kernels, world, assumptions, property));
+  });
+}
+
+/** Fingerprint-observer@13's three shared exclusions, each put back alone and all together, against the model: each row catches its own. */
+const AT_13_VARIANTS: typeof KERNEL_VARIANTS = [
+  { name: "@13's rule for a hold is restored: released in the drain, or still held at its end, a worker is excluded", property: "excluded-implies-no-page-code-before-the-freeze", world: SMALL_WORLD, assumptions: PLAN_ALL, edits: [AT_13_HELD, LANDS_EXCLUDED] },
+  { name: "@13's rule for a reaching worker is restored: released in the drain, it is excluded", property: "excluded-implies-no-page-code-before-the-freeze", world: SMALL_WORLD, assumptions: PLAN_ALL, edits: [AT_13_REACHING, LANDS_EXCLUDED] },
+  { name: "@13's second pass is restored: attached after the freeze and released, a worker is excluded", property: "excluded-implies-no-page-code-before-the-freeze", world: HOLD_WORLD, assumptions: PLAN_ALL, edits: [AT_13_SECOND_PASS, LANDS_EXCLUDED] },
+  { name: "@13's three exclusions are restored, and a worker that ran with no observer is excluded", property: "excluded-implies-no-unobserved-page-code-before-the-freeze", world: SMALL_WORLD, assumptions: PLAN_ALL, edits: AT_13_SHARED }
+];
+
+for (const { name, property, world, assumptions, edits } of AT_13_VARIANTS) {
+  test(`the model catches fingerprint-observer@13's rule put back: ${name}`, async () => {
     checkModel(PRODUCTION_KERNELS, world, assumptions, property);
     await assertCaughtBy(name, property, () => checkModel(realmVariant(edits) as unknown as Kernels, world, assumptions, property));
   });
@@ -1913,16 +2035,18 @@ test("the @11 rule, in the real readout, is caught by the world's facts on a wor
   const path = keysAndLabelsTo(known, reach, found);
   const property: Property = "excluded-implies-no-page-code-before-the-freeze";
   await underReplayClock((clock) => replayPath(clock, PRODUCTION_MODULES, known, path, new Set([property])));
-  const variant: Modules = { attacher: productionAttacher, realm: realmVariant([FREEZE_DIED_HELD, RESOLVE_DIED_HELD]) };
+  const variant: Modules = { attacher: productionAttacher, realm: realmVariant([FREEZE_DIED_HELD, RESOLVE_DIED_HELD, LANDS_EXCLUDED]) };
   await assertCaughtBy("the @11 rule", property, () => underReplayClock((clock) => replayPath(clock, variant, known, path, new Set([property]))));
 });
 
 test("what the @11 rule rests on: in the small world, only on no detach overtaking; in the hold world, on A1 and A2 too, where @12 needs neither", () => {
-  const variant = realmVariant([FREEZE_DIED_HELD, RESOLVE_DIED_HELD]) as unknown as Kernels;
+  const variant = realmVariant([FREEZE_DIED_HELD, RESOLVE_DIED_HELD, LANDS_EXCLUDED]) as unknown as Kernels;
   checkModel(variant, SMALL_WORLD, ["Z", "notA3"], "excluded-implies-no-page-code-before-the-freeze");
   const universe = maskOf(["A1", "A2", "notA3", "A5fifo", "Z"]);
-  assert.deepEqual(smallestSets([build(HOLD_WORLD, variant)], "excluded-implies-no-page-code-before-the-freeze", universe), [["A1", "A2", "notA3", "A5fifo", "Z"]]);
-  assert.deepEqual(smallestSets([built(HOLD_WORLD)], "excluded-implies-no-page-code-before-the-freeze", universe), [["A5fifo", "Z"]]);
+  // The @11 rule alone, over fingerprint-observer@14's kernels, which exclude nothing else. Through @13 both sets also named
+  // A5's order and Z, which the other exclusions needed and this rule does not.
+  assert.deepEqual(smallestSets([build(HOLD_WORLD, variant)], "excluded-implies-no-page-code-before-the-freeze", universe), [["A1", "A2", "notA3"]]);
+  assert.deepEqual(smallestSets([built(HOLD_WORLD)], "excluded-implies-no-page-code-before-the-freeze", universe), [[]]);
 });
 
 /** The thread's own variants: the edit is in the bytes the thread runs, and the sequences it hears go through it. */
@@ -2234,10 +2358,15 @@ async function brokenHold(modules: Modules, mustHold: Property): Promise<void> {
   });
 }
 
-test("the world's facts catch a thread that drops a broken hold's late, as a worker excluded though it ran unobserved", async () => {
-  await brokenHold(PRODUCTION_MODULES, "excluded-implies-no-unobserved-page-code-before-the-freeze");
-  const variant: Modules = { attacher: attacherVariant(NO_LATE_ON_A_BROKEN_HOLD), realm: productionRealm };
-  await assertCaughtBy("the late is dropped", "excluded-implies-no-unobserved-page-code-before-the-freeze", () => brokenHold(variant, "excluded-implies-no-unobserved-page-code-before-the-freeze"));
+test("a thread that drops a broken hold's late no longer gets its worker excluded: the landing catches the drop, and under @13's rule the world's facts catch it as a worker excluded though it ran unobserved", async () => {
+  const property: Property = "excluded-implies-no-unobserved-page-code-before-the-freeze";
+  await brokenHold(PRODUCTION_MODULES, property);
+  // The worker stays held as the mirror sees it. From fingerprint-observer@14 that is an unread realm under another term, so the
+  // drop costs the term's name and no longer the realm.
+  const dropped: Modules = { attacher: attacherVariant(NO_LATE_ON_A_BROKEN_HOLD), realm: productionRealm };
+  await assertCaughtBy("the late is dropped", "replay-the-real-readout-lands-where-the-model-says", () => brokenHold(dropped, property));
+  const droppedAt13: Modules = { attacher: attacherVariant(NO_LATE_ON_A_BROKEN_HOLD), realm: realmVariant(AT_13_SHARED) };
+  await assertCaughtBy("the late is dropped, under @13's rule", property, () => brokenHold(droppedAt13, property));
 });
 
 test("the world's facts catch a thread that takes no resume for a broken hold, as a worker read though it ran unobserved", async () => {
@@ -2288,7 +2417,7 @@ const LATE_TERMINAL: SourceEdit = { find: 'if (worker.hold === "late" && (messag
 
 /** The mirror's and the readout's own variants, against what the main thread hears. */
 const MAIN_VARIANTS: readonly { name: string; property: string; world: SharedWorld; assumptions: readonly Assumption[]; attacher?: readonly SourceEdit[]; realm?: readonly SourceEdit[] }[] = [
-  { name: "a worker the mirror knows is late is excluded, in the real readout, judged by the world's facts", property: "excluded-implies-no-page-code-before-the-freeze", world: HOLD_WORLD, assumptions: ["A5fifo", "Z"], realm: [{ find: 'if (worker.hold === "late")\n        return { record, state: "unread", reason: "attachedLate" };\n    if (worker.hold === "pending") {', replace: 'if (worker.hold === "late")\n        return { record, state: "excluded", reason: "pausedAtReadout" };\n    if (worker.hold === "pending") {' }] },
+  { name: "a worker the mirror knows is late is excluded, in the real readout, judged by the world's facts", property: "excluded-implies-no-page-code-before-the-freeze", world: HOLD_WORLD, assumptions: ["A5fifo", "Z"], realm: [{ find: 'if (worker.hold === "late")\n        return { record, state: "unread", reason: "attachedLate" };\n    if (worker.hold === "pending") {', replace: 'if (worker.hold === "late")\n        return { record, state: "excluded", reason: "pausedAtReadout" };\n    if (worker.hold === "pending") {' }, LANDS_EXCLUDED] },
   { name: "an install's answer counts with no first snapshot behind it", property: "replay-the-install-counts-what-the-model-says", world: HOLD_WORLD, assumptions: ["A5fifo"], realm: [{ find: "record.lastSeq >= 1 && !record.broken", replace: "!record.broken" }] },
   { name: "the mirror does not rewrite a worker gone after its install", property: "replay-the-mirror-holds-what-the-model-says", world: HOLD_WORLD, assumptions: ["A5fifo"], attacher: [MIRROR_REWRITE] },
   { name: "the mirror forgets a detach while held", property: "replay-the-mirror-holds-what-the-model-says", world: HOLD_WORLD, assumptions: ["A5fifo"], attacher: [{ find: "worker.detachedWhilePaused = message.diedWhileHeld === true;", replace: "worker.detachedWhilePaused = false;" }] },
@@ -2342,7 +2471,7 @@ function checkDedicatedModel(kernels: DedicatedKernels, assumptions: readonly As
 test("the model catches a variant of the dedicated kernel: a released worker is excluded", async () => {
   const property: DedicatedProperty = "a-dedicated-worker-held-at-its-attach-and-excluded-ran-no-page-code-before-the-freeze";
   checkDedicatedModel(productionRealm as unknown as DedicatedKernels, ["A4"], property);
-  const variant = realmVariant([{ find: 'if (!worker.released)\n        return { record, state: "excluded", reason: "pausedAtReadout" };\n    if (record.install === "attached-late")', replace: 'if (record.install !== "attached-late")\n        return { record, state: "excluded", reason: "pausedAtReadout" };\n    if (record.install === "attached-late")' }]);
+  const variant = realmVariant([{ find: 'if (record.install === "attached-late")\n        return { record, state: "unread", reason: "attachedLate" };', replace: 'if (record.install !== "attached-late")\n        return { record, state: "excluded", reason: "pausedAtReadout" };\n    if (record.install === "attached-late")\n        return { record, state: "unread", reason: "attachedLate" };' }]);
   await assertCaughtBy("a released worker is excluded", property, () => checkDedicatedModel(variant as unknown as DedicatedKernels, ["A4"], property));
 });
 

@@ -8,6 +8,6 @@
   },
   "artifacts": {
     "specs/case-machine/conformance.json": "600178ea594f5a21301c097b79f4a86db8eb85c015c8cee46b3cfe9e4d5e9eef",
-    "specs/worker-hold/conformance.json": "276d8a26162ef1bbfcc293d1f611fba4a76883ddfb7dd2322c4312e3a12d115a"
+    "specs/worker-hold/conformance.json": "3056b336e390ac04d70516ebf39ad784be8a2d1f7cb57ec7fbf014847fce944e"
   }
 }

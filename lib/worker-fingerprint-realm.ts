@@ -178,17 +178,22 @@ export type SharedWorkerFingerprintInstallDiagnostics = {
 
 /**
  * The shared-worker terms of one readout, apart from the dedicated ones,
- * which they never move. Excluded workers ran no page code at the freeze;
- * unread ones ran, or may have run, page code whose evidence cannot be read
- * in full; unscoped ones were read in full but cannot be credited to the
- * visit's main document; the ones that ended at once are none of these.
+ * which they never move. Unread workers ran, or may have run, page code whose
+ * evidence cannot be read in full; unscoped ones were read in full but cannot
+ * be credited to the visit's main document; the ones that ended at once are
+ * none of these. From fingerprint-observer@14 no shared worker is excluded:
+ * the two exclusion terms stay in the record and nothing writes them.
  */
 export type SharedWorkerFingerprintReadoutDiagnostics = {
   /** The visit channel's discovery witness: every shared worker target it saw in the scan's context. */
   discovered: number;
   /** Every shared worker of the context the attacher reported, by the end of the drain. */
   attached: number;
-  /** Excluded: held at its main script at the freeze, or first held after it. */
+  /**
+   * Excluded: held at its main script at the freeze, or first held after it.
+   * Never from fingerprint-observer@14, which reads such a worker unread
+   * (`holdUnplaced`).
+   */
   pausedAtReadout: number;
   /**
    * Excluded: it went away while held at its main script. Never from
@@ -196,6 +201,16 @@ export type SharedWorkerFingerprintReadoutDiagnostics = {
    * or as a released one once its install answered.
    */
   diedPaused: number;
+  /**
+   * Unread: the readout's view saw it held at its main script, at the freeze
+   * or after it, or first heard of it after the freeze, and by the end of the
+   * drain it was released or still held. That view lags the attacher's
+   * thread, so the release may have been in flight at the freeze, or the hold
+   * already broken, and whether the worker ran page code before the freeze
+   * is not known. Through fingerprint-observer@13 it was excluded as having
+   * run nothing before the freeze (`pausedAtReadout`).
+   */
+  holdUnplaced: number;
   /**
    * Unread: it went away held at its main script with its install
    * unanswered. A hold another client broke resumes it, and that resume can
@@ -240,9 +255,12 @@ export type WorkerFingerprintReadoutDiagnostics = {
   /** This channel's dedicated attaches after the drain, nested ones included. */
   attachedDedicated: number;
   attachedNested: number;
-  /** Excluded: still held before its first statement at the freeze. */
+  /**
+   * Excluded: held before its first statement at the freeze, or attached in
+   * the drain and held at that attach, so not yet started at the freeze.
+   */
   pausedAtReadout: number;
-  /** Excluded: the worker's target went away before the channel released it. */
+  /** Excluded: held at its attach, and its target went away before the channel released it. */
   diedPaused: number;
   /**
    * Excluded: its owner document was not in the page's frame trees read at
@@ -254,7 +272,14 @@ export type WorkerFingerprintReadoutDiagnostics = {
   readable: number;
   /** Unread: released without the observer known to precede its first statement. */
   installFailed: number;
-  /** Unread: already running when it attached. */
+  /**
+   * Unread: already running when it attached, whenever that attach arrived:
+   * before the call, inside the round trip that arms the recursion, or in the
+   * drain. Through fingerprint-observer@13 one with no record of this
+   * installer's yet was excluded as held, one gone before the channel's
+   * resume was excluded as died paused, and one attached in the drain was in
+   * no term.
+   */
   attachedLate: number;
   /**
    * Unread: its last word at its freeze point was "open" and no closed
@@ -353,18 +378,20 @@ type DedicatedExcludedOrUnread<R> =
  */
 export type DedicatedFrozenRealm<R = WorkerRealmRecord> = DedicatedExcludedOrUnread<R> | FrozenStream<R>;
 
-/** Its one exclusion is `pausedAtReadout`: from fingerprint-observer@12 nothing writes a shared `diedPaused`. */
-type SharedExcludedOrUnread<R> =
-  | { record: R; state: "excluded"; reason: "pausedAtReadout" }
-  | {
-      record: R;
-      state: "unread";
-      reason: "installFailed" | "attachedLate" | "streamBroken" | "channelLostAlive" | "unreached" | "diedHeld";
-    };
+/**
+ * A shared worker with nothing to read. None is excluded: from
+ * fingerprint-observer@12 nothing writes a shared `diedPaused`, and from @14
+ * nothing writes a shared `pausedAtReadout`.
+ */
+type SharedUnread<R> = {
+  record: R;
+  state: "unread";
+  reason: "installFailed" | "attachedLate" | "streamBroken" | "channelLostAlive" | "unreached" | "diedHeld" | "holdUnplaced";
+};
 
 /** A shared worker at the freeze, short of its stream. */
 type SharedWithoutStream<R> =
-  | SharedExcludedOrUnread<R>
+  | SharedUnread<R>
   | { record: R; state: "ended-at-once" }
   /** A shared worker attached and not yet paused at the freeze: its state is its first move after it. */
   | { record: R; state: "reaching" }
@@ -390,7 +417,7 @@ type DedicatedLandedTerm = LandedTerm<
 >;
 
 type SharedLandedTerm = LandedTerm<
-  | "pausedAtReadout"
+  | "holdUnplaced"
   | "diedHeld"
   | "installFailed"
   | "attachedLate"
@@ -588,14 +615,20 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
    *    never read at an older state. It also waits for the attacher to
    *    report each shared worker the channel's discovery saw, and for each
    *    shared worker attached but not yet paused at the freeze to make its
-   *    first move: a pause at its main script means it ran nothing before
-   *    the freeze, anything else that it may have. A shared worker the main
+   *    first move: gone at once it ended at once, and any other move leaves
+   *    it unread under the term that move names. A shared worker the main
    *    thread sees held at its main script, at the freeze, after reaching, or
    *    attached during the drain, waits for its next move too: the attacher's
    *    thread may already have found that hold broken, its "late" report
    *    still in flight, and a broken hold ran its main script unobserved, so
-   *    it is unread. Released, died while held, or still held at the bound,
-   *    it ran nothing before the freeze and is excluded.
+   *    it is unread. Released, or still held at the bound, it is unread too
+   *    (`holdUnplaced`): a release can be in flight at the freeze, the worker
+   *    already running and the mirror one hop behind, and nothing the readout
+   *    holds tells that worker from one released after the freeze. Through
+   *    fingerprint-observer@13 it was excluded as having run nothing before
+   *    the freeze. A dedicated worker attached in the drain is classified by
+   *    its attach: held there, it had not started at the freeze and is
+   *    excluded; already running, it is unread.
    * 3. Every dedicated worker, attached or gone, is checked against the frame
    *    trees read at the freeze first: one whose document was not current
    *    then is excluded whatever state its stream was left in, and one whose
@@ -632,11 +665,19 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     for (const record of this.sharedRecords.values()) sharedFrozen.push(this.freezeShared(record));
     const frozenShared = new Set(sharedFrozen.map((realm) => realm.record));
     // A dedicated worker this installer has neither installed nor heard
-    // concluded is still held by an installer before it (GPC, in its arm).
-    const heldBeforeInstall = Math.max(
-      0,
-      (options.session?.attachCounts().attachedDedicatedWorkerCount ?? 0) - frozen.length
-    );
+    // concluded is still inside the round trip that arms the recursion, or
+    // with an installer before this one (GPC, in its arm). Held at its
+    // attach, it is still held. Already running at its attach, it was never
+    // held, and it is unread as one attached late.
+    const attachedAtFreeze = new Set<string>();
+    let heldBeforeInstall = 0;
+    let runningBeforeInstall = 0;
+    for (const worker of options.session?.attachedDedicatedWorkers() ?? []) {
+      attachedAtFreeze.add(worker.sessionId);
+      if (this.records.has(worker.sessionId)) continue;
+      if (worker.waitingForDebugger) heldBeforeInstall += 1;
+      else runningBeforeInstall += 1;
+    }
 
     try {
       await this.drain(options.session, observedDedicated, frozen, sharedFrozen, options.settleMs);
@@ -658,6 +699,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       attached: 0,
       pausedAtReadout: 0,
       diedPaused: 0,
+      holdUnplaced: 0,
       diedHeld: 0,
       readable: 0,
       ownerUnscoped: 0,
@@ -679,7 +721,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       ownerReplaced: 0,
       readable: 0,
       installFailed: 0,
-      attachedLate: 0,
+      attachedLate: runningBeforeInstall,
       cutOff: 0,
       streamBroken: 0,
       channelLostAlive: 0,
@@ -696,6 +738,15 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       if (landed.term === "readable") readableSnapshots.push(landed.snapshot);
       else if (landed.term === "ownerUnknown") unscopedSnapshots.push(landed.snapshot);
     }
+    // Attached in the drain: the attach arrived after the call, so the worker
+    // has no frozen realm. Held at that attach, it had not run its first
+    // statement at the freeze. Already running at it, when it started is not
+    // known, and it is unread, as the same worker attached before the call is.
+    for (const worker of options.session?.attachedDedicatedWorkers() ?? []) {
+      if (attachedAtFreeze.has(worker.sessionId)) continue;
+      if (worker.waitingForDebugger) diagnostics.pausedAtReadout += 1;
+      else diagnostics.attachedLate += 1;
+    }
 
     // Shared workers: state first, then the ownership rule. The attacher's
     // records, frozen at the call or attached during the drain, joined with
@@ -705,8 +756,9 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     const reportedTargets = new Set<string>();
     const sharedRealms: SharedFrozenRealm[] = [...sharedFrozen];
     for (const record of this.sharedRecords.values()) {
-      // Attached after the freeze: whatever it did came after the call,
-      // unless it was not held at its main script.
+      // Attached after the freeze as this thread heard it. The attacher's
+      // thread may have heard it, and released it, before the call, so it
+      // is never excluded.
       if (!frozenShared.has(record)) sharedRealms.push(this.freezeShared(record, { attachedAfterFreeze: true }));
     }
     for (const realm of sharedRealms) {
@@ -737,6 +789,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
         shared.streamBroken +
         shared.channelLostAlive +
         shared.diedHeld +
+        shared.holdUnplaced +
         shared.unattached,
       sharedWorkersEndedAtOnce: shared.endedAtOnce,
       diagnostics
@@ -1067,8 +1120,20 @@ export function freezeDedicatedRealm<R extends WorkerRealmView>(record: R): Dedi
   // A worker the closed channel left running cannot be read, held or not:
   // Chromium resumed it when this client went away.
   if (record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
-  if (worker.detachedWhilePaused) return { record, state: "excluded", reason: "diedPaused" };
-  if (!worker.released) return { record, state: "excluded", reason: "pausedAtReadout" };
+  // Gone before the channel's resume, or not yet sent it. That shows the
+  // worker ran nothing only when it was held at its attach: one already
+  // running then was never held, and it is unread as attached late.
+  // Through fingerprint-observer@13 it was excluded either way.
+  if (worker.detachedWhilePaused) {
+    return worker.waitingForDebugger
+      ? { record, state: "excluded", reason: "diedPaused" }
+      : { record, state: "unread", reason: "attachedLate" };
+  }
+  if (!worker.released) {
+    return worker.waitingForDebugger
+      ? { record, state: "excluded", reason: "pausedAtReadout" }
+      : { record, state: "unread", reason: "attachedLate" };
+  }
   if (record.install === "attached-late") return { record, state: "unread", reason: "attachedLate" };
   if (record.install !== "installed") return { record, state: "unread", reason: "installFailed" };
   return { record, state: "stream" };
@@ -1078,8 +1143,10 @@ export function freezeDedicatedRealm<R extends WorkerRealmView>(record: R): Dedi
  * A shared worker at the freeze, short of its stream. It is held by its
  * main-script pause, not from its start, so the state before that pause is not
  * "paused": an attached worker with no pause yet is reaching, and its first
- * move decides. One attached after the call was not yet paused at it, so only
- * its hold at the main script can show it ran nothing then.
+ * move decides. One attached after the call, as this thread heard it, and
+ * released since is unread (`holdUnplaced`): the attacher's thread may have
+ * heard the attach and sent the release before the call. Through
+ * fingerprint-observer@13 it was excluded.
  */
 export function freezeSharedRealm<R extends WorkerRealmView>(
   record: R,
@@ -1105,7 +1172,7 @@ export function freezeSharedRealm<R extends WorkerRealmView>(
     return { record, state: "reaching" };
   }
   // Released after its hold at its main script.
-  if (options.attachedAfterFreeze) return { record, state: "excluded", reason: "pausedAtReadout" };
+  if (options.attachedAfterFreeze) return { record, state: "unread", reason: "holdUnplaced" };
   if (record.install !== "installed") return { record, state: "unread", reason: "installFailed" };
   return { record, state: "stream" };
 }
@@ -1114,10 +1181,11 @@ export function freezeSharedRealm<R extends WorkerRealmView>(
 function resolveReachingRealm<R extends WorkerRealmView>(record: R): SharedWithoutStream<R> {
   const worker = record.worker as AttachedSharedWorker;
   if (record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
-  // Paused at its main script after the freeze: it ran nothing before it,
-  // unless that hold broke, which only its next move shows (resolveHeldRealm).
+  // Paused at its main script after the freeze, as this thread heard it:
+  // its next move says whether that hold broke (resolveHeldRealm). Released
+  // since, the release may have been in flight at the freeze.
   if (worker.hold === "held") return { record, state: "held" };
-  if (worker.hold === "released") return { record, state: "excluded", reason: "pausedAtReadout" };
+  if (worker.hold === "released") return { record, state: "unread", reason: "holdUnplaced" };
   if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
   if (worker.detached) {
     return sharedWorkerEndedAtOnce(worker)
@@ -1132,21 +1200,26 @@ function resolveReachingRealm<R extends WorkerRealmView>(record: R): SharedWitho
  * of the drain. The main thread's view of a hold lags the attacher's
  * thread, so a "late" report behind "held" means the hold broke before the
  * install answered (resumed-while-held): its main script ran unobserved,
- * and it is unread. Released, or still held at the bound, it ran nothing
- * before the freeze and is excluded, as it always was. Still held when the
- * attacher's channel closed, it made no move the readout saw, so the hold
- * the main thread last saw may already have broken: it is unread, as a
- * worker the closed channel left running is at the freeze. Gone held with
- * its install unanswered, it is unread for the same reason (diedHeld,
- * fingerprint-observer@12): a broken hold's resume can be overtaken by the
- * detach. This only ever turns an exclusion into an unread realm.
+ * and it is unread. Still held when the attacher's channel closed, it made
+ * no move the readout saw, so the hold the main thread last saw may already
+ * have broken: it is unread, as a worker the closed channel left running is
+ * at the freeze. Gone held with its install unanswered, it is unread for the
+ * same reason (diedHeld, fingerprint-observer@12): a broken hold's resume
+ * can be overtaken by the detach. Released, or still held at the bound, it
+ * is unread too (holdUnplaced, fingerprint-observer@14). Released, its
+ * release may have been in flight at the freeze: the debugger's answer on
+ * its way back and one hop to this thread, with the worker already running.
+ * Still held, the hold may have broken with the word of it not yet here.
+ * Nothing the readout holds tells either from a worker that ran nothing
+ * before the freeze, so neither is excluded, as both were through @13.
+ * Every case here is an unread realm.
  */
-function resolveHeldRealm<R extends WorkerRealmView>(record: R): SharedExcludedOrUnread<R> {
+function resolveHeldRealm<R extends WorkerRealmView>(record: R): SharedUnread<R> {
   const worker = record.worker as AttachedSharedWorker;
   if (worker.hold === "late") return { record, state: "unread", reason: "attachedLate" };
   if (worker.hold === "held" && record.lostWithChannel) return { record, state: "unread", reason: "channelLostAlive" };
   if (worker.detachedWhilePaused) return { record, state: "unread", reason: "diedHeld" };
-  return { record, state: "excluded", reason: "pausedAtReadout" };
+  return { record, state: "unread", reason: "holdUnplaced" };
 }
 
 /** A shared worker at the end of the drain: a first move, and then, if that was a hold, the next one. */
@@ -1228,7 +1301,7 @@ export function sharedLandedTerm<R extends WorkerRealmView>(
   resolved: SharedResolvedRealm<R>,
   documents: DocumentsAtFreeze | null
 ): SharedLandedTerm {
-  if (resolved.state === "excluded" || resolved.state === "unread") return { term: resolved.reason, snapshot: null };
+  if (resolved.state === "unread") return { term: resolved.reason, snapshot: null };
   if (resolved.state === "ended-at-once") return { term: "endedAtOnce", snapshot: null };
   if (resolved.state === "reaching") return { term: "unreached", snapshot: null };
   const snapshot = resolved.state === "closed" ? resolved.snapshot : resolved.slot.snapshot;

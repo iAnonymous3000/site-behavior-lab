@@ -1376,7 +1376,7 @@ function sharedTerms(readout: Awaited<ReturnType<FingerprintWorkerRealmInstaller
   };
 }
 
-test("readout: a shared worker held at its main script at the freeze ran nothing and is excluded", async (t) => {
+test("readout: a shared worker held at its main script at the freeze and still held at the bound is unread, since that hold may have broken", async (t) => {
   const realms = await scriptedSharedReadout(t, (frame) => (frame.method === "Runtime.evaluate" ? "never" : defaultAnswer(frame)));
   commitMainDocument(realms.browser, "loader-1");
   sharedAttach(realms.browser, "sw-1");
@@ -1385,15 +1385,15 @@ test("readout: a shared worker held at its main script at the freeze ran nothing
   await until(() => workerOf(realms.visit, "sw-1").hold === "held");
   assert.deepEqual(sharedTerms(await realms.readout(20)), {
     attached: 1,
-    pausedAtReadout: 1,
-    unread: 0,
+    holdUnplaced: 1,
+    unread: 1,
     readable: 0,
     unscoped: 0,
     endedAtOnce: 0
   });
 });
 
-test("readout: a shared worker attached but not yet paused at the freeze is excluded when its first move is its main-script hold, and unread when it is late or makes none", async (t) => {
+test("readout: a shared worker attached but not yet paused at the freeze is unread whatever its first move: its main-script hold, late, or none", async (t) => {
   const held = await scriptedSharedReadout(t);
   commitMainDocument(held.browser, "loader-1");
   sharedAttach(held.browser, "sw-1");
@@ -1401,7 +1401,7 @@ test("readout: a shared worker attached but not yet paused at the freeze is excl
   await until(() => holdOf(held.visit, "sw-1") === "pending");
   const pending = held.readout(1_000);
   setTimeout(() => mainScriptPause(held.browser, "sw-1"), 20);
-  assert.deepEqual(sharedTerms(await pending), { attached: 1, pausedAtReadout: 1, unread: 0, readable: 0, unscoped: 0, endedAtOnce: 0 });
+  assert.deepEqual(sharedTerms(await pending), { attached: 1, holdUnplaced: 1, unread: 1, readable: 0, unscoped: 0, endedAtOnce: 0 });
 
   const late = await scriptedSharedReadout(t);
   sharedAttach(late.browser, "sw-1");
@@ -1453,9 +1453,9 @@ test("readout: a discovered shared worker the attacher reports during the drain 
   assert.deepEqual(terms, {
     discovered: 2,
     attached: 1,
-    pausedAtReadout: 1,
+    holdUnplaced: 1,
     unattached: 1,
-    unread: 1,
+    unread: 2,
     readable: 0,
     unscoped: 0,
     endedAtOnce: 0
@@ -1467,13 +1467,16 @@ test("readout: a discovered shared worker the attacher reports during the drain 
  * already have found a hold broken, its "late" report still in flight, or
  * find it so moments later. A broken hold ran its main script unobserved, so a
  * shared worker seen held is unsettled until its next move, bounded by the
- * drain: late is unread; released, or still held at the bound, is excluded.
+ * drain: late is unread, and so is one released or still held at the bound
+ * (fingerprint-observer@14), under its own term: its release may have been in
+ * flight at the freeze, or its hold broken with the word of it not yet here.
+ * Through @13 those two were excluded.
  * Each case scripts the worker's install to stay unanswered, so its hold lasts
  * until the case moves it.
  */
 const heldWhileUnanswered = (frame: Frame): Answer => (frame.method === "Runtime.evaluate" ? "never" : defaultAnswer(frame));
 const UNREAD_LATE = { attached: 1, attachedLate: 1, unread: 1, readable: 0, unscoped: 0, endedAtOnce: 0 };
-const EXCLUDED_HELD = { attached: 1, pausedAtReadout: 1, unread: 0, readable: 0, unscoped: 0, endedAtOnce: 0 };
+const UNREAD_UNPLACED = { attached: 1, holdUnplaced: 1, unread: 1, readable: 0, unscoped: 0, endedAtOnce: 0 };
 
 test("readout: a shared worker held at the freeze whose hold then breaks during the drain is unread", async (t) => {
   const realms = await scriptedSharedReadout(t, heldWhileUnanswered);
@@ -1525,7 +1528,7 @@ test("readout: a shared worker attached during the drain that is held and then b
   );
 });
 
-test("readout: a shared worker held at the freeze and released during the drain is excluded, as it ran nothing before the freeze", async (t) => {
+test("readout: a shared worker held at the freeze and released during the drain is unread, as its release may have been in flight at the freeze", async (t) => {
   const realms = await scriptedSharedReadout(t, heldWhileUnanswered);
   commitMainDocument(realms.browser, "loader-1");
   sharedAttach(realms.browser, "sw-1");
@@ -1537,11 +1540,11 @@ test("readout: a shared worker held at the freeze and released during the drain 
     () => realms.browser.answer(realms.browser.frame("sw-1", "Runtime.evaluate"), { result: { type: "boolean", value: true } }),
     20
   );
-  assert.deepEqual(sharedTerms(await pending), EXCLUDED_HELD);
+  assert.deepEqual(sharedTerms(await pending), UNREAD_UNPLACED);
   assert.equal(workerOf(realms.visit, "sw-1").hold, "released");
 });
 
-test("readout: a shared worker still held at the drain's bound is excluded", async (t) => {
+test("readout: a shared worker still held at the drain's bound is unread", async (t) => {
   const realms = await scriptedSharedReadout(t, heldWhileUnanswered);
   commitMainDocument(realms.browser, "loader-1");
   sharedAttach(realms.browser, "sw-1");
@@ -1549,7 +1552,7 @@ test("readout: a shared worker still held at the drain's bound is excluded", asy
   mainScriptPause(realms.browser, "sw-1");
   await until(() => holdOf(realms.visit, "sw-1") === "held");
   const started = Date.now();
-  assert.deepEqual(sharedTerms(await realms.readout(80)), EXCLUDED_HELD);
+  assert.deepEqual(sharedTerms(await realms.readout(80)), UNREAD_UNPLACED);
   assert.ok(Date.now() - started >= 70, "the drain waited for the hold's next move until its bound");
   assert.equal(holdOf(realms.visit, "sw-1"), "held");
 });

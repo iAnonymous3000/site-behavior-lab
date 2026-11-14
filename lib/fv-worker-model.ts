@@ -575,7 +575,7 @@ export const snapshotText = (seq: number): string => JSON.stringify({ seq });
 /** Every term a worker the mirror heard of can land in, by what the readout says of it. */
 const EXCLUDED_TERMS = new Set(["pausedAtReadout", "diedPaused"]);
 const READ_TERMS = new Set(["readable", "ownerUnscoped"]);
-const UNREAD_TERMS = new Set(["installFailed", "attachedLate", "unreached", "cutOff", "streamBroken", "channelLostAlive", "diedHeld"]);
+const UNREAD_TERMS = new Set(["installFailed", "attachedLate", "unreached", "cutOff", "streamBroken", "channelLostAlive", "diedHeld", "holdUnplaced"]);
 export const WORKER_TERMS: readonly string[] = [...EXCLUDED_TERMS, ...UNREAD_TERMS, ...READ_TERMS, "endedAtOnce"];
 const DEDICATED_ONLY_TERMS: readonly string[] = ["ownerReplaced", "ownerUnknown"];
 const TERM_NOWHERE = 1;
@@ -2021,7 +2021,7 @@ const DW_UNHEARD = 0;
 const DW_ARMING = 1;
 const DW_INSTALLING = 2;
 const DW_CONCLUDED = 3;
-const DW_FORMS = ["", "excluded:pausedAtReadout", "excluded:diedPaused", "unread:channelLostAlive", "unread:attachedLate", "unread:installFailed", "unread:streamBroken", "closed", "waiting", "held-before-install"];
+const DW_FORMS = ["", "excluded:pausedAtReadout", "excluded:diedPaused", "unread:channelLostAlive", "unread:attachedLate", "unread:installFailed", "unread:streamBroken", "closed", "waiting", "held-before-install", "running-before-install"];
 
 /** The dedicated readout's kernels, the real ones or a variant's. */
 export type DedicatedKernels = {
@@ -2071,9 +2071,10 @@ export class DedicatedWorkerModel {
   }
 
   private freeze(state: number[]): void {
-    // An attached worker with no record yet is still held by the recursion's arming: the readout counts it held.
+    // An attached worker with no record yet is inside the recursion's arming. Held at its attach, it is still held, and the
+    // readout counts it so. Already running at its attach, it was never held, and the readout counts it as attached late.
     if (state[DW_STAGE] === DW_ARMING) {
-      state[DW_FORM] = DW_FORMS.indexOf("held-before-install");
+      state[DW_FORM] = DW_FORMS.indexOf(state[DW_WAITING] === 1 ? "held-before-install" : "running-before-install");
       return;
     }
     if (state[DW_STAGE] === DW_UNHEARD) return;
@@ -2106,6 +2107,8 @@ export class DedicatedWorkerModel {
       done[DW_FORM] = 0;
     } else if (form === "held-before-install") {
       done[DW_FORM] = WORKER_TERMS.indexOf("pausedAtReadout") + 1;
+    } else if (form === "running-before-install") {
+      done[DW_FORM] = WORKER_TERMS.indexOf("attachedLate") + 1;
     } else {
       const view = this.view(state);
       const realm =

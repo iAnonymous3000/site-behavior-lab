@@ -34,11 +34,16 @@ specification differs between the two, and each README says so in full.
   (the attacher's thread, the mirror and the readout) is held to the
   specification only on kept traces, which a suite replays through it. They
   are 40, 13, 23 and 19 covering traces in the hold, stream, two-worker and
-  small worlds, 14 traces that each break a row, and 21 traces that each
-  reach a form of the named trace. The covering traces take each label a world has under the plan's
+  small worlds, 9 traces that each break a row, and 33 traces that each
+  reach a form of the named trace. No kept trace breaks an exclusion row:
+  from fingerprint-observer@14 the readout excludes no shared worker, the
+  named trace ends with its worker unread, and both exclusion rows have
+  nothing to judge in any world. The covering traces take each label a world has under the plan's
   axioms with C1 and D1 once: 84, 31, 57 and 43 labels, where the worlds
   have 232, 78, 59 and 45 with nothing assumed. Two seeded faults of the
-  real thread are pinned in the suite as not detected by that replay.
+  real thread are pinned in the suite as not detected by that replay. Three
+  seeded faults of the real readout, each of which excludes a shared worker
+  again, are each caught by an exclusion row on the named traces.
 
 Where two graphs are called bisimilar here, the equality was established by
 comparing digests cut to 128 bits, and not edge by edge. Equal digests show

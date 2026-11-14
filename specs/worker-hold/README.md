@@ -65,10 +65,33 @@ which nothing that classifies reads.
 | F4-AGE | `ReadNoOlderThanTheFreeze` | A shared worker the readout reads is read at a state no older than the freeze. Judged in the stream world only. |
 | F4-TERM, first half | `HeardLandsInOneTerm` | Every shared worker the readout heard of lands in exactly one term. A landing is one term by construction; TLC holds that it is one of the named terms. |
 | F4-TERM, second half | not stated | Where @12 lands a worker apart from @11: the row rests on a restated old rule, and a third copy of it here would be bound to nothing. |
-| the exclusion rows | `ExcludedRanNothing`, `ExcludedRanNothingUnobserved` | A worker the readout excludes as held ran no page code (the second: none with no observer in) before the freeze. |
+| the exclusion rows | `ExcludedRanNothing`, `ExcludedRanNothingUnobserved` | A worker the readout excludes as held ran no page code (the second: none with no observer in) before the freeze. From fingerprint-observer@14 the readout excludes no shared worker, so neither row has a worker to judge in any world. Both are kept: they fail as soon as a worker that ran is excluded again. |
 | the no-term row | `RanLandsInATerm` | A worker that ran before the freeze, with the attacher alive, lands in a term. |
 | F4-TABLE | `WorkerHoldTable.tla` | Each row under every set of switches, from one search that carries the switches a path broke. That a larger set keeps what a smaller one kept is how the switches are built, not a check. |
-| F4-BEYOND | `NamedForm`, `NamedCause` in `WorkerHoldTable.tla` | The named trace: a worker that ran unobserved before the freeze, which the mirror does not yet call late, on the step that ends the readout and excludes it. |
+| F4-BEYOND | `NamedForm`, `NamedCause`, `NamedTerms` in `WorkerHoldTable.tla` | The named trace: a worker that ran unobserved before the freeze, which the mirror does not yet call late, on the step that ends the readout. That step lands it unread, as a hold the freeze cannot place (`holdUnplaced`). Through fingerprint-observer@13 the same step excluded it (`pausedAtReadout`). |
+
+## What the readout does with a hold, from fingerprint-observer@14
+
+Through fingerprint-observer@13 the readout excluded a shared worker on three
+paths, each as `pausedAtReadout` ("ran nothing before the freeze"):
+
+- attached after the freeze, as the mirror heard it, and released (the second
+  pass, `AtFreeze`);
+- reaching at the freeze, and released by the drain's end (`ReachingBy`);
+- seen held, and then released, or still held at the bound (`HeldBy`).
+
+From @14 each of the three lands the worker unread, in the term
+`holdUnplaced`: a release can be in flight at the freeze, with the worker
+already running and the mirror one hop behind, and nothing the readout holds
+tells that worker from one released after the freeze. The specification
+states the same three lines. So no operator of it returns an excluded form,
+and no shared worker lands in an excluded term in any world.
+
+The trace that the register names (F4-BEYOND) is as reachable as it was, in
+each form and with each cause. What changed is the term its worker lands in.
+`WorkerHoldTable.tla` prints that term on each line of the trace, and the
+export script refuses a line, or a move of the printed graph, that lands the
+named trace in an excluded term.
 
 ## Where a row can be judged, and where it cannot
 
@@ -77,21 +100,41 @@ where no worker lands so, and in a world where no worker has the fact that
 would break it. It passes there whatever the protocol does, so its passing is
 no evidence about the protocol.
 
-That is the case for four rows in the stream world. Its one worker starts
-released, with its observer in, having run, and known to the mirror. So in
-that world:
+That is the case for the two exclusion rows in every world. No shared worker
+is excluded (the section above), so neither row has a worker to judge, under
+any set of switches. They are listed nowhere: in no committed configuration,
+in no cell of the export script's table, and in no cell of the suite's copy
+of the register's table. TLC's table has no set of switches that breaks
+either, which reads as "holds under no axiom" and carries no information.
+Through @13 both rows could be judged in the hold, two-worker and small
+worlds, where they failed under the plan's axioms (with C1 and D1 on top as
+well) and held with Z, in the hold world with A5's order half as well.
 
-- No worker is ever excluded. The two exclusion rows have no worker to judge.
+That nothing is excluded is itself held, in three ways:
+
+- For each world the export script runs TLC on `NoWorkerExcluded` with
+  nothing assumed, so over every path of the world, and refuses to write the
+  export unless TLC holds it. The export records the row and the companion.
+- The conformance suite walks the hand-written model's graph, which calls the
+  real classification, and fails if any landing is in an excluded term.
+- The seeded faults put each of the three @13 exclusions back, one at a time,
+  and TLC must report each exclusion row violated (the table of invariants
+  below). That is the evidence that the two rows can still fail.
+
+It is also the case for two more rows in the stream world. Its one worker
+starts released, with its observer in, having run, and known to the mirror.
+So in that world:
+
 - No worker ever lands nowhere, because the mirror knows the worker from the
   first state. The no-term row cannot fail.
 - No worker ever runs with no observer in. F4-READ cannot fail.
 
-These four rows are therefore not listed for the stream world: not in
+These two rows are therefore not listed for the stream world: not in
 `stream-plan.cfg`, not in the export script's table of cells, and not in the
 suite's copy of the register's table. The register's table gives each of them
 "holds under no axiom" in the stream world. TLC's table agrees, and the
 sentence is true, but it carries no information. The rows that the stream
-world does judge are F4-AGE and the first half of F4-TERM. The four rows are
+world does judge are F4-AGE and the first half of F4-TERM. The two rows are
 judged in the hold, two-worker and small worlds.
 
 F4-AGE is the other way round: it has force only in the stream world. In the
@@ -124,9 +167,12 @@ write the export if TLC holds one. It records the companions TLC reported
 violated. The conformance suite, with no Java, walks the hand-written model's
 own graph and fails if a companion of a listed row is not reached there: for
 each cell of the export script's table, for each committed configuration, and
-for each cell of its copy of the register's table. It also holds that the four
-rows above in the stream world, and F4-AGE in the three worlds with no stream,
-are the only rows with nothing to judge.
+for each cell of its copy of the register's table. It also holds that the two
+exclusion rows in every world, the two rows above in the stream world, and
+F4-AGE in the three worlds with no stream, are the only rows with nothing to
+judge. For each of those the export script runs TLC on the companion that is
+never reached, with nothing assumed, and TLC must hold it. The export records
+those companions, and the suite holds them to the model's graph.
 
 What a violated companion shows is limited. It shows that the row's subject,
 and the fact that would break the row, each occur in that world under those
@@ -145,8 +191,8 @@ restates a definition of the specification, and is held for the record.
 | Invariant | What it asserts | Class | Seeded faults |
 |---|---|---|---|
 | `TypeOK` | The readout's phase is one of four named phases, two flags are booleans, and each session's two queues and the port stay within stated lengths. It does not type the worker record. | behavioural, and weak. No register row rests on it. | One, in the specification's world and not in the thread or the mirror: a command that reaches the worker stays on its session, and the session's words pile up past the bound. No fault of the thread or the mirror is seeded for it. |
-| `ExcludedRanNothing` | A worker that lands in an excluded term ran no page code before the freeze. | behavioural, in the hold, two-worker and small worlds. It fails under the plan's axioms, and holds with Z (with A5's order half as well in the hold and two-worker worlds). | One in the protocol: a worker the mirror calls late at the freeze is excluded as held. The second exclusion row catches the same fault, and each catches it without the other. |
-| `ExcludedRanNothingUnobserved` | A worker that lands in an excluded term ran no page code with no observer in before the freeze. | behavioural, in the same worlds. | The same fault. No seeded fault separates this row from the first. |
+| `ExcludedRanNothing` | A worker that lands in an excluded term ran no page code before the freeze. | behavioural, and with nothing to judge in the committed specification: no worker lands in an excluded term, in any world, so it holds there under every set of switches. It is a guard on the classification: a fault that excludes a worker that ran violates it. | Four in the protocol, all in the readout's classification. One: a worker the mirror calls late at the freeze is excluded as held (under A5's order half and Z). Three put back the exclusions of fingerprint-observer@13, one at a time, under the plan's axioms with C1 and D1: in the second pass, for a worker reaching at the freeze, and for a worker seen held. The second exclusion row catches the same four, and each row catches each without the other. |
+| `ExcludedRanNothingUnobserved` | A worker that lands in an excluded term ran no page code with no observer in before the freeze. | behavioural, in the same way. | The same four faults. No seeded fault separates this row from the first. |
 | `ReadHadItsObserver` | A worker that lands in a read term never ran with no observer in. | behavioural, in the hold, two-worker and small worlds. | One in the protocol: the thread makes nothing of a resume while it holds a worker. |
 | `ReadNoOlderThanTheFreeze` | A worker that lands in a read term is read at a snapshot no older than the realm's at the freeze, and at the close of a task that was open then. | behavioural, in the stream world only. | Three in the protocol. |
 | `HeardLandsInOneTerm` | A worker the mirror heard of lands in one of the named terms, and a worker it never heard of lands as unattached or nowhere. | definitional. `Landing` returns one of a fixed set of strings and "heard" is the mirror's own flag, so it fails only if `Landing` is given a term name that is in no set. The register says the same of the hand-written model. | One, of that kind: a term renamed in `Landing`. |
@@ -156,16 +202,21 @@ The reachability companions (`NoWorkerExcluded` and the others) are not in this
 table. They are not claims: each must be violated, and says so where it is
 defined.
 
-`scripts/tla-worker-hold-mutations.mjs` seeds these ten faults, each run with
-only the row named for it, under a set of switches where the committed
-specification keeps the row. A caught fault shows that the row can fail there.
+`scripts/tla-worker-hold-mutations.mjs` seeds these twelve faults in sixteen
+runs (each of the four exclusion faults is run once for each exclusion row),
+each run with only the row named for it, under a set of switches where the
+committed specification keeps the row. A caught fault shows that the row can
+fail there. For the two exclusion rows "keeps the row" is true under every
+set, because they have nothing to judge, so their faults are all the evidence
+there is that they can fail.
 No committed artifact records the result. The unit tests do not run the
 script: it needs TLC. The workflow `tla-checks.yml` runs it on every push to
 `main`, and its receipt keeps the script's exit status and last line.
 
-Two terms are named in the term sets and never produced: `diedPaused` and
-`ownerUnscoped`. No operator of the specification returns either, so no
-exclusion row is ever judged on the first and no read row on the second.
+Three terms are named in the term sets and never produced: `pausedAtReadout`,
+`diedPaused` and `ownerUnscoped`. No operator of the specification returns
+any of them, so no exclusion row is ever judged on the first two and no read
+row on the third. The first was produced through fingerprint-observer@13.
 `WorkerHold.tla` says so where the sets are defined.
 
 ## Files
@@ -197,11 +248,20 @@ exclusion row is ever judged on the first and no read row on the second.
   under each of the 512 sets of switches the rows the model's own verdicts
   break are the rows TLC found broken.
 - No row is listed as holding where it has nothing to judge, as the section
-  above says.
+  above says. For each world it holds that no shared worker is excluded and
+  that neither exclusion row is listed anywhere.
 - TLC's traces replay through the real thread, its in-process transport, the
   real mirror and the real readout, by `lib/fv-worker-model-replay.ts`: every
   label each world takes under the plan's axioms with C1 and D1, a trace that
-  breaks each row the register says fails, and each form of the named trace.
+  breaks each row the register says fails, and each form of the named trace,
+  both released by the drain's end and still held at the bound.
+  On each form of the named trace the real readout must land the worker
+  unread, as `holdUnplaced`, and both exclusion rows are required of the term
+  it counted.
+- Three variants of the real readout, each with one exclusion of
+  fingerprint-observer@13 put back in its compiled text, are each caught by
+  an exclusion row on the named traces that go through the changed line, and
+  on no other named trace.
 
 ### How far the real code is held
 
@@ -212,10 +272,24 @@ on nothing else. In the committed export those are:
 
 | World | Covering traces | Labels they take, of the labels the world has with nothing assumed | Traces that break a row | Traces to a form of the named trace |
 |---|---|---|---|---|
-| hold | 40 | 84 of 232 | 5 | 21 |
+| hold | 40 | 84 of 232 | 3 | 33 |
 | stream | 13 | 31 of 78 | 4 | 0 |
-| two | 23 | 57 of 59 | 5 | 0 |
+| two | 23 | 57 of 59 | 2 | 0 |
 | small | 19 | 43 of 45 | 0 | 0 |
+
+The traces that break a row are fewer than they were through
+fingerprint-observer@13 (9, from 14): the five that broke an exclusion row are
+gone, because nothing breaks one now. The named trace has 33 kept traces, from
+21: one for each form and cause, under each of the two sets of switches the
+export keeps them for, and for each way the hold stood when the readout ended
+(the mirror had heard the release, 12 traces, or still showed the worker held
+at the bound, 21 traces). The two ends go through different lines of the
+readout's classification. A worker read by the second pass, or frozen as
+reaching, goes through its own line only when it is released by the end;
+still held at the bound, it is seen held first and goes through the line for
+a worker seen held. The three variants of the real readout are held to that:
+each is caught on exactly the named traces that go through the line it
+changes (4, 4 and 25 of the 33), and by the first exclusion row.
 
 The labels taken are all the labels a world has under the plan's axioms with
 C1 and D1, each taken once. A label the world has only with an axiom off is on

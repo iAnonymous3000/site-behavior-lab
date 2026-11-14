@@ -172,7 +172,7 @@ const CREDITS: readonly Credit[] = [
 
 /** The readout's terms, as lib/worker-fingerprint-realm.ts documents each one. Restated: this catches a term moved between kinds, not a wrongly documented one. */
 const SHARED_EXCLUDED = new Set(["pausedAtReadout", "diedPaused"]);
-const SHARED_UNREAD = new Set(["installFailed", "attachedLate", "unreached", "cutOff", "streamBroken", "channelLostAlive", "diedHeld", "unattached"]);
+const SHARED_UNREAD = new Set(["installFailed", "attachedLate", "unreached", "cutOff", "streamBroken", "channelLostAlive", "diedHeld", "holdUnplaced", "unattached"]);
 const SHARED_READ = new Set(["readable", "ownerUnscoped"]);
 const SHARED_WORKER_TERMS = [...SHARED_EXCLUDED, ...[...SHARED_UNREAD].filter((term) => term !== "unattached"), ...SHARED_READ, "endedAtOnce"];
 const DEDICATED_EXCLUDED = new Set(["pausedAtReadout", "diedPaused", "ownerReplaced"]);
@@ -235,19 +235,21 @@ function sharedAt11(atFreeze: SharedView, atEnd: SharedView): Before {
 function sharedBeforeStream(kernels: Kernels, atFreeze: SharedView, atEnd: SharedView): Before {
   const frozen = kernels.freezeSharedRealm(sharedRecord(atFreeze), { attachedAfterFreeze: atFreeze.attachedAfterFreeze });
   if (frozen.state === "stream") return { state: "stream" };
-  const resolved = kernels.resolveSharedRealm({ ...frozen, record: sharedRecord(atEnd) });
-  if (resolved.state === "excluded" || resolved.state === "unread") return { state: resolved.state, reason: resolved.reason };
+  // Read as words and not by the kernels' type, which has no shared exclusion: a variant can still say one.
+  const resolved: { state: string; reason?: string } = kernels.resolveSharedRealm({ ...frozen, record: sharedRecord(atEnd) });
+  if (resolved.state === "excluded" || resolved.state === "unread") return { state: resolved.state, reason: resolved.reason ?? "" };
   if (resolved.state === "ended-at-once" || resolved.state === "reaching") return { state: resolved.state };
   throw new Error(`The kernels resolved a worker to ${resolved.state} before its stream.`);
 }
 
 const sameBefore = (left: Before, right: Before): boolean => left.state === right.state && ("reason" in left ? left.reason : null) === ("reason" in right ? right.reason : null);
 
-type SharedTally = { members: number; movedToUnread: number; drainMembers: number; streamMembers: number };
+type SharedTally = { members: number; movedAt12: number; movedAt14: number; drainMembers: number; streamMembers: number };
 
 /** The view that decides a worker's class: its view at the freeze, or at the drain's end if it waited on the drain. */
 function checkSharedClassifier(kernels: Kernels): SharedTally {
-  const tally: SharedTally = { members: 0, movedToUnread: 0, drainMembers: 0, streamMembers: 0 };
+  const tally: SharedTally = { members: 0, movedAt12: 0, movedAt14: 0, drainMembers: 0, streamMembers: 0 };
+  const excluded: { atFreeze: SharedView; atEnd: SharedView }[] = [];
   for (const atFreeze of sharedViews()) {
     const frozen = kernels.freezeSharedRealm(sharedRecord(atFreeze), { attachedAfterFreeze: atFreeze.attachedAfterFreeze });
     const waitsOnDrain = frozen.state === "reaching" || frozen.state === "held";
@@ -263,6 +265,7 @@ function checkSharedClassifier(kernels: Kernels): SharedTally {
 
       // Each of these reads the world's own facts and no rule of the classifier.
       holds("cl8a-a-shared-worker-gone-held-is-never-excluded", !(deciding.hold === "held" && deciding.detachedWhilePaused) || now.state === "unread", input);
+      if (deciding.hold === "held" && deciding.detachedWhilePaused && !deciding.lostWithChannel && !atFreeze.lostWithChannel) holds("cl8a-a-shared-worker-gone-held-says-so", sameBefore(now, { state: "unread", reason: "diedHeld" }), input);
       holds("cl8a-a-shared-worker-reached-late-is-unread", deciding.hold !== "late" || now.state === "unread", input);
       if (atFreeze.lostWithChannel) holds("cl8a-a-worker-the-channel-left-is-neither-excluded-nor-read", sameBefore(now, { state: "unread", reason: "channelLostAlive" }), input);
       if (deciding.hold === "held" && deciding.lostWithChannel) holds("cl8a-a-worker-the-channel-left-is-neither-excluded-nor-read", now.state === "unread", input);
@@ -282,18 +285,25 @@ function checkSharedClassifier(kernels: Kernels): SharedTally {
       }
 
       // Against the reference. An exclusion may move; nothing else may, and nothing moves back.
-      holds("cl8a-at-12-only-exclusions-move-and-only-toward-unread-or-the-stream", now.state === before.state || (before.state === "excluded" && (now.state === "unread" || now.state === "stream")), input);
+      holds("cl8a-since-11-only-exclusions-move-and-only-toward-unread-or-the-stream", now.state === before.state || (before.state === "excluded" && (now.state === "unread" || now.state === "stream")), input);
       if (!sameBefore(now, before)) {
-        holds("cl8a-at-12-only-a-worker-gone-held-moves", deciding.detachedWhilePaused && before.state === "excluded" && sameBefore(now, { state: "unread", reason: "diedHeld" }), input);
-        tally.movedToUnread += 1;
+        // @12's move: gone held. @14's: every other worker @11 excluded, which it called paused at the readout.
+        const goneHeld = deciding.detachedWhilePaused && before.state === "excluded" && sameBefore(now, { state: "unread", reason: "diedHeld" });
+        const unplaced = sameBefore(before, { state: "excluded", reason: "pausedAtReadout" }) && sameBefore(now, { state: "unread", reason: "holdUnplaced" });
+        holds("cl8a-since-11-only-a-worker-gone-held-and-a-hold-the-freeze-cannot-place-move", goneHeld || unplaced, input);
+        if (goneHeld) tally.movedAt12 += 1;
+        else tally.movedAt14 += 1;
       }
+      if (now.state === "excluded") excluded.push({ atFreeze, atEnd });
     }
   }
+  // After the walk, so that a variant with a narrower name is caught under that name: from @14 no view is excluded.
+  holds("cl8a-no-shared-worker-is-excluded", excluded.length === 0, () => ({ views: excluded.length, first: excluded[0] }));
   return tally;
 }
 
 /**
- * The readout's own docblock: a worker excluded or unread at the call stays so,
+ * The readout's own docblock: a worker unread at the call stays so,
  * whatever the drain shows, and so does one that ended at once. The main walk gives
  * these one view, so this gives each of them every end. Stream fields are held still:
  * no kernel reads them for a worker that has already landed.
@@ -303,12 +313,12 @@ function checkSettledAtFreeze(kernels: Kernels): number {
   for (const atFreeze of sharedViews()) {
     if (atFreeze.lastWord !== "none" || atFreeze.broken) continue;
     const frozen = kernels.freezeSharedRealm(sharedRecord(atFreeze), { attachedAfterFreeze: atFreeze.attachedAfterFreeze });
-    if (frozen.state !== "excluded" && frozen.state !== "unread" && frozen.state !== "ended-at-once") continue;
+    if (frozen.state !== "unread" && frozen.state !== "ended-at-once") continue;
     for (const move of END_MOVES) {
       cases += 1;
       const resolved = kernels.resolveSharedRealm({ ...frozen, record: sharedRecord({ ...atFreeze, ...move }) });
       const stays = resolved.state === frozen.state && ("reason" in resolved ? resolved.reason : null) === ("reason" in frozen ? frozen.reason : null);
-      holds("cl8a-excluded-or-unread-at-the-freeze-stays-so", stays, () => ({ atFreeze, move }));
+      holds("cl8a-unread-or-ended-at-once-at-the-freeze-stays-so", stays, () => ({ atFreeze, move }));
     }
   }
   return cases;
@@ -369,6 +379,8 @@ function landStream<T>(
 }
 
 type DedicatedView = {
+  /** Held at its attach, before its first statement. False: already running when it attached. */
+  waitingForDebugger: boolean;
   released: boolean;
   detached: boolean;
   detachedWhilePaused: boolean;
@@ -396,7 +408,7 @@ function dedicatedRecord(view: DedicatedView, owner: OwnerState): WorkerRealmVie
     nested: false,
     arrivedOnSessionId: "page",
     ownerFrameId: "frame",
-    waitingForDebugger: true,
+    waitingForDebugger: view.waitingForDebugger,
     released: view.released,
     detached: view.detached,
     detachedWhilePaused: view.detachedWhilePaused
@@ -404,7 +416,10 @@ function dedicatedRecord(view: DedicatedView, owner: OwnerState): WorkerRealmVie
   return { worker, install: view.install, owner: owner.owner, broken: view.broken, lostWithChannel: view.lostWithChannel, ...lastWordOf(view.lastWord) };
 }
 
-/** fingerprint-observer@11's `freeze`, which @12 left alone, from the same commit as the shared reference. */
+/**
+ * fingerprint-observer@11's `freeze`, which @12 and @13 left alone, from the same commit as the shared
+ * reference. It never read whether the worker was held at its attach, and @14 does.
+ */
 function freezeDedicatedAt11(view: DedicatedView): Before {
   if (view.lostWithChannel) return { state: "unread", reason: "channelLostAlive" };
   if (view.detachedWhilePaused) return { state: "excluded", reason: "diedPaused" };
@@ -415,6 +430,15 @@ function freezeDedicatedAt11(view: DedicatedView): Before {
 }
 
 function checkDedicatedClassifier(kernels: Kernels): number {
+  let cases = 0;
+  // Held at its attach first, so that a variant of a rule older than @14 is caught under that rule's name.
+  for (const waitingForDebugger of [true, false]) {
+    cases += checkDedicatedClassifierFor(kernels, waitingForDebugger);
+  }
+  return cases;
+}
+
+function checkDedicatedClassifierFor(kernels: Kernels, waitingForDebugger: boolean): number {
   let cases = 0;
   for (const released of BOTH) {
     for (const detached of BOTH) {
@@ -429,13 +453,19 @@ function checkDedicatedClassifier(kernels: Kernels): number {
                       for (const lostAtEnd of BOTH) {
                         for (const brokenAtEnd of BOTH) {
                           cases += 1;
-                          const view: DedicatedView = { released, detached, detachedWhilePaused, lostWithChannel, install, lastWord, broken };
+                          const view: DedicatedView = { waitingForDebugger, released, detached, detachedWhilePaused, lostWithChannel, install, lastWord, broken };
                           const input = () => ({ view, owner: owner.name, loadersRead: loaders !== null, slot, lostAtEnd, brokenAtEnd });
                           const record = dedicatedRecord(view, owner);
                           const atEnd = { ...record, lostWithChannel: lostAtEnd, broken: brokenAtEnd };
                           const frozen = kernels.freezeDedicatedRealm(record);
                           const before = freezeDedicatedAt11(view);
-                          holds("cl8a-the-dedicated-classifier-is-unchanged-since-11", sameBefore(frozen.state === "stream" ? { state: "stream" } : (frozen as Before), before), input);
+                          const now: Before = frozen.state === "stream" ? { state: "stream" } : (frozen as Before);
+                          if (waitingForDebugger) holds("cl8a-the-dedicated-classifier-is-unchanged-since-11", sameBefore(now, before), input);
+                          else {
+                            // Never held, so neither a detach before the channel's resume nor a resume not yet sent says it ran nothing.
+                            holds("cl8a-a-dedicated-worker-running-at-its-attach-is-never-excluded-at-the-freeze", now.state !== "excluded", input);
+                            holds("cl8a-at-14-a-dedicated-worker-moves-only-from-an-exclusion-to-attached-late", sameBefore(now, before) || (before.state === "excluded" && sameBefore(now, { state: "unread", reason: "attachedLate" })), input);
+                          }
                           const landed =
                             frozen.state === "stream"
                               ? landStream(kernels, record, atEnd, slot, (realm) => kernels.dedicatedLandedTerm(realm, loaders))
@@ -446,7 +476,7 @@ function checkDedicatedClassifier(kernels: Kernels): number {
                           const shownReplaced = owner.shownReplaced && loaders !== null;
                           if (frozen.state === "excluded") holds("cl8a-excluded-at-the-freeze-stays-so", landed.term === frozen.reason, input);
                           else if (shownReplaced) holds("cl8a-a-worker-of-a-replaced-document-is-excluded-whatever-its-stream-says", landed.term === "ownerReplaced", input);
-                          else if (frozen.state === "unread") holds("cl8a-excluded-or-unread-at-the-freeze-stays-so", landed.term === frozen.reason, input);
+                          else if (frozen.state === "unread") holds("cl8a-unread-at-the-freeze-stays-so", landed.term === frozen.reason, input);
                           const installedAndReleased = released && install === "installed" && !detachedWhilePaused && !lostWithChannel;
                           if (DEDICATED_READ.has(landed.term)) holds("cl8a-only-an-installed-worker-released-at-the-freeze-is-read", installedAndReleased, input);
                           // What the world handed the readout, as for a shared worker: a stream broken at the freeze, or else the text it holds.
@@ -488,13 +518,18 @@ const END_MOVE_COUNT = 256;
 
 // Where each kernel's lines are told apart in the emitted module: the same line opens more than one of them.
 const FREEZE_DIED_HELD = 'if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    // Held as far as';
-const RESOLVE_DIED_HELD = 'if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    return { record, state: "excluded", reason: "pausedAtReadout" };';
+const RESOLVE_DIED_HELD = 'if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    return { record, state: "unread", reason: "holdUnplaced" };';
+const UNPLACED = 'return { record, state: "unread", reason: "holdUnplaced" };';
+const EXCLUDED_AS_PAUSED = 'return { record, state: "excluded", reason: "pausedAtReadout" };';
+const REACHING_RELEASED = `if (worker.hold === "released")\n        ${UNPLACED}`;
+/** A worker gone held during the drain excluded, as @11 had it, with @14's rule for every other hold left in place. */
+const RESOLVE_GONE_HELD_EXCLUDED = `if (worker.detachedWhilePaused)\n        ${EXCLUDED_AS_PAUSED}\n    ${UNPLACED}`;
 const RESOLVE_HELD_LATE = 'if (worker.hold === "late")\n        return { record, state: "unread", reason: "attachedLate" };\n    if (worker.hold === "held" && record.lostWithChannel)';
 const FREEZE_SHARED_LATE = 'if (worker.hold === "late")\n        return { record, state: "unread", reason: "attachedLate" };\n    if (worker.hold === "pending") {';
 const REACHING_LATE = 'if (worker.hold === "late")\n        return { record, state: "unread", reason: "attachedLate" };\n    if (worker.detached) {';
 const HELD_AND_LOST = 'if (worker.hold === "held" && record.lostWithChannel)\n        return { record, state: "unread", reason: "channelLostAlive" };\n';
-const SHARED_INSTALL_FAILED = 'if (options.attachedAfterFreeze)\n        return { record, state: "excluded", reason: "pausedAtReadout" };\n    if (record.install !== "installed")\n        return { record, state: "unread", reason: "installFailed" };';
-const AFTER_FREEZE_RELEASED = 'if (options.attachedAfterFreeze)\n        return { record, state: "excluded", reason: "pausedAtReadout" };\n';
+const SHARED_INSTALL_FAILED = 'if (options.attachedAfterFreeze)\n        return { record, state: "unread", reason: "holdUnplaced" };\n    if (record.install !== "installed")\n        return { record, state: "unread", reason: "installFailed" };';
+const AFTER_FREEZE_RELEASED = 'if (options.attachedAfterFreeze)\n        return { record, state: "unread", reason: "holdUnplaced" };\n';
 const REACHING_ENDED = 'if (worker.detached) {\n        return (0, shared_worker_attacher_1.sharedWorkerEndedAtOnce)(worker)';
 const FREEZE_ENDED = "        // saw it run and its life fits the bound.\n            return (0, shared_worker_attacher_1.sharedWorkerEndedAtOnce)(worker)";
 
@@ -506,7 +541,17 @@ test("CL8a: the shared classifier holds over every view, and @12 moves only what
   assert.equal(tally.members, SHARED_VIEWS - waiting + tally.drainMembers);
   // What moved from @11: gone held at the freeze with no loss (5,120 views); held at the freeze, not after it (640), then
   // gone held with no loss on 80 of the ends; reaching at the freeze, not after it (320), then the same on 16 of them.
-  assert.equal(tally.movedToUnread, 5_120 + 640 * 80 + 320 * 16);
+  assert.equal(tally.movedAt12, 5_120 + 640 * 80 + 320 * 16);
+});
+
+test("CL8a: no shared view is excluded, and @14 moves only the views @11 called paused at the readout, each to a hold the freeze cannot place", () => {
+  // The walk itself holds that no view is excluded, and that nothing but these and @12's gone-held views differs from @11.
+  const tally = checkSharedClassifier(PRODUCTION_KERNELS);
+  // What moved from @13, each of them a view @11 called paused at the readout: released and attached after the freeze (640
+  // views); held at the freeze, not after it (640), then released or still held on 80 of the ends, the other half of the 160
+  // ends @11 excluded; held and attached after the freeze (640); reaching at the freeze, not after it (320), then held and
+  // not gone held on 16 of the ends and released on 32.
+  assert.equal(tally.movedAt14, 640 + 640 * 80 + 640 + 320 * (16 + 32));
 });
 
 test("CL8a: a worker settled at the freeze stays settled, whatever the drain's end shows", () => {
@@ -519,7 +564,7 @@ test("CL8a: a shared worker's stream lands where the world's text says", () => {
 });
 
 test("CL8a: the dedicated classifier holds over every view", () => {
-  assert.equal(checkDedicatedClassifier(PRODUCTION_KERNELS), 2 * 2 * 2 * 2 * INSTALLS.length * LAST_WORDS.length * 2 * OWNERS.length * 2 * SLOTS.length * 2 * 2);
+  assert.equal(checkDedicatedClassifier(PRODUCTION_KERNELS), 2 * 2 * 2 * 2 * 2 * INSTALLS.length * LAST_WORDS.length * 2 * OWNERS.length * 2 * SLOTS.length * 2 * 2);
 });
 
 for (const [name, property, edits] of [
@@ -528,7 +573,7 @@ for (const [name, property, edits] of [
     "cl8a-a-shared-worker-gone-held-is-never-excluded",
     [
       { find: FREEZE_DIED_HELD, replace: 'if (worker.detachedWhilePaused)\n        return { record, state: "excluded", reason: "diedPaused" };\n    // Held as far as' },
-      { find: RESOLVE_DIED_HELD, replace: 'return { record, state: "excluded", reason: "pausedAtReadout" };' }
+      { find: RESOLVE_DIED_HELD, replace: RESOLVE_GONE_HELD_EXCLUDED }
     ]
   ],
   [
@@ -536,29 +581,30 @@ for (const [name, property, edits] of [
     "cl8a-a-shared-worker-gone-held-is-never-excluded",
     [{ find: FREEZE_DIED_HELD, replace: 'if (worker.detachedWhilePaused)\n        return { record, state: "excluded", reason: "diedPaused" };\n    // Held as far as' }]
   ],
-  ["a worker gone held during the drain is excluded", "cl8a-a-shared-worker-gone-held-is-never-excluded", [{ find: RESOLVE_DIED_HELD, replace: 'return { record, state: "excluded", reason: "pausedAtReadout" };' }]],
-  ["a broken hold seen during the drain is excluded", "cl8a-a-shared-worker-reached-late-is-unread", [{ find: RESOLVE_HELD_LATE, replace: 'if (worker.hold === "held" && record.lostWithChannel)' }]],
-  ["a worker reached late at the freeze falls through to its install", "cl8a-at-12-only-a-worker-gone-held-moves", [{ find: FREEZE_SHARED_LATE, replace: 'if (worker.hold === "pending") {' }]],
+  ["a worker gone held during the drain is excluded", "cl8a-a-shared-worker-gone-held-is-never-excluded", [{ find: RESOLVE_DIED_HELD, replace: RESOLVE_GONE_HELD_EXCLUDED }]],
+  ["a worker gone held during the drain is taken for a hold the freeze cannot place", "cl8a-a-shared-worker-gone-held-says-so", [{ find: RESOLVE_DIED_HELD, replace: UNPLACED }]],
+  // Through @13 each of the next two excluded the worker. With no exclusion left to fall into, each now only renames an unread realm.
+  ["a broken hold seen during the drain is taken for a hold the freeze cannot place", "cl8a-since-11-only-a-worker-gone-held-and-a-hold-the-freeze-cannot-place-move", [{ find: RESOLVE_HELD_LATE, replace: 'if (worker.hold === "held" && record.lostWithChannel)' }]],
+  ["a worker reached late at the freeze falls through to its install", "cl8a-since-11-only-a-worker-gone-held-and-a-hold-the-freeze-cannot-place-move", [{ find: FREEZE_SHARED_LATE, replace: 'if (worker.hold === "pending") {' }]],
   ["a reaching worker's late first move is left reaching", "cl8a-a-shared-worker-reached-late-is-unread", [{ find: REACHING_LATE, replace: "if (worker.detached) {" }]],
-  ["the loss of a channel during a hold excludes the worker, as @10 had it", "cl8a-a-worker-the-channel-left-is-neither-excluded-nor-read", [{ find: HELD_AND_LOST, replace: "" }]],
+  ["the loss of a channel during a hold is taken for a hold the freeze cannot place", "cl8a-since-11-only-a-worker-gone-held-and-a-hold-the-freeze-cannot-place-move", [{ find: HELD_AND_LOST, replace: "" }]],
   [
     "a worker the channel left at the freeze is read on",
     "cl8a-a-worker-the-channel-left-is-neither-excluded-nor-read",
     [{ find: 'const worker = record.worker;\n    if (record.lostWithChannel)\n        return { record, state: "unread", reason: "channelLostAlive" };\n    // Gone held', replace: "const worker = record.worker;\n    // Gone held" }]
   ],
-  ["a failed install is read from its stream", "cl8a-only-an-installed-worker-released-at-the-freeze-is-read", [{ find: SHARED_INSTALL_FAILED, replace: 'if (options.attachedAfterFreeze)\n        return { record, state: "excluded", reason: "pausedAtReadout" };' }]],
-  ["a worker attached after the freeze goes on to its install and stream", "cl8a-at-12-only-a-worker-gone-held-moves", [{ find: AFTER_FREEZE_RELEASED, replace: "" }]],
+  ["a failed install is read from its stream", "cl8a-only-an-installed-worker-released-at-the-freeze-is-read", [{ find: SHARED_INSTALL_FAILED, replace: `if (options.attachedAfterFreeze)\n        ${UNPLACED}` }]],
+  ["a worker attached after the freeze goes on to its install and stream", "cl8a-since-11-only-a-worker-gone-held-and-a-hold-the-freeze-cannot-place-move", [{ find: AFTER_FREEZE_RELEASED, replace: "" }]],
   ["a worker attached after the freeze is read at once", "cl8a-only-an-installed-worker-released-at-the-freeze-is-read", [{ find: AFTER_FREEZE_RELEASED, replace: 'if (options.attachedAfterFreeze)\n        return { record, state: "stream" };\n' }]],
-  ["a failed install is excluded", "cl8a-at-12-only-exclusions-move-and-only-toward-unread-or-the-stream", [{ find: SHARED_INSTALL_FAILED, replace: 'if (options.attachedAfterFreeze || record.install !== "installed")\n        return { record, state: "excluded", reason: "pausedAtReadout" };' }]],
-  ["still held at the bound counts as unread", "cl8a-at-12-only-a-worker-gone-held-moves", [{ find: RESOLVE_DIED_HELD, replace: 'return { record, state: "unread", reason: worker.detachedWhilePaused ? "diedHeld" : "unreached" };' }]],
+  ["a failed install is excluded", "cl8a-since-11-only-exclusions-move-and-only-toward-unread-or-the-stream", [{ find: SHARED_INSTALL_FAILED, replace: `if (options.attachedAfterFreeze)\n        ${UNPLACED}\n    if (record.install !== "installed")\n        ${EXCLUDED_AS_PAUSED}` }]],
   [
     "a worker gone with no pause ended at once at the freeze, whatever its life",
     "cl8a-ended-at-once-only-if-never-reached-and-within-the-bound",
     [{ find: FREEZE_ENDED, replace: "        // saw it run and its life fits the bound.\n            return true" }]
   ],
   ["a reaching worker gone with no pause ended at once, whatever its life", "cl8a-ended-at-once-only-if-never-reached-and-within-the-bound", [{ find: REACHING_ENDED, replace: "if (worker.detached) {\n        return true" }]],
-  ["the bound shrinks by one, at the freeze", "cl8a-at-12-only-exclusions-move-and-only-toward-unread-or-the-stream", [{ find: FREEZE_ENDED, replace: "        // saw it run and its life fits the bound.\n            return worker.detached && worker.endedUnreached && worker.lifetimeMs !== null && worker.lifetimeMs <= 9" }]],
-  ["only a life of exactly the bound ends at once, by the drain's end", "cl8a-at-12-only-exclusions-move-and-only-toward-unread-or-the-stream", [{ find: REACHING_ENDED, replace: "if (worker.detached) {\n        return worker.detached && worker.endedUnreached && worker.lifetimeMs === 10" }]],
+  ["the bound shrinks by one, at the freeze", "cl8a-since-11-only-exclusions-move-and-only-toward-unread-or-the-stream", [{ find: FREEZE_ENDED, replace: "        // saw it run and its life fits the bound.\n            return worker.detached && worker.endedUnreached && worker.lifetimeMs !== null && worker.lifetimeMs <= 9" }]],
+  ["only a life of exactly the bound ends at once, by the drain's end", "cl8a-since-11-only-exclusions-move-and-only-toward-unread-or-the-stream", [{ find: REACHING_ENDED, replace: "if (worker.detached) {\n        return worker.detached && worker.endedUnreached && worker.lifetimeMs === 10" }]],
   ["a reaching worker gone with no pause is left reaching", "cl8a-gone-with-no-pause-is-unread-or-ended-at-once", [{ find: REACHING_ENDED, replace: 'if (worker.detached && worker.hold === "never") {\n        return (0, shared_worker_attacher_1.sharedWorkerEndedAtOnce)(worker)' }]]
 ] as ReadonlyArray<readonly [string, string, SourceEdit[]]>) {
   test(`CL8a catches a variant: ${name}`, async () => {
@@ -566,10 +612,28 @@ for (const [name, property, edits] of [
   });
 }
 
+/**
+ * Fingerprint-observer@14's own variants of the kernels: each of @13's three shared exclusions put back, whole and in part,
+ * and the new term handed to a worker it is not for.
+ */
 for (const [name, property, edits] of [
-  ["a worker excluded at the freeze is resolved again at the drain's end", "cl8a-excluded-or-unread-at-the-freeze-stays-so", [{ find: 'return reached.state === "held" ? resolveHeldRealm(reached.record) : reached;', replace: 'return reached.state === "held" || reached.state === "excluded" ? resolveHeldRealm(reached.record) : reached;' }]],
-  ["a worker unread at the freeze is resolved again at the drain's end", "cl8a-excluded-or-unread-at-the-freeze-stays-so", [{ find: 'const reached = realm.state === "reaching" ? ', replace: 'const reached = realm.state === "reaching" || realm.state === "unread" ? ' }]],
-  ["a worker that ended at once is resolved again at the drain's end", "cl8a-excluded-or-unread-at-the-freeze-stays-so", [{ find: 'const reached = realm.state === "reaching" ? ', replace: 'const reached = realm.state === "reaching" || realm.state === "ended-at-once" ? ' }]]
+  ["a hold released in the drain, or still held at its end, is excluded again, as @13 had it", "cl8a-no-shared-worker-is-excluded", [{ find: RESOLVE_DIED_HELD, replace: `if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    ${EXCLUDED_AS_PAUSED}` }]],
+  ["only a hold released in the drain is excluded again, and one still held stays unread", "cl8a-no-shared-worker-is-excluded", [{ find: RESOLVE_DIED_HELD, replace: `if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    if (worker.hold === "released")\n        ${EXCLUDED_AS_PAUSED}\n    ${UNPLACED}` }]],
+  ["only a hold still held at the drain's end is excluded again", "cl8a-no-shared-worker-is-excluded", [{ find: RESOLVE_DIED_HELD, replace: `if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    if (worker.hold === "held")\n        ${EXCLUDED_AS_PAUSED}\n    ${UNPLACED}` }]],
+  ["a reaching worker released in the drain is excluded again, as @13 had it", "cl8a-no-shared-worker-is-excluded", [{ find: REACHING_RELEASED, replace: `if (worker.hold === "released")\n        ${EXCLUDED_AS_PAUSED}` }]],
+  ["a worker attached after the freeze and released is excluded again, as @13 had it", "cl8a-no-shared-worker-is-excluded", [{ find: AFTER_FREEZE_RELEASED, replace: `if (options.attachedAfterFreeze)\n        ${EXCLUDED_AS_PAUSED}\n` }]],
+  ["a hold the freeze cannot place takes another worker's reason", "cl8a-since-11-only-a-worker-gone-held-and-a-hold-the-freeze-cannot-place-move", [{ find: RESOLVE_DIED_HELD, replace: 'if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    return { record, state: "unread", reason: "unreached" };' }]],
+  ["a reaching worker released in the drain takes a failed install's reason", "cl8a-since-11-only-a-worker-gone-held-and-a-hold-the-freeze-cannot-place-move", [{ find: REACHING_RELEASED, replace: 'if (worker.hold === "released")\n        return { record, state: "unread", reason: "installFailed" };' }]],
+  ["a released worker with a failed install is called a hold the freeze cannot place", "cl8a-since-11-only-a-worker-gone-held-and-a-hold-the-freeze-cannot-place-move", [{ find: 'if (record.install !== "installed")\n        return { record, state: "unread", reason: "installFailed" };\n    return { record, state: "stream" };\n}\n/** A shared worker reaching', replace: 'if (record.install !== "installed")\n        return { record, state: "unread", reason: "holdUnplaced" };\n    return { record, state: "stream" };\n}\n/** A shared worker reaching' }]]
+] as ReadonlyArray<readonly [string, string, SourceEdit[]]>) {
+  test(`CL8b catches a variant of the kernels: ${name}`, async () => {
+    await assertCaughtBy(name, property, () => checkSharedClassifier(realmVariant(...edits)));
+  });
+}
+
+for (const [name, property, edits] of [
+  ["a worker unread at the freeze is resolved again at the drain's end", "cl8a-unread-or-ended-at-once-at-the-freeze-stays-so", [{ find: 'const reached = realm.state === "reaching" ? ', replace: 'const reached = realm.state === "reaching" || realm.state === "unread" ? ' }]],
+  ["a worker that ended at once is resolved again at the drain's end", "cl8a-unread-or-ended-at-once-at-the-freeze-stays-so", [{ find: 'const reached = realm.state === "reaching" ? ', replace: 'const reached = realm.state === "reaching" || realm.state === "ended-at-once" ? ' }]]
 ] as ReadonlyArray<readonly [string, string, SourceEdit[]]>) {
   test(`CL8a catches a variant: ${name}`, async () => {
     await assertCaughtBy(name, property, () => checkSettledAtFreeze(realmVariant(...edits)));
@@ -594,15 +658,25 @@ for (const [name, property, edits] of [
   });
 }
 
+const DEDICATED_NOT_RELEASED = 'if (!worker.released) {\n        return worker.waitingForDebugger\n            ? { record, state: "excluded", reason: "pausedAtReadout" }\n            : { record, state: "unread", reason: "attachedLate" };\n    }';
+const DEDICATED_DIED_PAUSED_TEXT = 'if (worker.detachedWhilePaused) {\n        return worker.waitingForDebugger\n            ? { record, state: "excluded", reason: "diedPaused" }\n            : { record, state: "unread", reason: "attachedLate" };\n    }';
+const DEDICATED_DIED_PAUSED = DEDICATED_DIED_PAUSED_TEXT;
 const DEDICATED_LOST = 'const worker = record.worker;\n    // A worker the closed channel left running cannot be read, held or not:\n    // Chromium resumed it when this client went away.\n    if (record.lostWithChannel)\n        return { record, state: "unread", reason: "channelLostAlive" };\n';
 for (const [name, property, edits] of [
-  ["a dedicated worker takes a shared worker's reason", "cl8a-the-dedicated-classifier-is-unchanged-since-11", [{ find: 'if (!worker.released)\n        return { record, state: "excluded", reason: "pausedAtReadout" };', replace: 'if (!worker.released)\n        return { record, state: "unread", reason: "unreached" };' }]],
+  ["a dedicated worker takes a shared worker's reason", "cl8a-the-dedicated-classifier-is-unchanged-since-11", [{ find: DEDICATED_NOT_RELEASED, replace: 'if (!worker.released)\n        return { record, state: "unread", reason: "unreached" };' }]],
+  // What fingerprint-observer@13 had, each half put back alone, and the rule turned over.
+  ["a worker already running at its attach, its resume not yet sent, is excluded as held, as @13 had it", "cl8a-a-dedicated-worker-running-at-its-attach-is-never-excluded-at-the-freeze", [{ find: DEDICATED_NOT_RELEASED, replace: 'if (!worker.released)\n        return { record, state: "excluded", reason: "pausedAtReadout" };' }]],
+  ["a worker already running at its attach, gone before the channel's resume, is excluded as died paused, as @13 had it", "cl8a-a-dedicated-worker-running-at-its-attach-is-never-excluded-at-the-freeze", [{ find: DEDICATED_DIED_PAUSED, replace: 'if (worker.detachedWhilePaused)\n        return { record, state: "excluded", reason: "diedPaused" };' }]],
+  ["a worker held at its attach, its resume not yet sent, is unread as attached late", "cl8a-the-dedicated-classifier-is-unchanged-since-11", [{ find: DEDICATED_NOT_RELEASED, replace: 'if (!worker.released)\n        return { record, state: "unread", reason: "attachedLate" };' }]],
+  ["a worker held at its attach that died paused is unread as attached late", "cl8a-the-dedicated-classifier-is-unchanged-since-11", [{ find: DEDICATED_DIED_PAUSED, replace: 'if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "attachedLate" };' }]],
+  ["a worker already running at its attach is unread as a failed install once it was never released", "cl8a-at-14-a-dedicated-worker-moves-only-from-an-exclusion-to-attached-late", [{ find: DEDICATED_NOT_RELEASED, replace: 'if (!worker.released) {\n        return worker.waitingForDebugger\n            ? { record, state: "excluded", reason: "pausedAtReadout" }\n            : { record, state: "unread", reason: "installFailed" };\n    }' }]],
+  ["every worker already running at its attach is unread as attached late, whatever its install said", "cl8a-at-14-a-dedicated-worker-moves-only-from-an-exclusion-to-attached-late", [{ find: DEDICATED_DIED_PAUSED, replace: `if (!worker.waitingForDebugger)\n        return { record, state: "unread", reason: "attachedLate" };\n    ${DEDICATED_DIED_PAUSED_TEXT}` }]],
   ["the channel's loss excludes a dedicated worker", "cl8a-the-dedicated-classifier-is-unchanged-since-11", [{ find: DEDICATED_LOST, replace: "const worker = record.worker;\n" }]],
   ["a dedicated partition's term the readout has no field for", "cl8a-every-dedicated-view-lands-in-a-term-of-its-own", [{ find: 'return { term: "ownerReplaced", snapshot: null };', replace: 'return { term: "unreached", snapshot: null };' }]],
   ["state before scope: an unread worker of a replaced document stays unread", "cl8a-a-worker-of-a-replaced-document-is-excluded-whatever-its-stream-says", [{ find: 'if (owner !== null && loaders !== null && loaders.get(owner.frameId) !== owner.loaderId) {', replace: 'if (realm.state !== "unread" && owner !== null && loaders !== null && loaders.get(owner.frameId) !== owner.loaderId) {' }]],
   ["only the frame's loader is compared, so a frame gone reads as current", "cl8a-a-worker-of-a-replaced-document-is-excluded-whatever-its-stream-says", [{ find: 'loaders.get(owner.frameId) !== owner.loaderId) {', replace: 'loaders.has(owner.frameId) && loaders.get(owner.frameId) !== owner.loaderId) {' }]],
   ["scope excludes a worker already excluded by another term", "cl8a-excluded-at-the-freeze-stays-so", [{ find: 'if (realm.state === "excluded")\n        return { term: realm.reason, snapshot: null };\n    const owner = typeof realm.record.owner === "object" ? realm.record.owner : null;\n', replace: 'const owner = typeof realm.record.owner === "object" ? realm.record.owner : null;\n    if (realm.state === "excluded" && !(owner !== null && loaders !== null && loaders.get(owner.frameId) !== owner.loaderId))\n        return { term: realm.reason, snapshot: null };\n' }]],
-  ["an unread worker's reason is cut off instead", "cl8a-excluded-or-unread-at-the-freeze-stays-so", [{ find: 'if (realm.state === "unread")\n        return { term: realm.reason, snapshot: null };', replace: 'if (realm.state === "unread")\n        return { term: "cutOff", snapshot: null };' }]],
+  ["an unread worker's reason is cut off instead", "cl8a-unread-at-the-freeze-stays-so", [{ find: 'if (realm.state === "unread")\n        return { term: realm.reason, snapshot: null };', replace: 'if (realm.state === "unread")\n        return { term: "cutOff", snapshot: null };' }]],
   ["a dedicated worker with no vouched owner is credited", "cl8a-a-dedicated-worker-is-credited-only-to-an-owner-shown-current", [{ find: 'if (owner === null || loaders === null)\n        return { term: "ownerUnknown", snapshot };\n', replace: "" }]],
   ["an owner shown current is unscoped anyway", "cl8a-an-owner-neither-current-nor-replaced-is-unscoped", [{ find: 'if (owner === null || loaders === null)\n        return { term: "ownerUnknown", snapshot };\n', replace: 'if (owner === null || loaders === null || loaders.size > 0)\n        return { term: "ownerUnknown", snapshot };\n' }]],
   ["frames that could not be read lose a whole snapshot as cut off", "cl8a-a-snapshot-lands-only-with-a-reading-term", [{ find: 'if (owner === null || loaders === null)\n        return { term: "ownerUnknown", snapshot };\n', replace: 'if (loaders === null)\n        return { term: "cutOff", snapshot: null };\n    if (owner === null)\n        return { term: "ownerUnknown", snapshot };\n' }]],
@@ -620,8 +694,8 @@ for (const [name, property, edits] of [
  * readout's diagnostics, the term its world says, and that the terms add up to what the
  * readout publishes.
  *
- * Domain, dedicated: one worker that starts paused, running, or held by an earlier
- * installer; whose install answers, answers with no first snapshot, answers false, throws
+ * Domain, dedicated: one worker that starts paused, running, held by an earlier
+ * installer, or running with an earlier installer still at work; whose install answers, answers with no first snapshot, answers false, throws
  * in the evaluation, fails, has its sink refused, has its stream break first, or never
  * answers; whose stream after that holds nothing more, an open task, a closed snapshot, a
  * gap or the realm's own null; that goes away never, before the freeze or in the drain;
@@ -629,7 +703,9 @@ for (const [name, property, edits] of [
  * freeze, in no frame of the tree, or read and then refused or never answered by the
  * worker's vouch. Each with the channel alive, lost before the freeze or in the drain, and
  * alive with frame trees that cannot be read. Then workers started by others, no channel
- * at all, witness counts past what attached, and more attached than the witness saw.
+ * at all, witness counts past what attached, and more attached than the witness saw. Then
+ * one worker whose attach arrives in the drain, by each start, with its install answered or
+ * not, alone or beside a worker attached before the call, under each witness count.
  *
  * Domain, shared: one worker on each path the thread can report (attached; gone with no
  * pause, under the bound, at it, past it or with a script seen; late, gone or not; held,
@@ -657,14 +733,15 @@ for (const [name, property, edits] of [
  * The expected terms restate the docblocks of the diagnostics and of `readout`, so they
  * catch the class drifting from those, not a wrong rule.
  *
- * Findings, each pinned below as what happens and not as what should: a dedicated worker
- * attached in the drain lands in no term, paused or running; the witness and the attached
- * count have nothing to join them, so an unwitnessed worker can mask a witnessed one; a
- * gap in the drain before a barrier's answer leaves the worker read at its older snapshot;
- * one an earlier installer still holds when the channel closes is counted as held.
- * `shared.diedPaused` stays 0 throughout: nothing has written it since
- * fingerprint-observer@12, and the field stays because dropping it changes the shape of the
- * diagnostics.
+ * Findings, each pinned below as what happens and not as what should: the witness and the
+ * attached count have nothing to join them, so an unwitnessed worker can mask a witnessed
+ * one; a gap in the drain before a barrier's answer leaves the worker read at its older
+ * snapshot; one an earlier installer still holds when the channel closes is counted as held.
+ * Closed at fingerprint-observer@14, and held below as a claim: a dedicated worker attached
+ * in the drain lands in one term, by its attach.
+ * `shared.diedPaused` and `shared.pausedAtReadout` stay 0 throughout: nothing has written the
+ * first since fingerprint-observer@12 or the second since @14, and the fields stay because
+ * dropping them changes the shape of the diagnostics.
  */
 
 type RealmModule = Pick<typeof productionRealm, "FingerprintWorkerRealmInstaller">;
@@ -717,7 +794,8 @@ function emission(installer: Installer, sessionId: string, sequence: number, wor
 const tokenOf = (sessionId: string, sequence: number) => JSON.stringify({ worker: sessionId, sequence });
 
 type DedicatedPlan = {
-  start: "paused" | "running" | "held-by-an-earlier-installer";
+  /** The last: already running at its attach, with an installer before this one still at its own work, so this one has no record of it. */
+  start: "paused" | "running" | "held-by-an-earlier-installer" | "running-before-an-earlier-installer";
   install: "answered" | "no-first-snapshot" | "false" | "threw" | "rejected" | "sink-refused" | "broken-first" | "unanswered";
   stream: "first-only" | "open" | "closed" | "gap" | "realm-null";
   gone: "no" | "before-the-freeze" | "in-the-drain";
@@ -735,6 +813,7 @@ function dedicatedPlans(): DedicatedPlan[] {
   const plans: DedicatedPlan[] = [];
   for (const gone of GONES) {
     plans.push({ ...QUIET, start: "held-by-an-earlier-installer", gone });
+    plans.push({ ...QUIET, start: "running-before-an-earlier-installer", gone });
     for (const owner of DEDICATED_OWNERS) {
       plans.push({ ...QUIET, start: "running", gone, owner });
       for (const install of FAILING_INSTALLS) plans.push({ ...QUIET, install, gone, owner });
@@ -787,7 +866,7 @@ async function dedicatedBench(modules: Modules, plans: readonly DedicatedPlan[],
   };
   const earlier: WorkerRealmInstaller = {
     install: async (worker) => {
-      if (planOf.get(worker.sessionId)?.start === "held-by-an-earlier-installer") await hold(`earlier:${worker.sessionId}`);
+      if (planOf.get(worker.sessionId)?.start.endsWith("an-earlier-installer")) await hold(`earlier:${worker.sessionId}`);
     },
     concluded() {}
   };
@@ -801,7 +880,7 @@ async function dedicatedBench(modules: Modules, plans: readonly DedicatedPlan[],
       params: {
         sessionId,
         targetInfo: { type: "worker", targetId: `${sessionId}-target`, url: `${ORIGIN}/w.js`, parentFrameId: plan?.owner === "no-such-frame" ? "no-such-frame" : `frame-${sessionId}` },
-        waitingForDebugger: plan?.start !== "running"
+        waitingForDebugger: !plan?.start.startsWith("running")
       }
     });
   };
@@ -876,7 +955,7 @@ function holdPublishedSums(readout: WorkerFingerprintRealmReadout, emitted: Read
   holds("cl7-unscoped-snapshots-are-the-unscoped-terms", readout.unscopedSnapshots.length === diagnostics.ownerUnknown + shared.ownerUnscoped, input);
   const landed = [...readout.readableSnapshots, ...readout.unscopedSnapshots];
   holds("cl7-a-snapshot-lands-once-and-is-a-worker-s-own", new Set(landed).size === landed.length && landed.every((snapshot) => emitted.has(snapshot)), input);
-  holds("cl7-nothing-writes-a-shared-diedpaused", shared.diedPaused === 0, input);
+  holds("cl7-nothing-writes-a-shared-exclusion", sumOf(shared, SHARED_EXCLUDED) === 0, input);
 }
 
 function termsOf(record: Record<string, unknown>, terms: readonly string[]): Map<string, number> {
@@ -893,7 +972,7 @@ type Landing = { term: string; snapshot: string | null };
 
 /**
  * Where a dedicated worker lands, by hand, from the docblocks: at the freeze it is held or
- * gone held, or left by the channel; then a replaced owner excludes it whatever its stream
+ * gone held, or already running at its attach with no record yet, or left by the channel; then a replaced owner excludes it whatever its stream
  * says; then its install; then what its stream says at its freeze point, which for a gone
  * worker is what it last said, and for a running one what it had said when the barrier
  * answered. A closed channel reads no frame trees. This restates those docblocks, so it
@@ -902,6 +981,8 @@ type Landing = { term: string; snapshot: string | null };
 function dedicatedLanding(plan: DedicatedPlan, mode: DedicatedMode, sessionId: string): Landing {
   const none = (term: string): Landing => ({ term, snapshot: null });
   if (plan.start === "held-by-an-earlier-installer") return none("pausedAtReadout");
+  // Never held, so the earlier installer's time with it shows nothing: unread, whatever became of it or of the channel.
+  if (plan.start === "running-before-an-earlier-installer") return none("attachedLate");
   const goneBefore = plan.gone === "before-the-freeze";
   const lostBefore = mode.channel === "lost-before-the-freeze";
   if (lostBefore && !goneBefore) return none("channelLostAlive");
@@ -978,6 +1059,50 @@ async function checkDedicatedExtras(modules: Modules): Promise<number> {
     const { readout, emitted } = await dedicatedWorld(modules, world.plans, ALIVE, { witnessed: 0, inTheDrain: world.inTheDrain });
     const input = () => ({ world, diagnostics: readout.diagnostics });
     holdPublishedSums(readout, emitted, input);
+  }
+  return cases;
+}
+
+const STARTS: readonly DedicatedPlan["start"][] = ["paused", "running", "held-by-an-earlier-installer", "running-before-an-earlier-installer"];
+const IN_THE_DRAIN_MODES: readonly DedicatedMode[] = [ALIVE, { channel: "alive", trees: "unreadable" }, { channel: "lost-in-the-drain", trees: "read" }];
+
+/**
+ * A dedicated worker whose attach arrives in the drain. The freeze has passed, so it has no
+ * frozen realm, and the world says where it lands by its attach alone: held there, it had
+ * not run its first statement at the freeze, and already running, when it started is not
+ * known. What its install or an earlier installer did afterwards changes neither.
+ */
+async function checkDedicatedInTheDrain(modules: Modules): Promise<number> {
+  let cases = 0;
+  for (const mode of IN_THE_DRAIN_MODES) {
+    for (const start of STARTS) {
+      // Only a worker this installer reaches while it is held has an install to leave unanswered.
+      for (const install of start === "paused" ? (["answered", "unanswered"] as const) : (["answered"] as const)) {
+        for (const beside of [[], [QUIET]] as const) {
+          for (const neverAttached of [0, 1]) {
+            cases += 1;
+            const inTheDrain: DedicatedPlan = { ...QUIET, start, install };
+            const witnessed = beside.length + 1 + neverAttached;
+            const { readout, emitted } = await dedicatedWorld(modules, beside, mode, { witnessed, inTheDrain });
+            const { diagnostics } = readout;
+            const input = () => ({ mode, start, install, beside: beside.length, neverAttached, diagnostics });
+            const running = start.startsWith("running");
+            // The worker attached before the call, alone in the same mode, by the landing above.
+            const besideTerm = beside.length === 0 ? null : dedicatedLanding(QUIET, mode, "dw-0").term;
+            const expected = new Map<string, number>(DEDICATED_WORKER_TERMS.map((term) => [term, 0]));
+            if (besideTerm !== null) expected.set(besideTerm, 1);
+            const ownTerm = running ? "attachedLate" : "pausedAtReadout";
+            expected.set(ownTerm, (expected.get(ownTerm) ?? 0) + 1);
+            holds("cl7-every-dedicated-worker-lands-in-one-term", diagnostics.attachedDedicated === beside.length + 1 && sumOf(diagnostics, DEDICATED_WORKER_TERMS) === beside.length + 1, input);
+            holds("cl7-a-dedicated-worker-attached-in-the-drain-lands-by-its-attach", sameTerms(expected, termsOf(diagnostics, DEDICATED_WORKER_TERMS)), input);
+            holds("cl7-a-witnessed-worker-never-attached-is-unattached", diagnostics.unattachedDedicated === neverAttached, input);
+            const besideUnread = besideTerm !== null && DEDICATED_UNREAD.has(besideTerm) ? 1 : 0;
+            holds("cl7-a-dedicated-worker-running-at-an-attach-in-the-drain-is-an-unread-realm-and-one-held-there-is-none", readout.unreadRealms === (running ? 1 : 0) + besideUnread + neverAttached, input);
+            holdPublishedSums(readout, emitted, input);
+          }
+        }
+      }
+    }
   }
   return cases;
 }
@@ -1335,7 +1460,7 @@ const landedShared = (readout: WorkerFingerprintRealmReadout): string[] => SHARE
 /** The terms a worker read from its stream can land in. */
 const STREAM_TERMS = new Set(["readable", "ownerUnscoped", "cutOff", "streamBroken", "channelLostAlive"]);
 
-type DirectionTally = { worlds: number; movedToUnread: number; movedToStream: number };
+type DirectionTally = { worlds: number; movedToUnread: number; movedToStream: number; movedToUnplaced: Record<SharedLoss, number> };
 
 /** What @11 would have said of this world, by its mirror and its classifier. */
 function sharedWorldAt11(plan: SharedPlan, loss: SharedLoss): Before | null {
@@ -1514,7 +1639,8 @@ async function checkDocumentsWatched(modules: Modules): Promise<number> {
  * stream, which @12 made in the mirror.
  */
 async function checkSharedDirection(modules: Modules): Promise<DirectionTally> {
-  const tally: DirectionTally = { worlds: 0, movedToUnread: 0, movedToStream: 0 };
+  const tally: DirectionTally = { worlds: 0, movedToUnread: 0, movedToStream: 0, movedToUnplaced: { no: 0, "before-the-freeze": 0, "at-the-drain-s-end": 0 } };
+  const excluded: unknown[] = [];
   for (const loss of SHARED_LOSSES) {
     for (const plan of sharedPlans()) {
       const before = sharedWorldAt11(plan, loss);
@@ -1525,12 +1651,14 @@ async function checkSharedDirection(modules: Modules): Promise<DirectionTally> {
       const term = terms[0];
       const input = () => ({ plan, loss, before, terms });
       holds("cl8a-the-real-readout-lands-each-worker-once", terms.length === 1, input);
-      const moves = before.state === "excluded" && !SHARED_EXCLUDED.has(term);
-      if (moves) {
-        // A worker gone held with its install answered false is read as a released one is, and so is unread for its install.
+      if (before.state === "excluded" && !SHARED_EXCLUDED.has(term)) {
+        // @12's moves. A worker gone held with its install answered false is read as a released one is, and so is unread for its install.
         const toUnread = term === "diedHeld" || term === "installFailed";
-        holds("cl8a-through-the-mirror-at-12-only-exclusions-move-and-only-toward-unread-or-the-stream", toUnread || STREAM_TERMS.has(term), input);
+        // @14's move: every exclusion @12 left.
+        const toUnplaced = term === "holdUnplaced";
+        holds("cl8a-through-the-mirror-since-11-only-exclusions-move-and-only-toward-unread-or-the-stream", toUnread || toUnplaced || STREAM_TERMS.has(term), input);
         if (toUnread) tally.movedToUnread += 1;
+        else if (toUnplaced) tally.movedToUnplaced[loss] += 1;
         else tally.movedToStream += 1;
       }
       const unmoved =
@@ -1543,7 +1671,7 @@ async function checkSharedDirection(modules: Modules): Promise<DirectionTally> {
               : before.state === "reaching"
                 ? term === "unreached"
                 : STREAM_TERMS.has(term);
-      holds("cl8a-through-the-mirror-at-12-only-exclusions-move-and-only-toward-unread-or-the-stream", unmoved, input);
+      holds("cl8a-through-the-mirror-since-11-only-exclusions-move-and-only-toward-unread-or-the-stream", unmoved, input);
 
       // The world's own facts, read from the path and not from any rule of the readout.
       const heldAtGone = (moves_: readonly SharedStep[]) => {
@@ -1557,6 +1685,17 @@ async function checkSharedDirection(modules: Modules): Promise<DirectionTally> {
       // Attached in the drain, it was not yet paused at the freeze, so nothing it streamed is of the freeze.
       if (plan.before.length === 0) holds("cl8a-a-worker-attached-after-the-freeze-is-never-read", !["readable", "ownerUnscoped", "cutOff", "streamBroken"].includes(term), input);
       const everything = [...plan.before, ...plan.during];
+      // Fingerprint-observer@14, by the path alone. A release the mirror heard in the drain may have been in flight at the
+      // freeze, and a hold the mirror still sees at the drain's end may have broken, so neither worker is excluded: each is
+      // one unread realm, whether the freeze found it held, found it reaching, or had not heard of it.
+      if (loss === "no" && !everything.includes("late")) {
+        const last = everything[everything.length - 1];
+        // The mirror reads a worker gone held after its install concluded as released, so its going in the drain is a release in the drain.
+        const goneAt = everything.indexOf("gone");
+        const goneInTheDrainAfterItsInstall = goneAt > 0 && goneAt >= plan.before.length && everything[goneAt - 1].startsWith("installed");
+        if (plan.during.includes("released") || goneInTheDrainAfterItsInstall) holds("cl8a-a-worker-released-in-the-drain-is-an-unread-realm", term === "holdUnplaced" && readout.unreadRealms === 1, input);
+        if (last === "held" || last.startsWith("installed")) holds("cl8a-a-worker-still-held-at-the-drain-s-end-is-an-unread-realm", term === "holdUnplaced" && readout.unreadRealms === 1, input);
+      }
       if (heldAtGone(everything) && loss !== "before-the-freeze") holds("cl8a-a-worker-gone-held-in-the-world-is-unread", term === "diedHeld", input);
       if (heldAtGone(plan.before)) holds("cl8a-a-worker-gone-held-in-the-world-is-unread", term === "diedHeld", input);
       if (answeredThenGone(plan.before)) {
@@ -1570,8 +1709,11 @@ async function checkSharedDirection(modules: Modules): Promise<DirectionTally> {
         const got = expected === "readable" ? readout.readableSnapshots : expected === "ownerUnscoped" ? readout.unscopedSnapshots : [];
         holds("cl8a-the-real-readout-reads-each-stream-at-its-freeze", term === expected && JSON.stringify(got) === JSON.stringify(SHARED_READ.has(expected) ? [tokenOf("sw-0", plan.stream === "closed" ? 2 : 1)] : []), input);
       }
+      if (SHARED_EXCLUDED.has(term)) excluded.push(input());
     }
   }
+  // After the walk, so that a variant with a narrower name is caught under that name.
+  holds("cl8a-the-real-readout-excludes-no-shared-worker", excluded.length === 0, () => ({ worlds: excluded.length, first: excluded[0] }));
   return tally;
 }
 
@@ -1580,7 +1722,7 @@ const SHARED_PLAN_COUNT = 50 + 20 + 20 + 20 * 16;
 
 test("CL7: every dedicated worker lands in one term of the real readout, the one its world says, and the terms add up", async () => {
   const plans = dedicatedPlans();
-  assert.equal(plans.length, 3 * (1 + 5 * (1 + 7 + 15)));
+  assert.equal(plans.length, 3 * (2 + 5 * (1 + 7 + 15)));
   // Each mode's workers alone and all together.
   assert.equal(await checkDedicatedAccounting(PRODUCTION_MODULES), DEDICATED_MODES.length * (plans.length + 1));
   // 4 nested pairs, no channel, 2 witness counts and 2 worlds with more attached than witnessed.
@@ -1608,37 +1750,46 @@ test("CL8a: a shared worker attached on a stream that missed a commit is credite
   assert.equal(await checkDocumentsWatched(PRODUCTION_MODULES), 4);
 });
 
-test("CL8a: through the real mirror and readout, @12 moves @11's exclusions toward unread and toward the stream, and nothing else", async () => {
+test("CL8a: through the real mirror and readout, @12 and @14 move every one of @11's exclusions toward unread or toward the stream, and nothing else", async () => {
   const tally = await checkSharedDirection(PRODUCTION_MODULES);
   // Every plan by 3 losses, less the 86 attached in the drain that a loss before the freeze leaves unreported.
   // Toward the stream: gone after its install answered, before the freeze, by 16 streams, barriers and credits and 3 losses.
   // Toward unread: gone held with its install unanswered at each of 4 cuts (3 + 2 + 2 + 2 losses that leave a move), and gone
   // before the freeze after each of the 2 installs that failed, by 3 losses.
-  assert.deepEqual(tally, { worlds: SHARED_PLAN_COUNT * 3 - 86, movedToUnread: 3 + 2 + 2 + 2 + 2 * 3, movedToStream: 16 * 3 });
+  // Toward a hold the freeze cannot place, which is every exclusion @12 left. An install answered by 16 streams, barriers and
+  // credits, or answered false, or never answered: 18 worlds for each path through an install. With no loss: the freeze before
+  // the attach, after it, or after the hold (3), each with the worker still held with no install (1) or, past an install, still
+  // held, gone, released, or released and gone (4 by 18); and the freeze after the install, with the same four ends. With the
+  // loss at the drain's end a worker still attached is lost with the channel, which leaves, of those four ends, the two that
+  // went when the freeze fell before the hold (2 freezes), and those two and the release alone when it fell in the hold (2).
+  // With the loss before the freeze the mirror hears no release.
+  const INSTALLS_BY_WEIGHT = 16 + 1 + 1;
+  assert.deepEqual(tally, { worlds: SHARED_PLAN_COUNT * 3 - 86, movedToUnread: 3 + 2 + 2 + 2 + 2 * 3, movedToStream: 16 * 3, movedToUnplaced: { no: 3 * (1 + 4 * INSTALLS_BY_WEIGHT) + 4 * INSTALLS_BY_WEIGHT, "before-the-freeze": 0, "at-the-drain-s-end": 2 * (2 * INSTALLS_BY_WEIGHT) + 2 * (3 * INSTALLS_BY_WEIGHT) } });
 });
 
 /**
- * Open (CL7), pinned as what happens and not as what should. A dedicated worker attached
- * in the drain is in `attachedDedicated` and in no term: the freeze has passed, so it has no
- * frozen realm, and the count of workers held before the install was taken at the call.
- * Paused at its attach, the readout's docblock says it was still paused at the freeze, so it
- * is an exclusion with no term to say so, and only the diagnostics show that.
- * Already running at its attach, it reaches the published count: the same worker attached
- * before the call is `attachedLate` and one unread realm, and attached in the drain it is
- * no unread realm (`unreadRealms` feeds fingerprint-observer's attempted realms and
- * the scanner's incomplete family). Whether Chromium ever attaches a running worker in a
- * drain is not measured. "readout: the drain waits for the channel's attaches" in
- * lib/worker-fingerprint-realm.test.ts pins the paused form as an empty term list, so
- * either change is the owner's call.
+ * Closed at fingerprint-observer@14, and a claim since. Through @13 a dedicated worker
+ * attached in the drain was in `attachedDedicated` and in no term: the freeze had passed,
+ * so it had no frozen realm, and the count of workers with no record was taken at the call.
+ * Already running at its attach, it was no unread realm, where the same worker attached
+ * before the call was one. It now lands by its attach. Held there, it is `pausedAtReadout`,
+ * an exclusion, as the readout's docblock always said of a witnessed worker not yet attached:
+ * the channel's own attach holds a worker before its first statement, and that attach had
+ * not arrived at the freeze. Already running there, it is `attachedLate` and one unread
+ * realm, whichever side of the call its attach fell on. Whether Chromium ever attaches a
+ * running worker in a drain is still not measured.
  */
-test("open (CL7): a dedicated worker attached in the drain lands in no term, paused or running", async () => {
+test("CL7: a dedicated worker attached in the drain lands in one term, by its attach: held there it is excluded, and already running it is an unread realm", async () => {
+  assert.equal(await checkDedicatedInTheDrain(PRODUCTION_MODULES), IN_THE_DRAIN_MODES.length * (STARTS.length + 1) * 2 * 2);
+  // The finding's own three worlds, spelled out.
   const paused = await dedicatedWorld(PRODUCTION_MODULES, [], ALIVE, { witnessed: 1, inTheDrain: QUIET });
-  assert.deepEqual([paused.readout.diagnostics.attachedDedicated, sumOf(paused.readout.diagnostics, DEDICATED_WORKER_TERMS), paused.readout.diagnostics.unattachedDedicated, paused.readout.unreadRealms], [1, 0, 0, 0]);
+  assert.deepEqual([paused.readout.diagnostics.attachedDedicated, sumOf(paused.readout.diagnostics, DEDICATED_WORKER_TERMS), paused.readout.diagnostics.pausedAtReadout, paused.readout.diagnostics.unattachedDedicated, paused.readout.unreadRealms], [1, 1, 1, 0, 0]);
   const running: DedicatedPlan = { ...QUIET, start: "running" };
   const inTheDrain = await dedicatedWorld(PRODUCTION_MODULES, [], ALIVE, { witnessed: 1, inTheDrain: running });
-  assert.deepEqual([inTheDrain.readout.diagnostics.attachedDedicated, sumOf(inTheDrain.readout.diagnostics, DEDICATED_WORKER_TERMS), inTheDrain.readout.diagnostics.attachedLate, inTheDrain.readout.unreadRealms], [1, 0, 0, 0]);
   const beforeTheCall = await dedicatedWorld(PRODUCTION_MODULES, [running], ALIVE, { witnessed: 1 });
-  assert.deepEqual([beforeTheCall.readout.diagnostics.attachedDedicated, sumOf(beforeTheCall.readout.diagnostics, DEDICATED_WORKER_TERMS), beforeTheCall.readout.diagnostics.attachedLate, beforeTheCall.readout.unreadRealms], [1, 1, 1, 1]);
+  for (const { readout } of [inTheDrain, beforeTheCall]) {
+    assert.deepEqual([readout.diagnostics.attachedDedicated, sumOf(readout.diagnostics, DEDICATED_WORKER_TERMS), readout.diagnostics.attachedLate, readout.unreadRealms], [1, 1, 1, 1]);
+  }
 });
 
 /**
@@ -1709,6 +1860,8 @@ const mirrorVariant = (...edits: SourceEdit[]): Modules => ({
 });
 
 const DEDICATED_TERM_LINE = "diagnostics[landed.term] += 1;";
+const NO_RECORD_YET = "if (worker.waitingForDebugger)\n                heldBeforeInstall += 1;\n            else\n                runningBeforeInstall += 1;";
+const IN_THE_DRAIN_PASS = "if (attachedAtFreeze.has(worker.sessionId))\n                continue;\n            if (worker.waitingForDebugger)\n                diagnostics.pausedAtReadout += 1;\n            else\n                diagnostics.attachedLate += 1;";
 const SHARED_TERM_LINE = "shared[landed.term] += 1;";
 const SECOND_PASS = "if (!frozenShared.has(record))\n                sharedRealms.push(this.freezeShared(record, { attachedAfterFreeze: true }));\n";
 const READ_PUSH = 'if (landed.term === "readable")\n                readableSnapshots.push(landed.snapshot);\n            else if (landed.term === "ownerUnknown")';
@@ -1718,6 +1871,11 @@ for (const [name, property, edits] of [
   ["a dedicated term is counted twice", "cl7-every-dedicated-worker-lands-in-one-term", [{ find: DEDICATED_TERM_LINE, replace: "diagnostics[landed.term] += 2;" }]],
   ["a dedicated term is not counted", "cl7-every-dedicated-worker-lands-in-one-term", [{ find: DEDICATED_TERM_LINE, replace: 'if (landed.term !== "cutOff") diagnostics[landed.term] += 1;' }]],
   ["a worker an earlier installer holds is counted for nothing", "cl7-every-dedicated-worker-lands-in-one-term", [{ find: "pausedAtReadout: heldBeforeInstall,", replace: "pausedAtReadout: 0," }]],
+  // Fingerprint-observer@13's count of workers with no record, which never read whether one was held at its attach.
+  ["a worker already running at its attach, with no record yet, is counted as held, as @13 had it", "cl7-each-dedicated-worker-lands-where-its-world-says", [{ find: NO_RECORD_YET, replace: "heldBeforeInstall += 1;" }]],
+  ["a worker held at its attach, with no record yet, is counted as running", "cl7-each-dedicated-worker-lands-where-its-world-says", [{ find: NO_RECORD_YET, replace: "runningBeforeInstall += 1;" }]],
+  ["a worker with a record is counted again among those with none", "cl7-every-dedicated-worker-lands-in-one-term", [{ find: "if (this.records.has(worker.sessionId))\n                continue;\n", replace: "" }]],
+  ["a worker already running with no record yet is in no term", "cl7-every-dedicated-worker-lands-in-one-term", [{ find: "attachedLate: runningBeforeInstall,", replace: "attachedLate: 0," }]],
   ["the unread count leaves out a worker cut off", "cl7-unread-realms-are-the-unread-terms", [{ find: "diagnostics.cutOff +\n", replace: "" }]],
   ["a read worker's snapshot is not published", "cl7-read-snapshots-are-the-read-terms", [{ find: READ_PUSH, replace: 'if (landed.term === "ownerUnknown")' }]],
   ["an unscoped worker's snapshot is not published", "cl7-unscoped-snapshots-are-the-unscoped-terms", [{ find: UNSCOPED_PUSH, replace: "" }]],
@@ -1750,6 +1908,22 @@ for (const [name, property, edits] of [
   });
 }
 
+for (const [name, property, edits] of [
+  ["a worker attached in the drain lands in no term, as @13 had it", "cl7-every-dedicated-worker-lands-in-one-term", [{ find: IN_THE_DRAIN_PASS, replace: "continue;" }]],
+  ["only a worker held at an attach in the drain lands in a term", "cl7-every-dedicated-worker-lands-in-one-term", [{ find: IN_THE_DRAIN_PASS, replace: "if (attachedAtFreeze.has(worker.sessionId))\n                continue;\n            if (worker.waitingForDebugger)\n                diagnostics.pausedAtReadout += 1;" }]],
+  ["a worker already running at an attach in the drain is excluded as held", "cl7-a-dedicated-worker-attached-in-the-drain-lands-by-its-attach", [{ find: IN_THE_DRAIN_PASS, replace: "if (attachedAtFreeze.has(worker.sessionId))\n                continue;\n            diagnostics.pausedAtReadout += 1;" }]],
+  ["a worker held at an attach in the drain is unread as attached late", "cl7-a-dedicated-worker-attached-in-the-drain-lands-by-its-attach", [{ find: IN_THE_DRAIN_PASS, replace: "if (attachedAtFreeze.has(worker.sessionId))\n                continue;\n            diagnostics.attachedLate += 1;" }]],
+  ["the pass over the drain's attaches counts a worker attached before the call again", "cl7-every-dedicated-worker-lands-in-one-term", [{ find: IN_THE_DRAIN_PASS, replace: "if (worker.waitingForDebugger)\n                diagnostics.pausedAtReadout += 1;\n            else\n                diagnostics.attachedLate += 1;" }]],
+  ["a worker attached in the drain is taken for one with no record at the call", "cl7-every-dedicated-worker-lands-in-one-term", [{ find: "attachedAtFreeze.add(worker.sessionId);", replace: "" }]],
+  ["a worker running at an attach in the drain lands in its term and is no unread realm", "cl7-a-dedicated-worker-running-at-an-attach-in-the-drain-is-an-unread-realm-and-one-held-there-is-none", [{ find: "diagnostics.attachedLate +\n", replace: "(diagnostics.attachedLate > 0 && frozen.length === 0 && runningBeforeInstall === 0 ? 0 : diagnostics.attachedLate) +\n" }]]
+] as ReadonlyArray<readonly [string, string, SourceEdit[]]>) {
+  test(`CL7 catches a variant in the drain's attaches: ${name}`, async () => {
+    await assertCaughtBy(name, property, () => checkDedicatedInTheDrain(accountingVariant(...edits)));
+  });
+}
+
+/** The line fingerprint-observer@13 had: with it back, a variant that excludes a shared worker lands it in its term. */
+const LANDS_EXCLUDED_AGAIN: SourceEdit = { find: 'if (resolved.state === "unread")\n        return { term: resolved.reason, snapshot: null };\n    if (resolved.state === "ended-at-once")', replace: 'if (resolved.state === "excluded" || resolved.state === "unread")\n        return { term: resolved.reason, snapshot: null };\n    if (resolved.state === "ended-at-once")' };
 const AT_11_FREEZE = { find: FREEZE_DIED_HELD, replace: 'if (worker.detachedWhilePaused)\n        return { record, state: "excluded", reason: "diedPaused" };\n    // Held as far as' };
 for (const [name, property, edits] of [
   ["a shared worker attached in the drain is dropped", "cl7-every-shared-worker-the-attacher-reported-lands-in-one-term", [{ find: SECOND_PASS, replace: "" }]],
@@ -1761,7 +1935,9 @@ for (const [name, property, edits] of [
   ["the unread count leaves out a worker never reached", "cl7-unread-realms-are-the-unread-terms", [{ find: "shared.unreached +\n", replace: "" }]],
   ["a worker that ended at once counts as unread", "cl7-unread-realms-are-the-unread-terms", [{ find: "shared.unattached,", replace: "shared.unattached + shared.endedAtOnce," }]],
   ["a worker that ended at once is not passed through", "cl7-ended-at-once-passes-through-apart", [{ find: "sharedWorkersEndedAtOnce: shared.endedAtOnce,", replace: "sharedWorkersEndedAtOnce: 0," }]],
-  ["a shared diedPaused has a writer again", "cl7-nothing-writes-a-shared-diedpaused", [AT_11_FREEZE]],
+  ["a shared diedPaused has a writer again", "cl7-nothing-writes-a-shared-exclusion", [AT_11_FREEZE, LANDS_EXCLUDED_AGAIN]],
+  ["a shared pausedAtReadout has a writer again, as @13 had it", "cl7-nothing-writes-a-shared-exclusion", [{ find: RESOLVE_DIED_HELD, replace: `if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    ${EXCLUDED_AS_PAUSED}` }, LANDS_EXCLUDED_AGAIN]],
+  ["the unread count leaves out a hold the freeze cannot place", "cl7-unread-realms-are-the-unread-terms", [{ find: "shared.holdUnplaced +\n", replace: "" }]],
   ["the shared partition stops at the first worker cut off", "cl7-the-whole-is-the-sum-of-its-parts", [{ find: SHARED_TERM_LINE, replace: 'shared[landed.term] += 1;\n            if (landed.term === "cutOff")\n                break;' }]]
 ] as ReadonlyArray<readonly [string, string, SourceEdit[]]>) {
   test(`CL7 catches a variant: ${name}`, async () => {
@@ -1827,17 +2003,30 @@ test("CL8a catches a variant: a creation document read on a stream that missed a
   );
 });
 for (const [name, property, modules] of [
-  ["shared diedHeld goes back to excluded in the readout", "cl8a-a-worker-gone-held-in-the-world-is-unread", () => accountingVariant(AT_11_FREEZE, { find: RESOLVE_DIED_HELD, replace: 'return { record, state: "excluded", reason: "pausedAtReadout" };' })],
+  ["shared diedHeld goes back to excluded in the readout", "cl8a-a-worker-gone-held-in-the-world-is-unread", () => accountingVariant(AT_11_FREEZE, { find: RESOLVE_DIED_HELD, replace: RESOLVE_GONE_HELD_EXCLUDED }, LANDS_EXCLUDED_AGAIN)],
   ["the mirror no longer says a worker died held", "cl8a-a-worker-gone-held-in-the-world-is-unread", () => mirrorVariant({ find: "worker.detachedWhilePaused = message.diedWhileHeld === true;", replace: "worker.detachedWhilePaused = false;" })],
   ["the mirror no longer reads a worker gone after its install as released", "cl8a-a-worker-gone-after-its-install-is-read-from-its-stream", () => mirrorVariant({ find: MIRROR_REWRITE, replace: "if (false) {" })],
   ["the mirror reads a worker gone with its install unanswered as released", "cl8a-a-worker-gone-held-in-the-world-is-unread", () => mirrorVariant({ find: MIRROR_REWRITE, replace: 'if (worker.hold === "held") {' })],
-  ["late is not terminal in the mirror", "cl8a-through-the-mirror-at-12-only-exclusions-move-and-only-toward-unread-or-the-stream", () => mirrorVariant({ find: 'if (worker.hold === "late" && (message.type === "held" || message.type === "installed" || message.type === "released")) {', replace: "if (false) {" })],
+  ["late is not terminal in the mirror", "cl8a-through-the-mirror-since-11-only-exclusions-move-and-only-toward-unread-or-the-stream", () => mirrorVariant({ find: 'if (worker.hold === "late" && (message.type === "held" || message.type === "installed" || message.type === "released")) {', replace: "if (false) {" })],
   ["one worker lands in two terms", "cl8a-the-real-readout-lands-each-worker-once", () => accountingVariant({ find: SHARED_TERM_LINE, replace: 'shared[landed.term] += 1;\n            if (landed.term === "unreached")\n                shared.diedHeld += 1;' })],
   ["the class forgets a worker attached in the drain came after the freeze", "cl8a-a-worker-attached-after-the-freeze-is-never-read", () => accountingVariant({ find: "this.freezeShared(record, { attachedAfterFreeze: true })", replace: "this.freezeShared(record)" })],
-  ["a worker gone after its install is lost to the stream by an unread term", "cl8a-through-the-mirror-at-12-only-exclusions-move-and-only-toward-unread-or-the-stream", () => accountingVariant({ find: SHARED_INSTALL_FAILED, replace: 'if (options.attachedAfterFreeze)\n        return { record, state: "excluded", reason: "pausedAtReadout" };\n    if (worker.detached)\n        return { record, state: "unread", reason: "unreached" };\n    if (record.install !== "installed")\n        return { record, state: "unread", reason: "installFailed" };' })],
-  ["a released worker's stream is never read", "cl8a-through-the-mirror-at-12-only-exclusions-move-and-only-toward-unread-or-the-stream", () => accountingVariant({ find: SHARED_INSTALL_FAILED, replace: 'if (options.attachedAfterFreeze || (record.install === "installed" && !worker.detached))\n        return { record, state: "excluded", reason: "pausedAtReadout" };\n    if (record.install !== "installed")\n        return { record, state: "unread", reason: "installFailed" };' })]
+  ["a worker gone after its install is lost to the stream by an unread term", "cl8a-through-the-mirror-since-11-only-exclusions-move-and-only-toward-unread-or-the-stream", () => accountingVariant({ find: SHARED_INSTALL_FAILED, replace: 'if (options.attachedAfterFreeze)\n        return { record, state: "unread", reason: "holdUnplaced" };\n    if (worker.detached)\n        return { record, state: "unread", reason: "unreached" };\n    if (record.install !== "installed")\n        return { record, state: "unread", reason: "installFailed" };' })],
+  ["a released worker's stream is never read", "cl8a-through-the-mirror-since-11-only-exclusions-move-and-only-toward-unread-or-the-stream", () => accountingVariant({ find: SHARED_INSTALL_FAILED, replace: 'if (options.attachedAfterFreeze || (record.install === "installed" && !worker.detached))\n        return { record, state: "unread", reason: "holdUnplaced" };\n    if (record.install !== "installed")\n        return { record, state: "unread", reason: "installFailed" };' })]
 ] as ReadonlyArray<readonly [string, string, () => Modules]>) {
   test(`CL8a catches a variant: ${name}`, async () => {
+    await assertCaughtBy(name, property, () => checkSharedDirection(modules()));
+  });
+}
+
+/** The same through the real mirror and readout: each of @13's exclusions put back, and the new term left out of the unread realms. */
+for (const [name, property, modules] of [
+  ["a hold released in the drain, or still held at its end, is excluded again in the readout", "cl8a-a-worker-still-held-at-the-drain-s-end-is-an-unread-realm", () => accountingVariant({ find: RESOLVE_DIED_HELD, replace: `if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    ${EXCLUDED_AS_PAUSED}` }, LANDS_EXCLUDED_AGAIN)],
+  ["only a hold released in the drain is excluded again in the readout", "cl8a-a-worker-released-in-the-drain-is-an-unread-realm", () => accountingVariant({ find: RESOLVE_DIED_HELD, replace: `if (worker.detachedWhilePaused)\n        return { record, state: "unread", reason: "diedHeld" };\n    if (worker.hold === "released")\n        ${EXCLUDED_AS_PAUSED}\n    ${UNPLACED}` }, LANDS_EXCLUDED_AGAIN)],
+  ["a reaching worker released in the drain is excluded again in the readout", "cl8a-a-worker-released-in-the-drain-is-an-unread-realm", () => accountingVariant({ find: REACHING_RELEASED, replace: `if (worker.hold === "released")\n        ${EXCLUDED_AS_PAUSED}` }, LANDS_EXCLUDED_AGAIN)],
+  ["a worker attached in the drain and released is excluded again in the readout", "cl8a-a-worker-released-in-the-drain-is-an-unread-realm", () => accountingVariant({ find: AFTER_FREEZE_RELEASED, replace: `if (options.attachedAfterFreeze)\n        ${EXCLUDED_AS_PAUSED}\n` }, LANDS_EXCLUDED_AGAIN)],
+  ["a hold the freeze cannot place lands in its term and is left out of the unread realms", "cl8a-a-worker-still-held-at-the-drain-s-end-is-an-unread-realm", () => accountingVariant({ find: "shared.holdUnplaced +\n", replace: "" })]
+] as ReadonlyArray<readonly [string, string, () => Modules]>) {
+  test(`CL8b catches a variant in the readout: ${name}`, async () => {
     await assertCaughtBy(name, property, () => checkSharedDirection(modules()));
   });
 }

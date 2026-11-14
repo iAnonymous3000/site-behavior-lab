@@ -35,11 +35,15 @@ export const ROWS = {
   "a-worker-that-ran-before-the-freeze-lands-in-a-term": "RanLandsInATerm"
 };
 
-// As WorkerHold.tla and the hand-written model name them. Nothing in the specification produces "diedPaused" or
-// "ownerUnscoped": they are in the sets and no worker ever lands in either.
-const EXCLUDED_TERMS = ["pausedAtReadout", "diedPaused"];
+// As WorkerHold.tla and the hand-written model name them. Nothing in the specification produces "pausedAtReadout",
+// "diedPaused" or "ownerUnscoped": they are in the sets and no worker ever lands in any of them. So no shared worker
+// lands in an excluded term (fingerprint-observer@14): the two excluded terms are kept because the exclusion rows
+// and their companion read them, and those are what reports a readout that excludes a shared worker again.
+export const EXCLUDED_TERMS = ["pausedAtReadout", "diedPaused"];
 const READ_TERMS = ["readable", "ownerUnscoped"];
-const UNREAD_TERMS = ["installFailed", "attachedLate", "unreached", "cutOff", "streamBroken", "channelLostAlive", "diedHeld"];
+const UNREAD_TERMS = ["installFailed", "attachedLate", "unreached", "cutOff", "streamBroken", "channelLostAlive", "diedHeld", "holdUnplaced"];
+/** The term the named trace lands in: a hold the freeze cannot place, which is unread. Through fingerprint-observer@13 it was "pausedAtReadout", which is excluded. */
+export const NAMED_TERM = "holdUnplaced";
 const WORKER_TERMS = [...EXCLUDED_TERMS, ...UNREAD_TERMS, ...READ_TERMS, "endedAtOnce"];
 
 /**
@@ -83,19 +87,22 @@ export const companionsOf = (rows) => [...new Set(rows.flatMap((row) => COMPANIO
 
 /**
  * Where a row has nothing to judge, by world: some companion of it is reached under no set of
- * switches there. The suite holds each entry to the hand-written model's own graph, and holds that
- * no other row in any world is so. README.md says the same in sentences.
+ * switches there. Both exclusion rows are so in every world: from fingerprint-observer@14 no
+ * shared worker is excluded, so NoWorkerExcluded is never reached. The export script holds each
+ * entry to TLC (it runs each such companion with nothing assumed, and TLC must hold it) and to
+ * the printed graph; the suite holds each entry to the hand-written model's own graph, and holds
+ * that no other row in any world is so. README.md says the same in sentences.
  */
 export const NOT_JUDGED = {
-  hold: ["a-read-state-is-no-older-than-the-freeze"],
+  hold: ["excluded-implies-no-page-code-before-the-freeze", "excluded-implies-no-unobserved-page-code-before-the-freeze", "a-read-state-is-no-older-than-the-freeze"],
   stream: [
     "excluded-implies-no-page-code-before-the-freeze",
     "excluded-implies-no-unobserved-page-code-before-the-freeze",
     "read-implies-the-observer-preceded-every-statement",
     "a-worker-that-ran-before-the-freeze-lands-in-a-term"
   ],
-  two: ["a-read-state-is-no-older-than-the-freeze"],
-  small: ["a-read-state-is-no-older-than-the-freeze"]
+  two: ["excluded-implies-no-page-code-before-the-freeze", "excluded-implies-no-unobserved-page-code-before-the-freeze", "a-read-state-is-no-older-than-the-freeze"],
+  small: ["excluded-implies-no-page-code-before-the-freeze", "excluded-implies-no-unobserved-page-code-before-the-freeze", "a-read-state-is-no-older-than-the-freeze"]
 };
 
 const blockedText = (names) => [...names].sort().join(",");

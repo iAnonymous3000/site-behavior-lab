@@ -956,7 +956,7 @@ export class MainSide {
     for (const term of [...WORKER_TERMS, "unattached"]) holds("replay-the-real-readout-lands-where-the-model-says", shared[term] === (want.get(term) ?? 0), () => ({ term, real: shared[term], model: want.get(term) ?? 0, expected, trace: input() }));
     holds("replay-the-real-readout-lands-where-the-model-says", [...reads].sort().join() === snapshots.sort().join(), () => ({ real: reads, snapshots, trace: input() }));
     // An unread realm counted for each unread term, so that the published count follows the terms.
-    const unread = ["installFailed", "attachedLate", "unreached", "cutOff", "streamBroken", "channelLostAlive", "diedHeld", "unattached"].reduce((sum, term) => sum + (want.get(term) ?? 0), 0);
+    const unread = ["installFailed", "attachedLate", "unreached", "cutOff", "streamBroken", "channelLostAlive", "diedHeld", "holdUnplaced", "unattached"].reduce((sum, term) => sum + (want.get(term) ?? 0), 0);
     holds("replay-the-real-readout-lands-where-the-model-says", real.unreadRealms === unread, () => ({ real: real.unreadRealms, unread, trace: input() }));
     holds("replay-the-real-readout-lands-where-the-model-says", real.sharedWorkersEndedAtOnce === (want.get("endedAtOnce") ?? 0), () => ({ real: real.sharedWorkersEndedAtOnce, model: want.get("endedAtOnce") ?? 0, trace: input() }));
   }

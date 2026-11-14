@@ -13,7 +13,13 @@
 (* It also carries the named trace of register row F4-BEYOND: a worker     *)
 (* that ran with no observer before the freeze, which the mirror does not  *)
 (* yet call late, by how the freeze found it and where the word that would *)
-(* say so is, on the step that ends the readout and excludes it.           *)
+(* say so is, on the step that ends the readout. Through                   *)
+(* fingerprint-observer@13 that step excluded the worker, as               *)
+(* pausedAtReadout. From @14 it lands the worker unread, as holdUnplaced.  *)
+(* The trace is as reachable as it was; what changed is the term. Each     *)
+(* line of the trace carries the term the worker landed in, and the export *)
+(* script refuses a line whose term is an excluded one: that would be the  *)
+(* trace excluded again.                                                   *)
 (***************************************************************************)
 EXTENDS WorkerHold, TLC
 
@@ -53,20 +59,25 @@ NamedCause(S) ==
      ELSE IF k.conc THEN "thread-concluded-first"
      ELSE "no-word-on-its-way"
 
+(* The terms the named trace is read in: the one the readout gives it now, *)
+(* and the excluded terms, so that a readout that excluded it again would  *)
+(* still print it, with that term.                                         *)
+NamedTerms == {"holdUnplaced"} \cup ExcludedTerms
+
 TableInit == Init /\ used = {} /\ named = <<>>
 
 TableNext ==
   \E move \in EveryMove(st) :
     /\ st' = move.next
     /\ used' = used \cup move.blocked
-    /\ named' = IF move.next.gphase = "done" /\ NamedForm(st) # "" /\ move.next.landed[0].term = "pausedAtReadout"
-                THEN <<NamedForm(st), NamedCause(st)>> ELSE <<>>
+    /\ named' = IF move.next.gphase = "done" /\ NamedForm(st) # "" /\ move.next.landed[0].term \in NamedTerms
+                THEN <<NamedForm(st), NamedCause(st), move.next.landed[0].term>> ELSE <<>>
 
 (* True of every state. Listed as an invariant so that TLC evaluates it    *)
 (* once on each pair it reaches.                                           *)
 TableLines ==
   st.gphase = "done" =>
     /\ \A row \in Rows : Holds(row) \/ PrintT(ToString(<<"V", row, used>>))
-    /\ named = <<>> \/ PrintT(ToString(<<"T", named[1], named[2], used>>))
+    /\ named = <<>> \/ PrintT(ToString(<<"T", named[1], named[2], named[3], used>>))
 
 =============================================================================

@@ -15,10 +15,18 @@
 //   same world under the same switches: TLC must report the companion VIOLATED, which shows the
 //   row had something to judge there. A row whose companion holds is refused: it would pass
 //   whatever the protocol did. The committed configurations get the same runs.
+// - WorkerHold once more for each companion that leaves a row nothing to judge in the world (the
+//   library's NOT_JUDGED), with nothing assumed: there TLC must hold the companion, which is its
+//   own word that the row's subject, or what would break it, occurs on no path. NoWorkerExcluded
+//   is one of them in every world: from fingerprint-observer@14 no shared worker is excluded, and
+//   a specification that excluded one again is refused here.
 // From the first run's graph it also keeps traces for the suite to replay through the real
 // thread, mirror and readout: one for every label the world takes under the plan's axioms with
-// C1 and D1, one that breaks each row the register says fails, and one for each form of the
-// named trace. Each trace is a path of moves TLC printed, from the first state.
+// C1 and D1, one that breaks each row the register says fails, and one for each form and cause of
+// the named trace, for each way its hold stood when the readout ended (released, or still held at
+// the bound). Each trace is a path of moves TLC printed, from the first state. The named trace
+// lands its worker unread, as a hold the freeze cannot place: a named trace that lands in an
+// excluded term, in TLC's table or in the printed graph, is refused.
 //
 // With --check it writes nothing to the repository and fails on any byte that differs from the
 // committed file, naming the lines that differ; --candidate <file> keeps what TLC exported there.
@@ -40,7 +48,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parseTlaValue } from "./tla-case-machine-lib.mjs";
 import { layout, option, pinArtifact, pinnedTools, provenanceOf, refuseDifferentExport, ROOT, runTlc, sha256Of, tupleLine } from "./tla-tools-lib.mjs";
-import { COMPANION_REACHED_BY, companionsOf, digests, firstDifference, landedLabel, modelGraph, newGraph, PLAN_AXIOMS, ROWS, specLabel, summary, SWITCHES, WORLDS } from "./tla-worker-hold-lib.mjs";
+import { COMPANION_REACHED_BY, COMPANIONS, companionsOf, digests, EXCLUDED_TERMS, firstDifference, landedLabel, modelGraph, NAMED_TERM, newGraph, NOT_JUDGED, PLAN_AXIOMS, ROWS, specLabel, summary, SWITCHES, WORLDS } from "./tla-worker-hold-lib.mjs";
 
 const SPEC_DIR = join(ROOT, "specs", "worker-hold");
 const SPEC_FILES = ["WorkerHold.tla", "WorkerHoldExport.tla", "WorkerHoldTable.tla"];
@@ -49,8 +57,8 @@ const SCRIPTS = ["scripts/tla-worker-hold-export.mjs", "scripts/tla-worker-hold-
 const CONFIGURATIONS = Object.keys(WORLDS).map((world) => `${world}-plan.cfg`);
 const OUTPUT = join(SPEC_DIR, "conformance.json");
 
-const EXCLUDED_1 = "excluded-implies-no-page-code-before-the-freeze";
-const EXCLUDED_2 = "excluded-implies-no-unobserved-page-code-before-the-freeze";
+/** The two exclusion rows. Neither is in a cell: from fingerprint-observer@14 they have nothing to judge in any world. */
+const EXCLUSION_ROWS = ["excluded-implies-no-page-code-before-the-freeze", "excluded-implies-no-unobserved-page-code-before-the-freeze"];
 const READ = "read-implies-the-observer-preceded-every-statement";
 const AGE = "a-read-state-is-no-older-than-the-freeze";
 const TERM = "every-worker-the-readout-heard-of-lands-in-one-term";
@@ -66,16 +74,28 @@ const without = (name) => PLAN_AXIOMS.filter((axiom) => axiom !== name);
  * for each row that fails, which it must report violated, and once for each companion of a row
  * that holds, which it must report violated too.
  *
- * A row is listed as holding only where it has something to judge. In the stream world the one
- * worker starts released, with its observer in and the mirror current: none is ever excluded, none
- * lands nowhere and none runs unobserved, so the exclusion rows, the no-term row and F4-READ pass
- * there whatever the protocol does, and are not listed. The register's table gives them "holds
- * under no axiom" in that world, which is true and says nothing.
+ * A row is listed as holding only where it has something to judge, and a row with nothing to
+ * judge cannot fail, so such a row is in no cell at all.
+ *
+ * Neither exclusion row is in any cell of any world. From fingerprint-observer@14 the readout
+ * excludes no shared worker (a worker released, or still held at the bound, is unread as a hold
+ * the freeze cannot place), so both rows pass whatever the rest of the protocol does. Through @13
+ * they were listed here as failing under the plan's axioms with C1 and D1, and as holding under
+ * A5's order half with Z. What stands in for those cells is the run that holds NoWorkerExcluded
+ * with nothing assumed in every world, and the seeded faults that put each @13 exclusion back
+ * (scripts/tla-worker-hold-mutations.mjs).
+ *
+ * In the stream world the one worker starts released, with its observer in and the mirror
+ * current: none lands nowhere and none runs unobserved, so the no-term row and F4-READ pass there
+ * whatever the protocol does, and are not listed.
  *
  * F4-AGE is the other way round. Where Stream is FALSE (the hold, two-worker and small worlds) the
  * realm never goes past its first snapshot, so a read is always of that one snapshot and the row
  * cannot tell a right read from a wrong one. It is listed only in the stream world, which is the
  * world the register says decides it.
+ *
+ * The small world's one cell through @13 was the exclusion rows under Z. Its cell now is the world
+ * with nothing assumed, where F4-READ and the first half of F4-TERM hold and can be judged.
  */
 export const CELLS = {
   hold: [
@@ -84,10 +104,9 @@ export const CELLS = {
     { assumed: without("A1"), holds: [], fails: [READ] },
     { assumed: without("A2"), holds: [], fails: [READ] },
     { assumed: WITH_C1, holds: [], fails: [NO_TERM] },
-    { assumed: WITH_C1_D1, holds: [READ, TERM, NO_TERM], fails: [EXCLUDED_1, EXCLUDED_2] },
+    { assumed: WITH_C1_D1, holds: [READ, TERM, NO_TERM], fails: [] },
     { assumed: ["D1"], holds: [NO_TERM], fails: [] },
-    { assumed: ["Z"], holds: [NO_TERM], fails: [] },
-    { assumed: ["A5fifo", "Z"], holds: [EXCLUDED_1, EXCLUDED_2], fails: [] }
+    { assumed: ["Z"], holds: [NO_TERM], fails: [] }
   ],
   stream: [
     { assumed: [], holds: [TERM], fails: [AGE] },
@@ -98,13 +117,11 @@ export const CELLS = {
   ],
   two: [
     { assumed: [], holds: [READ, TERM], fails: [] },
-    { assumed: PLAN_AXIOMS, holds: [READ, TERM], fails: [EXCLUDED_1, EXCLUDED_2, NO_TERM] },
-    // The register does not state this one: with C1 on top, the second exclusion row holds in this world, and the first stays broken.
-    { assumed: WITH_C1_D1, holds: [EXCLUDED_2, READ, TERM], fails: [EXCLUDED_1, NO_TERM] },
-    { assumed: ["Z"], holds: [NO_TERM], fails: [] },
-    { assumed: ["A5fifo", "Z"], holds: [EXCLUDED_1, EXCLUDED_2], fails: [] }
+    { assumed: PLAN_AXIOMS, holds: [READ, TERM], fails: [NO_TERM] },
+    { assumed: WITH_C1_D1, holds: [READ, TERM], fails: [NO_TERM] },
+    { assumed: ["Z"], holds: [NO_TERM], fails: [] }
   ],
-  small: [{ assumed: ["Z"], holds: [EXCLUDED_1, EXCLUDED_2], fails: [] }]
+  small: [{ assumed: [], holds: [READ, TERM], fails: [] }]
 };
 
 /** The sets the register's named-trace row reads the hold world under. */
@@ -126,7 +143,11 @@ const AT = { ranuF: 14, conc: 21, known: 24, mhold: 25, det: 26, dwp: 27, unreac
 /** The mirror as the replay holds the real one to it, read off a state's code. */
 const mirrorOf = (worker) => [worker[AT.known] ? 1 : 0, worker[AT.mhold], worker[AT.det] ? 1 : 0, worker[AT.dwp] ? 1 : 0, worker[AT.unreached] ? 1 : 0, worker[AT.install]];
 
-/** The named trace's form and cause at a state, restating NamedForm and NamedCause of WorkerHoldTable.tla. The export holds this restatement to TLC's own lines. */
+/**
+ * The named trace's form and cause at a state, restating NamedForm and NamedCause of WorkerHoldTable.tla. The export
+ * holds this restatement to TLC's own lines. A state is the named trace's when the step that ends the readout from
+ * it lands the worker in NAMED_TERM (unread: a hold the freeze cannot place).
+ */
 function namedAt(code) {
   const [gphase, , glost, port, workers] = code;
   const worker = workers[0];
@@ -315,22 +336,46 @@ async function exportWorld(tools, world, fv, kernels) {
     }
   }
 
-  // The named trace, by each form and cause, on the step that ends the readout and excludes the worker.
+  // The named trace, by each form and cause, on the step that ends the readout. That step lands the worker unread, as a
+  // hold the freeze cannot place. One that landed it in an excluded term is the @13 readout back, and is refused.
+  //
+  // A trace is kept for each form and cause, and for each way the hold stood when the readout ended: the mirror had
+  // heard the release ("released": it holds it before the last step, or the last step is the mirror hearing it), or it
+  // still showed the worker held at the bound ("held"). The two ends go through different lines of the readout's
+  // classification, which is why both are kept: a worker frozen as held goes through HeldBy either way, one frozen as
+  // reaching and released through ReachingBy, and one read by the second pass and released through AtFreeze. The suite
+  // seeds a fault in each of those three lines of the real readout and holds each to the traces that go through it.
+  const RELEASE_HEARD = /^mirror-hears:0:released(:@\d+)?\|/;
+  const endOf = (state, label) => (RELEASE_HEARD.test(labels[label].split("&").pop()) ? "released" : codeOf[state].mirror[0][1]);
   const named = [];
   const namedForms = {};
   if (world === "hold") {
     for (const assumed of NAMED_UNDER) {
       const reach = under(assumed);
       const found = new Map();
+      const ends = new Map();
       for (const state of reach.order) {
         if (codeOf[state].named === null) continue;
         for (const [label, blocked, to] of out[state]) {
-          if ((blocked & reach.mask) !== 0 || landing[to] === null || landing[to][0][0] !== "pausedAtReadout" || found.has(codeOf[state].named)) continue;
-          found.set(codeOf[state].named, [...reach.pathTo(state), [label, to]]);
+          if ((blocked & reach.mask) !== 0 || landing[to] === null) continue;
+          if (EXCLUDED_TERMS.includes(landing[to][0][0])) throw new Error(`The named trace as ${codeOf[state].named} is excluded again (${landing[to][0][0]}) in the printed graph of the ${world} world`);
+          if (landing[to][0][0] !== NAMED_TERM) continue;
+          const end = endOf(state, label);
+          if (end !== "released" && end !== "held") throw new Error(`The named trace as ${codeOf[state].named} ends with the mirror's hold as ${end}, which this script does not know`);
+          const key = `${codeOf[state].named} ${end}`;
+          if (ends.has(key)) continue;
+          const path = [...reach.pathTo(state), [label, to]];
+          ends.set(key, path);
+          if (!found.has(codeOf[state].named)) found.set(codeOf[state].named, path);
         }
       }
       namedForms[assumed.join(",")] = [...found.keys()].sort();
-      if (assumed === WITH_C1_D1 || assumed === NAMED_UNDER[0]) for (const [form, path] of found) named.push({ form, assumed, leaf: leafOf(path) });
+      if (assumed === WITH_C1_D1 || assumed === NAMED_UNDER[0]) {
+        for (const [key, path] of ends) {
+          const [form, end] = key.split(" ");
+          named.push({ form, end, assumed, leaf: leafOf(path) });
+        }
+      }
     }
   }
 
@@ -349,7 +394,11 @@ async function exportWorld(tools, world, fv, kernels) {
       seenLines.add(line);
       const value = parseTlaValue(JSON.parse(line));
       if (value[0] === "V") broken[value[1]].push(maskOf(value[2].set));
-      else if (value[0] === "T") (namedBroken[`${value[1]}:${value[2]}`] ??= []).push(maskOf(value[3].set));
+      else if (value[0] === "T") {
+        // The term the worker landed in is on the line: only the unread one is the named trace as the readout has it now.
+        if (value[3] !== NAMED_TERM) throw new Error(`TLC's table finds the named trace as ${value[1]}:${value[2]} landed in ${value[3]} in the ${world} world: it is excluded again`);
+        (namedBroken[`${value[1]}:${value[2]}`] ??= []).push(maskOf(value[4].set));
+      }
       else throw new Error(`A table line of a kind this script does not know: ${line.slice(0, 120)}`);
     }
   });
@@ -379,6 +428,33 @@ async function exportWorld(tools, world, fv, kernels) {
     }
     return names;
   };
+
+  // Where a row has nothing to judge: the companions of it that the printed graph never reaches, on any path. TLC must
+  // hold each of them with nothing assumed, and the rows so found must be the library's list for this world. Such a row
+  // must be in no cell, and TLC's table must have no set of switches that breaks it.
+  const everyPath = under([]);
+  const reachedAnywhere = (companion) => everyPath.order.some((state) => landing[state] !== null && landing[state].some((landed) => COMPANION_REACHED_BY[companion](landedOf(landed))));
+  const notJudged = {};
+  const held = new Map();
+  for (const row of EVERY_ROW) {
+    const never = COMPANIONS[row].filter((companion) => !reachedAnywhere(companion));
+    if (never.length === 0) continue;
+    for (const companion of never) {
+      if (!held.has(companion)) {
+        const run = await runTlc({ ...tools, specDir: SPEC_DIR, module: "WorkerHold", name: `never-${world}-${companion}`, config: configuration(world, [], "Init", "Next", [companion]) });
+        held.set(companion, run.clean);
+      }
+      if (!held.get(companion)) throw new Error(`In the ${world} world with nothing assumed TLC reports ${companion} violated, and this script's reading of the printed graph never reaches it`);
+    }
+    if (violations[row].length > 0) throw new Error(`${row} has nothing to judge in the ${world} world, and TLC's table has a set of switches that breaks it`);
+    if (CELLS[world].some(({ holds, fails }) => [...holds, ...fails].includes(row))) throw new Error(`${row} has nothing to judge in the ${world} world, and a cell of that world lists it`);
+    notJudged[row] = never;
+  }
+  if (JSON.stringify(Object.keys(notJudged)) !== JSON.stringify(EVERY_ROW.filter((row) => NOT_JUDGED[world].includes(row))) || Object.keys(notJudged).length !== NOT_JUDGED[world].length) {
+    throw new Error(`In the ${world} world the rows with nothing to judge are ${JSON.stringify(Object.keys(notJudged))}, and scripts/tla-worker-hold-lib.mjs lists ${JSON.stringify(NOT_JUDGED[world])}`);
+  }
+  // No shared worker is excluded, in any world: said apart from the list above so that the refusal names it.
+  for (const row of EXCLUSION_ROWS) if (!(notJudged[row] ?? []).includes("NoWorkerExcluded")) throw new Error(`A shared worker is excluded in the ${world} world: NoWorkerExcluded is reached, so ${ROWS[row]} has a worker to judge there`);
 
   // TLC's own verdict on each row, as an invariant, under each set of switches the register names.
   const cells = [];
@@ -410,6 +486,7 @@ async function exportWorld(tools, world, fv, kernels) {
   // The same companions for the rows the committed configuration lists, under its own constants.
   const planRows = EVERY_ROW.filter((row) => planInvariants.includes(ROWS[row]));
   if (planRows.length !== planInvariants.filter((name) => name !== "TypeOK").length) throw new Error(`${world}-plan.cfg lists an invariant that is neither TypeOK nor a row`);
+  for (const row of planRows) if (notJudged[row] !== undefined) throw new Error(`${world}-plan.cfg lists ${ROWS[row]}, which has nothing to judge in that world`);
   const planReached = await reached(`plan-${world}`, PLAN_AXIOMS, planRows, (name) => `${planText.slice(0, planText.indexOf("\nINVARIANTS\n"))}\nINVARIANTS\n  ${name}\n`);
   // TLC's reported search depth is not recorded: with more than one worker it depends on the order the workers reach
   // states in, so a file holding it is not a function of the specification.
@@ -424,6 +501,7 @@ async function exportWorld(tools, world, fv, kernels) {
     model: { states: explored.keys.length, moves: explored.edgeTo.length },
     underPlan,
     table: { pairs: table.distinct, violations, named: namedSets },
+    notJudged,
     cells,
     labels,
     traces: { coverLabels: witnessOf.size, cover, witnesses, named },
@@ -461,7 +539,7 @@ async function main() {
       worlds[world] = await exportWorld({ java: tools.java, jar: tools.jar, scratch, workers: Number(option("--workers") ?? "2") }, world, fv, kernels);
     }
     const result = {
-      format: 2,
+      format: 3,
       about: "Exported by scripts/tla-worker-hold-export.mjs from specs/worker-hold with TLC. Do not edit by hand. producedBy, specification and configurations are the SHA-256 of each file this export was written by and from, and tla2tools is the jar's.",
       ...before,
       worlds

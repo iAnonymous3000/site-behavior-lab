@@ -587,7 +587,7 @@ test("readout: the drain waits for the channel's attaches to reach the witness, 
   const realms = await scriptedWorkerRealms();
   const pending = realms.readout(1, 2_000);
   setTimeout(() => realms.scripted.emit(attachEvent("late-attach")), 30);
-  assert.deepEqual(readoutTerms(await pending), { snapshots: [], unread: 0, terms: {} });
+  assert.deepEqual(readoutTerms(await pending), { snapshots: [], unread: 0, terms: { pausedAtReadout: 1 } });
   // Without the wait, the witnessed worker would have read as never attached.
   const unattached = await (await scriptedWorkerRealms()).readout(1, 20);
   assert.deepEqual(readoutTerms(unattached), { snapshots: [], unread: 1, terms: { unattachedDedicated: 1 } });

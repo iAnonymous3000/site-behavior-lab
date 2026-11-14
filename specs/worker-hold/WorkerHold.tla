@@ -277,15 +277,17 @@ GoneUnpaused(k) == IF k.unreached /\ k.quick THEN F("ended-at-once", "") ELSE F(
 
 (* A shared worker at the freeze, short of its stream. It is held by its   *)
 (* main-script pause, not from its start: one with no pause yet is         *)
-(* reaching. One attached after the call was not yet paused at it, so only *)
-(* its hold at the main script can show it ran nothing then.               *)
+(* reaching. One attached after the call, as the mirror heard it, and      *)
+(* released since is unread (holdUnplaced): the thread may have heard the  *)
+(* attach and sent the release before the call. Through                    *)
+(* fingerprint-observer@13 it was excluded (pausedAtReadout).              *)
 AtFreeze(k, attachedAfterFreeze) ==
   IF k.lost THEN F("unread", "channelLostAlive")
   ELSE IF k.dwp THEN F("unread", "diedHeld")
   ELSE IF k.mhold = "held" THEN F("held", "")
   ELSE IF k.mhold = "late" THEN F("unread", "attachedLate")
   ELSE IF k.mhold = "pending" THEN (IF k.det THEN GoneUnpaused(k) ELSE F("reaching", ""))
-  ELSE IF attachedAfterFreeze THEN F("excluded", "pausedAtReadout")
+  ELSE IF attachedAfterFreeze THEN F("unread", "holdUnplaced")
   ELSE IF k.install # "installed" THEN F("unread", "installFailed")
   ELSE F("stream", "")
 
@@ -298,11 +300,13 @@ StreamAtFreeze(k) ==
   ELSE IF k.mword = "closed" /\ k.mclosed # 0 THEN F("closed", "")
   ELSE F("waiting", "gone-open")
 
-(* A worker reaching at the freeze, by its first move by the drain's end. *)
+(* A worker reaching at the freeze, by its first move by the drain's end.  *)
+(* Released by then, its release may have been in flight at the freeze: it *)
+(* is unread (holdUnplaced), where through @13 it was excluded.            *)
 ReachingBy(k) ==
   IF k.lost THEN F("unread", "channelLostAlive")
   ELSE IF k.mhold = "held" THEN F("held", "")
-  ELSE IF k.mhold = "released" THEN F("excluded", "pausedAtReadout")
+  ELSE IF k.mhold = "released" THEN F("unread", "holdUnplaced")
   ELSE IF k.mhold = "late" THEN F("unread", "attachedLate")
   ELSE IF k.det THEN GoneUnpaused(k)
   ELSE F("reaching", "")
@@ -310,26 +314,36 @@ ReachingBy(k) ==
 (* A worker seen held, by its next move by the drain's end. A late behind  *)
 (* held means the hold broke; still held when the channel closed, or gone  *)
 (* held with its install unanswered, it may have run, and is unread.       *)
+(* Released, or still held at the bound, it is unread too (holdUnplaced):  *)
+(* the release may have been in flight at the freeze, or the hold broken   *)
+(* with the word of it not yet here, and nothing the readout holds tells   *)
+(* either from a worker that ran nothing before the freeze. Through @13    *)
+(* both were excluded. Every case here is an unread form.                  *)
 HeldBy(k) ==
   IF k.mhold = "late" THEN F("unread", "attachedLate")
   ELSE IF k.mhold = "held" /\ k.lost THEN F("unread", "channelLostAlive")
   ELSE IF k.dwp THEN F("unread", "diedHeld")
-  ELSE F("excluded", "pausedAtReadout")
+  ELSE F("unread", "holdUnplaced")
 
 Resolved(k, form) ==
   LET reached == IF form.st = "reaching" THEN ReachingBy(k) ELSE form
   IN IF reached.st = "held" THEN HeldBy(k) ELSE reached
 
-(* Two of the terms below are in these sets and nothing in this module     *)
-(* produces them: "diedPaused" and "ownerUnscoped". No operator returns    *)
-(* either, so no worker here ever lands in one and no row is ever judged   *)
-(* on one. They are named because the hand-written model's sets name them. *)
-(* In the real readout the first is written for a dedicated worker only,   *)
-(* and the second for a shared worker that no document of the visit is     *)
-(* credited with, which this module does not state.                        *)
+(* Three of the terms below are in these sets and nothing in this module   *)
+(* produces them: "pausedAtReadout", "diedPaused" and "ownerUnscoped". No  *)
+(* operator returns any of them, so no worker here ever lands in one and   *)
+(* no row is ever judged on one. They are named because the hand-written   *)
+(* model's sets name them. In the real readout the first two are written   *)
+(* for a dedicated worker only (the first was written for a shared worker  *)
+(* through fingerprint-observer@13, by the three lines above that now      *)
+(* return holdUnplaced), and the third for a shared worker that no         *)
+(* document of the visit is credited with, which this module does not      *)
+(* state. So no shared worker is excluded: ExcludedTerms is kept because   *)
+(* the two exclusion rows and their companion read it, and they are what   *)
+(* reports a classification that excludes a shared worker again.           *)
 ExcludedTerms == {"pausedAtReadout", "diedPaused"}
 ReadTerms == {"readable", "ownerUnscoped"}
-UnreadTerms == {"installFailed", "attachedLate", "unreached", "cutOff", "streamBroken", "channelLostAlive", "diedHeld"}
+UnreadTerms == {"installFailed", "attachedLate", "unreached", "cutOff", "streamBroken", "channelLostAlive", "diedHeld", "holdUnplaced"}
 WorkerTerms == ExcludedTerms \cup UnreadTerms \cup ReadTerms \cup {"endedAtOnce"}
 
 (* The term a worker lands in, and the snapshot it is read at, 0 for none. *)
@@ -339,6 +353,7 @@ Landing(k) ==
   IF ~k.known THEN [term |-> IF k.disc THEN "unattached" ELSE "nowhere", readSeq |-> 0]
   ELSE LET frozen == IF k.form.st = "none" THEN AtFreeze(k, TRUE) ELSE k.form
            r == Resolved(k, frozen)
+       \* No operator above returns an excluded form. The case is kept so that one that did would land in its term.
        IN CASE r.st \in {"excluded", "unread"} -> [term |-> r.why, readSeq |-> 0]
             [] r.st = "ended-at-once" -> [term |-> "endedAtOnce", readSeq |-> 0]
             [] r.st = "reaching" -> [term |-> "unreached", readSeq |-> 0]
@@ -711,7 +726,10 @@ Spec == Init /\ [][Next]_st
 
 Landed == IF st.gphase = "done" THEN {st.landed[w] : w \in W} ELSE {}
 
-\* The first exclusion row: a worker the readout excludes as held ran no page code before the freeze.
+\* The first exclusion row: a worker the readout excludes as held ran no page code before the freeze. From
+\* fingerprint-observer@14 the classification above excludes no shared worker, so this row and the next have no
+\* worker to judge in any world: NoWorkerExcluded, below, holds everywhere. Both are kept because they fail as soon
+\* as a worker that ran is excluded again, which scripts/tla-worker-hold-mutations.mjs shows with seeded faults.
 ExcludedRanNothing == \A l \in Landed : l.term \in ExcludedTerms => ~l.ranAtFreeze
 \* The second: it ran no page code with no observer in before the freeze.
 ExcludedRanNothingUnobserved == \A l \in Landed : l.term \in ExcludedTerms => ~l.ranUnobservedAtFreeze
@@ -738,7 +756,8 @@ RanLandsInATerm == \A l \in Landed : ~(l.term = "nowhere" /\ l.ranAtFreeze /\ l.
 (* scripts/tla-worker-hold-export.mjs names the companions of each row and *)
 (* runs them; README.md says where each row cannot be judged.              *)
 
-\* The exclusion rows judge only a worker the readout excludes.
+\* The exclusion rows judge only a worker the readout excludes. This one is not violated in any world: TLC holds it
+\* with nothing assumed, and the export script records that, so the exclusion rows are listed as holding nowhere.
 NoWorkerExcluded == \A l \in Landed : l.term \notin ExcludedTerms
 \* The first exclusion row can fail only where some worker ran before the freeze.
 NoWorkerRanBeforeTheFreeze == \A l \in Landed : ~l.ranAtFreeze

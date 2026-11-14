@@ -29,9 +29,18 @@
 //   the register's table below) every companion of it must be reached under the same switches:
 //   by TLC's own run, which the export records, and in the hand-written model's own graph, which
 //   this suite walks. The worlds and rows where that fails are named, and held to be exactly those.
+// - No shared worker is excluded. From fingerprint-observer@14 the readout lands a worker released,
+//   or still held at the bound, unread as a hold the freeze cannot place (holdUnplaced), where
+//   through @13 it excluded it. So both exclusion rows have nothing to judge in every world, and
+//   are listed nowhere: in no cell, in no committed configuration and in no cell of the register's
+//   table below. That is asserted for each world, not skipped: TLC held NoWorkerExcluded with
+//   nothing assumed, the hand-written model's graph has no excluded landing, and no kept trace
+//   ends in one. The two rows stay in the specification and can still fail: three variants of the
+//   real readout, each with one @13 exclusion put back, are caught by an exclusion row on the
+//   named traces, and the specification's own seeded faults do the same under TLC.
 // - The real code follows TLC's traces, and is held to the specification on those traces only:
-//   40, 13, 23 and 19 covering traces in the hold, stream, two-worker and small worlds, 14 that
-//   break a row and 21 that reach a form of the named trace. Two seeded faults of the real thread are pinned
+//   40, 13, 23 and 19 covering traces in the hold, stream, two-worker and small worlds, 9 that
+//   break a row and 33 that reach a form of the named trace. Two seeded faults of the real thread are pinned
 //   below as not detected by this replay. Each kept trace, a path of moves TLC printed, is replayed
 //   through the real thread, its in-process transport, the real mirror and the real readout by
 //   the suite's own harness (lib/fv-worker-model-replay.ts): at each step the thread must post
@@ -39,6 +48,7 @@
 //   specification's state holds; at the end the readout must land each worker where the
 //   specification does. The traces take every label of each world under the plan's axioms with
 //   C1 and D1, break each row the register says fails, and reach each form of the named trace.
+//   The named trace ends with its worker unread, as a hold the freeze cannot place.
 //
 // What it does not hold: anything about a browser. Each switch is an assumption, and the replay
 // drives the real code over a stand-in socket with patched timers. The direction row (where @12
@@ -52,7 +62,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { provenanceNow } from "./tla-tools-lib.mjs";
 import { CELLS } from "./tla-worker-hold-export.mjs";
-import { COMPANION_REACHED_BY, COMPANIONS, companionsOf, digests, failsUnder, modelGraph, NOT_JUDGED, PLAN_AXIOMS, ROWS as INVARIANT_OF, sha256Hex, smallestSets, summary, SWITCHES, WORLDS } from "./tla-worker-hold-lib.mjs";
+import { COMPANION_REACHED_BY, COMPANIONS, companionsOf, digests, EXCLUDED_TERMS, failsUnder, modelGraph, NAMED_TERM, NOT_JUDGED, PLAN_AXIOMS, ROWS as INVARIANT_OF, sha256Hex, smallestSets, summary, SWITCHES, WORLDS } from "./tla-worker-hold-lib.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SPEC_DIR = join(ROOT, "specs", "worker-hold");
@@ -78,11 +88,13 @@ const AGE = "a-read-state-is-no-older-than-the-freeze";
 const TERM = "every-worker-the-readout-heard-of-lands-in-one-term";
 const NO_TERM = "a-worker-that-ran-before-the-freeze-lands-in-a-term";
 const ROWS = [EXCLUDED_1, EXCLUDED_2, READ, AGE, TERM, NO_TERM];
+const EXCLUSION_ROWS = [EXCLUDED_1, EXCLUDED_2];
 const WITH_C1 = [...PLAN_AXIOMS, "C1"];
 const WITH_C1_D1 = [...PLAN_AXIOMS, "C1", "D1"];
 
 // What each committed configuration lists: the type invariant, and the rows that hold under the plan's axioms in that
-// world and have something to judge there. The stream world lists no exclusion row, no no-term row and no F4-READ.
+// world and have something to judge there. No world lists an exclusion row: no shared worker is excluded, so neither
+// has anything to judge anywhere. The stream world lists no no-term row and no F4-READ either.
 // Only the stream world lists F4-AGE: where Stream is FALSE the realm never goes past its first snapshot.
 const PLAN_INVARIANTS = {
   hold: ["TypeOK", "ReadHadItsObserver", "HeardLandsInOneTerm"],
@@ -103,7 +115,7 @@ function built(world) {
 }
 
 test("the committed export names the script that wrote it and the files it was written from, each still has the digest it records, and its worlds are the hand-written model's", () => {
-  assert.equal(conformance.format, 2);
+  assert.equal(conformance.format, 3);
   // What the export says it was produced by and from, against the files as they stand. A file edited since the export
   // fails here: the export script and the modules it imports, a specification file, or a configuration.
   const now = provenanceNow(conformance, SPEC_DIR);
@@ -195,17 +207,20 @@ for (const world of Object.keys(WORLDS)) {
 // The register's table, as rows F4-READ to F4-BEYOND state it and as lib/fv-worker-model.test.ts pins it: the smallest
 // sets of the plan's axioms each row holds under, by world. [] is no set, and [[]] is the empty set.
 //
-// A cell is here only where its row has something to judge. The register's table also gives [[]] ("holds under no
-// axiom") for both exclusion rows, the no-term row and F4-READ in the stream world. That is true of TLC's table too, and
-// it says nothing: no worker of that world is ever excluded, lands nowhere or runs unobserved, so those rows pass there
-// whatever the protocol does. Those four cells are held apart, below, as cells with nothing to judge.
+// A cell is here only where its row has something to judge. So neither exclusion row has a cell here, in any world.
+// Through fingerprint-observer@13 the readout excluded a worker released, or still held at the bound, and both rows
+// held under no subset of the plan's axioms in the hold and two-worker worlds. From @14 no shared worker is excluded:
+// TLC's table has no set of switches that breaks either row, which reads as "holds under no axiom" and says nothing,
+// because the rows pass whatever the rest of the protocol does. They are held apart, below, as rows with nothing to
+// judge in every world.
+//
+// The same is so of the no-term row and F4-READ in the stream world: no worker of that world lands nowhere or runs
+// unobserved. Those two cells are held apart as well.
 //
 // The register's table gives F4-AGE [[]] in the hold and two-worker worlds as well, and its row says "the stream world
 // decides it". Those two cells are also held apart: with no stream the realm has one snapshot at the freeze, every read
 // is of it, and the row cannot tell a right read from a wrong one.
 const REGISTER_TABLE = {
-  [EXCLUDED_1]: { hold: [], two: [] },
-  [EXCLUDED_2]: { hold: [], two: [] },
   [READ]: { hold: [["A1", "A2"]], two: [[]] },
   [AGE]: { stream: [["A1", "notA3", "A5fifo"]] },
   [TERM]: { hold: [[]], stream: [[]], two: [[]] },
@@ -252,14 +267,17 @@ test("a row is listed as holding only where it has something to judge: each of i
   }
 });
 
-test("where a row has nothing to judge: in the stream world no worker is excluded, lands nowhere or runs unobserved, and outside it no read is of a realm past its first snapshot; every other row can be judged in every world", () => {
+test("where a row has nothing to judge: no worker of any world is excluded; in the stream world none lands nowhere or runs unobserved; outside it no read is of a realm past its first snapshot; every other row can be judged in every world", () => {
   assert.deepEqual(Object.keys(NOT_JUDGED).sort(), Object.keys(WORLDS).sort());
   for (const world of Object.keys(WORLDS)) {
+    // TLC's side: the export ran each companion below with nothing assumed, and writes a row here only if TLC held it.
+    assert.deepEqual(Object.keys(conformance.worlds[world].notJudged), ROWS.filter((row) => NOT_JUDGED[world].includes(row)), `${world}: the rows TLC found with nothing to judge`);
     for (const row of ROWS) {
       // With nothing assumed every path is open, so a companion not reached here is reached under no set of switches.
       const neverReached = COMPANIONS[row].filter((companion) => !reachedUnder(world, companion, []));
       assert.equal(neverReached.length > 0, NOT_JUDGED[world].includes(row), `${row} in the ${world} world: ${neverReached.join() || "every companion is reached"}`);
       if (neverReached.length === 0) continue;
+      assert.deepEqual(conformance.worlds[world].notJudged[row], neverReached, `${row} in the ${world} world: the companions TLC held with nothing assumed are the ones the model's graph never reaches`);
       // Such a row cannot fail there, which is all its "holds" says: TLC's table has no set of switches that breaks it,
       // and no cell and no committed configuration lists it.
       assert.deepEqual(conformance.worlds[world].table.violations[row], [], `${row} in the ${world} world`);
@@ -267,12 +285,44 @@ test("where a row has nothing to judge: in the stream world no worker is exclude
       assert.equal(conformance.worlds[world].underPlan.invariants.includes(INVARIANT_OF[row]), false, `${world}-plan.cfg lists ${INVARIANT_OF[row]}`);
     }
   }
-  assert.deepEqual(NOT_JUDGED, { hold: [AGE], stream: [EXCLUDED_1, EXCLUDED_2, READ, NO_TERM], two: [AGE], small: [AGE] });
+  assert.deepEqual(NOT_JUDGED, { hold: [EXCLUDED_1, EXCLUDED_2, AGE], stream: [EXCLUDED_1, EXCLUDED_2, READ, NO_TERM], two: [EXCLUDED_1, EXCLUDED_2, AGE], small: [EXCLUDED_1, EXCLUDED_2, AGE] });
   // The world that judges F4-AGE is the one with a stream, and only that one.
   for (const [world, { constants }] of Object.entries(WORLDS)) assert.equal(NOT_JUDGED[world].includes(AGE), !constants.Stream, world);
 });
 
-test("F4-TABLE and F4-BEYOND, from TLC's table: A4 changes no verdict, the exclusion rows fail with C1 and D1 on top of every axiom, D1 closes the no-term row only where the tree is waited for, and only Z closes it everywhere", () => {
+for (const world of Object.keys(WORLDS)) {
+  test(`no shared worker is excluded in the ${world} world, under any set of switches: TLC held NoWorkerExcluded with nothing assumed, the model's graph has no excluded landing, and both exclusion rows are listed nowhere`, () => {
+    const exported = conformance.worlds[world];
+    // TLC's own run, with nothing assumed, so over every path of the world.
+    for (const row of EXCLUSION_ROWS) assert.equal(exported.notJudged[row].includes("NoWorkerExcluded"), true, `${row}: TLC held NoWorkerExcluded`);
+    // The hand-written model, over the real kernels: no landing on any path is in an excluded term.
+    assert.equal(reachedUnder(world, "NoWorkerExcluded", []), false, "the model's graph excludes a worker");
+    // What else of that world lands a worker is not empty, so the walk above read landings.
+    assert.equal(reachedUnder(world, "NoWorkerInANamedTerm", []), true);
+    // No kept trace ends with a worker in an excluded term.
+    for (const node of exported.tree) for (const landed of node[3] ?? []) assert.equal(EXCLUDED_TERMS.includes(landed[0]), false, `a kept trace of the ${world} world ends in ${landed[0]}`);
+    // So no set of switches breaks either row, and neither is listed as holding or as failing anywhere.
+    for (const row of EXCLUSION_ROWS) {
+      assert.deepEqual(exported.table.violations[row], [], row);
+      assert.deepEqual(modelTable(world).violations[row], [], row);
+      for (const { assumed, holds, fails } of CELLS[world]) assert.equal([...holds, ...fails].includes(row), false, `${row} is in the cell of the ${world} world under ${assumed.join() || "nothing"}`);
+      for (const { holds, fails } of exported.cells) assert.equal([...holds, ...fails].includes(row), false, `${row} is in a cell TLC ran`);
+      assert.equal(exported.underPlan.invariants.includes(INVARIANT_OF[row]), false, `${world}-plan.cfg lists ${INVARIANT_OF[row]}`);
+      assert.equal(readFileSync(join(SPEC_DIR, `${world}-plan.cfg`), "utf8").split("\n").some((line) => line.trim() === INVARIANT_OF[row]), false, `${world}-plan.cfg lists ${INVARIANT_OF[row]}`);
+      assert.equal(REGISTER_TABLE[row], undefined, `${row} has a cell in the suite's copy of the register's table`);
+      assert.equal(exported.traces.witnesses.some((witness) => witness.row === row), false, `a kept trace is said to break ${row}`);
+    }
+    // The rows are still live: a worker that ran and landed in an excluded term would break both, and reach the companion.
+    for (const term of EXCLUDED_TERMS) {
+      const landed = { term, readSeq: 0, ranAtFreeze: true, ranUnobservedAtFreeze: true, ranUnobserved: true, attacherLives: true, realmAtFreeze: 0, movedFromAt11: "no" };
+      assert.deepEqual(fv.judged(landed), EXCLUSION_ROWS, term);
+      assert.equal(COMPANION_REACHED_BY.NoWorkerExcluded(landed), true, term);
+    }
+    assert.equal(COMPANION_REACHED_BY.NoWorkerExcluded({ term: NAMED_TERM }), false);
+  });
+}
+
+test("F4-TABLE and F4-BEYOND, from TLC's table: A4 changes no verdict, no set of switches breaks an exclusion row now that no shared worker is excluded, D1 closes the no-term row only where the tree is waited for, and only Z closes it everywhere", () => {
   const shared = ["hold", "stream", "two"];
   const subsets = Array.from({ length: 1 << SWITCHES.length }, (_unused, mask) => SWITCHES.filter((_name, at) => (mask & (1 << at)) !== 0));
   for (const world of shared) {
@@ -284,9 +334,13 @@ test("F4-TABLE and F4-BEYOND, from TLC's table: A4 changes no verdict, the exclu
     }
   }
   const everywhere = violationsOver(shared);
-  for (const row of [EXCLUDED_1, EXCLUDED_2]) {
-    assert.equal(failsUnder(everywhere, row, WITH_C1_D1), true, row);
-    assert.deepEqual(asKeys(smallestSets(everywhere, row, SWITCHES.filter((name) => name !== "A4"))), ["A5fifo,Z"], row);
+  // Through fingerprint-observer@13 the exclusion rows failed with C1 and D1 on top of every axiom, and only A5's
+  // order half with Z kept them. From @14 nothing breaks either, with nothing assumed, in any world, the small one
+  // included: a row with no worker to judge.
+  for (const row of EXCLUSION_ROWS) {
+    assert.deepEqual(violationsOver(Object.keys(WORLDS))[row], [], row);
+    assert.equal(failsUnder(everywhere, row, []), false, row);
+    assert.deepEqual(asKeys(smallestSets(everywhere, row, SWITCHES.filter((name) => name !== "A4"))), [""], row);
   }
   // The register words this over the hold and stream worlds. The stream world adds nothing to it: the no-term row
   // cannot fail there under any set of switches, so what D1 closes is the hold world's.
@@ -295,8 +349,6 @@ test("F4-TABLE and F4-BEYOND, from TLC's table: A4 changes no verdict, the exclu
   assert.equal(failsUnder(waiting, NO_TERM, ["D1"]), false);
   assert.deepEqual(asKeys(smallestSets(everywhere, NO_TERM, SWITCHES.filter((name) => name !== "A4"))), ["Z"]);
   assert.deepEqual(asKeys(smallestSets(waiting, NO_TERM, SWITCHES.filter((name) => name !== "A4"))), ["D1", "Z"]);
-  // With Z alone assumed, the small world keeps the exclusion rows.
-  for (const row of [EXCLUDED_1, EXCLUDED_2]) assert.equal(failsUnder(conformance.worlds.small.table.violations, row, ["Z"]), false, row);
 });
 
 test("TLC's own verdict on each row, as an invariant under each set of switches the register names, is the register's", () => {
@@ -306,14 +358,17 @@ test("TLC's own verdict on each row, as an invariant under each set of switches 
   assert.deepEqual(cell("hold", ["A1", "A2"]).holds, [READ]);
   assert.deepEqual(cell("hold", PLAN_AXIOMS.filter((name) => name !== "A1")).fails, [READ]);
   assert.deepEqual(cell("hold", PLAN_AXIOMS.filter((name) => name !== "A2")).fails, [READ]);
-  assert.deepEqual(cell("hold", WITH_C1_D1).fails, [EXCLUDED_1, EXCLUDED_2]);
-  assert.deepEqual(cell("hold", ["A5fifo", "Z"]).holds, [EXCLUDED_1, EXCLUDED_2]);
+  // With C1 and D1 on top of the plan's axioms nothing fails in the hold world now: through @13 both exclusion rows did.
+  assert.deepEqual(cell("hold", WITH_C1_D1), { assumed: WITH_C1_D1, holds: [READ, TERM, NO_TERM], fails: [], distinct: cell("hold", WITH_C1_D1).distinct, reached: companionsOf([READ, TERM, NO_TERM]) });
+  assert.equal(cell("hold", ["A5fifo", "Z"]), undefined, "the cell that held the exclusion rows under A5's order half and Z is gone");
   assert.deepEqual(cell("stream", ["A1", "notA3", "A5fifo"]).holds, [AGE]);
   for (const dropped of ["A1", "notA3", "A5fifo"]) assert.deepEqual(cell("stream", PLAN_AXIOMS.filter((name) => name !== dropped)).fails, [AGE]);
-  assert.deepEqual(cell("two", PLAN_AXIOMS).fails, [EXCLUDED_1, EXCLUDED_2, NO_TERM]);
-  // Not a sentence of the register: with C1 on top of the plan's axioms the second exclusion row holds in the two-worker world.
-  assert.deepEqual(cell("two", WITH_C1_D1).fails, [EXCLUDED_1, NO_TERM]);
-  assert.deepEqual(cell("small", ["Z"]).holds, [EXCLUDED_1, EXCLUDED_2]);
+  assert.deepEqual(cell("two", PLAN_AXIOMS).fails, [NO_TERM]);
+  assert.deepEqual(cell("two", WITH_C1_D1).fails, [NO_TERM]);
+  assert.equal(cell("two", ["A5fifo", "Z"]), undefined);
+  // The small world's cell through @13 was the exclusion rows under Z. Its cell now is the world with nothing assumed.
+  assert.equal(cell("small", ["Z"]), undefined);
+  assert.deepEqual(cell("small", []).holds, [READ, TERM]);
   for (const world of Object.keys(WORLDS)) {
     for (const { assumed, holds, fails } of conformance.worlds[world].cells) {
       for (const row of holds) assert.equal(failsUnder(conformance.worlds[world].table.violations, row, assumed), false, `${world}, ${assumed.join()}: ${row}`);
@@ -322,7 +377,12 @@ test("TLC's own verdict on each row, as an invariant under each set of switches 
   }
 });
 
-test("the named trace, from TLC's table: reachable and excluded, frozen as held, as reaching and by the second pass, with the causes each set of switches leaves", () => {
+test("the named trace, from TLC's table: reachable, and unread as a hold the freeze cannot place, frozen as held, as reaching and by the second pass, with the causes each set of switches leaves", () => {
+  // The trace is as reachable as it was through fingerprint-observer@13, form for form and cause for cause. What changed
+  // is where the readout lands its worker: unread (holdUnplaced), and no longer excluded (pausedAtReadout). The table
+  // module prints the term on each line of the trace, and the export refuses a line whose term is not NAMED_TERM.
+  assert.equal(NAMED_TERM, "holdUnplaced");
+  assert.equal(EXCLUDED_TERMS.includes(NAMED_TERM), false);
   const namedUnder = (assumed) => Object.keys(conformance.worlds.hold.table.named).filter((form) => failsUnder(conformance.worlds.hold.table.named, form, assumed)).sort();
   const each = (causes) => ["held", "reaching", "second-pass"].flatMap((form) => causes.map((cause) => `${form}:${cause}`));
   // As lib/fv-worker-model.test.ts pins the hand-written model's: without A5's latency half, every form by five causes.
@@ -386,8 +446,11 @@ async function replayPath(clock, modules, world, leaf, mustHold) {
 for (const world of Object.keys(WORLDS)) {
   test(`TLC's traces replay through the real thread, mirror and readout: every label the ${world} world takes under the plan's axioms with C1 and D1`, async () => {
     const { traces, labels, tree, table } = conformance.worlds[world];
-    // The rows TLC found to hold under that set must hold of the real readout's terms too, judged by the specification's facts.
+    // The rows TLC found to hold under that set must hold of the real readout's terms too, judged by the specification's
+    // facts. Both exclusion rows are among them in every world, so a real readout that excluded a worker that ran, on a
+    // covering trace, fails here.
     const mustHold = new Set(ROWS.filter((row) => !failsUnder(table.violations, row, WITH_C1_D1)));
+    for (const row of EXCLUSION_ROWS) assert.equal(mustHold.has(row), true, row);
     const taken = new Set();
     let landings = 0;
     await replay.underReplayClock(async (clock) => {
@@ -424,13 +487,27 @@ for (const world of Object.keys(WORLDS)) {
   }
 }
 
-for (const [index, { form, assumed, leaf }] of (conformance.worlds.hold?.traces.named ?? []).entries()) {
-  test(`the named trace as ${form} under ${assumed.join(" ")} goes through the real code: the real readout excludes a worker that ran unobserved (${index})`, async () => {
+// How the hold stood when a named trace's readout ended, as the export keeps it: the mirror had heard the release, or
+// still showed the worker held at the bound.
+const NAMED_END = { released: "released by the drain's end", held: "still held at the bound" };
+
+/**
+ * The line of the readout's classification a named trace goes through, which is the line that excluded its worker
+ * through fingerprint-observer@13: the second pass (attached after the freeze, as the mirror heard it, and released),
+ * the reaching branch (reaching at the freeze, and released), or the held branch (seen held, then released or still
+ * held at the bound). A worker read by the second pass or frozen as reaching, and still held at the bound, is seen
+ * held first and goes through the held branch.
+ */
+const routeOf = ({ form, end }) => (end === "released" && form.startsWith("second-pass:") ? "second-pass" : end === "released" && form.startsWith("reaching:") ? "reaching" : "held");
+
+for (const [index, { form, end, assumed, leaf }] of (conformance.worlds.hold?.traces.named ?? []).entries()) {
+  test(`the named trace as ${form}, ${NAMED_END[end]}, under ${assumed.join(" ")} goes through the real code: the real readout lands a worker that ran unobserved as unread, a hold the freeze cannot place, and does not exclude it (${index})`, async () => {
     const path = pathOf("hold", leaf);
     const [term, , , ranUnobservedAtFreeze] = path[path.length - 1][3][0];
-    assert.deepEqual([term, ranUnobservedAtFreeze], ["pausedAtReadout", 1]);
+    assert.deepEqual([term, ranUnobservedAtFreeze], [NAMED_TERM, 1]);
     await replay.underReplayClock(async (clock) => {
-      assert.equal(await replayPath(clock, PRODUCTION, "hold", leaf, new Set()), 1);
+      // Both exclusion rows are required of the real readout's own term: excluding this worker would break both.
+      assert.equal(await replayPath(clock, PRODUCTION, "hold", leaf, new Set(EXCLUSION_ROWS)), 1);
     });
   });
 }
@@ -441,6 +518,10 @@ test("the kept traces are the ones the suite replays: each row the register says
   for (const world of Object.keys(WORLDS)) assert.deepEqual(witnessed(world), failing(world), world);
   const forms = new Set(conformance.worlds.hold.traces.named.map(({ form }) => form.split(":")[0]));
   assert.deepEqual([...forms].sort(), ["held", "reaching", "second-pass"]);
+  // Each form is kept both ways its hold can stand at the end, so each of the three lines that excluded a worker
+  // through fingerprint-observer@13 has a named trace that goes through it.
+  for (const form of forms) assert.deepEqual([...new Set(conformance.worlds.hold.traces.named.filter((named) => named.form.split(":")[0] === form).map(({ end }) => end))].sort(), ["held", "released"], form);
+  assert.deepEqual([...new Set(conformance.worlds.hold.traces.named.map(routeOf))].sort(), ["held", "reaching", "second-pass"]);
 });
 
 // Faults seeded in the real thread's compiled text. The first is one the hand-written suite also seeds
@@ -495,3 +576,50 @@ for (const [name, edits] of THREAD_VARIANTS) {
 test("what the kept traces cannot tell from the real thread: a fault on a word the model drops, and one that needs a session's words out of order at one point", async () => {
   for (const [name, edits] of NOT_TOLD_APART) assert.equal(await caughtBy(edits), null, `${name}: the kept traces now tell it apart, so move it to the variants they catch`);
 });
+
+// Faults seeded in the real readout's compiled text: each puts back one exclusion the readout made through
+// fingerprint-observer@13, and leaves the other two as @14 has them. The named traces end with a worker that ran
+// unobserved before the freeze, so a readout that excludes it there breaks an exclusion row, judged by the
+// specification's facts against the term the real readout counted. This is what shows, on the real code, that the two
+// rows can still fail though no cell lists them. The specification's own three faults of the same kind need TLC
+// (scripts/tla-worker-hold-mutations.mjs).
+const UNPLACED = 'return { record, state: "unread", reason: "holdUnplaced" };';
+const EXCLUDED_AGAIN = 'return { record, state: "excluded", reason: "pausedAtReadout" };';
+// From @14 the readout's landing reads no excluded form at all, so each variant also gives it back the line that lands
+// one in its term, as @13 had it. Without it a variant throws inside the readout, which is no verdict of a row.
+const LANDS_EXCLUDED = {
+  find: 'if (resolved.state === "unread")\n        return { term: resolved.reason, snapshot: null };\n    if (resolved.state === "ended-at-once")',
+  replace: 'if (resolved.state === "excluded" || resolved.state === "unread")\n        return { term: resolved.reason, snapshot: null };\n    if (resolved.state === "ended-at-once")'
+};
+const READOUT_VARIANTS = [
+  ["the second pass excludes a worker attached after the freeze and released", "second-pass", [{ find: `if (options.attachedAfterFreeze)\n        ${UNPLACED}`, replace: `if (options.attachedAfterFreeze)\n        ${EXCLUDED_AGAIN}` }]],
+  ["a worker reaching at the freeze and released by the drain's end is excluded", "reaching", [{ find: `if (worker.hold === "released")\n        ${UNPLACED}`, replace: `if (worker.hold === "released")\n        ${EXCLUDED_AGAIN}` }]],
+  ["a worker seen held, then released or still held at the bound, is excluded", "held", [{ find: `return { record, state: "unread", reason: "diedHeld" };\n    ${UNPLACED}`, replace: `return { record, state: "unread", reason: "diedHeld" };\n    ${EXCLUDED_AGAIN}` }]]
+];
+
+for (const [name, route, edits] of READOUT_VARIANTS) {
+  test(`the replay of TLC's named traces catches a variant of the real readout by an exclusion row: ${name}`, async (t) => {
+    const variant = { attacher, realm: loadVariant(join(DIST, "worker-fingerprint-realm.js"), [...edits, LANDS_EXCLUDED]) };
+    const traces = conformance.worlds.hold.traces.named;
+    let caught = 0;
+    await replay.underReplayClock(async (clock) => {
+      for (const named of traces) {
+        const through = routeOf(named) === route;
+        const what = `${named.form}, ${NAMED_END[named.end]}`;
+        let reported = null;
+        try {
+          await replayPath(clock, variant, "hold", named.leaf, new Set(EXCLUSION_ROWS));
+        } catch (error) {
+          if (!(error instanceof Counterexample)) throw error;
+          reported = error.property;
+        }
+        // A trace that goes through the line the variant changed is excluded again, and the first exclusion row reports
+        // it. A trace that goes through another line replays as it does through the real readout.
+        assert.equal(reported, through ? EXCLUDED_1 : null, what);
+        if (through) caught += 1;
+      }
+    });
+    assert.ok(caught > 0, `no named trace goes through the line this variant changes`);
+    t.diagnostic(`caught on ${caught} of ${traces.length} named traces`);
+  });
+}

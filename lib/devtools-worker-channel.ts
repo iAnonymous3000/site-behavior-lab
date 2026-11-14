@@ -316,6 +316,18 @@ export class DedicatedWorkerAttachSession {
   }
 
   /**
+   * Every dedicated worker this client has attached so far, nested ones
+   * included, in the order their attaches arrived: the workers
+   * `attachedDedicatedWorkerCount` counts. An installer that runs after
+   * another has no record of a worker until its own turn comes, so a readout
+   * reads here which workers it has no record of, and whether each was held
+   * at its attach.
+   */
+  attachedDedicatedWorkers(): readonly AttachedWorker[] {
+    return [...this.workersBySession.values()].filter((worker) => worker.kind === "dedicated");
+  }
+
+  /**
    * Wait until every attached worker's pause reached a terminal state. Each
    * pause is individually bounded by its watchdog, so this resolves within one
    * handshake timeout of the last attach; `timeoutMs` is a final backstop

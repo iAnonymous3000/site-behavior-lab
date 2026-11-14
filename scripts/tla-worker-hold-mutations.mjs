@@ -6,10 +6,20 @@
 // the rows can fail under the sets the register says they hold under.
 //
 // What a caught fault shows is that the row can fail there. It does not show that the row is
-// needed: the two exclusion rows share one fault, and each catches it without the other, so no
-// fault here separates "ran" from "ran unobserved". The fault for HeardLandsInOneTerm renames a
-// term, which is the only kind of fault that row can catch (specs/worker-hold/README.md classes
-// each invariant).
+// needed: the two exclusion rows share each of their faults, and each catches it without the
+// other, so no fault here separates "ran" from "ran unobserved". The fault for
+// HeardLandsInOneTerm renames a term, which is the only kind of fault that row can catch
+// (specs/worker-hold/README.md classes each invariant).
+//
+// The exclusion rows are a special case. From fingerprint-observer@14 the specification excludes
+// no shared worker, so as committed both rows have nothing to judge in any world, and "the
+// committed specification keeps the row" is true of them whatever the rest of the protocol does.
+// Their faults are therefore the whole of the evidence that the two rows can still fail: one
+// excludes a worker the mirror calls late, and three put back, one at a time, the exclusions the
+// readout made through @13 (attached after the freeze and released; reaching at the freeze and
+// released by the drain's end; seen held and then released, or still held at the bound). Each of
+// the three is run under the plan's axioms with C1 and D1, the largest set the register named
+// for those rows, so the fault is one no latency assumption hides.
 //
 // Each fault is one edit of specs/worker-hold/WorkerHold.tla, in a scratch copy, that must land
 // exactly once. A fault TLC passes, an edit that no longer lands, a specification that no longer
@@ -55,6 +65,23 @@ export const MUTATIONS = [
     '  ELSE IF k.mhold = "late" THEN F("unread", "attachedLate")\n  ELSE IF k.mhold = "pending" THEN (IF k.det THEN GoneUnpaused(k) ELSE F("reaching", ""))',
     '  ELSE IF k.mhold = "late" THEN F("excluded", "pausedAtReadout")\n  ELSE IF k.mhold = "pending" THEN (IF k.det THEN GoneUnpaused(k) ELSE F("reaching", ""))'
   ],
+  ...[
+    [
+      "the @13 exclusion is back in the second pass: a worker attached after the freeze, and released, is excluded",
+      '  ELSE IF attachedAfterFreeze THEN F("unread", "holdUnplaced")',
+      '  ELSE IF attachedAfterFreeze THEN F("excluded", "pausedAtReadout")'
+    ],
+    [
+      "the @13 exclusion is back for a worker reaching at the freeze: released by the drain's end, it is excluded",
+      '  ELSE IF k.mhold = "released" THEN F("unread", "holdUnplaced")',
+      '  ELSE IF k.mhold = "released" THEN F("excluded", "pausedAtReadout")'
+    ],
+    [
+      "the @13 exclusion is back for a worker seen held: released, or still held at the bound, it is excluded",
+      '  ELSE IF k.dwp THEN F("unread", "diedHeld")\n  ELSE F("unread", "holdUnplaced")',
+      '  ELSE IF k.dwp THEN F("unread", "diedHeld")\n  ELSE F("excluded", "pausedAtReadout")'
+    ]
+  ].flatMap(([what, find, replace]) => ["ExcludedRanNothing", "ExcludedRanNothingUnobserved"].map((invariant) => [what, invariant, "hold", ["A1", "A2", "notA3", "A4", "A5fifo", "A5bound", "C1", "D1"], find, replace])),
   [
     "a barrier's answer reads the last closed snapshot though a task is open",
     "ReadNoOlderThanTheFreeze",
@@ -136,7 +163,8 @@ async function main() {
       writeFileSync(join(scratch, "WorkerHold.tla"), text);
       return runTlc({ java, jar, scratch, specDir: scratch, module: "WorkerHold", name, config: configuration(world, assumed, invariant), workers: 2 });
     };
-    // The specification as committed keeps each row under its set, so a violation below is the fault's.
+    // The specification as committed keeps each row under its set, so a violation below is the fault's. For the two
+    // exclusion rows that is so in every world under every set, with nothing to judge: see the note at the top.
     const kept = new Set();
     for (const [, invariant, world, assumed] of mutations) {
       const key = `${invariant} ${world} ${assumed.join()}`;
