@@ -397,6 +397,46 @@ created only after the revision it names is already promoted:
    match for all four rulesets under the restricted token, and the successful
    App-authenticated atomic tag creation.
 
+   For exact `1.0.0` and `1.0.0-rc.N`, the one day is spent on a chain of
+   steps, and each of them must end inside it. The clock starts at the
+   receipt's `capturedAt`. It is read twice: by `release:readiness:check` in
+   the `prepare` job, and by the tag job after the `release-tag` environment
+   is approved. In order:
+
+   1. Capture the receipt. `capturedAt` must not be earlier than the commit
+      time of candidate `C`.
+   2. Commit the carrier (the six evidence files, the receipt and the
+      binding) and push it. `capturedAt` must not be later than that commit.
+   3. Wait for the carrier's `main` CI run to pass every required job.
+   4. Wait for promotion to advance `production` to the carrier.
+   5. Verify the binding offline. Then set
+      `RELEASE_MEASUREMENT_BINDING_SHA256` and
+      `RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256`.
+   6. Dispatch Cut Release Tag. `prepare` reads the clock here, then builds
+      the static artifact and the receipt.
+   7. Wait for the attestation job. Approve the `release-tag` environment if
+      it has a protection rule. The tag job reads the clock a second time.
+
+   The evidence files of step 2 come from the `main` CI run at `C`, so `C`
+   is green and promoted before the capture. Do not capture first and wait
+   for `C` afterwards.
+
+   Under `investigative-v1`, a chain that runs past one day cannot be
+   recovered by the recapture described above. That recovery adds the new
+   receipt to the binding, and the verifier refuses a binding that changed
+   after its carrier (`v1 binding must be added once in the final carrier
+   commit`). The recovery is a new candidate:
+
+   1. Commit the deletion of the six evidence files and the binding. Keep
+      the expired receipt and the declared version. This commit is the new
+      candidate.
+   2. Let it pass CI and reach `production`.
+   3. Collect the six evidence files from its `main` CI run.
+   4. Run the chain above again from step 1.
+
+   So an expired receipt costs two more CI and promotion rounds. Start the
+   chain only when steps 2 to 7 can follow without a pause.
+
    Exact `1.0.0` and `1.0.0-rc.N` releases have one additional external trust
    root: repository- or organization-scoped Actions variable
    `RELEASE_MEASUREMENT_BINDING_SHA256`. An authorized maintainer may set or
