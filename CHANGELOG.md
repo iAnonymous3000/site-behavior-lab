@@ -455,6 +455,47 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A worker the readout cannot place before or after its freeze is counted as
+  an unread realm, where it read as having run nothing
+  (fingerprint-observer@14, node-detectors-v25). What a report now says: when
+  a visit meets one of the cases below, its fingerprinting coverage reads
+  incomplete, with the worker line a report already carries for an unread
+  realm, where through @13 it read complete. For a shared worker the cases
+  are these: the readout saw it held at its main script and then heard its
+  release, or still saw it held when its wait ended; the readout saw it
+  attached and not yet held, then heard its release; or the readout first
+  heard of it after the freeze. In each the release can already be in flight
+  at the freeze, with the worker running and the readout one message behind,
+  and nothing the readout holds tells that worker from one that ran nothing.
+  For a dedicated worker the cases are one already running when the scanner
+  attached to it, read while the scanner's own set-up for it was still in
+  flight, gone inside that window, or attached while the readout waited. A
+  dedicated worker held at an attach that arrives while the readout waits is
+  now counted as paused, where it was counted in no term; that moves no
+  report. No stored report changes: a report is not read again, and the term
+  a worker landed in is saved nowhere. For the same reason an earlier report
+  whose visit met one of these cases read complete with no record that it
+  did, so which earlier reports were affected cannot be recovered. The cost
+  falls on a page that starts a shared worker while its results are being
+  read: a local fixture page that starts one every 200 ms read incomplete in
+  40 of 40 visits, where it read complete in 40 of 40 before (macOS, Chromium
+  156) and in 39 of 40 (Linux arm64, Chromium 158). Six other fixture pages,
+  one with no workers, read the same before and after. Those are counts on
+  local fixture pages on one machine, not a rate on real sites, and no
+  dedicated worker already running at its attach was seen in them, so that
+  half of the change is unmeasured. A page with no workers records what it
+  did, apart from the detector version and registry, which every report
+  records. The register (`docs/formal-verification.md`) moves five findings out
+  of its open list into rows CL8b, CL7-D, F4-NOEXCL and F4-LATE, and three
+  stay open because counting a worker as unread cannot close them: a witness
+  count has nothing to join it to the workers that attached (OPEN-F3.4), a
+  worker the readout never heard of has no term to move (OPEN-F4.3), and a
+  detach that overtakes a worker's last emission leaves a read short of its
+  last task, which only reading every gone worker as unread would change
+  (OPEN-F4.5). The pinned minimums of the formal-verification gate rise: the
+  worker model suite to 131 tests and 107 caught variants, the worker readout
+  suite to 154 tests and 139 caught variants, and the hold specification's
+  conformance suite to 73 tests.
 - The site's content security policy no longer allows
   `cloudflareinsights.com` or `static.cloudflareinsights.com`. Web Analytics
   is off for the site, so nothing loads from either host; the policy now
