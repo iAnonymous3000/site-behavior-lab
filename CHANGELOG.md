@@ -286,6 +286,25 @@ public API or a 1.0 release.
   `npm run release:formal-verification-report` runs a suite under `scripts`
   as it is written, after both test compiles. No scan, report or identity
   changes.
+- A producer for the 1.0 release binding, `npm run release:v1-binding`. It
+  writes `research/v1-release-binding.json` for a candidate commit and a
+  governance receipt: the candidate's tree from Git, the six fixed evidence
+  paths and their categories from the release contract (which now exports
+  them, with its row rule and its bounded read), and the sha256 of each file
+  in the working tree. The file was written by hand before. The command
+  stages and commits nothing and starts no process but reading git
+  subcommands. It refuses, and writes nothing, on a candidate that is not an
+  ancestor of `HEAD` or that already holds a carrier file, a missing file or
+  receipt, a receipt not named by its sha256, an existing binding, and any
+  change in the working tree or since the candidate other than the carrier's
+  files, each added once. `--check` writes nothing and holds an existing
+  binding to the producer's bytes. A refusal is early notice: the contract's
+  verifier still decides, and the producer runs neither content verifier and
+  no attestation check. Tests on fixture histories hold that the contract
+  accepts the carrier the producer writes, with those three hosted checks
+  stubbed, and hold the contract's carrier rules to their exact refusals
+  (the binding added once, in the final carrier commit). No rule of the
+  contract moves, and no scan, report or identity changes.
 
 ### Removed
 

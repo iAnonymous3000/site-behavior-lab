@@ -287,6 +287,30 @@ created only after the revision it names is already promoted:
    together. The release binding is `research/v1-release-binding.json` under
    the current `investigative-v1` profile, which refuses the other file, and
    `research/measurement-candidate-binding.json` under the research contract.
+   Under `investigative-v1`, write the binding with its producer. Do not write
+   it by hand. Put the six fixed evidence files and the receipt at their
+   paths, change nothing else since `C`, and run this at the repository root:
+
+   ```bash
+   npm run release:v1-binding -- \
+     --candidate <full-candidate-C-sha> \
+     --receipt-sha256 <receipt-sha256>
+   ```
+
+   The command reads the tree of `C` from Git, takes the six paths and their
+   categories from `scripts/v1-release-contract.mjs`, records the sha256 of
+   each file and of the receipt, and writes the binding once as canonical
+   JSON. It stages nothing, commits nothing and makes no network call. It
+   refuses, and writes nothing, when `C` is not an ancestor of `HEAD`, when
+   `C` already holds one of those files or a binding, when a file or the
+   receipt is missing, when the receipt is not named by its sha256, when a
+   binding already exists, or when the working tree or a commit after `C`
+   holds any change other than those seven files, each added once. Commit the
+   seven files and the binding as one carrier commit and nothing else. Then
+   run the same command with `--check`: it writes nothing and confirms that
+   the committed binding is byte for byte what the producer writes. A refusal
+   from this command is early notice only. The readiness check and the
+   offline verification below decide whether the carrier is accepted.
    Let the resulting carrier commit pass every required CI job and reach both
    `main` and `production`. Configure the GitHub Actions `vars` selector
    `RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256` at repository or organization scope
