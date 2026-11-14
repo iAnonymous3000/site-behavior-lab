@@ -28,14 +28,15 @@ same versions).
 2. Run `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://example.org npm run check`
    for TypeScript, Cloudflare types, unit tests, and the production build. The
    build refuses to guess the public origin, so the variable is required.
-3. When static publication behavior changes, also run npm run build:pages and
-   npm run test:smoke:static with the same variable set.
+3. When static publication behavior changes, also run `npm run build:pages`
+   and `npm run test:smoke:static` with the same variable set.
 4. Add focused tests for every bug fix and for fail-closed integrity,
    redaction, or eligibility behavior.
 
 The static Pages build requires an exact clean Git revision before it can emit
-deployment provenance. Commit the reviewed inputs before running build:pages;
-ordinary npm run build remains available while developing.
+deployment provenance. Commit the reviewed inputs before running
+`npm run build:pages`; ordinary `npm run build` remains available while
+developing.
 
 ## Evidence and product language
 
