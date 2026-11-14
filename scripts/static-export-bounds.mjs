@@ -108,3 +108,28 @@ export async function measureStaticExport(directory) {
   total.entries.sort((a, b) => b.bytes - a.bytes || (a.name < b.name ? -1 : 1));
   return total;
 }
+
+/**
+ * The size of every report page in an export, largest first.
+ *
+ * The static smoke opens one report in a browser, and its HTML budget used to
+ * be read from that one page, the first in the index. A budget read from one
+ * page says nothing of the largest, so the smoke reads this list instead. A
+ * report directory with no page is returned with `bytes: null`: the caller
+ * decides, and cannot mistake an absent page for a small one.
+ */
+export async function reportPageHtmlSizes(directory) {
+  const reportsDir = path.join(directory, "reports");
+  const pages = [];
+  for (const entry of await readdir(reportsDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    let bytes = null;
+    try {
+      bytes = (await stat(path.join(reportsDir, entry.name, "index.html"))).size;
+    } catch (error) {
+      if (error?.code !== "ENOENT") throw error;
+    }
+    pages.push({ id: entry.name, bytes });
+  }
+  return pages.sort((a, b) => (b.bytes ?? Infinity) - (a.bytes ?? Infinity) || (a.id < b.id ? -1 : 1));
+}

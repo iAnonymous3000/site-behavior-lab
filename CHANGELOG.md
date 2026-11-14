@@ -375,6 +375,9 @@ public API or a 1.0 release.
   measures 641.0 MiB over 1,029 reports today, and the new value is that
   measurement with a quarter added. It guards against a change that
   multiplies the export by accident. No report, page or published byte moves.
+- The static smoke holds every report page to the 200 KB HTML budget. It read
+  the budget from one page before, the first in the index. All 1,029 pages are
+  inside it today; the largest is 125,917 bytes.
 - The toolchain canary panel is version 2 (`monthly-toolchain-canary-v2`).
   One qualifying capture ran on isolated staging on 2026-11-11, on build
   b554198e with Chromium 156, under rule `panel-qualification-2026-11-10`,

@@ -18,7 +18,7 @@ import {
   withHttpOperationDeadline
 } from "./http-response.mjs";
 import { resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
-import { STATIC_EXPORT_MAX_BYTES, measureStaticExport, staticExportBoundViolation } from "./static-export-bounds.mjs";
+import { STATIC_EXPORT_MAX_BYTES, measureStaticExport, reportPageHtmlSizes, staticExportBoundViolation } from "./static-export-bounds.mjs";
 import { reportCorrectionSuppressesIndexing, reportSubjectCorrectionEvents } from "./static-report-corrections.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -222,6 +222,7 @@ async function fetchResource(url, init, label, read) {
 async function main() {
   await assertStaticExportSize();
   const manifest = await readManifest();
+  await assertEveryReportHtmlBudget(manifest);
   const phaseReport = await findR2PhaseSmokeReport(manifest);
   const unorderedComparison = findUnorderedComparisonSmokeReport(manifest);
   const longestOgReport = await findLongestOgReport(manifest);
@@ -1388,6 +1389,26 @@ async function assertStaticRouteBudgets(htmlPath, { label, maxHtmlBytes, maxInit
     `${label} stays within HTML and initial-JavaScript budgets: HTML ${htmlBytes} of ${maxHtmlBytes} bytes, ` +
       `initial JavaScript ${compressedBytes} of ${maxInitialJsGzipBytes} gzip bytes`
   );
+}
+
+// The browser checks below open one report, and the HTML budget used to be read
+// from that page alone. Every page is a file on disk, so read them all: the
+// budget is a claim about the largest report, not about whichever sorts first.
+async function assertEveryReportHtmlBudget(manifest) {
+  const pages = await reportPageHtmlSizes(outDir);
+  const expected = new Set(manifest.reports.map((report) => report.id));
+  const found = new Set(pages.map((page) => page.id));
+  if (pages.length === 0 || expected.size === 0) fail("no report page to hold to the HTML budget");
+  for (const id of expected) if (!found.has(id)) fail(`report ${id} is in the index and has no page directory`);
+  for (const page of pages) {
+    if (!expected.has(page.id)) fail(`report page ${page.id} is not in the index`);
+    if (page.bytes === null) fail(`report ${page.id} has no index.html`);
+    if (page.bytes > maxReportHtmlBytes) {
+      const over = pages.filter((candidate) => candidate.bytes > maxReportHtmlBytes).length;
+      fail(`saved report ${page.id} HTML is ${page.bytes} bytes; budget is ${maxReportHtmlBytes} bytes (${over} of ${pages.length} pages are over)`);
+    }
+  }
+  pass(`all ${pages.length} report pages stay within the HTML budget: largest ${pages[0].bytes} of ${maxReportHtmlBytes} bytes (${pages[0].id})`);
 }
 
 // The bounds and their derivation are in scripts/static-export-bounds.mjs.

@@ -10,7 +10,7 @@ import { validatePagesReceipt, verifyPagesArtifact, assertPagesProject,
   assertPagesDeployment, waitForPagesDeployment } from "./published-pages-lib.mjs";
 import { buildDeploymentReceipt } from "./static-deployment-provenance.mjs";
 import { STATIC_EXPORT_MAX_BYTES, STATIC_EXPORT_MAX_FILES, STATIC_EXPORT_MAX_FILE_BYTES,
-  measureStaticExport, staticExportBoundViolation } from "./static-export-bounds.mjs";
+  measureStaticExport, reportPageHtmlSizes, staticExportBoundViolation } from "./static-export-bounds.mjs";
 
 const digest = (bytes) => createHash("sha256").update(bytes).digest("hex");
 // Docker deliberately omits the checkout's .git directory. The provenance
@@ -140,6 +140,21 @@ test("the export measure counts every file, dotfiles and nested ones, and names 
       { name: "empty", fileCount: 0, bytes: 0 }
     ]
   });
+});
+
+test("every report page is sized, largest first, and a missing page is not read as a small one", async (t) => {
+  const directory = await mkdtemp(path.join(tmpdir(), "sbl-report-pages-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  for (const [id, bytes] of [["a", 5], ["b", 900], ["c", 30], ["d", null]]) {
+    await mkdir(path.join(directory, "reports", id), { recursive: true });
+    if (bytes !== null) await writeFile(path.join(directory, "reports", id, "index.html"), "x".repeat(bytes));
+    await writeFile(path.join(directory, "reports", id, "index.txt"), "x".repeat(5_000));
+  }
+  await writeFile(path.join(directory, "reports/index.json"), "x".repeat(9_000));
+  await writeFile(path.join(directory, "reports/a.json"), "x".repeat(9_000));
+  assert.deepEqual(await reportPageHtmlSizes(directory), [
+    { id: "d", bytes: null }, { id: "b", bytes: 900 }, { id: "c", bytes: 30 }, { id: "a", bytes: 5 }
+  ]);
 });
 
 test("a receipt that agrees with itself is still refused past each export bound", () => {
