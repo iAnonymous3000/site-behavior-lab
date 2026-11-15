@@ -34,7 +34,7 @@ import { readClientFileText } from "@/lib/client-file-policy";
 import { isStaticReportManifest } from "@/lib/static-report-manifest-guard";
 import type { HomepageDiscovery, HomepageFeaturedGroup } from "@/lib/homepage-discovery";
 import { OPEN_LATEST_REPORT_LABEL } from "@/lib/homepage-labels";
-import { scheduledRescansWanted } from "@/lib/scheduled-rescan-mount";
+import { WATCH_FRAGMENT_PREFIX } from "@/lib/scheduled-rescan-mount";
 import { plural } from "@/lib/text-format";
 import { readLoadedReport, asLocalReport } from "@/lib/client-report-reader";
 // Type-only: the deep reader module stays lazy-loaded (client-report-reader);
@@ -49,8 +49,9 @@ const LazyReportRenderer = lazy(() =>
   import("./_components/report-renderer").then((module) => ({ default: module.ReportRenderer }))
 );
 // Scheduled rescans are off unless the scanner advertises them, so the watch
-// client stays out of the first load; lib/scheduled-rescan-mount.ts decides
-// when the panel loads.
+// client stays out of the first load. The panel loads once they are advertised
+// or the address holds a management link, because a held link stays
+// manageable while creation is off.
 const LazyScheduledRescans = lazy(() =>
   import("./_components/scheduled-rescans").then((module) => ({ default: module.ScheduledRescans }))
 );
@@ -193,7 +194,9 @@ export function SiteBehaviorApp({
   useEffect(() => {
     if (scheduledRescansMounted) return;
     const mountWhenWanted = () => {
-      if (scheduledRescansWanted(scheduledRescansEnabled, window.location.hash)) setScheduledRescansMounted(true);
+      if (scheduledRescansEnabled || window.location.hash.startsWith(WATCH_FRAGMENT_PREFIX)) {
+        setScheduledRescansMounted(true);
+      }
     };
     mountWhenWanted();
     window.addEventListener("hashchange", mountWhenWanted);

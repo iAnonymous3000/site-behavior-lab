@@ -3,7 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { encryptedWatchManagementUrl, parseEncryptedWatchCredentialsFromUrl } from "./encrypted-watch-client";
-import { scheduledRescansWanted, WATCH_FRAGMENT_PREFIX } from "./scheduled-rescan-mount";
+import { WATCH_FRAGMENT_PREFIX } from "./scheduled-rescan-mount";
 
 const root = process.cwd();
 const read = (relative: string) => readFileSync(path.join(root, ...relative.split("/")), "utf8");
@@ -11,8 +11,8 @@ const read = (relative: string) => readFileSync(path.join(root, ...relative.spli
 // Scheduled rescans are off by default, and the homepage's first load has
 // almost no room left in its script budget. The panel and the watch client it
 // imports are therefore loaded only when wanted. These tests hold the off path:
-// nothing of the watch client is in the first load, and the panel still loads
-// for a held management link.
+// nothing of the watch client is in the first load, the panel still loads for a
+// held management link, and the link prefix has one source.
 
 const WATCH_MODULES = [
   "app/_components/scheduled-rescans.tsx",
@@ -20,21 +20,18 @@ const WATCH_MODULES = [
   "lib/scheduled-rescan-ui.ts"
 ];
 
-test("the panel is wanted only when advertised or for a held management link", () => {
-  assert.equal(scheduledRescansWanted(false, ""), false);
-  assert.equal(scheduledRescansWanted(false, "#scan"), false);
-  assert.equal(scheduledRescansWanted(false, "#scan?url=https%3A%2F%2Fexample.com%2F"), false);
-  assert.equal(scheduledRescansWanted(false, "#watch"), false);
-  assert.equal(scheduledRescansWanted(false, "#WATCH=a.b"), false);
-  assert.equal(scheduledRescansWanted(false, "#evidence-watch=a.b"), false);
-  assert.equal(scheduledRescansWanted(true, ""), true);
-  assert.equal(scheduledRescansWanted(true, "#scan"), true);
-  // An invalid link is wanted too: the panel is what tells the visitor so.
-  assert.equal(scheduledRescansWanted(false, "#watch="), true);
-  assert.equal(scheduledRescansWanted(false, "#watch=not-a-capability"), true);
+test("the prefix module holds the constant and nothing else", async () => {
+  assert.equal(WATCH_FRAGMENT_PREFIX, "#watch=");
+  const module = await import("./scheduled-rescan-mount");
+  assert.deepEqual(Object.keys(module).filter((key) => key !== "__esModule"), ["WATCH_FRAGMENT_PREFIX"]);
+  const code = read("lib/scheduled-rescan-mount.ts")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "")
+    .trim();
+  assert.equal(code, 'export const WATCH_FRAGMENT_PREFIX = "#watch=";');
 });
 
-test("every management link the client writes makes the panel wanted", () => {
+test("every management link the client writes starts with the shared prefix", () => {
   // The same fixture credentials as lib/encrypted-watch-client.test.ts.
   const credentials = Object.freeze({
     watchId: "103d0ebdaea7dce9e2910bd227af5c2c",
@@ -44,7 +41,6 @@ test("every management link the client writes makes the panel wanted", () => {
   assert.deepEqual(parseEncryptedWatchCredentialsFromUrl(href), credentials, "the fixture must be a link the client accepts");
   const hash = new URL(href).hash;
   assert.ok(hash.startsWith(WATCH_FRAGMENT_PREFIX), `the client wrote ${hash}`);
-  assert.equal(scheduledRescansWanted(false, hash), true);
   // One source: the client parses with the same constant this module exports.
   const client = read("lib/encrypted-watch-client.ts");
   assert.match(client, /^import \{ WATCH_FRAGMENT_PREFIX \} from "\.\/scheduled-rescan-mount";$/m);
@@ -100,11 +96,11 @@ test("the homepage's first load has no static path to the watch client", () => {
   }
   // The walk must reach the modules it is meant to see, or it proves nothing.
   assert.ok(seen.has("app/_hooks/use-scan-runtime.ts"), "the walk did not reach the scan runtime");
-  assert.ok(seen.has("lib/scheduled-rescan-mount.ts"), "the walk did not reach the mount decision");
+  assert.ok(seen.has("lib/scheduled-rescan-mount.ts"), "the walk did not reach the prefix module");
   for (const module of WATCH_MODULES) {
     assert.equal(seen.get(module), undefined, `the homepage statically imports ${module}: ${seen.get(module)}`);
   }
-  // The decision module is in the first load, so it must stay a leaf.
+  // The prefix module is in the first load, so it must stay a leaf.
   assert.deepEqual(staticImports("lib/scheduled-rescan-mount.ts", files), []);
   assert.doesNotMatch(read("lib/scheduled-rescan-mount.ts"), /\bimport\b/);
 });
@@ -121,8 +117,8 @@ test("the homepage mounts the lazy panel only when wanted, and keeps it mounted"
     app,
     /\{scheduledRescansMounted && \(\n\s+<Suspense fallback=\{null\}>\n\s+<LazyScheduledRescans\n\s+enabled=\{scheduledRescansEnabled\}/
   );
-  // The latch: set only to true, from the decision, on mount and on every
-  // hashchange until it holds.
+  // The latch: set only to true, when advertised or for a management link,
+  // on mount and on every hashchange until it holds.
   assert.deepEqual(
     [...app.matchAll(/setScheduledRescansMounted\(([^)]*)\)/g)].map((match) => match[1]),
     ["true"],
@@ -130,8 +126,10 @@ test("the homepage mounts the lazy panel only when wanted, and keeps it mounted"
   );
   assert.match(
     app,
-    /if \(scheduledRescansWanted\(scheduledRescansEnabled, window\.location\.hash\)\) setScheduledRescansMounted\(true\);/
+    /if \(scheduledRescansEnabled \|\| window\.location\.hash\.startsWith\(WATCH_FRAGMENT_PREFIX\)\) \{\n\s+setScheduledRescansMounted\(true\);\n\s+\}/
   );
+  assert.match(app, /^import \{ WATCH_FRAGMENT_PREFIX \} from "@\/lib\/scheduled-rescan-mount";$/m);
+  assert.doesNotMatch(app, /["']#watch=/, "the homepage must not spell the prefix itself");
   assert.match(app, /mountWhenWanted\(\);\n\s+window\.addEventListener\("hashchange", mountWhenWanted\);/);
   assert.match(app, /return \(\) => window\.removeEventListener\("hashchange", mountWhenWanted\);/);
   assert.match(app, /\}, \[scheduledRescansEnabled, scheduledRescansMounted\]\);/);
