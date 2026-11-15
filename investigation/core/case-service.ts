@@ -21,8 +21,9 @@
 // for a write that lands between this open and the append.
 
 import { verifyAccessToken, type AccessKeySet, type AccessPolicy } from "./access-token";
-import { ownerActorFrom, type OwnerActor } from "./actor";
+import { ownerActorFrom, runnerActorFrom, type Actor, type OwnerActor } from "./actor";
 import type { EvidenceSeen, LogEvent, LogStores } from "./case-log";
+import { MAX_RUNNER_ROWS_PER_ATTEMPT, RUNNER_EVENT_TYPES, tokenRefusalFor, type TokenHolder } from "./case-runner";
 import { openCase, runCommand, type CaseState, type CommandRefusal, type OpenCase, type OpenCaseResult } from "./case-store";
 
 /** The only events this seam writes. A test holds that every other type the log knows is refused. */
@@ -93,6 +94,23 @@ export type CommandAnswer = Exclude<ClaimAnswer, Readonly<{ ok: false; refusal: 
 /** The seam for the owner's commands. It is apart from the case service, so what serves claims alone cannot drive the machine. */
 export type CaseCommands = Readonly<{
   command(assertion: string, caseId: string, viewedHead: string, event: LogEvent): Promise<CommandAnswer>;
+}>;
+
+/**
+ * What a runner's write answers. The token it presented, any token, and why a token was refused are
+ * in none of them: a forged token, another case's, and one ended by a stop, a destroy record, a second
+ * request or the owner's close all read as token-refused.
+ */
+export type RunnerAnswer =
+  | Readonly<{ ok: true; case: CaseView }>
+  | CaseRefusal
+  | Readonly<{ ok: false; refusal: "token-refused" | "not-a-runner-event" | "not-this-attempt" | "attempt-ended" | "row-bound" }>
+  | Readonly<{ ok: false; refusal: "conflict"; case: CaseView }>
+  | Readonly<{ ok: false; refusal: Exclude<CommandRefusal, "conflict">; at: string | null; case: CaseView }>;
+
+/** The seam for a runner's events, apart from the owner's: it takes a token where they take an assertion. */
+export type CaseRunner = Readonly<{
+  write(token: string, caseId: string, viewedHead: string, event: LogEvent): Promise<RunnerAnswer>;
 }>;
 
 export type CaseService = Readonly<{
@@ -238,13 +256,18 @@ type Written = Exclude<ClaimAnswer, AccessAnswer | Readonly<{ ok: false; refusal
  * One event written against the head its writer viewed, by an actor already derived here. A claim
  * and a command are both written this way, and neither any other.
  */
-async function writeViewed(world: CaseServiceWorld, owner: OwnerActor, caseId: string, viewedHead: string, event: LogEvent): Promise<Written> {
+async function writeViewed(world: CaseServiceWorld, actor: Actor, caseId: string, viewedHead: string, event: LogEvent): Promise<Written> {
   const result = await openedIn(world, caseId);
-  if (!result.ok) return result;
+  return result.ok ? writeOpened(world, actor, result, viewedHead, event) : result;
+}
+
+/** The same write, on a case this call has just opened, so a caller that checked the case first does not open it twice. */
+async function writeOpened(world: CaseServiceWorld, actor: Actor, result: Extract<Opened, { ok: true }>, viewedHead: string, event: LogEvent): Promise<Written> {
+  const { caseId } = result.case;
   // The head the writer viewed must still be the head. Otherwise what they read is not
   // what they would be writing against, and nothing is written.
   if (result.case.head !== viewedHead) return { ok: false, refusal: "conflict", case: viewOf(result.case) };
-  const written = await runCommand(result.stores, result.case, { actor: owner, event, now: world.now });
+  const written = await runCommand(result.stores, result.case, { actor, event, now: world.now });
   if (written.ok) return { ok: true, case: viewOf(written.case) };
   if (written.refusal === "conflict") {
     const current = await openedIn(world, caseId);
@@ -264,6 +287,62 @@ export function caseCommandsOver(world: CaseServiceWorld): CaseCommands {
       if ("ok" in owner) return owner;
       if (!isEventOf(OWNER_COMMAND_EVENT_TYPES, event)) return { ok: false, refusal: "not-a-command" };
       return writeViewed(world, owner, caseId, viewedHead, event);
+    }
+  };
+}
+
+export type CaseRunnerWorld = CaseServiceWorld &
+  Readonly<{
+    /** Whom a token speaks for, from the object's own table, or null for a token it does not hold. */
+    holderOf: (token: unknown) => Promise<TokenHolder | null>;
+  }>;
+
+const TOKEN_REFUSED = Object.freeze({ ok: false, refusal: "token-refused" } as const);
+
+/** The slot an event of the runner's list speaks for. A row names it inside the row. */
+function slotOfRunnerEvent(event: LogEvent): unknown {
+  const data = (event as { data?: unknown }).data;
+  if (typeof data !== "object" || data === null) return undefined;
+  if (event.type === "evidence-recorded") {
+    const row = (data as { row?: unknown }).row;
+    return typeof row === "object" && row !== null ? (row as { slot?: unknown }).slot : undefined;
+  }
+  return (data as { slot?: unknown }).slot;
+}
+
+/**
+ * A runner's events over the log's stores. The token is the only thing a runner presents. Whom it
+ * speaks for comes from the object's own table, and the runner's actor is derived here from that
+ * attempt's id, so it never crosses into or out of the object. The token's attempt is held against
+ * the case's own plan, the event's slot against the token's, and each event is written against the
+ * head the runner viewed, through runCommand as the owner's are.
+ *
+ * Refused here, beside what the machine refuses: an event of the owner's or anyone's but the
+ * runner's, another slot's event, whatever tokenRefusalFor in case-runner.ts refuses (so a late row
+ * is refused here though the machine would keep it, ruling D-7), and a row, or an instrument record,
+ * past the attempt's bound, each counted from the case's own state and never from anything the
+ * runner sends (G-4, C-2, S-1).
+ */
+export function caseRunnerOver(world: CaseRunnerWorld): CaseRunner {
+  return {
+    async write(token, caseId, viewedHead, event) {
+      const holder = await world.holderOf(token);
+      if (holder === null) return TOKEN_REFUSED;
+      if (!isEventOf(RUNNER_EVENT_TYPES, event)) return { ok: false, refusal: "not-a-runner-event" };
+      if (slotOfRunnerEvent(event) !== holder.slot) return { ok: false, refusal: "not-this-attempt" };
+      const result = await openedIn(world, caseId);
+      if (!result.ok) return result;
+      const attempt = result.case.state?.machine.attempts.find(({ slot }) => slot === holder.slot);
+      // A second wall: the object's table holds only this case's planned attempts, so no test reaches it.
+      if (attempt === undefined || attempt.attemptId !== holder.attemptId || result.case.state === null) return TOKEN_REFUSED;
+      const refusal = tokenRefusalFor(holder, result.case.state.machine, attempt, event.type);
+      if (refusal !== null) return refusal === "token-refused" ? TOKEN_REFUSED : { ok: false, refusal };
+      if (event.type === "evidence-recorded" && attempt.evidence.length >= MAX_RUNNER_ROWS_PER_ATTEMPT) return { ok: false, refusal: "row-bound" };
+      // The record refuses only a repeated instrument name, so a runner varying the name would write without end. Counted from the record.
+      if (event.type === "instrument-recorded" && result.case.state.record.instruments.filter(({ slot }) => slot === holder.slot).length >= MAX_RUNNER_ROWS_PER_ATTEMPT) return { ok: false, refusal: "row-bound" };
+      const runner = runnerActorFrom(holder.attemptId);
+      if (runner === null) return TOKEN_REFUSED;
+      return writeOpened(world, runner, result, viewedHead, event);
     }
   };
 }

@@ -80,7 +80,7 @@ test("a store that fails between the log's start and the plan leaves a log that 
   // The log was started and holds no entry: its head is the genesis head, and no object is an entry.
   const opened = (await world.direct(CASES_BINDING, caseId, { call: "open", assertion: world.ownerToken, caseId })).answer;
   // A log with no plan has no deadline to watch, so nothing is due.
-  assert.deepEqual(opened, { ok: true, case: { caseId, head: GENESIS_HEAD, seq: 0, state: null }, due: [] });
+  assert.deepEqual(opened, { ok: true, case: { caseId, head: GENESIS_HEAD, seq: 0, state: null }, due: [], runnerFlags: [] });
   assert.deepEqual(await world.keys(`cases/${caseId}/entries/`), []);
   assert.deepEqual(await world.keys(`cases/${caseId}/evidence/`), [IDENTITY_ALDER.criterionDigest, IDENTITY_ALDER.fixtureDigest].sort().map((digest) => `cases/${caseId}/evidence/${digest}`));
   const page = await world.send(`/cases/${caseId}`);

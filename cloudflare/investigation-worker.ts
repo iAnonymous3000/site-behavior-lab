@@ -15,9 +15,11 @@
 //
 // Each class below only hands its storage, its name and its environment to
 // investigation/core/case-host.ts, which holds everything an object does. Every call an
-// object takes verifies the Access assertion again, inside the object. A case's alarm
-// holds no assertion, and writes nothing to a case's log: it flags a deadline that came due,
-// and stops no runner, since none exists yet.
+// object takes verifies the Access assertion again, inside the object, except a runner's two
+// calls, which carry the attempt's token instead and which no route here sends. A case's alarm
+// holds no assertion, and writes nothing to a case's log: it flags a deadline that came due and
+// records the runner's stop, which revokes that attempt's token. No container exists yet, so
+// nothing more is stopped.
 import { AccessKeySet } from "../investigation/core/access-token";
 import { caseIndexObject, caseObject, hostedCasesFrom, type CaseHostObject, type HostEnv, type HostObject } from "../investigation/core/case-host";
 import { viewerRoutes } from "../investigation/core/viewer-routes";

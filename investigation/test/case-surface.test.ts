@@ -12,6 +12,7 @@ import * as caseEvents from "../core/case-events";
 import * as caseLog from "../core/case-log";
 import * as caseHost from "../core/case-host";
 import * as caseHostStores from "../core/case-host-stores";
+import * as caseRunner from "../core/case-runner";
 import * as caseService from "../core/case-service";
 import * as caseSupervision from "../core/case-supervision";
 import * as captureAdapter from "../core/capture-adapter";
@@ -61,7 +62,8 @@ const EXPORTS: Readonly<Record<string, readonly string[]>> = {
   "canonical-json.ts": ["MAX_CANONICAL_DEPTH", "bytesEqual", "canonicalBytes", "hasExactly", "parseCanonical", "sha256Hex"],
   "case-log.ts": ["GENESIS_HEAD", "MAX_ENTRY_BYTES", "MAX_EVIDENCE_BYTES", "MAX_HEAD_CHARS", "appendCommand", "checkFirstEntry", "createLog", "isCaseId", "isDigest", "openLog", "putEvidence", "readEvidence", "verifyAgainstSavedHead"],
   "case-events.ts": ["EVENT_TYPES", "MAX_LIST_ITEMS", "MAX_SLUG_CHARS", "MAX_TEXT_CHARS", "configurationKey", "decodeEvent", "digestsNamed", "isConfigurationIdentity", "isSlug"],
-  "case-service.ts": ["CLAIM_EVENT_TYPES", "EVIDENCE_PAGE_BYTES", "OWNER_COMMAND_EVENT_TYPES", "caseCommandsOver", "caseServiceOver", "ownerFromAssertion"],
+  "case-service.ts": ["CLAIM_EVENT_TYPES", "EVIDENCE_PAGE_BYTES", "OWNER_COMMAND_EVENT_TYPES", "caseCommandsOver", "caseRunnerOver", "caseServiceOver", "ownerFromAssertion"],
+  "case-runner.ts": ["CLEANUP_EVENT_TYPES", "MAX_RUNNER_ROWS_PER_ATTEMPT", "RUNNER_EVENT_TYPES", "runnerCredentialsOver", "tokenRefusalFor"],
   "case-supervision.ts": ["DEFAULT_DEADLINES", "isAlarmStorage", "isDueMark", "isWanted", "supervisionOver", "wantedMarks"],
   "case-host.ts": ["CASE_INDEX_NAME", "MAX_HOSTED_CASES", "caseIndexObject", "caseObject", "hostedCasesFrom", "isHostedCaseId"],
   "case-host-stores.ts": ["bucketObjectStore", "casePrefix", "hostedStores", "isHostBucket", "isHostStorage", "sqlHeadStore"],
@@ -69,7 +71,7 @@ const EXPORTS: Readonly<Record<string, readonly string[]>> = {
   "case-machine.ts": ["MAX_CONFIGURATION_CHANGES", "MAX_CONTROL_MISSES", "MAX_START_RETRIES", "OUTCOMES", "SLOT_NAMES", "continuationOf", "denominatorOf", "isCleanupUnresolved", "isOutcome", "isRunningPhase", "isTerminal", "plannedState", "retentionOf", "step", "visitBasisOf"],
   "case-store.ts": ["aggregateRowsOfCase", "createCase", "foldEntry", "mintedSlots", "openCase", "runCommand"],
   "evidence-model.ts": ["EMPTY_RECORD", "UNREAD_STATES", "addRow", "applyRecordEvent", "readRow", "sourceIdentityOf"],
-  "ids.ts": ["mintAttemptId", "mintCaseId"],
+  "ids.ts": ["mintAttemptId", "mintCaseId", "mintRunnerToken"],
   "imported-case.ts": ["IMPORTED_CLAIM_TYPES", "applyImportedClaim", "importCase", "importedAttemptId", "importedDenominatorOf", "importedEvidenceFor", "importedSourceOf", "isImportedAttemptId", "readImportedRow", "runDigestOf"],
   "imported-ids.ts": ["importedAttemptId", "isImportedAttemptId", "runDigestOf"],
   "purge.ts": ["purgeStep", "retentionTier"],
@@ -94,6 +96,7 @@ const MODULES: Readonly<Record<string, object>> = {
   "case-supervision.ts": caseSupervision,
   "case-host.ts": caseHost,
   "case-host-stores.ts": caseHostStores,
+  "case-runner.ts": caseRunner,
   "capture-adapter.ts": captureAdapter,
   "case-machine.ts": machine,
   "case-store.ts": store,
@@ -603,13 +606,16 @@ const S1_TESTS = ["case-directory.test.ts", "case-host-faults-workerd.test.ts", 
 /** S2's, the owner's commands and the alarm that watches a case's deadlines. */
 const S2_TESTS = ["case-alarm-workerd.test.ts", "case-commands-workerd.test.ts", "case-commands.test.ts"];
 
+/** S5b's, the runner's seam in a case object. */
+const S5B_TESTS = ["case-runner-workerd.test.ts", "case-runner.test.ts"];
+
 /** S4's, the 6.8.0 adapter on recorded output and the runner folder's boundary. */
 const S4_TESTS = ["recorder-shapes-6-8-0.test.ts", "runner-boundaries.test.ts"];
 
-test("the lists of new test files are every test file W2, W3, F5, W4, S1, S2 and S4 added beside the ones before them", () => {
+test("the lists of new test files are every test file W2, W3, F5, W4, S1, S2, S4 and S5b added beside the ones before them", () => {
   const earlier = ["access-token.test.ts", "actor.test.ts", "canonical-json.test.ts", "case-log-walk.test.ts", "case-log-workerd.test.ts", "case-log.test.ts", "deployment-config.test.ts", "fs-kill-child.ts", "fs-log-store-kill.test.ts", "fs-log-store.test.ts", "log-fixture.ts", "memory-log-store.ts", "token-fixture.ts", "workerd-case-log-entry.ts", "workspace-boundaries.test.ts", "workspace-config.test.ts", "workspace-gate.test.ts"];
   const present = readdirSync(path.join(ROOT, TEST)).filter((file) => file.endsWith(".ts")).sort();
-  assert.deepEqual(present, [...earlier, ...W2_TESTS, ...W3_TESTS, ...F5_TESTS, ...W4_TESTS, ...S1_TESTS, ...S2_TESTS, ...S4_TESTS].sort());
+  assert.deepEqual(present, [...earlier, ...W2_TESTS, ...W3_TESTS, ...F5_TESTS, ...W4_TESTS, ...S1_TESTS, ...S2_TESTS, ...S4_TESTS, ...S5B_TESTS].sort());
   // And the local folder holds the log's store and W4's reader; the site-strings check reads both, and any file added beside them.
   assert.deepEqual(readdirSync(path.join(ROOT, "investigation/local")).filter((file) => file.endsWith(".ts")).sort(), ["fs-log-store.ts", "recorded-folder.ts"]);
 });

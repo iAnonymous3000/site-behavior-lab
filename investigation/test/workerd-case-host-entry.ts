@@ -2,6 +2,8 @@ import { AccessKeySet } from "../core/access-token";
 import { sha256Hex } from "../core/canonical-json";
 import { caseIndexObject, caseObject, hostedCasesFrom, type CaseHostObject, type HostEnv, type HostObject } from "../core/case-host";
 import type { Deadlines } from "../core/case-supervision";
+import { runnerCredentialsOver } from "../core/case-runner";
+import type { SlotName } from "../core/case-machine";
 import { bucketObjectStore, sqlHeadStore, type HostBucket, type HostStorage } from "../core/case-host-stores";
 import { viewerRoutes } from "../core/viewer-routes";
 import { handleWorkspaceRequest } from "../core/workspace-gate";
@@ -22,6 +24,12 @@ import { handleWorkspaceRequest } from "../core/workspace-gate";
  * suite binds, so an alarm comes due in under a second. Three more calls of the test's own show
  * the object's deadline marks, its recorded stops and its alarm time, run the alarm's handler as
  * a second delivery would, and empty the marks as a lost write would.
+ *
+ * For the runner suite, three more: one brings every mark not yet flagged due now, so the next run
+ * of the alarm's handler stops a running attempt's runner as its deadline would; one writes a
+ * slot's destroy record, which only a later stage's container destroy writes in production; and
+ * one hands back every row of every table in the object's storage, so a suite can look for a token
+ * in all of it.
  */
 
 const FAULT_KEY = "test-fault/entry-put";
@@ -150,6 +158,19 @@ export class InvestigationCase {
       } catch (error) {
         return Response.json({ ok: false, error: String(error) });
       }
+    }
+    if (call.call === "test-due-now") {
+      // Now, not zero: the alarm the object sets from these marks must be a time the platform takes.
+      sql.exec("UPDATE due_marks SET due_at_ms = ? WHERE flagged_at_ms IS NULL", Date.now()).toArray();
+      return Response.json({ ok: true });
+    }
+    if (call.call === "test-destroy-record") {
+      runnerCredentialsOver(this.storage, Date.now).recordDestroyed((call as { slot?: SlotName }).slot as SlotName);
+      return Response.json({ ok: true });
+    }
+    if (call.call === "test-storage") {
+      const tables = sql.exec("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name").toArray();
+      return Response.json(Object.fromEntries(tables.map(({ name }) => [String(name), sql.exec(`SELECT * FROM "${String(name)}"`).toArray()])));
     }
     if (call.call === "test-clear-marks") {
       sql.exec("DELETE FROM due_marks").toArray();

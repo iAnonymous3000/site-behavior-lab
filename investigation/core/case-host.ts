@@ -47,18 +47,31 @@
 // case with a log, even one with no entry, is never released this way: it is planned instead.
 // Objects a stopped create stored under an abandoned id stay in the bucket, named by nothing.
 //
-// There is no call here that purges or deletes, none that writes a runner's event, a control
-// or a changed configuration, and no runner: stopping one is a seam nothing fills yet.
+// A case object also takes a runner's calls, which carry no assertion: the one that hands an
+// attempt's token over, once, and the one that writes a runner's event with it. Neither has a route
+// in the front Worker, which never sends either. What a token speaks for, and when it stops, is in
+// case-runner.ts, and which events it carries is in case-service.ts. A runner's answer carries the
+// case's head and nothing else of the case: the runner needs the head to write, and nothing the
+// owner wrote. The runner's actor is derived inside the object and never leaves it.
+//
+// Stopping a runner is recorded here, as that attempt's stop record, before the seam a later stage
+// fills with the container's destroy is asked. So a stop revokes the attempt's token even when that
+// seam fails, and a second stop finds the record there and is done. The destroy record is the other
+// record case-runner.ts keeps, which only that later stage writes.
+//
+// There is no call here that purges or deletes, and none that writes a control or a changed
+// configuration.
 
 import { sha256Hex } from "./canonical-json";
 import { configurationKey, isConfigurationIdentity, MAX_TEXT_CHARS, type ConfigurationIdentity } from "./case-events";
 import { MAX_HEAD_CHARS, putEvidence, type LogEvent } from "./case-log";
-import { caseCommandsOver, caseServiceOver, ownerFromAssertion, type AccessAnswer, type AccessWorld, type CaseRefusal, type CaseService, type CaseView, type ClaimAnswer, type CommandAnswer, type EvidenceAnswer, type OpenAnswer } from "./case-service";
+import { caseCommandsOver, caseRunnerOver, caseServiceOver, ownerFromAssertion, type AccessAnswer, type AccessWorld, type CaseRefusal, type CaseService, type CaseView, type ClaimAnswer, type CommandAnswer, type EvidenceAnswer, type OpenAnswer, type RunnerAnswer } from "./case-service";
 import { DEFAULT_DEADLINES, isAlarmStorage, supervisionOver, type Deadlines, type DueMark } from "./case-supervision";
-import { createCase, mintedSlots } from "./case-store";
+import { runnerCredentialsOver, type HandOut, type RunnerFlag } from "./case-runner";
+import { createCase, mintedSlots, openCase } from "./case-store";
 import { hostedStores, isHostBucket, isHostStorage } from "./case-host-stores";
 import { mintAttemptId, mintCaseId } from "./ids";
-import { plannedState, SLOT_NAMES, type SlotName } from "./case-machine";
+import { isRunningPhase, plannedState, SLOT_NAMES, type SlotName } from "./case-machine";
 import { workspaceConfigFrom, type WorkspaceEnv } from "./workspace-config";
 import { jsonResponse } from "./workspace-response";
 
@@ -111,7 +124,7 @@ export type HostObjectWorld = Readonly<{
   now: () => number;
   /** How long each deadline runs. The defaults of case-supervision.ts unless a test sets its own. */
   deadlines?: Deadlines;
-  /** Stops the runner of one slot's attempt. No runner exists yet, so the production entry gives none and nothing is stopped. */
+  /** Stops the runner of one slot's attempt. No container exists yet, so the production entry gives none: the object records the stop and revokes the token, and nothing more is stopped. */
   stopRunner?: (slot: SlotName) => Promise<void>;
 }>;
 
@@ -120,8 +133,13 @@ export type HostObject = (request: Request) => Promise<Response>;
 /** A case's object: its calls, and what its alarm runs. */
 export type CaseHostObject = HostObject & Readonly<{ alarm: () => Promise<void> }>;
 
-/** An open as a hosted case answers it: the case, and the deadline marks an alarm has flagged that its state still wants. */
-export type HostedOpenAnswer = OpenAnswer | Readonly<{ ok: true; case: CaseView; due: readonly DueMark[] }>;
+/**
+ * An open as a hosted case answers it: the case, the deadline marks an alarm has flagged that its
+ * state still wants, and the attempts still running whose runner was cut off for a second request
+ * of its token, each with the reason, so the owner knows a reconcile is due. Once the attempt has
+ * an outcome its flag is no longer shown; the object's storage keeps it.
+ */
+export type HostedOpenAnswer = OpenAnswer | Readonly<{ ok: true; case: CaseView; due: readonly DueMark[]; runnerFlags: readonly RunnerFlag[] }>;
 
 /** What planning or freezing answers: a command's answers, or the field of the plan that is wrong. */
 export type PlanAnswer = CommandAnswer | Readonly<{ ok: false; refusal: string; at: string | null }>;
@@ -191,7 +209,37 @@ type CaseCreateAnswer = Readonly<{ ok: true; case: CaseView }> | AccessAnswer | 
 /** The events the generic command call writes. A plan and a freeze are built here, by their own calls, and never taken ready made. */
 const BUILT_HERE: readonly string[] = ["case-planned", "plan-frozen"];
 
-/** One case's object: the three calls of the case service, the one that makes this case, the owner's commands, and its alarm. */
+/** What a runner's write answers on the wire: the case's head, never the rest of the case. */
+export type RunnerWireAnswer =
+  | Readonly<{ ok: true; head: string; seq: number }>
+  | Readonly<{ ok: false; refusal: string; at: string | null; head: string | null }>;
+
+function runnerWire(answer: RunnerAnswer): RunnerWireAnswer {
+  const view = (answer as { case?: CaseView }).case;
+  const head = view === undefined ? null : view.head;
+  if (answer.ok) return { ok: true, head: answer.case.head, seq: answer.case.seq };
+  return { ok: false, refusal: answer.refusal, at: "at" in answer ? answer.at : null, head };
+}
+
+/** The fields each of a runner's calls takes, and no others: a call that names an actor, an attempt or anything else besides is refused whole. */
+const RUNNER_CALL_FIELDS: Readonly<Record<string, readonly string[]>> = { "runner-token": ["attemptId", "call", "caseId"], runner: ["call", "caseId", "event", "token", "viewedHead"] };
+
+function hasRunnerFields(call: Call): boolean {
+  const keys = Object.keys(call).sort();
+  const wanted = RUNNER_CALL_FIELDS[call.call];
+  return keys.length === wanted.length && keys.every((key, index) => key === wanted[index]);
+}
+
+/**
+ * What handing a token over answers. Only the first answer for an attempt carries one, with the
+ * case's head and sequence as the object opened it, so the runner's first write names a head it
+ * was given rather than one it learned from a conflict. Nothing else of the case goes with it.
+ */
+export type HandOutAnswer = Readonly<{ ok: true; token: string; head: string; seq: number }> | Extract<HandOut, { ok: false }> | Readonly<{ ok: false; refusal: "no-such-attempt" }>;
+
+const NO_SUCH_ATTEMPT = Object.freeze({ ok: false, refusal: "no-such-attempt" } as const);
+
+/** One case's object: the three calls of the case service, the one that makes this case, the owner's commands, a runner's calls, and its alarm. */
 export function caseObject(world: HostObjectWorld): CaseHostObject {
   const config = workspaceConfigFrom(world.env);
   const { name, storage } = world;
@@ -225,7 +273,36 @@ export function caseObject(world: HostObjectWorld): CaseHostObject {
   const serviceWorld = { ...access, storesFor: (caseId: string) => (caseId === name ? stores : null) };
   const service = caseServiceOver(serviceWorld);
   const commands = caseCommandsOver(serviceWorld);
-  const supervision = supervisionOver({ storage, now: world.now, deadlines: world.deadlines ?? DEFAULT_DEADLINES, stopRunner: world.stopRunner ?? (async () => {}) });
+  const credentials = runnerCredentialsOver(own, world.now);
+  const runner = caseRunnerOver({ ...serviceWorld, holderOf: credentials.holderOf });
+  const stopRunner = async (slot: SlotName): Promise<void> => {
+    // Recorded first, so the token is revoked whatever the seam after it does.
+    credentials.recordStop(slot);
+    await (world.stopRunner ?? (async () => {}))(slot);
+  };
+  const supervision = supervisionOver({ storage, now: world.now, deadlines: world.deadlines ?? DEFAULT_DEADLINES, stopRunner });
+
+  /** The token of an attempt of this case that is running, handed over once. */
+  async function handOut(caseId: unknown, attemptId: unknown): Promise<HandOutAnswer> {
+    if (caseId !== name) return NO_SUCH_ATTEMPT;
+    const opened = await openCase(stores, named);
+    if (!opened.ok) return NO_SUCH_ATTEMPT;
+    const attempt = opened.case.state?.machine.attempts.find((candidate) => candidate.attemptId === attemptId);
+    if (attempt === undefined || !isRunningPhase(attempt.phase)) return NO_SUCH_ATTEMPT;
+    const answer = await credentials.handOut(attempt.slot, attempt.attemptId);
+    // Handing a token over writes nothing to the log, so the head opened above is still the head.
+    if (answer.ok) return { ok: true, token: answer.token, head: opened.case.head, seq: opened.case.seq };
+    if (answer.refusal === "token-already-handed") {
+      // The flag and the revocation are already recorded. The stop is asked for once here; if it
+      // fails, the attempt's deadline asks for it again through the alarm.
+      try {
+        await stopRunner(attempt.slot);
+      } catch {
+        // The refusal stands either way.
+      }
+    }
+    return answer;
+  }
 
   /** Bring the deadline marks to the state an answer carries, when it carries one. */
   async function synced<A>(answer: A): Promise<A> {
@@ -236,7 +313,11 @@ export function caseObject(world: HostObjectWorld): CaseHostObject {
 
   async function open(assertion: string, caseId: string): Promise<HostedOpenAnswer> {
     const answer = await synced(await service.open(assertion, caseId));
-    return answer.ok ? { ...answer, due: supervision.flagged(answer.case.state?.machine ?? null) } : answer;
+    if (!answer.ok) return answer;
+    const machine = answer.case.state?.machine ?? null;
+    // A flag is shown while its attempt still reads as running, which is while a reconcile is due for it.
+    const runnerFlags = credentials.flags().filter(({ slot }) => machine?.attempts.some((attempt) => attempt.slot === slot && isRunningPhase(attempt.phase)) === true);
+    return { ...answer, due: supervision.flagged(machine), runnerFlags };
   }
 
   /** One of the owner's commands, with an attempt's marks written ahead of the command that starts it. */
@@ -320,6 +401,12 @@ export function caseObject(world: HostObjectWorld): CaseHostObject {
         return jsonResponse(200, await freeze(assertion, caseId, viewedHead, call.text));
       case "abandon":
         return jsonResponse(200, await abandon(assertion, caseId));
+      case "runner-token":
+        if (!hasRunnerFields(call)) return jsonResponse(400, MALFORMED_CALL);
+        return jsonResponse(200, await handOut(caseId, call.attemptId));
+      case "runner":
+        if (!hasRunnerFields(call)) return jsonResponse(400, MALFORMED_CALL);
+        return jsonResponse(200, runnerWire(await synced(await runner.write(call.token as string, caseId, viewedHead, call.event as LogEvent))));
       default:
         return jsonResponse(400, MALFORMED_CALL);
     }
