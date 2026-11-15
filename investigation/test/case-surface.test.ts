@@ -604,7 +604,7 @@ const S1_TESTS = ["case-directory.test.ts", "case-host-faults-workerd.test.ts", 
 const S2_TESTS = ["case-alarm-workerd.test.ts", "case-commands-workerd.test.ts", "case-commands.test.ts"];
 
 /** S4's, the 6.8.0 adapter on recorded output and the runner folder's boundary. */
-const S4_TESTS = ["recorder-shapes-6-8-0.test.ts"];
+const S4_TESTS = ["recorder-shapes-6-8-0.test.ts", "runner-boundaries.test.ts"];
 
 test("the lists of new test files are every test file W2, W3, F5, W4, S1, S2 and S4 added beside the ones before them", () => {
   const earlier = ["access-token.test.ts", "actor.test.ts", "canonical-json.test.ts", "case-log-walk.test.ts", "case-log-workerd.test.ts", "case-log.test.ts", "deployment-config.test.ts", "fs-kill-child.ts", "fs-log-store-kill.test.ts", "fs-log-store.test.ts", "log-fixture.ts", "memory-log-store.ts", "token-fixture.ts", "workerd-case-log-entry.ts", "workspace-boundaries.test.ts", "workspace-config.test.ts", "workspace-gate.test.ts"];
