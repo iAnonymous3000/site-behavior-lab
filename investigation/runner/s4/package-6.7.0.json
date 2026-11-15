@@ -1,9 +1,0 @@
-{
-  "name": "sbl-s4-runner",
-  "version": "0.0.0",
-  "private": true,
-  "description": "S4 fixture runner, candidate rea-agents 6.7.0. Not a selection.",
-  "dependencies": {
-    "rea-agents": "6.7.0"
-  }
-}

@@ -421,6 +421,13 @@ public API or a 1.0 release.
 
 ### Removed
 
+- The recorder's 6.7.0 fallback package files in the runner folder,
+  `investigation/runner/s4/package-6.7.0.json` and its lock. The owner chose
+  6.8.0, so the folder now holds the 6.8.0 lock only and can no longer build
+  a 6.7.0 image. The recorded 6.7.0 runs remain, in
+  `investigation/test/recorded/rea-6.7.0/`, and the adapter tests still read
+  them. No scanner code, scan or report changes.
+
 - The second social card route, `twitter-image`, at the site root and for
   each report. It published the same bytes as `opengraph-image`: 1,030 files
   and 100.2 MiB of the 641.0 MiB static export. Each page's `twitter:image`

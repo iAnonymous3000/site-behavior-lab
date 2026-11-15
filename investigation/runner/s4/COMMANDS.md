@@ -13,7 +13,9 @@ image is built by hand from the approved downloads, which are not in the reposit
 - Image ids, last build: 6.8.0 `096ba8bb3d48`, 6.7.0 `abed75d588e9` (base `6e3fb709`).
 
 
-Recorder: rea-agents 6.8.0 (lead) and 6.7.0 (fallback), one image each.
+Recorder: rea-agents 6.8.0, one image. The 6.7.0 fallback was built and run as well (above).
+The 6.7.0 package files were removed on 2026-11-15, and the recorded 6.7.0 runs remain, in
+`investigation/test/recorded/rea-6.7.0/`.
 Browser: the base's `chromium_headless_shell-1254`, Chrome for Testing 158.0.8127.18.
 Machine: Docker Desktop VM, linux/arm64, 10 CPUs, 7.7 GiB.
 
@@ -44,9 +46,8 @@ docker buildx build --builder desktop-linux --network=none --pull=false \
   -t sbl-s4-runner:6.8.0 --load "$CTX"
 ```
 
-The same with `REA_VERSION=6.7.0` and tag `sbl-s4-runner:6.7.0`. The build context is `$CTX` only (Dockerfile,
-two package files per candidate, `harness/`), never the repository root. The downloads arrive read-only as the
-named context `dl` and are bind-mounted into two RUN steps; they never become a layer.
+The build context is `$CTX` only (Dockerfile, the two package files, `harness/`), never the repository root.
+The downloads arrive read-only as the named context `dl` and are bind-mounted into two RUN steps; they never become a layer.
 
 The build stops, with no retry and no change to the approved list, if: the base tag cannot be used without a
 registry; the Node archive's SHA-256 or its `bin/node` SHA-256 differs; `npm cache add` or `npm ci --offline`
@@ -73,7 +74,6 @@ docker run --rm --name s4-A-680 \
 ```
 
 Wall clock: the in-image 30-minute kill applies; in a second shell, `sleep 600; docker kill s4-A-680` (phase A needs seconds; ten minutes is the kill).
-Same for 6.7.0 with `A-6.7.0`, `s4-A-670`.
 
 Then, before phase B, `plan.json` is written from the schemas and reviewed, and it is mounted read-only.
 
@@ -91,8 +91,7 @@ docker run --rm --name s4-B-680 \
   sbl-s4-runner:6.8.0 fixtures
 ```
 
-Wall clock: the image's ENTRYPOINT is `timeout -s KILL 1800`, so the run kills itself after 30 minutes; `sleep 1900; docker kill s4-B-680` in a second shell is a second limit. Then 6.7.0 the same way, if the
-fallback run is wanted.
+Wall clock: the image's ENTRYPOINT is `timeout -s KILL 1800`, so the run kills itself after 30 minutes; `sleep 1900; docker kill s4-B-680` in a second shell is a second limit.
 
 Mounts are exactly: the plan file read-only, the new output folder. No repository, no home folder, no Docker
 socket, no `-e` or `--env-file`. The image's ENV and the driver's literal environment are the whole environment.
