@@ -49,8 +49,6 @@ import {
 import { BUILD_COMMIT_ENV, PUBLIC_R2_REPORTS_ENV } from "./runtime-scan-report";
 import { SCAN_REPORT_SCHEMA_VERSION, type ScanRequestPayload, type ScanResult } from "./types";
 
-// Reads through the typed accessor, narrowing to v1 exactly as production
-// render surfaces do (the old readScanReport wrapper had no production callers).
 async function readV1Report(id: string) {
   const result = await readStoredScanReportById(id);
   return result.outcome === "found" && result.stored.schemaVersion === 1 ? result.stored.report : null;

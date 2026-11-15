@@ -103,12 +103,6 @@ test("the About page keeps universal capture and retention claims inside the doc
 });
 
 test("the About page is reachable, and is not excluded from the static export", () => {
-  // This used to grep trust-links.tsx for a literal href, which is the one
-  // surface that had the link. The homepage and report footers kept their own
-  // hand-written lists and omitted About entirely, so "a page nobody can
-  // navigate to is not an About page" passed while the front door could not
-  // reach it. Assert membership in the shared list instead; every surface
-  // renders that list, and site-navigation.test.ts holds them to it.
   assert.ok(
     SITE_TRUST_LINKS.some((link) => link.href === "/about/"),
     "a page nobody can navigate to is not an About page"

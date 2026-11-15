@@ -90,8 +90,6 @@ afterEach(async () => {
   await rm(reportDir, { recursive: true, force: true });
 });
 
-// The old v1-narrowing readScanReport wrapper is gone (no production callers);
-// these tests read through the typed accessor and narrow the same way.
 async function readV1Report(id: string) {
   const result = await readStoredScanReportById(id);
   return result.outcome === "found" && result.stored.schemaVersion === 1 ? result.stored.report : null;
