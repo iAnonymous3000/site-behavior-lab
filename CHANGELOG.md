@@ -565,6 +565,23 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- A dedicated worker the browser reported but the scanner never reached can
+  no longer be hidden by a worker of another address that the scanner reached
+  but the browser did not report (fingerprint-observer@15,
+  node-detectors-v26). The scanner now pairs the two by each worker's script
+  address, where through @14 it compared one count with the other, so such a
+  pair read complete; a visit with one now reads incomplete, with the worker
+  line a report already carries for an unread realm. On loopback fixture
+  pages the two addresses were the same string on each worker kind where
+  both sides saw the worker, `blob:` and `data:` workers and workers in
+  frames included, so such a visit pairs every worker as before. What stays open: two workers
+  from the same address are paired by number only, so an extra worker from
+  that address the browser did not report can still stand in for one the
+  scanner never reached; a worker neither side saw has nothing to pair; and
+  the GPC arm's own count of unattached workers still compares totals. No
+  public string, normalization or methodology moves. Published reports are
+  unchanged and are not read again; reports made from node-detectors-v26 on
+  are a new corpus cohort.
 - The limitations page said three things about worker evidence that the
   formal verification register's open findings contradict. It said a
   dedicated worker the browser reported and the scanner never reached
