@@ -1,0 +1,133 @@
+{
+  "capture_path": "/work/results/05-budget-inspect.stdout.json",
+  "capture_sha256": "26b3168c29b22244bc6f5b9339c559aef27afceeb44f1728f45bb39ef9ed8318",
+  "capture_kind": "page-inspection",
+  "source_evidence_id": "ev_164ce343ed9a3f8787ef9ba7646f73e1ce45c7e397f091d9cd00c7c1d0aa2ddf",
+  "capture_completeness": {
+    "status": "truncated",
+    "conditions": [
+      "attach_limited",
+      "policy_filtered",
+      "truncated"
+    ],
+    "policy_filtered_sections": [
+      "accessibility",
+      "console_text",
+      "json_body_shapes",
+      "storage_keys",
+      "websocket_shapes"
+    ],
+    "attach_limited_sections": [
+      "console_events",
+      "metadata",
+      "network_requests",
+      "websocket_connections",
+      "websocket_frames",
+      "workers"
+    ],
+    "truncated_sections": [
+      "script_sources"
+    ],
+    "unavailable_sections": [],
+    "excluded": [
+      {
+        "section": "accessibility",
+        "reason": "not_approved",
+        "count": 1
+      },
+      {
+        "section": "console_text",
+        "reason": "not_approved",
+        "count": null
+      },
+      {
+        "section": "json_body_shapes",
+        "reason": "not_approved",
+        "count": null
+      },
+      {
+        "section": "script_sources",
+        "reason": "resource_budget_exhausted",
+        "count": 1
+      },
+      {
+        "section": "storage_keys",
+        "reason": "not_approved",
+        "count": null
+      },
+      {
+        "section": "websocket_shapes",
+        "reason": "not_approved",
+        "count": null
+      }
+    ],
+    "dropped_events": {
+      "scripts": 0,
+      "network_requests": 0,
+      "console_events": 0,
+      "websocket_connections": 0,
+      "websocket_frames": 0,
+      "webmcp_tools": 0,
+      "timeline_events": 0,
+      "total": 0
+    }
+  },
+  "output_directory": "/work/results/06-budget-export",
+  "analysis_input": {
+    "input_path": "/work/results/06-budget-export/files",
+    "format": "directory"
+  },
+  "scripts": [
+    {
+      "source": {
+        "kind": "page-script",
+        "script_key": "scr_40a2c42eb757b74d92dc3e1cbd1f1e941222fce583501763e95f3d711080387f",
+        "frame_id": "B34B1F315663FE16CA723407DE88CA62",
+        "is_module": false,
+        "language": "JavaScript",
+        "source_map_url": null
+      },
+      "url": "http://127.0.0.1:8081/source-budget.html",
+      "content": {
+        "state": "exported",
+        "relative_path": "isolated/source-1-7e644fc5192f209211d034de43f7f4f4c9a9eceb5ddfbcc5c661394be2f5c89e.js",
+        "layout": "isolated",
+        "layout_reason": "URL path is not an ordinary portable JavaScript module path.",
+        "sha256": "d162c854bb45b9f04fc1a9fa3fe57e08fa0b024cdedbdeb749d9fefcb55eb447",
+        "bytes": 44,
+        "media_type": "text/javascript",
+        "redacted": null,
+        "representation": "debugger-source-utf8"
+      }
+    },
+    {
+      "source": {
+        "kind": "page-script",
+        "script_key": "scr_970eb331df89a3579a019db3af8bff157aef9b96bae373e1f1cf3be316025a72",
+        "frame_id": "B34B1F315663FE16CA723407DE88CA62",
+        "is_module": false,
+        "language": "JavaScript",
+        "source_map_url": null
+      },
+      "url": "http://127.0.0.1:8081/big-script.js",
+      "content": {
+        "state": "unavailable",
+        "reason": "source-not-included",
+        "message": "script source was omitted because the aggregate 33554432-byte (32 MiB) source budget was exhausted. That source budget stays fixed. This release has no runtime override. command_timeout_ms does not raise it."
+      }
+    }
+  ],
+  "limitations": [
+    "Observation starts when REA attaches; prior network and console activity is unavailable.",
+    "Worker targets are a final inventory snapshot, not worker-session observation. Their attached flag describes any debugging client; this page-session collector does not observe worker network, console, or script events, and short-lived workers may be absent from the snapshot.",
+    "Raw network headers, bodies, cookies, storage values, console objects, and WebSocket payloads are never retained; explicitly requested primitive console text is retained verbatim, while payload captures retain value-free shapes.",
+    "Source maps are reported only as declarative URLs and are not fetched.",
+    "URL-less scripts and console events without an allowed source URL are excluded because their origin cannot be proven.",
+    "CDP discovery omitted the target attachment state; attached is reported as unknown.",
+    "Only script bytes retained in this capture are exported. Sources are not refetched or executed, and a response or Debugger source does not prove execution.",
+    "Ordinary unambiguous URL paths preserve relative module layouts by origin, including case-distinct spellings. Query variants, exact path collisions, file/directory prefixes, inline sources, and unrepresentable paths are isolated. A case-distinct pair is isolated only when the destination filesystem cannot store both spellings; the record names that pair. Browser module relationships of isolated paths remain unknown.",
+    "Local JavaScript analysis does not implement browser import maps, root-relative URL resolution, remote URL loading, or browser runtime behavior. It may strip import queries and fragments; isolated variants are not canonical targets.",
+    "Source-map declarations are retained as metadata. No source maps or missing dependencies are fetched or reconstructed.",
+    "Scenario response bytes preserve the output of Playwright's Response.body() API; any source-body provenance caveat from the capture is retained in this manifest. Debugger sources are the exposed text encoded as UTF-8. Redacted bytes are exported exactly as retained, and may no longer parse as JavaScript."
+  ]
+}

@@ -28,6 +28,7 @@ import * as importedIds from "../core/imported-ids";
 import * as purge from "../core/purge";
 import * as readings from "../core/readings";
 import * as recorderShapes from "../core/recorder-shapes";
+import * as recorderShapes680 from "../core/recorder-shapes-6-8-0";
 import * as sufficiency from "../core/sufficiency";
 import * as summaryTier from "../core/summary-tier";
 import * as trialLayout from "../core/trial-layout";
@@ -74,6 +75,7 @@ const EXPORTS: Readonly<Record<string, readonly string[]>> = {
   "purge.ts": ["purgeStep", "retentionTier"],
   "readings.ts": ["COMPLETENESS_LIMITS", "MAX_TIME_MS", "MAX_UNCERTAINTY_MS", "orderOf", "readExecutionJoin", "readObservation", "stackToScriptPosition"],
   "recorder-shapes.ts": ["END_REASONS", "NONSTANDARD_METHOD", "PROVENANCE_PATH", "RECORDER", "RECORDER_LIMITATIONS", "RECORDER_SHAPES", "checkEvidenceId", "decodeJson", "isCount", "isInsidePath", "isPlain", "isShapeRefusal", "mirroredFolder", "readCallRecord", "readInspectOutput", "readObserveOutput", "readProvenance", "readScriptManifest", "recorderIdentityOf", "shapeRefusal"],
+  "recorder-shapes-6-8-0.ts": ["FAILURE_OUTCOMES", "PROVENANCE_PATH_6_8_0", "RECORDER_6_8_0", "RECORDER_LIMITATIONS_6_8_0", "readInspectOutput680", "readObserveOutput680", "readProvenance680", "readRecorderFailure", "recorderIdentity680"],
   "sufficiency.ts": ["EVIDENCE_KINDS", "KIND_MEANINGS", "assessSufficiency"],
   "summary-tier.ts": ["isAttemptSummary", "projectAttemptSummary"],
   "trial-layout.ts": ["TRIAL_LAYOUT", "surveyTrialRun", "trialPathNames", "trialPathsNeeded"],
@@ -102,6 +104,7 @@ const MODULES: Readonly<Record<string, object>> = {
   "purge.ts": purge,
   "readings.ts": readings,
   "recorder-shapes.ts": recorderShapes,
+  "recorder-shapes-6-8-0.ts": recorderShapes680,
   "sufficiency.ts": sufficiency,
   "summary-tier.ts": summaryTier,
   "trial-layout.ts": trialLayout,
@@ -600,10 +603,13 @@ const S1_TESTS = ["case-directory.test.ts", "case-host-faults-workerd.test.ts", 
 /** S2's, the owner's commands and the alarm that watches a case's deadlines. */
 const S2_TESTS = ["case-alarm-workerd.test.ts", "case-commands-workerd.test.ts", "case-commands.test.ts"];
 
-test("the lists of new test files are every test file W2, W3, F5, W4, S1 and S2 added beside the ones before them", () => {
+/** S4's, the 6.8.0 adapter on recorded output and the runner folder's boundary. */
+const S4_TESTS = ["recorder-shapes-6-8-0.test.ts"];
+
+test("the lists of new test files are every test file W2, W3, F5, W4, S1, S2 and S4 added beside the ones before them", () => {
   const earlier = ["access-token.test.ts", "actor.test.ts", "canonical-json.test.ts", "case-log-walk.test.ts", "case-log-workerd.test.ts", "case-log.test.ts", "deployment-config.test.ts", "fs-kill-child.ts", "fs-log-store-kill.test.ts", "fs-log-store.test.ts", "log-fixture.ts", "memory-log-store.ts", "token-fixture.ts", "workerd-case-log-entry.ts", "workspace-boundaries.test.ts", "workspace-config.test.ts", "workspace-gate.test.ts"];
   const present = readdirSync(path.join(ROOT, TEST)).filter((file) => file.endsWith(".ts")).sort();
-  assert.deepEqual(present, [...earlier, ...W2_TESTS, ...W3_TESTS, ...F5_TESTS, ...W4_TESTS, ...S1_TESTS, ...S2_TESTS].sort());
+  assert.deepEqual(present, [...earlier, ...W2_TESTS, ...W3_TESTS, ...F5_TESTS, ...W4_TESTS, ...S1_TESTS, ...S2_TESTS, ...S4_TESTS].sort());
   // And the local folder holds the log's store and W4's reader; the site-strings check reads both, and any file added beside them.
   assert.deepEqual(readdirSync(path.join(ROOT, "investigation/local")).filter((file) => file.endsWith(".ts")).sort(), ["fs-log-store.ts", "recorded-folder.ts"]);
 });

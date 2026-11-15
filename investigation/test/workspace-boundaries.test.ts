@@ -151,7 +151,8 @@ test("every core module is walked, including the summary tier the entry does not
     "investigation/core/recorder-shapes.ts",
     "investigation/core/capture-adapter.ts",
     "investigation/core/trial-layout.ts",
-    "investigation/core/sufficiency.ts"
+    "investigation/core/sufficiency.ts",
+    "investigation/core/recorder-shapes-6-8-0.ts"
   ]) {
     assert.ok(graph.has(file), file);
   }

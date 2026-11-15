@@ -41,6 +41,12 @@
 
 import { sha256Hex } from "./canonical-json";
 
+/** A recorder release an adapter pins: its name, release, the commit its signed build provenance names, and its package's sha512. */
+export type RecorderPin = Readonly<{ name: string; release: string; commit: string; integrity: string }>;
+
+/** A predicate's limitation sentences, each mapped to its identifier. */
+export type LimitationTable = Readonly<Record<string, Readonly<Record<string, string>>>>;
+
 export const RECORDER = {
   name: "REA",
   release: "6.5.0",
@@ -103,7 +109,7 @@ export const RECORDER_SHAPES = {
 } as const;
 
 /** The limitation sentences 6.5.0 writes into these outputs, each a literal in its package, by identifier. */
-export const RECORDER_LIMITATIONS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+export const RECORDER_LIMITATIONS: LimitationTable = {
   "rea.observe-web-execution": {
     "A detailed-coverage request does not guarantee block granularity for already compiled functions. When is_block_coverage is false, branch execution is unknown; REA preserves the function-only producer ranges.": "block-granularity-not-guaranteed",
     "Artifact identity is unavailable for this observation.": "artifact-identity-unavailable",
@@ -184,8 +190,8 @@ export function mirroredFolder(path: string): string | null {
 }
 
 /** The limitation identifiers an envelope's sentences stand for, or the refusal for one this does not know. */
-function limitationsOf(file: string, predicate: string, value: unknown): readonly string[] | ShapeRefusal {
-  const known = RECORDER_LIMITATIONS[predicate];
+function limitationsOf(file: string, predicate: string, value: unknown, table: LimitationTable): readonly string[] | ShapeRefusal {
+  const known = table[predicate];
   if (!Array.isArray(value) || known === undefined) return shapeRefusal(file, "limitations");
   const ids: string[] = [];
   for (const sentence of value) {
@@ -218,7 +224,7 @@ function isEnvironment(value: unknown): boolean {
 
 type Envelope = Readonly<{ result: Record<string, unknown>; limitations: readonly string[] }>;
 
-function envelope(file: string, value: unknown, predicate: string, operation: string): Envelope | ShapeRefusal {
+function envelope(file: string, value: unknown, predicate: string, operation: string, table: LimitationTable): Envelope | ShapeRefusal {
   if (!isPlain(value)) return shapeRefusal(file, "envelope");
   const keys = Object.keys(value);
   if (keys.length !== ENVELOPE_KEYS.length || !keys.every((key) => ENVELOPE_KEYS.includes(key))) return shapeRefusal(file, "envelope keys");
@@ -231,7 +237,7 @@ function envelope(file: string, value: unknown, predicate: string, operation: st
   if (value.operation !== operation) return shapeRefusal(file, "operation");
   if (typeof value.evidence_id !== "string" || !/^ev_[0-9a-f]{64}$/.test(value.evidence_id)) return shapeRefusal(file, "evidence_id");
   if (!isPlain(value.normalized_result)) return shapeRefusal(file, "normalized_result");
-  const limitations = limitationsOf(file, predicate, value.limitations);
+  const limitations = limitationsOf(file, predicate, value.limitations, table);
   if (isShapeRefusal(limitations)) return limitations;
   return { result: value.normalized_result, limitations };
 }
@@ -338,10 +344,10 @@ function coveredFunctions(file: string, functions: unknown): readonly CoveredFun
   return out;
 }
 
-/** An observe-web-execution output. */
-export function readObserveOutput(file: string, value: unknown): ObserveView | ShapeRefusal {
+/** An observe-web-execution output. A later release that writes the same shapes passes its own sentence table. */
+export function readObserveOutput(file: string, value: unknown, table: LimitationTable = RECORDER_LIMITATIONS): ObserveView | ShapeRefusal {
   if (isShapeRefusal(value)) return value;
-  const read = envelope(file, value, "rea.observe-web-execution", "observe_web_execution");
+  const read = envelope(file, value, "rea.observe-web-execution", "observe_web_execution", table);
   if (isShapeRefusal(read)) return read;
   const { result } = read;
   const { window, coverage, instrumentation, script_inventory: inventory } = result;
@@ -418,10 +424,10 @@ export type InspectView = Readonly<{
   limitations: readonly string[];
 }>;
 
-/** An inspect-web-page output. */
-export function readInspectOutput(file: string, value: unknown): InspectView | ShapeRefusal {
+/** An inspect-web-page output. A later release that writes the same shapes passes its own sentence table. */
+export function readInspectOutput(file: string, value: unknown, table: LimitationTable = RECORDER_LIMITATIONS): InspectView | ShapeRefusal {
   if (isShapeRefusal(value)) return value;
-  const read = envelope(file, value, "rea.web-page-inspection", "inspect_web_page");
+  const read = envelope(file, value, "rea.web-page-inspection", "inspect_web_page", table);
   if (isShapeRefusal(read)) return read;
   const { scripts, frames, completeness } = read.result;
   if (!isPlain(scripts) || !Array.isArray(scripts.items)) return shapeRefusal(file, "scripts.items");
@@ -496,10 +502,10 @@ function decodedBase64(text: string): Uint8Array | null {
  */
 export type Provenance = Readonly<{ exactStatements: boolean; namesPackage: boolean; namesCommit: boolean }>;
 
-export function readProvenance(file: string, value: unknown): Provenance | ShapeRefusal {
+export function readProvenance(file: string, value: unknown, recorder: RecorderPin = RECORDER): Provenance | ShapeRefusal {
   if (isShapeRefusal(value)) return value;
   if (!isPlain(value) || !Array.isArray(value.attestations)) return shapeRefusal(file, "attestations");
-  const expectedDigest = RECORDER.integrity.replace(/^sha512:/, "");
+  const expectedDigest = recorder.integrity.replace(/^sha512:/, "");
   const types: string[] = [];
   let unreadable = 0;
   let namesPackage = false;
@@ -515,10 +521,10 @@ export function readProvenance(file: string, value: unknown): Provenance | Shape
     }
     types.push(payload.predicateType);
     if (payload.predicateType !== PROVENANCE_PREDICATE || !Array.isArray(payload.subject)) continue;
-    const subjectNames = payload.subject.some((subject) => isPlain(subject) && subject.name === `pkg:npm/rea-agents@${RECORDER.release}` && isPlain(subject.digest) && subject.digest.sha512 === expectedDigest);
+    const subjectNames = payload.subject.some((subject) => isPlain(subject) && subject.name === `pkg:npm/rea-agents@${recorder.release}` && isPlain(subject.digest) && subject.digest.sha512 === expectedDigest);
     const definition = isPlain(payload.predicate) && isPlain(payload.predicate.buildDefinition) ? payload.predicate.buildDefinition : null;
     const dependencies = isPlain(definition) && Array.isArray(definition.resolvedDependencies) ? definition.resolvedDependencies : [];
-    const commitNamed = dependencies.some((dependency) => isPlain(dependency) && isPlain(dependency.digest) && dependency.digest.gitCommit === RECORDER.commit);
+    const commitNamed = dependencies.some((dependency) => isPlain(dependency) && isPlain(dependency.digest) && dependency.digest.gitCommit === recorder.commit);
     // The commit and the package digest are taken from the same statement, never one from each.
     if (subjectNames) namesPackage = true;
     if (subjectNames && commitNamed) namesCommit = true;
@@ -543,18 +549,20 @@ export type RecorderIdentity =
  * read carried the provider and predicate 6.5.0 writes; a refused output makes the identity
  * incompatible. The reason says which basis, and on the attested basis that nothing was verified.
  */
-export function recorderIdentityOf(input: Readonly<{ provenance: Provenance | ShapeRefusal | null; declaredRelease: string | null; outputsRead: number; outputRefusal: ShapeRefusal | null }>): RecorderIdentity {
+export function recorderIdentityOf(input: Readonly<{ provenance: Provenance | ShapeRefusal | null; declaredRelease: string | null; outputsRead: number; outputRefusal: ShapeRefusal | null; recorder?: RecorderPin; provenancePath?: string }>): RecorderIdentity {
   const { provenance, declaredRelease, outputsRead, outputRefusal } = input;
+  const recorder = input.recorder ?? RECORDER;
+  const provenancePath = input.provenancePath ?? PROVENANCE_PATH;
   if (outputRefusal !== null) return { status: "incompatible", basis: null, reason: `${outputRefusal.refusal}: ${outputRefusal.at}` };
-  if (declaredRelease !== null && declaredRelease !== RECORDER.release) return { status: "incompatible", basis: null, reason: "the seed names a recorder release this adapter does not pin" };
+  if (declaredRelease !== null && declaredRelease !== recorder.release) return { status: "incompatible", basis: null, reason: "the seed names a recorder release this adapter does not pin" };
   if (provenance !== null && isShapeRefusal(provenance)) return { status: provenance.refusal === "missing-file" ? "missing" : "incompatible", basis: null, reason: `${provenance.refusal}: ${provenance.at}` };
-  if (provenance !== null && !provenance.exactStatements) return { status: "incompatible", basis: null, reason: "the provenance record does not hold exactly one statement of each type 6.5.0's attestation carries" };
+  if (provenance !== null && !provenance.exactStatements) return { status: "incompatible", basis: null, reason: `the provenance record does not hold exactly one statement of each type ${recorder.release}'s attestation carries` };
   if (provenance !== null && !provenance.namesPackage) return { status: "incompatible", basis: null, reason: "the provenance statement does not name the pinned package by its digest" };
   if (provenance !== null && !provenance.namesCommit) return { status: "incompatible", basis: null, reason: "the provenance statement that names the package does not name the pinned commit" };
   if (provenance === null && declaredRelease === null) return { status: "missing", basis: null, reason: "no provenance record is in the run and the seed names no recorder release" };
   if (outputsRead === 0) return { status: "missing", basis: null, reason: "no recorder output was read" };
   const each = `each of the ${outputsRead} recorder outputs read carries the provider and predicate that release writes`;
   return provenance === null
-    ? { status: "present", basis: "declared", reason: `declared: the seed names REA ${RECORDER.release} and no provenance record is in the run, and ${each}` }
-    : { status: "present", basis: "attested", reason: `attested: a provenance statement at ${PROVENANCE_PATH} names REA ${RECORDER.release}, its commit and its sha512, and its signatures are not verified; and ${each}` };
+    ? { status: "present", basis: "declared", reason: `declared: the seed names REA ${recorder.release} and no provenance record is in the run, and ${each}` }
+    : { status: "present", basis: "attested", reason: `attested: a provenance statement at ${provenancePath} names REA ${recorder.release}, its commit and its sha512, and its signatures are not verified; and ${each}` };
 }
