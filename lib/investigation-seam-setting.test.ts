@@ -58,6 +58,9 @@ import type { ScanResult } from "./types";
  *    names. TIMING_FIELDS is held to the fields that two ordinary visits of
  *    the same fixture themselves differ in, so the comparison is blind to
  *    exactly those fields and to nothing else.
+ *    This holds for a page that reads nothing a seam's script defines. The
+ *    limit is held too: on READS_SEAM_PAGE, which does read one, the seam
+ *    visit records the page's different request and nothing else differs.
  * 4. The mark: a real seam visit's result, its measurement and their copies
  *    are refused by each publishing step docs/runtime-boundaries.md lists, and
  *    each refusal names its own step, so a step whose own check is gone and
@@ -112,6 +115,12 @@ const INNER = `<!doctype html><title>Inner</title><p>Inner frame.</p>
 
 const DEEP = `<!doctype html><title>Deep</title><p>Deep frame.</p>`;
 
+// The one page that does read what a seam's script defines, for the limit
+// property 3 does not cover: its request names what it found.
+const READS_SEAM_PAGE = `<!doctype html><title>Seam-reading fixture</title>
+<script>new Image().src = "http://static.example.com/saw.png?global=" + typeof window.__seamS3Log;</script>`;
+const READS_SEAM_URL = "http://www.example.com/reads-seam";
+
 // A stand-in for a capture's API logger: it notes what the scanner had
 // installed when it ran, then wraps one canvas method and logs each call.
 const LOGGER_SCRIPT = `(function () {
@@ -161,6 +170,7 @@ before(async () => {
       response.end(body);
     };
     if (host === "www.example.com" && where === "/page") return html(PAGE);
+    if (host === "www.example.com" && where === "/reads-seam") return html(READS_SEAM_PAGE);
     if (host === "frame.example.net") return html(INNER);
     if (host === "deep.example.org") return html(DEEP);
     if (host === "cdn.example.org") {
@@ -187,8 +197,8 @@ after(async () => {
 
 const PAYLOAD = { url: "http://www.example.com/page", device: "desktop" as const, gpcEnabled: false, consentMode: "observe" as const };
 
-function visit(extra: Partial<ScanSiteOptions> = {}, gpcEnabled = false): Promise<NodeScanMeasurementEnvelope> {
-  return scanSiteWithMeasurement({ ...PAYLOAD, gpcEnabled }, {
+function visit(extra: Partial<ScanSiteOptions> = {}, gpcEnabled = false, url = PAYLOAD.url): Promise<NodeScanMeasurementEnvelope> {
+  return scanSiteWithMeasurement({ ...PAYLOAD, gpcEnabled, url }, {
     publicUrlAlreadyVerified: true,
     verifyPublicUrl: async () => undefined,
     resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
@@ -500,6 +510,24 @@ test("S3 isolation: a seam visit whose hook throws leaves the next ordinary visi
     assert.equal(isSeamVisit(next), false, hook);
     assert.deepEqual(beyondTiming(before, next), [], `the ordinary visit after a throwing ${hook} differs`);
   }
+});
+
+test("S3 isolation limit: on a fixture page that reads a global the seam's script defines, the seam visit records the page's different request, and nothing else differs", { timeout: 120_000 }, async () => {
+  // Property 3 holds only for a page that reads nothing a seam's script
+  // defines. This page does, so a seam visit's record must show it: a change
+  // that hid the script from the page, or the page's request from the record,
+  // fails here.
+  const first = await visit({}, false, READS_SEAM_URL);
+  const seamVisit = await visit({ investigationSeam: { initScript: LOGGER_SCRIPT } }, false, READS_SEAM_URL);
+  const last = await visit({}, false, READS_SEAM_URL);
+  assert.deepEqual(beyondTiming(first, last), [], "two ordinary visits of the seam-reading page differ");
+  for (const [which, ordinary] of [["before", first], ["after", last]] as const) {
+    assert.deepEqual(beyondTiming(ordinary, seamVisit), [".measurement.evidence.requests[].url"], `the seam visit against the ordinary visit ${which} it`);
+  }
+  const sawRequests = (envelope: NodeScanMeasurementEnvelope): string[] =>
+    (envelope.measurement.evidence.requests as readonly { url: string }[]).map((request) => request.url).filter((url) => url.includes("/saw.png"));
+  for (const ordinary of [first, last]) assert.deepEqual(sawRequests(ordinary), ["http://static.example.com/saw.png?global=undefined"]);
+  assert.deepEqual(sawRequests(seamVisit), ["http://static.example.com/saw.png?global=object"]);
 });
 
 // ---------------------------------------------------------------------------
