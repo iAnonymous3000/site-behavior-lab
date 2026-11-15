@@ -228,6 +228,11 @@
   margin: var(--a-s7) 0 0;
   padding: 14px 0 0;
   border-top: 2px solid var(--a-carbon);
+  /* A #history link lands with the section's rule 16px below the top of the
+     window, as a finding card does. With no margin the section's top is a
+     fraction of a pixel from the window's top, and the browser rounds the
+     scroll, so the rule could sit just above the window. */
+  scroll-margin-top: 16px;
 }
 
 .da.da.da .site-profile-section > h2 {
