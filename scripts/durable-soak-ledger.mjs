@@ -9,6 +9,7 @@ import process from "node:process";
 import { TextDecoder } from "node:util";
 import { fileURLToPath } from "node:url";
 import {
+  artifactIdentity,
   buildDurableSoakSourceDigestManifest,
   canonicalDurableSoakText,
   deriveDurableSoakLedger,
@@ -21,6 +22,7 @@ import {
   DURABLE_SOAK_RESTART_WORKFLOW,
   DURABLE_SOAK_SHALLOW_RUN_NAME,
   DURABLE_SOAK_SOURCE_DIGESTS_FILE,
+  positiveInteger,
   sha256DurableSoak,
   verifyDurableSoakLedgerMembers
 } from "./durable-soak-ledger-lib.mjs";
@@ -94,16 +96,17 @@ function parseJson(bytes, label) {
   return value;
 }
 
-function positiveInteger(value, label, maximum = Number.MAX_SAFE_INTEGER) {
-  const parsed =
+// Command-line values arrive as text. API values go through the lib's
+// positiveInteger unconverted, so a string id from GitHub is refused here
+// exactly as the ledger verifier refuses it.
+function positiveIntegerArgument(value, label, maximum = Number.MAX_SAFE_INTEGER) {
+  return positiveInteger(
     typeof value === "string" && /^[1-9][0-9]*$/.test(value)
       ? Number(value)
-      : value;
-  requireValue(
-    Number.isSafeInteger(parsed) && parsed > 0 && parsed <= maximum,
-    `${label} must be a positive safe integer`
+      : value,
+    label,
+    maximum
   );
-  return parsed;
 }
 
 function canonicalInstant(value, label) {
@@ -115,18 +118,6 @@ function canonicalInstant(value, label) {
     `${label} must be a canonical millisecond UTC instant`
   );
   return value;
-}
-
-function digest(value, label) {
-  const normalized =
-    typeof value === "string"
-      ? value.replace(/^sha256:/, "")
-      : "";
-  requireValue(
-    /^[0-9a-f]{64}$/.test(normalized),
-    `${label} must be a lowercase sha256 digest`
-  );
-  return normalized;
 }
 
 export function projectedDurableSoakRestRequests({
@@ -494,23 +485,55 @@ function requireDeliveredDeep(job, runId, attempt) {
   );
 }
 
-function artifactIdentity(artifact, runId, headSha, expectedId, label) {
-  requireValue(
-    isRecord(artifact) &&
-      artifact.id === expectedId &&
-      artifact.expired === false &&
-      Number.isSafeInteger(artifact.size_in_bytes) &&
-      artifact.size_in_bytes > 0 &&
-      artifact.workflow_run?.id === runId &&
-      artifact.workflow_run?.head_sha === headSha,
-    `${label} does not identify the exact unexpired workflow artifact`
+// Both selections validate the listed artifact with the ledger verifier's own
+// artifactIdentity, so an artifact the verifier would refuse is refused here,
+// before its download is spent. The restart artifact is selected by the id
+// the operator passed; that filter is its id check.
+export function selectDurableSoakRestartArtifact(
+  artifacts,
+  { runId, runAttempt, headSha, artifactId }
+) {
+  const matches = artifacts.filter(
+    (artifact) => artifact?.id === artifactId
   );
-  return {
-    id: artifact.id,
-    name: artifact.name,
-    sha256: digest(artifact.digest, `${label} digest`),
-    sizeBytes: artifact.size_in_bytes
-  };
+  requireValue(
+    matches.length === 1,
+    "durable restart artifact id is not unique in its source run"
+  );
+  const expectedName =
+    `site-behavior-durable-soak-restart-evidence-${runId}-${runAttempt}`;
+  const identity = artifactIdentity(
+    matches[0],
+    runId,
+    headSha,
+    "durable restart artifact"
+  );
+  requireValue(
+    identity.name === expectedName,
+    `durable restart artifact must be named ${expectedName}`
+  );
+  return identity;
+}
+
+export function selectDurableSoakDeepArtifact(
+  artifacts,
+  { runId, attempt, headSha }
+) {
+  const expectedName =
+    `site-behavior-production-health-evidence-${runId}-${attempt}`;
+  const matches = artifacts.filter(
+    (artifact) => artifact?.name === expectedName
+  );
+  requireValue(
+    matches.length === 1,
+    `deep Production Health run ${runId} attempt ${attempt} has no exact evidence artifact`
+  );
+  return artifactIdentity(
+    matches[0],
+    runId,
+    headSha,
+    `deep Production Health run ${runId} attempt ${attempt} artifact`
+  );
 }
 
 async function downloadArtifact({
@@ -597,26 +620,12 @@ async function collectRestart({
     request,
     pageLimit: EXACT_RUN_PAGE_LIMIT
   });
-  const matches = artifacts.filter(
-    (artifact) => artifact?.id === artifactId
-  );
-  requireValue(
-    matches.length === 1,
-    "durable restart artifact id is not unique in its source run"
-  );
-  const expectedName =
-    `site-behavior-durable-soak-restart-evidence-${runId}-${runAttempt}`;
-  const identity = artifactIdentity(
-    matches[0],
+  const identity = selectDurableSoakRestartArtifact(artifacts, {
     runId,
-    run.head_sha,
-    artifactId,
-    "durable restart artifact"
-  );
-  requireValue(
-    identity.name === expectedName,
-    `durable restart artifact must be named ${expectedName}`
-  );
+    runAttempt,
+    headSha: run.head_sha,
+    artifactId
+  });
   const downloaded = await downloadArtifact({
     artifact: identity,
     request,
@@ -866,22 +875,9 @@ async function collect(options) {
 
   const downloadSelections = deepAttempts.map(
     ({ listed, runId, attempt }) => {
-      const artifacts = artifactsByRun.get(runId);
-      const expectedName =
-        `site-behavior-production-health-evidence-${runId}-${attempt}`;
-      const matches = artifacts.filter(
-        (artifact) => artifact?.name === expectedName
-      );
-      requireValue(
-        matches.length === 1,
-        `deep Production Health run ${runId} attempt ${attempt} has no exact evidence artifact`
-      );
-      const identity = artifactIdentity(
-        matches[0],
-        runId,
-        listed.head_sha,
-        matches[0].id,
-        `deep Production Health run ${runId} attempt ${attempt} artifact`
+      const identity = selectDurableSoakDeepArtifact(
+        artifactsByRun.get(runId),
+        { runId, attempt, headSha: listed.head_sha }
       );
       return { identity, runId, attempt };
     }
@@ -1087,16 +1083,16 @@ function parseOptions(args) {
       values.get("--end-at"),
       "--end-at"
     ),
-    restartRunId: positiveInteger(
+    restartRunId: positiveIntegerArgument(
       values.get("--restart-run-id"),
       "--restart-run-id"
     ),
-    restartRunAttempt: positiveInteger(
+    restartRunAttempt: positiveIntegerArgument(
       values.get("--restart-run-attempt"),
       "--restart-run-attempt",
       20
     ),
-    restartArtifactId: positiveInteger(
+    restartArtifactId: positiveIntegerArgument(
       values.get("--restart-artifact-id"),
       "--restart-artifact-id"
     ),

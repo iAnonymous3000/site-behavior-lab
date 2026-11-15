@@ -137,7 +137,7 @@ function jsonObject(bytes, label, canonical = false) {
   return value;
 }
 
-function positiveInteger(value, label, maximum = Number.MAX_SAFE_INTEGER) {
+export function positiveInteger(value, label, maximum = Number.MAX_SAFE_INTEGER) {
   requireValue(
     Number.isSafeInteger(value) && value > 0 && value <= maximum,
     `${label} must be a positive safe integer`
@@ -261,7 +261,7 @@ function requiredSuccessfulStep(job, name, label) {
   };
 }
 
-function artifactIdentity(value, runId, headSha, label) {
+export function artifactIdentity(value, runId, headSha, label) {
   requireValue(isRecord(value), `${label} must be an object`);
   const sha256 = digest(value.digest, `${label} digest`);
   requireValue(
