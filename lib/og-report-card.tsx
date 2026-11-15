@@ -20,6 +20,12 @@ import { displayHost } from "./text-format";
 export const OG_SIZE = { width: 1200, height: 630 } as const;
 export const OG_CONTENT_TYPE = "image/png";
 export const OG_REPORT_SUBHEAD_MAX_CHARACTERS = 300;
+/**
+ * The report card's padding. Every line of the card's text must lie inside
+ * it; og-report-card-fit.test.ts renders every committed report's card and
+ * fails when text reaches into this padding or past the card's edge.
+ */
+export const OG_REPORT_CARD_PADDING = { vertical: 36, horizontal: 64 } as const;
 
 const TONE_HEX: Record<HeadlineTone, string> = {
   alarm: "#fb7185",
@@ -56,7 +62,7 @@ export function renderReportCard(view: ReportView): ImageResponse {
           flexDirection: "column",
           width: "100%",
           height: "100%",
-          padding: "60px 64px",
+          padding: `${OG_REPORT_CARD_PADDING.vertical}px ${OG_REPORT_CARD_PADDING.horizontal}px`,
           backgroundColor: BG,
           backgroundImage: `radial-gradient(900px 420px at 88% -8%, ${accent}26, transparent 60%)`,
           color: TEXT,
@@ -65,7 +71,7 @@ export function renderReportCard(view: ReportView): ImageResponse {
       >
         <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: 12, backgroundColor: accent }} />
 
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center" }}>
             <div
               style={{
@@ -98,28 +104,60 @@ export function renderReportCard(view: ReportView): ImageResponse {
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", marginTop: "auto", marginBottom: "auto" }}>
+        {/*
+          The headline block takes the free height and centres in it, with a
+          fixed minimum space above and below so it can never touch the
+          header or the footer when the footer needs a second line.
+        */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            flexGrow: 1,
+            flexShrink: 0,
+            paddingTop: 8,
+            paddingBottom: 8
+          }}
+        >
           <div style={{ display: "flex", fontSize: 22, fontWeight: 700, letterSpacing: 2, color: accent, textTransform: "uppercase" }}>
             {headline.kicker}
           </div>
-          <div style={{ display: "flex", fontSize: headlineSize, fontWeight: 800, lineHeight: 1.1, marginTop: 14 }}>
+          <div style={{ display: "flex", fontSize: headlineSize, fontWeight: 800, lineHeight: 1.1, marginTop: 10 }}>
             {headline.headline}
           </div>
-          <div style={{ display: "flex", fontSize: subheadSize, color: MUTED, lineHeight: 1.3, marginTop: 18, maxWidth: 1000 }}>
+          <div style={{ display: "flex", fontSize: subheadSize, color: MUTED, lineHeight: 1.3, marginTop: 12, maxWidth: 1000 }}>
             {subhead}
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-          <div style={{ display: "flex" }}>
+        {/*
+          The attribution block sits beside the stat chips only when it fits
+          there; otherwise the row wraps and the block takes its own line,
+          still right-aligned. Nothing in the card may shrink, so text that
+          does not fit pushes past the bottom edge, where the per-card margin
+          check sees it, instead of being clipped or overlapped silently.
+        */}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            columnGap: 24,
+            rowGap: 8,
+            flexShrink: 0
+          }}
+        >
+          <div style={{ display: "flex", flexShrink: 0 }}>
             {stats.map((stat) => (
               <StatChip key={stat.label} stat={stat} accent={accent} />
             ))}
           </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", marginLeft: "auto", flexShrink: 0 }}>
             <div style={{ display: "flex", fontSize: 19, color: TEXT }}>{attribution}</div>
             <div style={{ display: "flex", fontSize: 18, color: SUBTLE }}>open source · reproducible</div>
-            <div style={{ display: "flex", fontSize: 16, color: SUBTLE, marginTop: 4, maxWidth: 360, textAlign: "right" }}>
+            <div style={{ display: "flex", fontSize: 16, color: SUBTLE, marginTop: 4, maxWidth: 520, textAlign: "right" }}>
               {cardCaveat}
             </div>
           </div>
@@ -251,7 +289,7 @@ function StatChip({ stat, accent }: { stat: ReportHeadlineStat; accent: string }
       style={{
         display: "flex",
         flexDirection: "column",
-        padding: "14px 20px",
+        padding: "10px 20px",
         marginRight: 14,
         borderRadius: 14,
         backgroundColor: stat.emphasis ? `${accent}1f` : SURFACE,
