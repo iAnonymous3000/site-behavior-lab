@@ -9,9 +9,9 @@ import { pathToFileURL } from "node:url";
 // The durable-soak collector (scripts/durable-soak-ledger.mjs) validates each
 // GitHub artifact it is about to download, and the ledger verifier
 // (scripts/durable-soak-ledger-lib.mjs) validates the same artifact again from
-// the stored pages before anything is written. The collector used to carry its
-// own copy of that check, whose id test compared a value with itself, so it
-// accepted ids the verifier refuses and failed only after the downloads were
+// the stored pages before anything is written. A separate copy of that check
+// can drift: one whose id test compares a value with itself accepts ids the
+// verifier refuses, and the soak then fails only after its downloads are
 // spent. These tests hold one validator: the collector selects with the
 // verifier's artifactIdentity and positiveInteger, and agrees with it.
 
