@@ -9,6 +9,24 @@ public API or a 1.0 release.
 
 ### Added
 
+- A case in the owner-only investigation workspace can take events from a
+  runner, beside the owner's commands (`investigation/core/case-runner.ts`).
+  A runner proves which attempt it speaks for with a token the case object
+  hands over once, with the case's head, and keeps only as a SHA-256
+  digest. The runner writes its own nine events for that attempt only, as
+  an actor the object derives. After the attempt's outcome the token is
+  good for cleanup events only; it is refused for everything after a stop,
+  after the destroy record, after a second request for the token, and
+  after the owner cancels the case, its deadline passes or the baseline
+  is recorded not met. An attempt is bounded at 32 evidence rows and 32
+  instrument records, counted by the object. A second request for a token
+  revokes it and flags the attempt; the owner's reconcile then fails it.
+  Limits: no front Worker route sends a runner's calls and no runner
+  exists yet, so nothing here has run outside local tests in workerd; the
+  destroy record has no writer until a container exists; the owner's
+  environment-destroyed is not yet held to that record; 32 is a default,
+  not a measured bound. No scanner code, scan or report changes.
+
 - The investigation workspace's recorder release is REA 6.8.0, chosen by
   the owner after fixture runs on local test pages only, in a runner image
   built by hand on linux/arm64 with no network, on the scanner's own pinned

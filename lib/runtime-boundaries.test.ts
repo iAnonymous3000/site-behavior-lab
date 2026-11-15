@@ -51,14 +51,15 @@ test("Cloudflare Worker imports stay out of Node-only modules", async () => {
       WORKSPACE_ENTRYPOINT,
       // Written to run in this Worker. The entry reaches the viewer and the case host, and
       // through them the case service, the store, the log, the machine, the supervision
-      // marks, the evidence model and the aggregates. The summary tier is not reached. Each
-      // is named, so none drops out if an import moves.
+      // marks, the runner's credentials, the evidence model and the aggregates. The summary
+      // tier is not reached. Each is named, so none drops out if an import moves.
       "investigation/core/case-log.ts",
       "investigation/core/case-store.ts",
       "investigation/core/case-service.ts",
       "investigation/core/case-host.ts",
       "investigation/core/case-host-stores.ts",
       "investigation/core/case-supervision.ts",
+      "investigation/core/case-runner.ts",
       "investigation/core/viewer-routes.ts",
       "investigation/core/viewer-pages.ts",
       "investigation/core/viewer-text.ts",
