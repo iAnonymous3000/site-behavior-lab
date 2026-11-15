@@ -173,8 +173,8 @@ export function SiteBehaviorApp({
   const [staticReports, setStaticReports] = useState<StaticReportManifestEntry[] | null>(null);
   const [staticReportsError, setStaticReportsError] = useState<string | null>(null);
   const [archiveRequested, setArchiveRequested] = useState(false);
-  // Latched: once mounted, the panel stays mounted, as it did when it was
-  // imported statically, so a health change cannot drop a watch in progress.
+  // Latched: once mounted, the panel stays mounted, so a health change cannot
+  // drop a watch in progress.
   const [scheduledRescansMounted, setScheduledRescansMounted] = useState(false);
   const reportRegionRef = useRef<HTMLElement | null>(null);
   const recoveryBannerRef = useRef<HTMLElement | null>(null);
