@@ -376,7 +376,8 @@ public API or a 1.0 release.
   third-party host on record, no Google Analytics, Analytics with no
   remarketing sync, and a policy read with no checked statement contradicted.
   A card with no approved limit carries none and prints its full string.
-  `detail` is unchanged on every card and no page prints the new field yet.
+  `detail` is unchanged on every card. The findings list prints the limit
+  sentence beside the claim, with the rest of the string behind it.
   No report, count or identity moves.
 
 ### Removed
@@ -444,6 +445,24 @@ public API or a 1.0 release.
 
 ### Changed
 
+- The whole site, the printed report and the share card are rebuilt in one
+  design layer (`app/_design`), called direction A. It has its own tokens
+  for light, dark and paper, and three self-hosted typefaces (STIX Two Text,
+  Atkinson Hyperlegible Next and Mono; Latin subsets under the SIL Open Font
+  License in `public/fonts` and `lib/og-fonts`). No request leaves the
+  site's own hosts, and no colour means good or bad. A claim's limit sits
+  beside it without a click, on screen and on paper. What changes in what a
+  reader is told: the share card drops its tagline, its kicker and "open
+  source, reproducible" and keeps its limit sentence; the attribution
+  section on screen is headed "Request attribution" and speaks of
+  relationships shown where it spoke of a map drawn (paper keeps the map
+  wording); the Focus map control is removed; paper prints the record, the
+  finding sentence with its limits and the request figure first, prints
+  table limits before each table and on every table page, and takes its
+  severity sentence from the same summary as the screen. Opening the
+  evidence explorer keeps the report in place. Limits: Firefox, a real
+  phone and a screen reader were not run; paper is Letter only; no report
+  made under the current detector exists to render in it.
 - The bounds on the published static export are stated once, in
   `scripts/static-export-bounds.mjs`, and read by both the static smoke and
   the deploy path's receipt check, which each restated them before. Two of
