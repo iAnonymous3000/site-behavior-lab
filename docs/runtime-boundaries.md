@@ -107,6 +107,16 @@ The mark does not survive a caller who removes it on purpose. There are two ways
 2. After a visit that returns, store the use.
 3. Store each beside the scanner's commit.
 
+### What the seam setting tests hold
+
+`lib/investigation-seam-setting.test.ts` sets the seam through the real scanner, in Chromium, on a local fixture server only. It runs in the serial lane of the unit tests. It is not a required suite of the formal-verification gate, and `docs/formal-verification.md` has no row for it. On that fixture it checks five things, by the test names that begin:
+
+- "S3 order": the seam's init script runs after the bounded page collector and before the fingerprint observer in the fixture's page and its two frames, at the pinned Playwright version, and the hooks run in the order the table above gives.
+- "S3 bounds": each hook is called at most once for each of its points, a hook that never settles ends its wait at its own bound or at the caller's signal, and no wait leaves a listener on that signal.
+- "S3 isolation": for the seam behaviours the file lists, a seam visit records what an ordinary visit records, apart from the mark and the clock fields the file names. That holds only for a page that reads nothing a seam's script defines; a page that does will act differently, and its visit will record that.
+- "S3 mark": each step in the table above refuses or declines a real seam visit and its copies, and each refusal names its step.
+- "S3 readback": the use record gives the hooks that were set, the init script's sha256, both bounds and each hook's time, as the test set them.
+
 ### Limits
 
 - A check that does not complete its scroll window calls no `scroll-end`, so it gives no last reading. This covers a page with nothing to scroll, a page that was never scrolled, a page that left its site and a check that was cut short.
