@@ -295,8 +295,8 @@
         },
         {
           "id": "lib/fv-worker-readout.test.ts",
-          "minimumTests": 154,
-          "minimumVariants": 139
+          "minimumTests": 162,
+          "minimumVariants": 145
         },
         {
           "id": "lib/scroll-check-stacks.test.ts",

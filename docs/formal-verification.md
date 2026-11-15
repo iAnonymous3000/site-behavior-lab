@@ -666,7 +666,7 @@ the unit suite's test of the module the scanner loads is
 - **Bounds:** none beyond those enumerations. The accounting worlds read with the drain's settle set to nothing, so production's timer ends the drain at once; the drain and emission worlds read with a settle that never expires in the test, so each case is decided by order.
 - **Axioms:** The attacher's thread is scripted and reports in the order it posted, so F4 replays the real thread; each scripted answer stands for the browser's and arrives in the turn it was sent unless a world holds it; a detach reaches the session before the installer; an earlier installer holds until told to, which the real GPC installer does not once its channel closes.
 - **Method:** exhaustive, sampled, restatement
-- **Not claimed:** A dedicated worker attached in the drain, which row CL7-D holds. The dedicated worlds take a worker an earlier installer holds as excluded, the reading OPEN-F3.6 pins open, and witness counts and attaches have nothing to join them (OPEN-F3.4). Whether a browser produces a path, and what a term says of a site. The expected terms restate the docblocks of the diagnostics and of the readout. A shared worker on the dedicated channel stays out of these terms, `shared.diedPaused` is written by nothing since @12, and `shared.pausedAtReadout` by nothing since @14.
+- **Not claimed:** A dedicated worker attached in the drain, which row CL7-D holds. The dedicated worlds take a worker an earlier installer holds as excluded, the reading OPEN-F3.6 pins open, and within one script address witness counts and attaches are joined by number only (OPEN-F3.4); CL7-J holds the join across addresses. Whether a browser produces a path, and what a term says of a site. The expected terms restate the docblocks of the diagnostics and of the readout. A shared worker on the dedicated channel stays out of these terms, `shared.diedPaused` is written by nothing since @12, and `shared.pausedAtReadout` by nothing since @14.
 - **Tests:**
   - `lib/fv-worker-readout.test.ts`: "CL7: every dedicated worker lands in one term of the real readout, the one its world says, and the terms add up"
   - `lib/fv-worker-readout.test.ts`: "CL7: every shared worker the attacher reported lands in one term of the real readout, and the terms add up"
@@ -684,12 +684,27 @@ the unit suite's test of the module the scanner loads is
 - **Bounds:** none beyond that enumeration; the worlds read with the drain's settle set to nothing, and the attach is delivered in the turn of the call, so each case is decided by order.
 - **Axioms:** as CL7. The attach's own word on whether the worker waits for the debugger is taken as the browser gave it.
 - **Method:** sampled, restatement
-- **Not claimed:** Whether Chromium attaches an already running worker in a drain, which is not measured. That a worker held at an attach heard after the freeze ran nothing before the freeze rests on A4, a worker the debugger holds at its start running nothing until released, which F4-TABLE holds of the dedicated model and no test holds of a browser. A witness count and the attaches still have nothing to join them (OPEN-F3.4), so an unwitnessed worker attached in the drain stands in for a witnessed worker that never attached.
+- **Not claimed:** Whether Chromium attaches an already running worker in a drain, which is not measured. That a worker held at an attach heard after the freeze ran nothing before the freeze rests on A4, a worker the debugger holds at its start running nothing until released, which F4-TABLE holds of the dedicated model and no test holds of a browser. Within one script address the witness and the attaches are joined by number only (OPEN-F3.4), so an unwitnessed worker of that address attached in the drain stands in for a witnessed worker of it that never attached.
 - **Tests:**
   - `lib/fv-worker-readout.test.ts`: "CL7: a dedicated worker attached in the drain lands in one term, by its attach: held there it is excluded, and already running it is an unread realm"
 - **Variants:**
   - `lib/fv-worker-readout.test.ts`: names beginning "CL7 catches a variant in the drain's attaches"
 - **Commit:** 2b6189b38f851e7c155d09c64591b1ea25df04bd
+
+### CL7-J. A witnessed worker is joined to an attach of its own address
+
+- **Property:** The real readout joins the browser-side witness to the channel's dedicated attaches by script address: a witnessed worker is unattached, and an unread realm, unless an attach of its own address pairs with it, so an attach of another address, before the call or in the drain, never stands in for it; within one address more attaches than witnessed workers floor that address's part at nothing and take nothing from another; the dedicated drain waits until no address is short of attaches and ends when the missing attach arrives; and the readout returns only the parts the collection reads and its diagnostics, every diagnostic a number, and no witnessed or attached address in what it returns.
+- **Code:** `unattachedByUrl` and the readout in `lib/worker-fingerprint-realm.ts`, and `DedicatedWorkerAttachSession` in `lib/devtools-worker-channel.ts`.
+- **Domain:** Sampled: a witnessed worker of one address with no attach of it, beside unwitnessed attaches of another address before the call, a single one or a pair, or a single one in the drain; a pair of attaches of an address against a single witnessed worker of it, alone or beside a witnessed worker of another address; for the drain, a witnessed worker of one address not yet attached beside an attached worker of another, whose attach then arrives; and for what the readout returns, workers of a pair of addresses witnessed and attached before the call and in the drain. Each with the channel alive and the frame trees read.
+- **Bounds:** none beyond that enumeration; the accounting worlds read with the drain's settle set to nothing and the drain world with a settle that never expires in the test, so each case is decided by order.
+- **Axioms:** as CL7. The address a scripted attach names stands for Chromium's `targetInfo.url`, and the witness's for Playwright's `Worker.url()`.
+- **Method:** sampled, restatement
+- **Not claimed:** That Chromium and Playwright give one worker the same address on every worker kind: a loopback measurement found them equal on the worker kinds it read, and the scanner suite holds those kinds on real Chromium in a test outside this register. Workers of one address are matched by number only (OPEN-F3.4). A worker neither side reported, such as one started and terminated at once, has nothing to join. The GPC accounting reads the witness's total and is not joined by address.
+- **Tests:**
+  - `lib/fv-worker-readout.test.ts`: "CL7: an unwitnessed worker of another address, attached before the freeze or in the drain, does not mask a witnessed worker that never attached"
+  - `lib/fv-worker-readout.test.ts`: "CL7: the join's addresses stay inside the scanner"
+- **Variants:** none: its variants are members of the families CL7 cites ("CL7 catches a variant" and "CL7 catches a variant in the dedicated drain"), whose tables landed before this row's tests, so this row cannot cite them by their Commit.
+- **Commit:** 75c10ab9aad903132d2b02c3cd7122aee0ed8b27
 
 ### RA4. The scroll producer passes its validator and keeps what it earned
 
@@ -1532,12 +1547,12 @@ which is the owner's call.
   - `lib/fv-scroll-producer.test.ts`: "open (RA4): a listed host the validator refuses turns the whole check into a bare cut-short"
 - **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
 
-### OPEN-F3.4. An unwitnessed worker masks a witnessed one
+### OPEN-F3.4. Within one address, an unwitnessed worker masks a witnessed one
 
-- **Finding:** The witness is a count, and nothing joins it to the workers that attached, so a worker the witness never saw, attached before the freeze or in the drain, stands in for a witnessed worker that never attached. This moves the readout's unread realms, which the suite's docblock says feed the published count. How often a witness and its attaches disagree this way is not measured.
+- **Finding:** From fingerprint-observer@15 the witness is joined to the workers that attached by script address (CL7-J), but within one address by number only, so a worker of that address the witness never saw, attached before the freeze or in the drain, stands in for a witnessed worker of the same address that never attached. This moves the readout's unread realms, which the suite's docblock says feed the published count. How often a witness and its attaches disagree this way within one address is not measured.
 - **Tests:**
-  - `lib/fv-worker-readout.test.ts`: "open (CL7): an unwitnessed worker, attached before the freeze or in the drain, masks a witnessed worker that never attached"
-- **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
+  - `lib/fv-worker-readout.test.ts`: "open (CL7): within one address, an unwitnessed worker, attached before the freeze or in the drain, masks a witnessed worker of that address that never attached"
+- **Commit:** 75c10ab9aad903132d2b02c3cd7122aee0ed8b27
 
 ### OPEN-F3.5. A gap in the drain leaves a worker read at its older snapshot
 
