@@ -1,6 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { ComparisonDecisionMode } from "./comparison-decision";
+import { isRecord } from "./guards";
 import { METRIC_FAMILIES, type MetricFamily } from "./scan-report-v2";
 import { toReportView } from "./scan-report-view";
 import { REPORT_ID_PATTERN } from "./report-validation";
@@ -335,10 +336,6 @@ function requiredValue(values: Map<string, string>, name: string): string {
   const value = values.get(name);
   if (!value) throw new Error(`${name} is required.`);
   return value;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
 function hasExactKeys(value: Record<string, unknown>, expected: readonly string[]): boolean {
