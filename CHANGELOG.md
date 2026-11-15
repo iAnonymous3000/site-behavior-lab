@@ -509,6 +509,18 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The report share card no longer cuts its own limit sentence. The block
+  with the visit date, the tagline and the limit sentence ("Observed in two
+  automated visits: evidence to check, not a verdict.") sat beside the
+  number boxes in a row that could not wrap, so on 122 of the 1,029
+  committed reports' cards it ran off the right edge, and on 116 more a
+  long headline pushed text into the bottom padding. The row now wraps, no
+  section shrinks, and the card's vertical padding and inner gaps are
+  smaller. No sentence, label, number, colour or type size changed. A new
+  test (`lib/og-report-card-fit.test.ts`) renders every committed report's
+  card and fails when text reaches the card's padding. Limit: the test
+  holds the committed reports only; a future report with three boxes and a
+  long headline can fail it, which is the intended signal.
 - A worker the readout cannot place before or after its freeze is counted as
   an unread realm, where it read as having run nothing
   (fingerprint-observer@14, node-detectors-v25). What a report now says: when
