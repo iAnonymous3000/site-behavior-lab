@@ -351,6 +351,22 @@ test("the browser-side witness discloses dedicated workers the construction coun
   assert.equal(session.checkpoint().diagnostics.captureLossCount, 0);
 });
 
+/**
+ * The GPC accounting stays on the witness's total in fingerprint-observer@15:
+ * the fingerprint readout joins the witness to its attaches by address, and
+ * the GPC loss still reads the one total, whatever addresses the workers had.
+ */
+test("the GPC loss reads the witness's total, whatever addresses its workers had", () => {
+  const witness = new DedicatedWorkerWitness();
+  const session = createGpcWorkerInjectionSession({ witness, randomBytes: FIXED_RANDOM_BYTES });
+  witness.observe("http://fixture.test/a.js");
+  witness.observe("http://fixture.test/a.js");
+  witness.observe("http://fixture.test/b.js");
+  const diagnostics = session.diagnostics();
+  assert.equal(diagnostics.observedDedicatedWorkerCount, 3);
+  assert.equal(diagnostics.captureLossCount, 3);
+});
+
 test("the disclosed warning names verification, not blocking as policy", () => {
   // The admitted string is frozen by the public-string policy and must not
   // move; this pins the exact sentence the r2 sanitizer admits.

@@ -299,11 +299,33 @@ export type WorkerFingerprintReadoutDiagnostics = {
    * observer's collection counts it unread unless it records nothing.
    */
   ownerUnknown: number;
-  /** Unread: witnessed by the browser but never attached by the channel. */
+  /**
+   * Unread: witnessed by the browser but never attached by the channel,
+   * joined by script address: for each address, the witness's count at the
+   * freeze less the channel's attaches after the drain, floored at zero.
+   * Within one address workers are matched by number only (OPEN-F3.4).
+   */
   unattachedDedicated: number;
   /** The shared workers of the scan's browser context, term by term. */
   sharedWorkers: SharedWorkerFingerprintReadoutDiagnostics;
 };
+
+/**
+ * Witnessed workers the channel never attached, joined by address: for each
+ * address, the witnessed count less the attached count, floored at zero, summed.
+ * An attach of one address never offsets a witnessed worker of another. Within
+ * one address workers are matched by number only, so an attach the witness
+ * never saw still offsets a witnessed worker of the same address that never
+ * attached (OPEN-F3.4).
+ */
+export function unattachedByUrl(witnessed: ReadonlyMap<string, number>, attached: ReadonlyMap<string, number>): number {
+  let unattached = 0;
+  for (const [url, count] of witnessed) {
+    const attachedHere = attached.get(url) || 0;
+    unattached += Math.max(0, count - attachedHere);
+  }
+  return unattached;
+}
 
 export type WorkerFingerprintRealmReadout = FingerprintWorkerRealmReadout & {
   readonly diagnostics: WorkerFingerprintReadoutDiagnostics;
@@ -604,8 +626,9 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
    *    worker's scope is judged at the freeze and not at the end of the
    *    drain, when a frame may have navigated since.
    * 2. The drain, bounded by `settleMs`: wait until the channel's attaches
-   *    reach the witness's count at the freeze (a witnessed worker not yet
-   *    attached is still paused, not lost), for each running worker's
+   *    reach the witness's count at the freeze for every script address (a
+   *    witnessed worker not yet attached is still paused, not lost, and an
+   *    attach of another address does not stand in for it), for each running worker's
    *    answer, for each owner read still in flight, and, for each worker
    *    whose last word at its freeze point was "open", for the first closed
    *    snapshot after it. That is a page evaluate waiting for the current
@@ -652,10 +675,13 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
    */
   async readout(options: {
     session: DedicatedWorkerAttachSession | null;
-    witness: Pick<DedicatedWorkerWitness, "count">;
+    witness: Pick<DedicatedWorkerWitness, "count" | "urlCounts">;
     settleMs: number;
   }): Promise<WorkerFingerprintRealmReadout> {
     const observedDedicated = options.witness.count();
+    // The witness by script address at the freeze: what the drain waits for
+    // and what the unattached term is joined against.
+    const witnessedAtFreeze = options.witness.urlCounts();
     // Sent now, before anything is awaited: the page's documents at the
     // freeze. Its answer is awaited only after the drain.
     const documentsAtFreeze = currentDocuments(options.session);
@@ -680,7 +706,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     }
 
     try {
-      await this.drain(options.session, observedDedicated, frozen, sharedFrozen, options.settleMs);
+      await this.drain(options.session, witnessedAtFreeze, frozen, sharedFrozen, options.settleMs);
     } finally {
       for (const realm of [...frozen, ...sharedFrozen]) {
         if (realm.state === "waiting") realm.record.slots.delete(realm.slot);
@@ -689,6 +715,9 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
     const documents = await documentsAtFreeze;
     const loaders = documents === null ? null : documents.loaders;
 
+    // The channel's attaches by script address after the drain, the other side of the join.
+    const attachedByUrl =
+      options.session === null ? new Map<string, number>() : options.session.attachedDedicatedUrlCounts();
     const attachCounts = options.session?.attachCounts() ?? {
       attachedDedicatedWorkerCount: 0,
       attachedNestedDedicatedWorkerCount: 0,
@@ -726,7 +755,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
       streamBroken: 0,
       channelLostAlive: 0,
       ownerUnknown: 0,
-      unattachedDedicated: Math.max(0, observedDedicated - attachCounts.attachedDedicatedWorkerCount),
+      unattachedDedicated: unattachedByUrl(witnessedAtFreeze, attachedByUrl),
       sharedWorkers: shared
     };
 
@@ -853,7 +882,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
 
   private async drain(
     session: DedicatedWorkerAttachSession | null,
-    observedDedicated: number,
+    witnessedAtFreeze: ReadonlyMap<string, number>,
     frozen: readonly DedicatedFrozenRealm[],
     sharedFrozen: readonly SharedFrozenRealm[],
     settleMs: number
@@ -867,7 +896,7 @@ export class FingerprintWorkerRealmInstaller implements WorkerRealmInstaller {
           realm.record.lostWithChannel));
     const dedicatedDrained = (): boolean => {
       if (this.channelLost || session === null || session.isChannelLost()) return true;
-      if (session.attachCounts().attachedDedicatedWorkerCount < observedDedicated) return false;
+      if (unattachedByUrl(witnessedAtFreeze, session.attachedDedicatedUrlCounts()) > 0) return false;
       return frozen.every(realmSettled);
     };
     const frozenShared = new Set(sharedFrozen.map((realm) => realm.record));

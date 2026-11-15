@@ -169,8 +169,8 @@ export type WorkerAttachCounts = {
 /**
  * The browser-side witness: one count per dedicated worker Playwright's own
  * recursive auto-attach reports for the measured page (its page "worker"
- * event), nested ones included. Not a page binding, so the page can neither
- * call nor skip it.
+ * event), nested ones included, each filed under its script address. Not a
+ * page binding, so the page can neither call nor skip it.
  *
  * It lives outside the channel on purpose. The scanner creates and registers
  * it before the channel is established, so a failed establish or a dropped
@@ -179,13 +179,29 @@ export type WorkerAttachCounts = {
  */
 export class DedicatedWorkerWitness {
   private observedDedicatedWorkerCount = 0;
+  private readonly observedByUrl = new Map<string, number>();
 
-  observe(): void {
+  /**
+   * One worker, filed under its script address (Playwright's `Worker.url()`),
+   * the same string the channel's attach names for it (measured equal on nine
+   * worker kinds, `blob:` and `data:` included, in 180 loopback visits). A
+   * caller that names no address files the worker under "", which matches only
+   * an attach that named none, so a missing address reads as never attached,
+   * never as attached.
+   */
+  observe(url = ""): void {
     this.observedDedicatedWorkerCount += 1;
+    this.observedByUrl.set(url, (this.observedByUrl.get(url) || 0) + 1);
   }
 
+  /** Every worker observed so far, whatever its address: the GPC accounting reads this total. */
   count(): number {
     return this.observedDedicatedWorkerCount;
+  }
+
+  /** The workers observed so far, counted by address; the counts sum to `count()`. */
+  urlCounts(): ReadonlyMap<string, number> {
+    return new Map(this.observedByUrl);
   }
 }
 
@@ -194,6 +210,13 @@ type AttachedWorkerRecord = {
 } & {
   /** Every installer has been concluded for this worker. */
   concluded: boolean;
+  /**
+   * The attach's `targetInfo.url`, the worker's script address ("" when the
+   * attach named none): the key the readout joins this attach to the
+   * browser-side witness by. Kept here and never handed to an installer or
+   * published.
+   */
+  readonly url: string;
 };
 
 export class DedicatedWorkerAttachSession {
@@ -328,6 +351,19 @@ export class DedicatedWorkerAttachSession {
   }
 
   /**
+   * The same workers counted by the address each attach named, so the counts
+   * sum to `attachedDedicatedWorkerCount`: the side of the readout's join by
+   * address that this client holds.
+   */
+  attachedDedicatedUrlCounts(): ReadonlyMap<string, number> {
+    const counts = new Map<string, number>();
+    for (const worker of this.workersBySession.values()) {
+      if (worker.kind === "dedicated") counts.set(worker.url, (counts.get(worker.url) || 0) + 1);
+    }
+    return counts;
+  }
+
+  /**
    * Wait until every attached worker's pause reached a terminal state. Each
    * pause is individually bounded by its watchdog, so this resolves within one
    * handshake timeout of the last attach; `timeoutMs` is a final backstop
@@ -425,7 +461,7 @@ export class DedicatedWorkerAttachSession {
   private onAttachedToTarget(event: DevtoolsEvent): void {
     const params = event.params;
     const sessionId = params.sessionId;
-    const targetInfo = params.targetInfo as { type?: unknown; parentFrameId?: unknown } | undefined;
+    const targetInfo = params.targetInfo as { type?: unknown; parentFrameId?: unknown; url?: unknown } | undefined;
     if (typeof sessionId !== "string" || !targetInfo) return;
     const type = typeof targetInfo.type === "string" ? targetInfo.type : "";
     const waitingForDebugger = params.waitingForDebugger === true;
@@ -443,9 +479,12 @@ export class DedicatedWorkerAttachSession {
         ? targetInfo.parentFrameId
         : null;
 
+    const url = typeof targetInfo.url === "string" ? targetInfo.url : "";
+
     const operation = this.handleAttachedTarget(sessionId, type, waitingForDebugger, nested, {
       arrivedOnSessionId,
-      ownerFrameId
+      ownerFrameId,
+      url
     }).catch(() => undefined);
     this.inFlight.add(operation);
     void operation.then(
@@ -459,7 +498,7 @@ export class DedicatedWorkerAttachSession {
     type: string,
     waitingForDebugger: boolean,
     nested: boolean,
-    origin: { arrivedOnSessionId: string | null; ownerFrameId: string | null }
+    origin: { arrivedOnSessionId: string | null; ownerFrameId: string | null; url: string }
   ): Promise<void> {
     if (type !== "worker" && type !== "shared_worker") {
       // Out-of-process frames and other auxiliary targets are attached by the
@@ -487,6 +526,7 @@ export class DedicatedWorkerAttachSession {
       arrivedOnSessionId: origin.arrivedOnSessionId,
       ownerFrameId: origin.ownerFrameId,
       waitingForDebugger,
+      url: origin.url,
       released: false,
       detached: false,
       detachedWhilePaused: false,

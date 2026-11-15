@@ -703,7 +703,8 @@ for (const [name, property, edits] of [
  * freeze, in no frame of the tree, or read and then refused or never answered by the
  * worker's vouch. Each with the channel alive, lost before the freeze or in the drain, and
  * alive with frame trees that cannot be read. Then workers started by others, no channel
- * at all, witness counts past what attached, and more attached than the witness saw. Then
+ * at all, witness counts past what attached, attaches of another address than the witnessed
+ * worker's, more of one address attached than witnessed, and more attached than the witness saw. Then
  * one worker whose attach arrives in the drain, by each start, with its install answered or
  * not, alone or beside a worker attached before the call, under each witness count.
  *
@@ -733,9 +734,10 @@ for (const [name, property, edits] of [
  * The expected terms restate the docblocks of the diagnostics and of `readout`, so they
  * catch the class drifting from those, not a wrong rule.
  *
- * Findings, each pinned below as what happens and not as what should: the witness and the
- * attached count have nothing to join them, so an unwitnessed worker can mask a witnessed
- * one; a gap in the drain before a barrier's answer leaves the worker read at its older
+ * Findings, each pinned below as what happens and not as what should: within one script
+ * address the witness and the attaches are joined by number only, so an unwitnessed worker
+ * can mask a witnessed one of the same address (from fingerprint-observer@15 an attach of
+ * another address masks nothing, held below as a claim); a gap in the drain before a barrier's answer leaves the worker read at its older
  * snapshot; one an earlier installer still holds when the channel closes is counted as held.
  * Closed at fingerprint-observer@14, and held below as a claim: a dedicated worker attached
  * in the drain lands in one term, by its attach.
@@ -753,6 +755,22 @@ const PRODUCTION_MODULES: Modules = { realm: productionRealm, attacher: producti
 const SITE_KEY = "site.test";
 const CONTEXT = "context-a";
 const ORIGIN = "http://site.test";
+
+/**
+ * A scripted witness of `count` dedicated workers, every one at the address the
+ * bench's attaches name, so the join by address pairs them as the count did.
+ * `others` adds witnessed workers at addresses of their own.
+ */
+type ScriptedWitness = { count(): number; urlCounts(): ReadonlyMap<string, number> };
+
+/** A second script address, for a witness and attaches that do not share one. */
+const OTHER_URL = `${ORIGIN}/other.js`;
+
+function witnessOf(count: number, others: ReadonlyMap<string, number> = new Map()): ScriptedWitness {
+  const byUrl = new Map<string, number>(count > 0 ? [[`${ORIGIN}/w.js`, count]] : []);
+  for (const [url, more] of others) byUrl.set(url, (byUrl.get(url) ?? 0) + more);
+  return { count: () => [...byUrl.values()].reduce((sum, each) => sum + each, 0), urlCounts: () => new Map(byUrl) };
+}
 
 /** No world holds a worker this long, whatever else the machine is doing, so a pause never ends on its own here, and a drain given this as its bound ends only when it has what it waits for. */
 const LONG_HOLD_MS = 3_600_000;
@@ -872,14 +890,14 @@ async function dedicatedBench(modules: Modules, plans: readonly DedicatedPlan[],
   };
   const session = new DedicatedWorkerAttachSession(scripted.channel, [earlier, installer], { handshakeTimeoutMs: LONG_HOLD_MS });
   await session.attachToPage("page-target");
-  const attach = (sessionId: string, plan: DedicatedPlan | undefined, arrivedOn = "page-session") => {
+  const attach = (sessionId: string, plan: DedicatedPlan | undefined, arrivedOn = "page-session", url = `${ORIGIN}/w.js`) => {
     if (plan !== undefined) planOf.set(sessionId, plan);
     scripted.emit({
       method: "Target.attachedToTarget",
       sessionId: arrivedOn,
       params: {
         sessionId,
-        targetInfo: { type: "worker", targetId: `${sessionId}-target`, url: `${ORIGIN}/w.js`, parentFrameId: plan?.owner === "no-such-frame" ? "no-such-frame" : `frame-${sessionId}` },
+        targetInfo: { type: "worker", targetId: `${sessionId}-target`, url, parentFrameId: plan?.owner === "no-such-frame" ? "no-such-frame" : `frame-${sessionId}` },
         waitingForDebugger: !plan?.start.startsWith("running")
       }
     });
@@ -913,9 +931,9 @@ async function dedicatedBench(modules: Modules, plans: readonly DedicatedPlan[],
     detach,
     sayClosed,
     release,
-    read(witnessed: number, settleMs = 0) {
+    read(witnessed: number | ScriptedWitness, settleMs = 0) {
       reading = true;
-      return installer.readout({ session, witness: { count: () => witnessed }, settleMs });
+      return installer.readout({ session, witness: typeof witnessed === "number" ? witnessOf(witnessed) : witnessed, settleMs });
     },
     async releaseAll() {
       for (const key of [...held.keys()]) release(key);
@@ -925,18 +943,19 @@ async function dedicatedBench(modules: Modules, plans: readonly DedicatedPlan[],
   };
 }
 
-async function dedicatedWorld(modules: Modules, plans: readonly DedicatedPlan[], mode: DedicatedMode, extra: { witnessed?: number; inTheDrain?: DedicatedPlan; readAgain?: boolean; nestedUnderFirst?: boolean } = {}) {
+async function dedicatedWorld(modules: Modules, plans: readonly DedicatedPlan[], mode: DedicatedMode, extra: { witnessed?: number; witness?: ScriptedWitness; inTheDrain?: DedicatedPlan; inTheDrainUrl?: string; readAgain?: boolean; nestedUnderFirst?: boolean } = {}) {
   const bench = await dedicatedBench(modules, plans, mode, extra);
-  const pending = bench.read(extra.witnessed ?? plans.length);
+  const witness = extra.witness ?? extra.witnessed ?? plans.length;
+  const pending = bench.read(witness);
   // In the drain: the readout froze at its call, and nothing has answered it yet.
   bench.sessionIds.forEach((sessionId, index) => {
     if (plans[index].gone === "in-the-drain") bench.detach(sessionId);
   });
-  if (extra.inTheDrain !== undefined) bench.attach("late-0", extra.inTheDrain);
+  if (extra.inTheDrain !== undefined) bench.attach("late-0", extra.inTheDrain, "page-session", extra.inTheDrainUrl);
   if (mode.channel === "lost-in-the-drain") bench.scripted.drop();
   const readout = await pending;
   await bench.releaseAll();
-  const again = extra.readAgain ? await bench.read(extra.witnessed ?? plans.length) : null;
+  const again = extra.readAgain ? await bench.read(witness) : null;
   bench.close();
   return { readout, emitted: bench.emitted, again };
 }
@@ -1043,7 +1062,7 @@ async function checkDedicatedExtras(modules: Modules): Promise<number> {
   }
   // No channel at all: every witnessed worker is unread.
   cases += 1;
-  const noChannel = await new modules.realm.FingerprintWorkerRealmInstaller(SITE_KEY).readout({ session: null, witness: { count: () => 2 }, settleMs: 0 });
+  const noChannel = await new modules.realm.FingerprintWorkerRealmInstaller(SITE_KEY).readout({ session: null, witness: witnessOf(2), settleMs: 0 });
   holds("cl7-a-witnessed-worker-never-attached-is-unattached", noChannel.diagnostics.attachedDedicated === 0 && noChannel.diagnostics.unattachedDedicated === 2, () => noChannel.diagnostics);
   holdPublishedSums(noChannel, new Set(), () => noChannel.diagnostics);
   for (const neverAttached of [1, 2]) {
@@ -1052,6 +1071,29 @@ async function checkDedicatedExtras(modules: Modules): Promise<number> {
     const input = () => ({ neverAttached, diagnostics: readout.diagnostics });
     holds("cl7-a-witnessed-worker-never-attached-is-unattached", readout.diagnostics.unattachedDedicated === neverAttached, input);
     holdPublishedSums(readout, emitted, input);
+  }
+  // Joined by address (fingerprint-observer@15): an attach of one address never stands in for a witnessed
+  // worker of another, before the call or in the drain, however many there are.
+  const otherWitnessed = witnessOf(0, new Map([[OTHER_URL, 1]]));
+  for (const world of [
+    { name: "one unwitnessed attach before the call", plans: [QUIET], inTheDrain: undefined },
+    { name: "two unwitnessed attaches before the call", plans: [QUIET, QUIET], inTheDrain: undefined },
+    { name: "one unwitnessed attach in the drain", plans: [], inTheDrain: QUIET }
+  ] as const) {
+    cases += 1;
+    const { readout, emitted } = await dedicatedWorld(modules, world.plans, ALIVE, { witness: otherWitnessed, inTheDrain: world.inTheDrain });
+    const input = () => ({ world: world.name, diagnostics: readout.diagnostics });
+    holdPublishedSums(readout, emitted, input);
+    holds("cl7-an-attach-of-another-address-offsets-nothing", readout.diagnostics.unattachedDedicated === 1 && readout.unreadRealms === 1, input);
+  }
+  // Within one address, more attached than witnessed: the address's term floors at nothing, alone or beside
+  // a witnessed worker of another address.
+  for (const witness of [witnessOf(1), witnessOf(1, new Map([[OTHER_URL, 1]]))]) {
+    cases += 1;
+    const { readout, emitted } = await dedicatedWorld(modules, [QUIET, QUIET], ALIVE, { witness });
+    const input = () => ({ witnessed: [...witness.urlCounts()], diagnostics: readout.diagnostics });
+    holdPublishedSums(readout, emitted, input);
+    holds("cl7-an-attach-of-another-address-offsets-nothing", readout.diagnostics.unattachedDedicated === witness.count() - 1, input);
   }
   // More attached than the witness saw, in the drain and before it: no term and no sum goes below nothing.
   for (const world of [{ plans: [], inTheDrain: QUIET }, { plans: [QUIET], inTheDrain: undefined }] as const) {
@@ -1123,8 +1165,14 @@ function watchEnd(pending: Promise<unknown>) {
 type DedicatedBench = Awaited<ReturnType<typeof dedicatedBench>>;
 
 /** What the dedicated side of the drain waits for, at a bound that never expires. */
-const DEDICATED_DRAINS: ReadonlyArray<{ name: string; plans: readonly DedicatedPlan[]; witnessed?: number; arrives: (bench: DedicatedBench) => void }> = [
+const DEDICATED_DRAINS: ReadonlyArray<{ name: string; plans: readonly DedicatedPlan[]; witnessed?: number | ScriptedWitness; arrives: (bench: DedicatedBench) => void }> = [
   { name: "a witnessed worker not yet attached", plans: [], witnessed: 1, arrives: (bench) => bench.attach("late-0", QUIET) },
+  {
+    name: "a witnessed worker not yet attached, beside an unwitnessed one of another address already attached",
+    plans: [QUIET],
+    witnessed: witnessOf(0, new Map([[OTHER_URL, 1]])),
+    arrives: (bench) => bench.attach("late-0", QUIET, "page-session", OTHER_URL)
+  },
   { name: "a running worker's barrier", plans: [{ ...QUIET, barrier: "unanswered" }], arrives: (bench) => bench.release("barrier:dw-0") },
   { name: "an owner read in flight", plans: [{ ...QUIET, owner: "vouch-unanswered" }], arrives: (bench) => bench.release("vouch:dw-0") },
   { name: "the closed snapshot a running worker's open task owes", plans: [{ ...QUIET, stream: "open" }], arrives: (bench) => bench.sayClosed("dw-0", 3) },
@@ -1437,7 +1485,7 @@ async function sharedBench(modules: Modules, plans: readonly SharedPlan[], optio
       toMain({ type: "reply", requestId: heldBarriers.get(sessionId), result: {} });
       heldBarriers.delete(sessionId);
     },
-    read: (settleMs = 0) => installer.readout({ session, witness: { count: () => 0 }, settleMs }),
+    read: (settleMs = 0) => installer.readout({ session, witness: witnessOf(0), settleMs }),
     close() {
       attacher.close();
       session.close();
@@ -1725,8 +1773,10 @@ test("CL7: every dedicated worker lands in one term of the real readout, the one
   assert.equal(plans.length, 3 * (2 + 5 * (1 + 7 + 15)));
   // Each mode's workers alone and all together.
   assert.equal(await checkDedicatedAccounting(PRODUCTION_MODULES), DEDICATED_MODES.length * (plans.length + 1));
-  // 4 nested pairs, no channel, 2 witness counts and 2 worlds with more attached than witnessed.
-  assert.equal(await checkDedicatedExtras(PRODUCTION_MODULES), 4 + 1 + 2 + 2);
+  // 4 nested pairs, no channel, 2 witness counts, 3 worlds whose attaches are of another address than the
+  // witnessed worker, 2 with more of one address attached than witnessed, and 2 worlds with more attached
+  // than witnessed.
+  assert.equal(await checkDedicatedExtras(PRODUCTION_MODULES), 4 + 1 + 2 + 3 + 2 + 2);
 });
 
 test("CL7: every shared worker the attacher reported lands in one term of the real readout, and the terms add up", async () => {
@@ -1738,7 +1788,7 @@ test("CL7: every shared worker the attacher reported lands in one term of the re
 test("CL7: the drain waits for each thing it names and ends when that arrives, at a bound that never expires", async () => {
   assert.equal(await checkDedicatedDrain(PRODUCTION_MODULES), DEDICATED_DRAINS.length);
   assert.equal(await checkSharedDrain(PRODUCTION_MODULES), SHARED_DRAINS.length);
-  assert.deepEqual([DEDICATED_DRAINS.length, SHARED_DRAINS.length], [7, 11]);
+  assert.deepEqual([DEDICATED_DRAINS.length, SHARED_DRAINS.length], [8, 11]);
 });
 
 test("CL7: an emission in the drain moves no freeze point", async () => {
@@ -1793,15 +1843,38 @@ test("CL7: a dedicated worker attached in the drain lands in one term, by its at
 });
 
 /**
- * Open (CL7), pinned the same way, and this one reaches the published count. The witness
- * is a count, read at the call, and the unattached term subtracts the attached count read
- * after the drain, with nothing to join them by. So a worker the witness never saw, attached
- * before the freeze or in the drain, stands in for a witnessed worker that never attached:
- * that worker is one unread realm alone, and none beside it. Before the freeze, the world
- * cannot be told from one witnessed worker that attached. How often a witness and its
- * attaches disagree this way is not measured.
+ * CL7, from fingerprint-observer@15: the witness and the attaches are joined by script
+ * address, so an unwitnessed worker of one address, attached before the freeze or in the
+ * drain, no longer stands in for a witnessed worker of another that never attached. Through
+ * @14 this was the open finding below in full: the witness was a count, and the world here
+ * read [1, 0, 0] in the drain and before the freeze. The two addresses are equal on nine
+ * worker kinds in part A's loopback measurement; whether a browser ever reports them apart
+ * for one worker is not measured, and if it did, both would read unread, never clean.
  */
-test("open (CL7): an unwitnessed worker, attached before the freeze or in the drain, masks a witnessed worker that never attached", async () => {
+test("CL7: an unwitnessed worker of another address, attached before the freeze or in the drain, does not mask a witnessed worker that never attached", async () => {
+  const counts = (readout: WorkerFingerprintRealmReadout) => [readout.diagnostics.attachedDedicated, readout.diagnostics.unattachedDedicated, readout.unreadRealms];
+  const witness = witnessOf(0, new Map([[OTHER_URL, 1]]));
+  const alone = await dedicatedWorld(PRODUCTION_MODULES, [], ALIVE, { witness });
+  assert.deepEqual(counts(alone.readout), [0, 1, 1]);
+  const inTheDrain = await dedicatedWorld(PRODUCTION_MODULES, [], ALIVE, { witness, inTheDrain: QUIET });
+  assert.deepEqual(counts(inTheDrain.readout), [1, 1, 1]);
+  const beforeTheFreeze = await dedicatedWorld(PRODUCTION_MODULES, [QUIET], ALIVE, { witness });
+  assert.deepEqual(counts(beforeTheFreeze.readout), [1, 1, 1]);
+  assert.equal(beforeTheFreeze.readout.diagnostics.readable, 1);
+});
+
+/**
+ * Open (CL7), pinned the same way, and this one reaches the published count. Within one
+ * script address the join is by number only: the witness's count for the address, read at
+ * the call, less the channel's attaches of it read after the drain. So a worker of that
+ * address the witness never saw, attached before the freeze or in the drain, stands in for
+ * a witnessed worker of the same address that never attached: that worker is one unread
+ * realm alone, and none beside it. Before the freeze, the world cannot be told from one
+ * witnessed worker that attached. Part A's loopback measurement saw two workers of one
+ * address as two equal strings with distinct targets in 20 of 20 visits; how often a witness
+ * and its attaches disagree within one address is not measured.
+ */
+test("open (CL7): within one address, an unwitnessed worker, attached before the freeze or in the drain, masks a witnessed worker of that address that never attached", async () => {
   const counts = (readout: WorkerFingerprintRealmReadout) => [readout.diagnostics.attachedDedicated, readout.diagnostics.unattachedDedicated, readout.unreadRealms];
   const alone = await dedicatedWorld(PRODUCTION_MODULES, [], ALIVE, { witnessed: 1 });
   assert.deepEqual(counts(alone.readout), [0, 1, 1]);
@@ -1811,6 +1884,34 @@ test("open (CL7): an unwitnessed worker, attached before the freeze or in the dr
   assert.deepEqual(counts(beforeTheFreeze.readout), [1, 0, 0]);
   assert.equal(beforeTheFreeze.readout.diagnostics.readable, 1);
 });
+
+/**
+ * CL7: the join's addresses stay inside the scanner. The readout returns the four parts the
+ * collection reads and its diagnostics, every diagnostic a number, and no witnessed or
+ * attached address appears anywhere in what it returns, so the join puts no new string on the
+ * wire or in the public string policy.
+ */
+async function checkReadoutCarriesNoAddress(modules: Modules): Promise<number> {
+  const witness = witnessOf(1, new Map([[OTHER_URL, 1]]));
+  const { readout } = await dedicatedWorld(modules, [QUIET, QUIET], ALIVE, { witness, inTheDrain: QUIET, inTheDrainUrl: OTHER_URL });
+  const input = () => readout;
+  const leaves: unknown[] = [];
+  const walk = (value: unknown) => {
+    if (value !== null && typeof value === "object") for (const each of Object.values(value)) walk(each);
+    else leaves.push(value);
+  };
+  walk(readout.diagnostics);
+  holds("cl7-the-readout-carries-no-address", JSON.stringify(Object.keys(readout).sort()) === JSON.stringify(["diagnostics", "readableSnapshots", "sharedWorkersEndedAtOnce", "unreadRealms", "unscopedSnapshots"]), input);
+  holds("cl7-the-readout-carries-no-address", leaves.every((leaf) => typeof leaf === "number"), input);
+  const text = JSON.stringify(readout);
+  holds("cl7-the-readout-carries-no-address", !text.includes(`${ORIGIN}/w.js`) && !text.includes(OTHER_URL), input);
+  return 1;
+}
+
+test("CL7: the join's addresses stay inside the scanner", async () => {
+  assert.equal(await checkReadoutCarriesNoAddress(PRODUCTION_MODULES), 1);
+});
+
 
 /**
  * Open (CL7), pinned the same way. A gap breaks a stream. Before the call that is
@@ -1860,6 +1961,12 @@ const mirrorVariant = (...edits: SourceEdit[]): Modules => ({
 });
 
 const DEDICATED_TERM_LINE = "diagnostics[landed.term] += 1;";
+// The join by address, in the emitted module: the unattached term, one address's part of it, the sum's
+// return and the drain's wait.
+const UNATTACHED_TERM = "unattachedDedicated: unattachedByUrl(witnessedAtFreeze, attachedByUrl),";
+const PER_ADDRESS_TERM = "unattached += Math.max(0, count - attachedHere);";
+const JOIN_RETURN = "return unattached;";
+const DRAIN_JOIN = "if (unattachedByUrl(witnessedAtFreeze, session.attachedDedicatedUrlCounts()) > 0)";
 const NO_RECORD_YET = "if (worker.waitingForDebugger)\n                heldBeforeInstall += 1;\n            else\n                runningBeforeInstall += 1;";
 const IN_THE_DRAIN_PASS = "if (attachedAtFreeze.has(worker.sessionId))\n                continue;\n            if (worker.waitingForDebugger)\n                diagnostics.pausedAtReadout += 1;\n            else\n                diagnostics.attachedLate += 1;";
 const SHARED_TERM_LINE = "shared[landed.term] += 1;";
@@ -1898,13 +2005,29 @@ for (const [name, property, edits] of [
 }
 
 for (const [name, property, edits] of [
-  ["a witnessed worker never attached is dropped", "cl7-a-witnessed-worker-never-attached-is-unattached", [{ find: "unattachedDedicated: Math.max(0, observedDedicated - attachCounts.attachedDedicatedWorkerCount),", replace: "unattachedDedicated: 0," }]],
+  ["a witnessed worker never attached is dropped", "cl7-a-witnessed-worker-never-attached-is-unattached", [{ find: UNATTACHED_TERM, replace: "unattachedDedicated: 0," }]],
   ["the unread count leaves out a witnessed worker never attached", "cl7-unread-realms-are-the-unread-terms", [{ find: "diagnostics.unattachedDedicated +\n", replace: "" }]],
-  ["the unattached term goes negative when more attached than the witness saw", "cl7-no-count-goes-negative", [{ find: "unattachedDedicated: Math.max(0, observedDedicated - attachCounts.attachedDedicatedWorkerCount),", replace: "unattachedDedicated: observedDedicated - attachCounts.attachedDedicatedWorkerCount," }]],
+  ["the unattached term goes negative when more attached than the witness saw", "cl7-no-count-goes-negative", [{ find: PER_ADDRESS_TERM, replace: "unattached += count - attachedHere;" }]],
+  // Fingerprint-observer@14's count, with nothing to join the witness to the attaches by.
+  ["the unattached term is a count again, as @14 had it", "cl7-an-attach-of-another-address-offsets-nothing", [{ find: UNATTACHED_TERM, replace: "unattachedDedicated: Math.max(0, observedDedicated - attachCounts.attachedDedicatedWorkerCount)," }]],
+  ["the witness is joined by address as a set, not by number", "cl7-a-witnessed-worker-never-attached-is-unattached", [{ find: PER_ADDRESS_TERM, replace: "unattached += Math.max(0, Math.min(count, 1) - Math.min(attachedHere, 1));" }]],
+  ["the floor is taken after the addresses are summed, so attaches of one address offset another", "cl7-an-attach-of-another-address-offsets-nothing", [
+    { find: PER_ADDRESS_TERM, replace: "unattached += count - attachedHere;" },
+    { find: JOIN_RETURN, replace: "for (const [url, count] of attached)\n        if (!witnessed.has(url))\n            unattached -= count;\n    return Math.max(0, unattached);" }
+  ]],
   ["a nested worker never takes its parent's owner", "cl7-a-nested-worker-takes-its-parent-s-owner", [{ find: 'return (_a = parent === null || parent === void 0 ? void 0 : parent.ownerRead) !== null && _a !== void 0 ? _a : "unknown";', replace: 'return "unknown";' }]]
 ] as ReadonlyArray<readonly [string, string, SourceEdit[]]>) {
   test(`CL7 catches a variant: ${name}`, async () => {
     await assertCaughtBy(name, property, () => checkDedicatedExtras(accountingVariant(...edits)));
+  });
+}
+
+for (const [name, edits] of [
+  ["the witnessed addresses are kept in the diagnostics", [{ find: UNATTACHED_TERM, replace: `${UNATTACHED_TERM}\n            witnessedUrls: [...witnessedAtFreeze.keys()],` }]],
+  ["the attached addresses are returned beside the readout", [{ find: "sharedWorkersEndedAtOnce: shared.endedAtOnce,", replace: "sharedWorkersEndedAtOnce: shared.endedAtOnce,\n            attachedUrls: [...attachedByUrl.keys()]," }]]
+] as ReadonlyArray<readonly [string, SourceEdit[]]>) {
+  test(`CL7 catches a variant: ${name}`, async () => {
+    await assertCaughtBy(name, "cl7-the-readout-carries-no-address", () => checkReadoutCarriesNoAddress(accountingVariant(...edits)));
   });
 }
 
@@ -1961,7 +2084,9 @@ for (const [name, edit] of STREAM_VARIANTS) {
 }
 
 for (const [name, property, edits] of [
-  ["the drain does not wait for the witness's attaches", "cl7-the-drain-waits-for-what-it-names", [{ find: "if (session.attachCounts().attachedDedicatedWorkerCount < observedDedicated)", replace: "if (false)" }]],
+  ["the drain does not wait for the witness's attaches", "cl7-the-drain-waits-for-what-it-names", [{ find: DRAIN_JOIN, replace: "if (false)" }]],
+  // Fingerprint-observer@14's wait, by count: an attach of another address ends it.
+  ["the drain waits for the witness's count, not for each address", "cl7-the-drain-waits-for-what-it-names", [{ find: DRAIN_JOIN, replace: "if (session.attachCounts().attachedDedicatedWorkerCount < [...witnessedAtFreeze.values()].reduce((sum, each) => sum + each, 0))" }]],
   ["the drain ends when any dedicated worker settled", "cl7-the-drain-waits-for-what-it-names", [{ find: "return frozen.every(realmSettled);", replace: "return frozen.length === 0 || frozen.some(realmSettled);" }]],
   ["the drain does not wait for an owner read", "cl7-the-drain-waits-for-what-it-names", [{ find: 'realm.record.owner !== "reading" &&', replace: "true &&" }]],
   ["a closed emission in the drain fills no slot", "cl7-the-drain-ends-when-that-arrives", [{ find: "for (const slot of record.slots) {\n            if (slot.snapshot === null && slot.freezeSeq !== null && sequence > slot.freezeSeq)\n                slot.snapshot = snapshot;\n        }", replace: "" }]],

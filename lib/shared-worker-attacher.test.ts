@@ -1361,7 +1361,7 @@ async function scriptedSharedReadout(t: TestContext, respond: (frame: Frame, bro
       mainDocument = next;
     },
     readout(settleMs = 200) {
-      return installer!.readout({ session, witness: { count: () => 0 }, settleMs });
+      return installer!.readout({ session, witness: { count: () => 0, urlCounts: () => new Map<string, number>() }, settleMs });
     }
   };
 }

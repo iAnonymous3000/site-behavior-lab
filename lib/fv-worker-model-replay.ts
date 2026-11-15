@@ -841,7 +841,7 @@ export class MainSide {
   async freeze(): Promise<void> {
     this.heard += 1;
     this.clock.mark();
-    void this.installer.readout({ session: this.session, witness: { count: () => 0 }, settleMs: A_BOUND_MS }).then((readout) => {
+    void this.installer.readout({ session: this.session, witness: { count: () => 0, urlCounts: () => new Map<string, number>() }, settleMs: A_BOUND_MS }).then((readout) => {
       this.readout = readout;
     });
     if (!this.treesComeLate) this.answerTrees();
@@ -1133,7 +1133,7 @@ export class DedicatedReplay {
       case "freeze":
         this.frozen = true;
         this.clock.mark();
-        void this.installer.readout({ session: this.session, witness: { count: () => 0 }, settleMs: A_BOUND_MS }).then((readout) => {
+        void this.installer.readout({ session: this.session, witness: { count: () => 0, urlCounts: () => new Map<string, number>() }, settleMs: A_BOUND_MS }).then((readout) => {
           this.readout = readout;
         });
         await this.clock.quiet();

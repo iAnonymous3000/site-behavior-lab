@@ -5,6 +5,7 @@ import { test } from "node:test";
 import { chromium } from "playwright";
 import {
   DedicatedWorkerAttachSession,
+  DedicatedWorkerWitness,
   devtoolsBrowserWebSocketUrl,
   openDevtoolsBrowserChannel,
   type AttachedWorker,
@@ -282,6 +283,62 @@ test("shared worker discovery is browser-level and counts each shared worker of 
  * same pause. A later installer that stalls past the watchdog, or throws,
  * leaves a worker whose readback came back true while it was held verified.
  */
+/**
+ * The channel's side of the readout's join by address: each dedicated attach is
+ * counted under the `targetInfo.url` it named, nested ones included, so the
+ * counts sum to the attached count; an attach that names no string is counted
+ * under "", and a shared worker's attach is not a dedicated one.
+ */
+test("the channel counts its dedicated attaches by the address each attach named, and they sum to its attached count", async () => {
+  const scripted = scriptedChannel(pageAttachResponder);
+  const session = new DedicatedWorkerAttachSession(scripted.channel, []);
+  await session.attachToPage("page-target-id");
+  const attach = (sessionId: string, targetInfo: Record<string, unknown>, arrivedOn = "page-session") =>
+    scripted.emit({
+      method: "Target.attachedToTarget",
+      sessionId: arrivedOn,
+      params: { sessionId, targetInfo: { targetId: `${sessionId}-target`, ...targetInfo }, waitingForDebugger: true }
+    });
+  attach("a-1", { type: "worker", url: "http://fixture.test/a.js" });
+  attach("a-2", { type: "worker", url: "http://fixture.test/a.js" });
+  attach("b-nested", { type: "worker", url: "blob:http://fixture.test/0b1c" }, "a-1");
+  attach("no-url", { type: "worker", url: 7 });
+  attach("shared", { type: "shared_worker", url: "http://fixture.test/s.js" });
+  await session.settle(1_000);
+  const byUrl = session.attachedDedicatedUrlCounts();
+  assert.deepEqual([...byUrl].sort(), [
+    ["", 1],
+    ["blob:http://fixture.test/0b1c", 1],
+    ["http://fixture.test/a.js", 2]
+  ]);
+  const counts = session.attachCounts();
+  assert.equal([...byUrl.values()].reduce((sum, each) => sum + each, 0), counts.attachedDedicatedWorkerCount);
+  assert.deepEqual([counts.attachedDedicatedWorkerCount, counts.attachedNestedDedicatedWorkerCount, counts.attachedSharedWorkerCount], [4, 1, 1]);
+  session.close();
+});
+
+/**
+ * The witness's side of the join: each worker is filed under the address it is
+ * given, counted by number within one address, and the per-address counts sum
+ * to the total the GPC accounting reads. A worker observed with no address is
+ * filed under "".
+ */
+test("the witness counts its workers by address, by number within one, and the counts sum to its total", () => {
+  const witness = new DedicatedWorkerWitness();
+  assert.deepEqual([witness.count(), [...witness.urlCounts()]], [0, []]);
+  witness.observe("http://fixture.test/a.js");
+  witness.observe("http://fixture.test/a.js");
+  witness.observe("data:text/javascript,1");
+  witness.observe();
+  assert.deepEqual([...witness.urlCounts()].sort(), [
+    ["", 1],
+    ["data:text/javascript,1", 1],
+    ["http://fixture.test/a.js", 2]
+  ]);
+  assert.equal(witness.count(), 4);
+  assert.equal([...witness.urlCounts().values()].reduce((sum, each) => sum + each, 0), witness.count());
+});
+
 test("a later installer's stall or failure cannot unverify a GPC readback taken while the worker was held", async () => {
   for (const behavior of [{ stall: true }, { fail: true }]) {
     const scripted = scriptedChannel((command) => {

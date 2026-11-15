@@ -82,6 +82,15 @@ function scriptedChannel(
   };
 }
 
+/**
+ * A scripted witness of `count` dedicated workers, every one at the address the
+ * scripted attaches name, so the readout's join by address pairs them as the
+ * count did.
+ */
+function witnessOf(count: number, url = "http://fixture.test/w.js") {
+  return { count: () => count, urlCounts: () => new Map<string, number>(count > 0 ? [[url, count]] : []) };
+}
+
 function attachEvent(
   sessionId: string,
   type: "worker" | "shared_worker" = "worker",
@@ -274,7 +283,7 @@ test("a shared worker attach gets nothing installed and no install record", asyn
   ]);
   assert.deepEqual(installer.installDiagnostics(), { installedWorkerCount: 0, installFailedWorkerCount: 0 });
   assert.equal(session.attachCounts().attachedSharedWorkerCount, 1);
-  const readout = await installer.readout({ session, witness: { count: () => 0 }, settleMs: 0 });
+  const readout = await installer.readout({ session, witness: witnessOf(0), settleMs: 0 });
   assert.deepEqual([readout.readableSnapshots, readout.unreadRealms], [[], 0]);
 });
 
@@ -336,7 +345,7 @@ async function scriptedWorkerRealms(
     },
     readout(observedDedicated: number, settleMs = 200): Promise<WorkerFingerprintRealmReadout> {
       sentBeforeReadout ??= scripted.sent.length;
-      return installer.readout({ session, witness: { count: () => observedDedicated }, settleMs });
+      return installer.readout({ session, witness: witnessOf(observedDedicated), settleMs });
     },
     /** What the readouts sent, by method and session. */
     readoutCommands(method: string): Array<string | undefined> {
@@ -548,7 +557,7 @@ test("readout: a closed channel leaves every worker still attached unread, and e
 
 test("readout: with no channel at all, every witnessed worker is unread", async () => {
   const installer = new FingerprintWorkerRealmInstaller(FIXTURE_SITE_KEY);
-  const readout = await installer.readout({ session: null, witness: { count: () => 2 }, settleMs: 0 });
+  const readout = await installer.readout({ session: null, witness: witnessOf(2), settleMs: 0 });
   assert.deepEqual(readoutTerms(readout), { snapshots: [], unread: 2, terms: { unattachedDedicated: 2 } });
 });
 
@@ -608,7 +617,7 @@ test("readout: a worker still held for its installers at the freeze ran nothing 
   await session.attachToPage("page-target-id");
   scripted.emit(attachEvent("held"));
   await new Promise((resolve) => setTimeout(resolve, 20));
-  const readout = await installer.readout({ session, witness: { count: () => 1 }, settleMs: 0 });
+  const readout = await installer.readout({ session, witness: witnessOf(1), settleMs: 0 });
   assert.deepEqual(readoutTerms(readout), { snapshots: [], unread: 0, terms: { pausedAtReadout: 1 } });
   releaseInstall!();
   await session.settle(1_000);
@@ -754,7 +763,7 @@ test("readout: a worker that died while held ran nothing and is excluded, althou
   releaseHold!();
   await session.settle(1_000);
   assert.deepEqual(installer.installDiagnostics(), { installedWorkerCount: 0, installFailedWorkerCount: 1 });
-  const readout = await installer.readout({ session, witness: { count: () => 1 }, settleMs: 0 });
+  const readout = await installer.readout({ session, witness: witnessOf(1), settleMs: 0 });
   assert.deepEqual(readoutTerms(readout), { snapshots: [], unread: 0, terms: { diedPaused: 1 } });
 });
 
@@ -802,7 +811,7 @@ test("the release and the install's count never wait for the owner read, whose a
 
   assert.ok(commandsFor(scripted.sent, "w1").includes("Runtime.runIfWaitingForDebugger"), "the worker must not wait for its owner read");
   assert.deepEqual(installer.installDiagnostics(), { installedWorkerCount: 1, installFailedWorkerCount: 0 });
-  const readout = (settleMs: number) => installer.readout({ session, witness: { count: () => 1 }, settleMs });
+  const readout = (settleMs: number) => installer.readout({ session, witness: witnessOf(1), settleMs });
   // The owner read is still held: the drain waits for it to its bound.
   assert.deepEqual(readoutTerms(await readout(50)), {
     snapshots: [],
@@ -863,7 +872,7 @@ test("an owner answer counts only when the worker vouches for it after it arrive
   assert.equal(commandsFor(scripted.sent, "gone-first").includes("Runtime.getIsolateId"), false);
 
   readingOut = true;
-  const pending = installer.readout({ session, witness: { count: () => workers.length }, settleMs: 100 });
+  const pending = installer.readout({ session, witness: witnessOf(workers.length), settleMs: 100 });
   trees.answerAll();
   const readout = await pending;
   assert.deepEqual(readoutTerms(readout), {
@@ -915,7 +924,7 @@ test("readout: a worker gone before it could vouch for its owner read is no loss
   await new Promise((resolve) => setImmediate(resolve));
 
   readingOut = true;
-  const readout = await installer.readout({ session, witness: { count: () => 2 }, settleMs: 100 });
+  const readout = await installer.readout({ session, witness: witnessOf(2), settleMs: 100 });
   const collection = await collectFingerprintObservationsWithCoverage([], readout);
   assert.deepEqual(
     [collection.attemptedWorkerRealms, collection.readableWorkerRealms],
@@ -1032,7 +1041,7 @@ test("a nested worker's owner follows its parent's read, however late it answers
   assert.equal(commandsFor(scripted.sent, "parent").includes("Page.getFrameTree"), false);
   assert.equal(scripted.sent.filter((command) => command.method === "Page.getFrameTree").length, 1);
 
-  const pending = installer.readout({ session, witness: { count: () => 2 }, settleMs: 500 });
+  const pending = installer.readout({ session, witness: witnessOf(2), settleMs: 500 });
   setTimeout(() => trees.answerAll(), 30);
   assert.deepEqual(readoutTerms(await pending), {
     snapshots: [READ_SNAPSHOT, READ_SNAPSHOT],
@@ -1293,7 +1302,7 @@ async function openVisitHarness(
     crashed = true;
   });
   const witness = new DedicatedWorkerWitness();
-  page.on("worker", () => witness.observe());
+  page.on("worker", (worker) => witness.observe(worker.url()));
   const targetSession = await context.newCDPSession(page);
   const info = (await targetSession.send("Target.getTargetInfo")) as {
     targetInfo: { targetId: string; browserContextId: string };

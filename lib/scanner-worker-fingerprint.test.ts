@@ -1561,3 +1561,106 @@ test("a consent click that leaves the site after a shared worker ended at once k
   assert.equal(redactScanResultV1(result).report.warnings.includes(fingerprintSharedWorkersEndedAtOnceWarning(1)), true);
   assert.deepEqual([accounting.v1Benchmark, accounting.r2Benchmark], [false, false]);
 });
+
+/**
+ * The join by address (fingerprint-observer@15) on real Chromium, through the
+ * real scanner: on each worker kind part A of the v26 work measured, the
+ * witness's workers by address (Playwright's `Worker.url()`) equal the
+ * channel's attaches by address (`targetInfo.url`), so every witnessed worker
+ * is paired with an attach of its own address and none reads unattached. One
+ * visit per kind, on loopback; the cross-site frame is another host the
+ * upstream stub sends to the same server. A worker started and terminated at
+ * once is left out: neither side saw it in part A's 20 visits, so there is
+ * nothing to pair. Two kinds real pages use are added for the gate: a module
+ * worker with a static import, and a worker whose script address answers with
+ * a same-origin redirect. Each kind writes both sides' addresses as a test
+ * diagnostic before anything is asserted, and every kind runs before the
+ * test fails, so one kind's mismatch does not hide another's. This is a
+ * fixture check of the two strings, never a rate.
+ */
+test("on each worker kind, the witness's addresses equal the channel's, so no witnessed worker reads unattached", { timeout: 300_000 }, async (t) => {
+  withConsentVerification(t);
+  const canvasWorker = `${CANVAS_READ_SOURCE} setTimeout(() => {}, 50);`;
+  const kinds: ReadonlyArray<{ name: string; page: string; frame?: string; workers: number }> = [
+    { name: "script URL", page: `<script>new Worker('/w.js');</script>`, workers: 1 },
+    { name: "blob:", page: `<script>new Worker(URL.createObjectURL(new Blob([${JSON.stringify(canvasWorker)}], { type: 'text/javascript' })));</script>`, workers: 1 },
+    { name: "data:", page: `<script>new Worker('data:text/javascript,' + encodeURIComponent(${JSON.stringify(canvasWorker)}));</script>`, workers: 1 },
+    { name: "same-origin frame", page: `<iframe src="/frame.html"></iframe>`, frame: `<script>new Worker('/w.js');</script>`, workers: 1 },
+    { name: "cross-site frame", page: `<iframe src="http://frames.join-by-address.net/frame.html"></iframe>`, frame: `<script>new Worker('/w.js');</script>`, workers: 1 },
+    { name: "srcdoc frame", page: `<iframe srcdoc="<script>new Worker('/w.js');</script>"></iframe>`, workers: 1 },
+    { name: "about:blank frame", page: `<iframe id="f"></iframe><script>const f = document.getElementById('f'); new f.contentWindow.Worker('/w.js');</script>`, workers: 1 },
+    { name: "nested", page: `<script>new Worker('/parent.js');</script>`, workers: 2 },
+    { name: "two from one address", page: `<script>new Worker('/w.js'); new Worker('/w.js');</script>`, workers: 2 },
+    { name: "module worker", page: `<script>new Worker('/module.js', { type: 'module' });</script>`, workers: 1 },
+    { name: "same-origin redirect", page: `<script>new Worker('/moved.js');</script>`, workers: 1 }
+  ];
+  const failures: string[] = [];
+  for (const kind of kinds) {
+    const server = createServer((request, response) => {
+      const path = new URL(request.url ?? "/", "http://fixture.test").pathname;
+      const scripts: Record<string, string> = {
+        "/w.js": canvasWorker,
+        "/parent.js": `new Worker('/child.js'); ${canvasWorker}`,
+        "/child.js": canvasWorker,
+        "/module.js": `import { draw } from '/dependency.js'; draw();`,
+        "/dependency.js": `export function draw() { ${canvasWorker} }`
+      };
+      if (path === "/moved.js") {
+        response.writeHead(302, { location: "/w.js" });
+        response.end();
+        return;
+      }
+      if (scripts[path] !== undefined) {
+        response.writeHead(200, { "content-type": "text/javascript" });
+        response.end(scripts[path]);
+        return;
+      }
+      if (path === "/" || path === "/frame.html") {
+        response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+        response.end(
+          path === "/"
+            ? `<!doctype html><title>Join by address</title><main><p>Ordinary public page.</p></main>${kind.page}`
+            : `<!doctype html><title>Frame</title>${kind.frame ?? ""}`
+        );
+        return;
+      }
+      response.writeHead(404);
+      response.end();
+    });
+    const port = await listen(t, server);
+    let established: EstablishedWorkerRealmChannelForTests | null = null;
+    const accounting = fingerprintAccounting(
+      await scanSiteWithMeasurement(
+        { url: "http://www.join-by-address.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+        {
+          ...scanOptions(port),
+          onWorkerRealmChannelEstablishedForTests: (channel) => {
+            established = channel;
+          }
+        }
+      )
+    );
+    if (!established) {
+      failures.push(`${kind.name}: no channel`);
+      continue;
+    }
+    const channel = established as EstablishedWorkerRealmChannelForTests;
+    const witnessed = [...channel.witness.urlCounts()].sort();
+    const attached = [...channel.session.attachedDedicatedUrlCounts()].sort();
+    t.diagnostic(`${kind.name}: witness ${JSON.stringify(witnessed)} channel ${JSON.stringify(attached)} losses ${JSON.stringify(accounting.losses)} workerLine ${accounting.lines.workerRealm}`);
+    for (const check of [
+      () => assert.deepEqual(witnessed, attached),
+      () => assert.equal(channel.witness.count(), kind.workers),
+      () => assert.equal(witnessed.some(([url]) => url === ""), false),
+      () => assert.equal(accounting.lines.workerRealm, false),
+      () => assert.deepEqual(accounting.losses, [])
+    ]) {
+      try {
+        check();
+      } catch (error) {
+        failures.push(`${kind.name}: ${(error as Error).message.split("\n")[0]}`);
+      }
+    }
+  }
+  assert.deepEqual(failures, []);
+});

@@ -1315,11 +1315,12 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
     page.on("request", noteInitiatorRequest);
 
     // The browser-side witness: every dedicated worker Playwright's own
-    // recursive auto-attach reports for this page, nested ones included.
-    // Registered in every arm while the page is still about:blank and before
-    // the DevTools channel is established, so a failed establish cannot skip
-    // it and no worker of the visit predates it.
-    page.on("worker", () => dedicatedWorkerWitness.observe());
+    // recursive auto-attach reports for this page, nested ones included, filed
+    // under its script address so the readout can join it to the channel's
+    // attaches by address. Registered in every arm while the page is still
+    // about:blank and before the DevTools channel is established, so a failed
+    // establish cannot skip it and no worker of the visit predates it.
+    page.on("worker", (worker) => dedicatedWorkerWitness.observe(worker.url()));
     if (gpcWorkerInjection) {
       // Scope the registration wrapper to the measured page and its child
       // frames. Popups and the later out-of-evidence policy page are outside
