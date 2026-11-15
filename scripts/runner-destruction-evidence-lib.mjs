@@ -20,8 +20,6 @@ import {
 export const RUNNER_DESTRUCTION_EVIDENCE_KIND =
   "site-behavior-runner-destruction-provider-readback";
 export const RUNNER_DESTRUCTION_EVIDENCE_SCHEMA_VERSION = 1;
-export const RUNNER_DESTRUCTION_EVIDENCE_FILENAME =
-  "destruction-evidence.json";
 export const RUNNER_DESTRUCTION_PROVIDER_RESPONSE_MAX_BYTES =
   1024 * 1024;
 export const CONTROLLED_RUNNER_REPOSITORY =

@@ -82,6 +82,8 @@ const TARGETS = {
   "publication-transparency-log": ["dist", "schema", "lib", "publication-transparency-log-cli.js"],
   "transparency-log-anchor": ["dist", "schema", "lib", "transparency-log-anchor-cli.js"],
   "remediate-reports": ["dist", "schema", "lib", "remediate-reports-cli.js"],
+  "report-publication-archive": ["dist", "schema", "lib", "report-publication-archive-cli.js"],
+  "report-publication-artifact": ["dist", "schema", "lib", "report-publication-artifact-cli.js"],
   "toolchain-canary": ["scripts", "toolchain-canary.mjs"],
   "verify-published-report": ["dist", "schema", "lib", "verify-published-report-cli.js"],
   "verify-v2-shadow": ["dist", "schema", "lib", "verify-v2-shadow-cli.js"]
