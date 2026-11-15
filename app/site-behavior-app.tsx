@@ -10,7 +10,6 @@ import {
 import { ScanControls } from "./_components/scan-controls";
 import { SiteChrome } from "./_components/site-chrome";
 import { ScanRecoveryBanner } from "./_components/scan-recovery-banner";
-import { ScheduledRescans } from "./_components/scheduled-rescans";
 import { useScanRuntime } from "./_hooks/use-scan-runtime";
 import {
   LIVE_SCAN_ENABLED,
@@ -35,6 +34,7 @@ import { readClientFileText } from "@/lib/client-file-policy";
 import { isStaticReportManifest } from "@/lib/static-report-manifest-guard";
 import type { HomepageDiscovery, HomepageFeaturedGroup } from "@/lib/homepage-discovery";
 import { OPEN_LATEST_REPORT_LABEL } from "@/lib/homepage-labels";
+import { scheduledRescansWanted } from "@/lib/scheduled-rescan-mount";
 import { plural } from "@/lib/text-format";
 import { readLoadedReport, asLocalReport } from "@/lib/client-report-reader";
 // Type-only: the deep reader module stays lazy-loaded (client-report-reader);
@@ -47,6 +47,12 @@ const LazyStaticReportGallery = lazy(() =>
 );
 const LazyReportRenderer = lazy(() =>
   import("./_components/report-renderer").then((module) => ({ default: module.ReportRenderer }))
+);
+// Scheduled rescans are off unless the scanner advertises them, so the watch
+// client stays out of the first load; lib/scheduled-rescan-mount.ts decides
+// when the panel loads.
+const LazyScheduledRescans = lazy(() =>
+  import("./_components/scheduled-rescans").then((module) => ({ default: module.ScheduledRescans }))
 );
 
 // Every hint restates evidence from a committed public-corpus report (the
@@ -167,6 +173,9 @@ export function SiteBehaviorApp({
   const [staticReports, setStaticReports] = useState<StaticReportManifestEntry[] | null>(null);
   const [staticReportsError, setStaticReportsError] = useState<string | null>(null);
   const [archiveRequested, setArchiveRequested] = useState(false);
+  // Latched: once mounted, the panel stays mounted, as it did when it was
+  // imported statically, so a health change cannot drop a watch in progress.
+  const [scheduledRescansMounted, setScheduledRescansMounted] = useState(false);
   const reportRegionRef = useRef<HTMLElement | null>(null);
   const recoveryBannerRef = useRef<HTMLElement | null>(null);
   const archiveOperationRef = useRef<LatestClientOperation | null>(null);
@@ -180,6 +189,16 @@ export function SiteBehaviorApp({
     archiveOperation.cancel();
     reportOpenOperation.cancel();
   }, [archiveOperation, reportOpenOperation]);
+
+  useEffect(() => {
+    if (scheduledRescansMounted) return;
+    const mountWhenWanted = () => {
+      if (scheduledRescansWanted(scheduledRescansEnabled, window.location.hash)) setScheduledRescansMounted(true);
+    };
+    mountWhenWanted();
+    window.addEventListener("hashchange", mountWhenWanted);
+    return () => window.removeEventListener("hashchange", mountWhenWanted);
+  }, [scheduledRescansEnabled, scheduledRescansMounted]);
 
   // Every producer replaces the workbench state with a report. Announce that
   // transition at the shared result boundary instead of leaving focus on a
@@ -347,19 +366,23 @@ export function SiteBehaviorApp({
           options; a wide screen lays it in the limit column under the scan
           disclosure (app/_design/home.css). */}
       {visitRecords}
-      <ScheduledRescans
-        enabled={scheduledRescansEnabled}
-        form={form}
-        scanBlocked={scanBlocked}
-        scanBusy={loading}
-        acceptedScanJob={Boolean(activeScanJob || pendingScanAdmission)}
-        scannerRequiresAccessKey={scannerRequiresAccessKey}
-        turnstileRequired={turnstileRequired}
-        turnstileToken={turnstileToken}
-        onTargetNormalized={acceptScheduledRescanTarget}
-        onCreateBusyChange={setScheduledRescanCreateBusy}
-        onCreateNetworkAttemptSettled={resetTurnstileAfterScheduledRescanAttempt}
-      />
+      {scheduledRescansMounted && (
+        <Suspense fallback={null}>
+          <LazyScheduledRescans
+            enabled={scheduledRescansEnabled}
+            form={form}
+            scanBlocked={scanBlocked}
+            scanBusy={loading}
+            acceptedScanJob={Boolean(activeScanJob || pendingScanAdmission)}
+            scannerRequiresAccessKey={scannerRequiresAccessKey}
+            turnstileRequired={turnstileRequired}
+            turnstileToken={turnstileToken}
+            onTargetNormalized={acceptScheduledRescanTarget}
+            onCreateBusyChange={setScheduledRescanCreateBusy}
+            onCreateNetworkAttemptSettled={resetTurnstileAfterScheduledRescanAttempt}
+          />
+        </Suspense>
+      )}
     </div>
   );
 

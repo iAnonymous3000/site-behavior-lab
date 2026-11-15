@@ -4219,11 +4219,12 @@ async function assertScrollCheckAnswersAndLabels(browser, baseUrl, manifest) {
  * because a fragment navigation fires popstate synchronously, before the
  * queued hashchange: useScanRuntime's popstate listener strips the prefill
  * from the address and fills the field, ScheduledRescans' hashchange restore
- * then puts `#watch=` back, and the prefill's own hashchange listener reads
- * the capability and does nothing. Dropping the popstate listener swallows
- * the prefill. Taking the target from the hashchange event's newURL, as the
- * evidence readers do, reruns the cleanup over the capability. The goto
- * changes only the fragment, as an address-bar edit does.
+ * puts `#watch=` back, and the prefill's own hashchange listener, before or
+ * after that restore, finds no prefill and does nothing. Dropping the
+ * popstate listener swallows the prefill. Taking the target from the
+ * hashchange event's newURL, as the evidence readers do, reruns the cleanup
+ * over the capability. The goto changes only the fragment, as an
+ * address-bar edit does.
  */
 async function assertRetainedWatchKeepsScanPrefill(context, baseUrl) {
   const watch = mintedWatchFragment();

@@ -199,8 +199,8 @@ test("report components wire neutral comparisons, deep-link filters, and a non-d
 
 /**
  * Every evidence reader's hashchange listener, by the definition its
- * registration names. On the home page ScheduledRescans registers first and,
- * inside the same dispatch, writes a retained `#watch=` management link back
+ * registration names. On the home page ScheduledRescans can run first and,
+ * inside the same dispatch, write a retained `#watch=` management link back
  * into the address, so a listener that read location.hash saw the capability
  * and dropped the evidence link: the log stayed closed and the arm unswitched.
  * A source contract cannot see listener order; scripts/smoke-static-site.mjs

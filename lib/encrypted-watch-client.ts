@@ -12,8 +12,8 @@ import {
 import { isScanJobId } from "./durable-scan-job-contract";
 import { SCAN_ACCESS_TOKEN_HEADER } from "./scan-token";
 import { fetchJsonResponseWithPolicy } from "./client-fetch-policy";
+import { WATCH_FRAGMENT_PREFIX } from "./scheduled-rescan-mount";
 
-const WATCH_FRAGMENT_PREFIX = "#watch=";
 const SAFE_ERROR_CODE_PATTERN = /^[a-z0-9][a-z0-9._-]{0,63}$/;
 
 /** Watch DTOs contain at most five compact run records; larger JSON is invalid. */
