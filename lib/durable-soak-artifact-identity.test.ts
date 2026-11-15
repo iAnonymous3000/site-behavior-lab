@@ -147,7 +147,8 @@ test("only command-line values are converted from text", () => {
 
 test("the collector keeps no validator copy of its own", () => {
   const source = readFileSync(path.join(process.cwd(), "scripts", "durable-soak-ledger.mjs"), "utf8");
-  for (const name of ["artifactIdentity", "positiveInteger", "digest"]) {
+  const validators = ["artifactIdentity", "positiveInteger", "requireValue", "isRecord", "canonicalInstant"];
+  for (const name of [...validators, "digest"]) {
     assert.doesNotMatch(
       source,
       new RegExp(`\\b(?:function\\s+${name}\\s*\\(|(?:const|let|var)\\s+${name}\\s*=)`),
@@ -157,5 +158,7 @@ test("the collector keeps no validator copy of its own", () => {
   const imports = source.match(/^import \{([^}]*)\} from "\.\/durable-soak-ledger-lib\.mjs";$/m);
   assert.ok(imports, "the collector must import from the ledger lib");
   const names = imports[1].split(",").map((name) => name.trim());
-  assert.ok(names.includes("artifactIdentity") && names.includes("positiveInteger"), "the collector must import both validators");
+  for (const name of validators) {
+    assert.ok(names.includes(name), `the collector must import ${name} from the ledger lib`);
+  }
 });

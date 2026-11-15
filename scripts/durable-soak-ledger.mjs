@@ -12,6 +12,7 @@ import {
   artifactIdentity,
   buildDurableSoakSourceDigestManifest,
   canonicalDurableSoakText,
+  canonicalInstant,
   deriveDurableSoakLedger,
   DURABLE_SOAK_DEEP_RUN_NAME,
   DURABLE_SOAK_HEALTH_ARTIFACT_MEMBERS,
@@ -22,7 +23,9 @@ import {
   DURABLE_SOAK_RESTART_WORKFLOW,
   DURABLE_SOAK_SHALLOW_RUN_NAME,
   DURABLE_SOAK_SOURCE_DIGESTS_FILE,
+  isRecord,
   positiveInteger,
+  requireValue,
   sha256DurableSoak,
   verifyDurableSoakLedgerMembers
 } from "./durable-soak-ledger-lib.mjs";
@@ -64,18 +67,6 @@ const RESTART_ARTIFACT_MEMBERS = Object.freeze([
   "restart-evidence.json"
 ]);
 
-function requireValue(condition, message) {
-  if (!condition) throw new Error(message);
-}
-
-function isRecord(value) {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    !Array.isArray(value)
-  );
-}
-
 function parseJson(bytes, label) {
   let text;
   try {
@@ -107,17 +98,6 @@ function positiveIntegerArgument(value, label, maximum = Number.MAX_SAFE_INTEGER
     label,
     maximum
   );
-}
-
-function canonicalInstant(value, label) {
-  requireValue(
-    typeof value === "string" &&
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value) &&
-      Number.isFinite(Date.parse(value)) &&
-      new Date(value).toISOString() === value,
-    `${label} must be a canonical millisecond UTC instant`
-  );
-  return value;
 }
 
 export function projectedDurableSoakRestRequests({

@@ -58,11 +58,11 @@ const ARTIFACT_ARCHIVE =
 const HEALTH_SAMPLE =
   /^samples\/([1-9][0-9]*)-([0-9]{3})\/production-health\.json$/;
 
-function requireValue(condition, message) {
+export function requireValue(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-function isRecord(value) {
+export function isRecord(value) {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -165,7 +165,7 @@ function digest(value, label) {
   return normalized;
 }
 
-function canonicalInstant(value, label) {
+export function canonicalInstant(value, label) {
   requireValue(
     typeof value === "string" &&
       CANONICAL_INSTANT.test(value) &&
