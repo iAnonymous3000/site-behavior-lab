@@ -21,9 +21,8 @@
 // (code, category, operation, cleanup), the reported budget figures as numbers, and never the message
 // or the remediation sentence, which this adapter does not hold to a fixed list.
 //
-// The one sentence quoted here that 6.5.0 does not write is 6.8.0's (the package declares MIT). Its
-// notice, copied from 6.8.0's own LICENSE file, is not in the repository yet: docs/third-party holds
-// 6.5.0's only, and reading 6.8.0's LICENSE means opening its tarball inside the runner image.
+// The one sentence quoted here that 6.5.0 does not write is 6.8.0's. The package's MIT notice for it,
+// copied from 6.8.0's own LICENSE file, is in docs/third-party/rea-agents-6.8.0-notice.md.
 
 import {
   RECORDER_LIMITATIONS,
