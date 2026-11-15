@@ -113,7 +113,7 @@ The mark does not survive a caller who removes it on purpose. There are two ways
 
 - "S3 order": the seam's init script runs after the bounded page collector and before the fingerprint observer in the fixture's page and its two frames, at the pinned Playwright version, and the hooks run in the order the table above gives.
 - "S3 bounds": each hook is called at most once for each of its points, a hook that never settles ends its wait at its own bound or at the caller's signal, and no wait leaves a listener on that signal.
-- "S3 isolation": for the seam behaviours the file lists, a seam visit records what an ordinary visit records, apart from the mark and the clock fields the file names. That holds only for a page that reads nothing a seam's script defines; a page that does will act differently, and its visit will record that.
+- "S3 isolation": for the seam behaviours the file lists, a seam visit records what an ordinary visit records, apart from the mark and the clock fields the file names. That holds only for a page that reads nothing a seam's script defines; a page that does will act differently, and its visit will record that. The test whose name begins "S3 isolation limit" holds that too: on a fixture page that reads a global the seam's script defines, the seam visit records the page's different request, and nothing else differs.
 - "S3 mark": each step in the table above refuses or declines a real seam visit and its copies, and each refusal names its step.
 - "S3 readback": the use record gives the hooks that were set, the init script's sha256, both bounds and each hook's time, as the test set them.
 
