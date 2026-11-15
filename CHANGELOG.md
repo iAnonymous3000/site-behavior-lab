@@ -565,6 +565,22 @@ public API or a 1.0 release.
 
 ### Fixed
 
+- The limitations page said three things about worker evidence that the
+  formal verification register's open findings contradict. It said a
+  dedicated worker the browser reported and the scanner never reached
+  "never lets the visit read clean", that a worker is "never read at an
+  earlier state", and that every shared worker of a visit the attacher could
+  not serve marks the evidence incomplete. The page now states the gaps:
+  dedicated workers are compared by number and not by which ones, so one
+  the browser did not report can stand in for one the scanner never
+  reached; a worker that has ended is read at the last state received, and
+  whether the browser can report its end ahead of its last message is not
+  measured; and a shared worker can be counted nowhere when the scanner's
+  page connection is lost while the evidence is read, or if the browser
+  answers the frame query before it reports the worker (0 of 1,114 runs on
+  test pages). In each case a visit can read complete. No scanner code,
+  scan or report changes; the findings stay open in the register.
+
 - The report share card no longer cuts its own limit sentence. The block
   with the visit date, the tagline and the limit sentence ("Observed in two
   automated visits: evidence to check, not a verdict.") sat beside the
