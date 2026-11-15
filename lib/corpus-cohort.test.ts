@@ -681,7 +681,7 @@ test("no methodology carries two of the registries the cohort key leaves to it, 
   // 1.63.0) ran thirteen registries, node-detectors-v11 to v23; the one the
   // 2026-12 toolchain epoch retired (Playwright 1.64.1) ran two,
   // node-detectors-v23 and v24, and the live one (Playwright 1.65.0) has run
-  // two, node-detectors-v24 and v25.
+  // three, node-detectors-v24, v25 and v26.
   const retired = [...registriesByMethodology].filter(([methodology]) => methodology.includes("-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2+"));
   assert.equal(retired.length, 1);
   assert.deepEqual(

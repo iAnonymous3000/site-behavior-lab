@@ -199,7 +199,12 @@ export type FingerprintObserverRealmArgs = {
  * Through @13 the first was excluded as held, the second as died paused, and
  * the third was counted nowhere. A dedicated worker held at an attach that
  * arrives in the drain is excluded as paused at the readout, where through
- * @13 it was counted nowhere.
+ * @13 it was counted nowhere. `@15` (node-detectors-v26) keeps this script.
+ * The readout joins the browser-side witness to the channel's dedicated
+ * attaches by script address: a witnessed worker no attach of its own
+ * address pairs with is unread, where through @14 an attach of any address,
+ * the witness had seen it or not, stood in for it. Within one address the
+ * two are still matched by number.
  *
  * `firstPartySiteKey` is the scanned site's registrable domain (computed with
  * the real public-suffix list in Node, e.g. "capitalone.com"), so the in-page
