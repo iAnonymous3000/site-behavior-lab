@@ -3606,31 +3606,19 @@ a {
   overflow-wrap: anywhere;
 }
 
-.status-actions,
-.trust-links {
+.status-actions {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
   gap: 10px 16px;
 }
 
-.status-actions a:not(.primary-button),
-.trust-links a {
+.status-actions a:not(.primary-button) {
   font-size: 13px;
   font-weight: var(--weight-medium);
 }
 
 /* The border and spacing move to the row so the theme toggle sits on the same rule. */
-
-.trust-links a {
-  color: var(--text-muted);
-  text-decoration: none;
-}
-
-.trust-links a:hover {
-  color: var(--accent-strong);
-  text-decoration: underline;
-}
 
 @media (max-width: 620px) {
   .status-card-grid {
@@ -3719,8 +3707,7 @@ a {
   margin: 6px 0 0;
 }
 
-.site-change-list,
-.site-history-list {
+.site-change-list {
   display: grid;
   gap: 10px;
   list-style: none;
@@ -5604,8 +5591,6 @@ details[open] > summary .disclosure-chevron {
   /* Nested grid items otherwise retain the featured card's 248px min-content
      width, which can push the static archive past a 320px viewport after the
      surrounding card padding is accounted for. */
-  .static-tools,
-  .static-tools > *,
   .static-gallery > * {
     min-width: 0;
   }
