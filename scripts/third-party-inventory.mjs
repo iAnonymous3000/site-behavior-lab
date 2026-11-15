@@ -16,8 +16,23 @@ const INPUT_PATHS = Object.freeze({
   cargoLock: "tools/adblock-wasm/Cargo.lock",
   cargoManifest: "tools/adblock-wasm/Cargo.toml",
   filterMetadata: "lib/adblock-wasm/brave-default-filters.meta.json",
-  githubCliBuildTool: GITHUB_CLI_BUILD_TOOL_MANIFEST_PATH
+  githubCliBuildTool: GITHUB_CLI_BUILD_TOOL_MANIFEST_PATH,
+  // The investigation runner's own lockfile (the recorder release the owner confirmed) and the second
+  // Node it installs. The runner image is built by hand and is not the scanner's; its packages and its
+  // Node are inventoried apart from the scanner's, under runnerNpm and runnerTools.
+  runnerPackageLock: "investigation/runner/s4/package-lock-6.8.0.json",
+  runnerNodeRuntime: "investigation/runner/s4/node-runtime.json"
 });
+/**
+ * The runner lockfile's optional entries that the runner image does install: the terminal module's
+ * Linux prebuilds, one per architecture, which the owner approved by name. Every other optional
+ * entry (frida, the darwin and win32 prebuilds) was never downloaded and is not installed.
+ */
+const RUNNER_INSTALLED_OPTIONAL = new Set(["@lydell/node-pty-linux-arm64", "@lydell/node-pty-linux-x64"]);
+/** What the two runner sections describe, stated in the file itself. */
+const RUNNER_SCOPE =
+  "The private investigation runner image only (investigation/runner/s4), built by hand and pushed nowhere. " +
+  "Nothing in these runner sections is shipped by the public site or the public scanner.";
 const UNKNOWN_LICENSE = "UNKNOWN";
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 const GIT_COMMIT_PATTERN = /^[a-f0-9]{40}$/;
@@ -86,17 +101,17 @@ function packageNameFromLockPath(lockPath) {
   return name;
 }
 
-function buildNpmInventory(packageLockSource) {
-  const lock = requireObject(parseJson(packageLockSource, INPUT_PATHS.packageLock), INPUT_PATHS.packageLock);
+function buildNpmInventory(packageLockSource, inputPath = INPUT_PATHS.packageLock) {
+  const lock = requireObject(parseJson(packageLockSource, inputPath), inputPath);
   if (lock.lockfileVersion !== 3) {
-    throw new Error(`${INPUT_PATHS.packageLock} must use lockfileVersion 3`);
+    throw new Error(`${inputPath} must use lockfileVersion 3`);
   }
-  const packages = requireObject(lock.packages, `${INPUT_PATHS.packageLock}.packages`);
+  const packages = requireObject(lock.packages, `${inputPath}.packages`);
   const inventory = [];
 
   for (const [lockPath, rawPackage] of Object.entries(packages)) {
     if (lockPath === "") continue;
-    const packageRecord = requireObject(rawPackage, `${INPUT_PATHS.packageLock}.packages[${JSON.stringify(lockPath)}]`);
+    const packageRecord = requireObject(rawPackage, `${inputPath}.packages[${JSON.stringify(lockPath)}]`);
     const name = packageNameFromLockPath(lockPath);
     const version = requireString(packageRecord.version, `${lockPath}.version`);
     const declaredLicense = optionalString(packageRecord.license, `${lockPath}.license`);
@@ -107,7 +122,7 @@ function buildNpmInventory(packageLockSource) {
       lockPath,
       license: declaredLicense ?? UNKNOWN_LICENSE,
       licenseStatus: declaredLicense === null ? "unknown-not-recorded-in-package-lock" : "declared-in-package-lock",
-      licenseEvidence: declaredLicense === null ? null : INPUT_PATHS.packageLock,
+      licenseEvidence: declaredLicense === null ? null : inputPath,
       resolved: optionalString(packageRecord.resolved, `${lockPath}.resolved`),
       integrity: optionalString(packageRecord.integrity, `${lockPath}.integrity`),
       developmentOnly: packageRecord.dev === true,
@@ -303,6 +318,57 @@ function summarizeLicenseEvidence(entries) {
   };
 }
 
+/**
+ * The runner's packages: the same entries as the scanner's lock gives, each marked by whether the runner
+ * image installs it. A license declared in the deprecated "or later" form ("LGPL-3.0+") is copied as
+ * declared and its meaning stated beside it, never rewritten.
+ */
+function buildRunnerNpmInventory(packageLockSource) {
+  return buildNpmInventory(packageLockSource, INPUT_PATHS.runnerPackageLock).map((entry) => ({
+    ...entry,
+    runnerInstall: !entry.optional ? "required" : RUNNER_INSTALLED_OPTIONAL.has(entry.name) ? "linux-prebuild" : "optional-not-installed",
+    licenseMeaning: entry.license.endsWith("+") ? `${entry.license.slice(0, -1)} or later` : null
+  }));
+}
+
+const FINGERPRINT_PATTERN = /^[0-9A-F]{40}$/;
+const RUNNER_NODE_PLATFORMS = ["linux-arm64", "linux-x64"];
+
+/** The runner's second Node, read strictly: its checksum file, that file's signature and signer, and each archive's pins. */
+function parseRunnerNodeRuntime(source) {
+  const label = INPUT_PATHS.runnerNodeRuntime;
+  const manifest = requireObject(parseJson(source, label), label);
+  const keys = ["schemaVersion", "artifactKind", "id", "name", "version", "sourceUrl", "checksumManifest", "license", "licenseStatus", "licenseEvidence", "usage", "runtime", "redistributed", "assets"];
+  if (Object.keys(manifest).join() !== keys.join()) throw new Error(`${label} must hold exactly ${keys.join(", ")}, in that order`);
+  if (manifest.schemaVersion !== 1 || manifest.artifactKind !== "investigation-runner-node-runtime-manifest") throw new Error(`${label} has an unknown schema`);
+  for (const key of ["id", "name", "version", "license", "licenseStatus", "licenseEvidence", "usage"]) requireString(manifest[key], `${label}.${key}`);
+  requireHttpsUrl(manifest.sourceUrl, `${label}.sourceUrl`);
+  if (manifest.runtime !== true || typeof manifest.redistributed !== "boolean") throw new Error(`${label}.runtime must be true and redistributed a boolean`);
+  const checksum = requireObject(manifest.checksumManifest, `${label}.checksumManifest`);
+  requireHttpsUrl(checksum.url, `${label}.checksumManifest.url`);
+  if (!SHA256_PATTERN.test(checksum.sha256)) throw new Error(`${label}.checksumManifest.sha256 must be a sha256`);
+  const signature = requireObject(checksum.signature, `${label}.checksumManifest.signature`);
+  requireHttpsUrl(signature.url, `${label}.checksumManifest.signature.url`);
+  if (!FINGERPRINT_PATTERN.test(signature.signerFingerprint)) throw new Error(`${label}: the signer must be a 40-character key fingerprint`);
+  const keyring = requireObject(signature.keyring, `${label}.checksumManifest.signature.keyring`);
+  requireHttpsUrl(keyring.url, `${label}.checksumManifest.signature.keyring.url`);
+  if (!GIT_COMMIT_PATTERN.test(keyring.gitBlob)) throw new Error(`${label}: the keyring must be pinned by its git blob`);
+  if (!Array.isArray(manifest.assets) || manifest.assets.map((asset) => asset?.platform).join() !== RUNNER_NODE_PLATFORMS.join()) {
+    throw new Error(`${label}.assets must be ${RUNNER_NODE_PLATFORMS.join(" and ")}, in that order`);
+  }
+  for (const [index, asset] of manifest.assets.entries()) {
+    const at = `${label}.assets[${index}]`;
+    for (const key of ["archive", "directory", "format"]) requireString(asset[key], `${at}.${key}`);
+    requireHttpsUrl(asset.url, `${at}.url`);
+    if (!asset.url.startsWith(manifest.sourceUrl) || !asset.url.endsWith(`/${asset.archive}`)) throw new Error(`${at}.url must be the archive under sourceUrl`);
+    if (!SHA256_PATTERN.test(asset.archiveSha256) || !SHA256_PATTERN.test(asset.binarySha256)) throw new Error(`${at} must pin the archive and its binary by sha256`);
+  }
+  const tool = structuredClone(manifest);
+  delete tool.schemaVersion;
+  delete tool.artifactKind;
+  return tool;
+}
+
 function buildDownloadedToolInventory(source) {
   const manifest = parseGithubCliBuildToolManifest(
     source,
@@ -319,6 +385,8 @@ export function buildThirdPartyInventory(inputSources) {
   const cargo = buildCargoInventory(inputSources.cargoLock, inputSources.cargoManifest);
   const filterLists = buildFilterInventory(inputSources.filterMetadata);
   const downloadedTools = buildDownloadedToolInventory(inputSources.githubCliBuildTool);
+  const runnerNpm = buildRunnerNpmInventory(inputSources.runnerPackageLock);
+  const runnerTools = [parseRunnerNodeRuntime(inputSources.runnerNodeRuntime)];
   const cargoThirdParty = cargo.filter((entry) => entry.kind === "third-party");
 
   return {
@@ -340,12 +408,20 @@ export function buildThirdPartyInventory(inputSources) {
         workspacePackages: cargo.length - cargoThirdParty.length
       },
       filterLists: summarizeLicenseEvidence(filterLists.sources),
-      downloadedTools: summarizeLicenseEvidence(downloadedTools)
+      downloadedTools: summarizeLicenseEvidence(downloadedTools),
+      runnerNpm: {
+        scope: RUNNER_SCOPE,
+        ...summarizeLicenseEvidence(runnerNpm),
+        installed: runnerNpm.filter((entry) => entry.runnerInstall !== "optional-not-installed").length
+      },
+      runnerTools: { scope: RUNNER_SCOPE, ...summarizeLicenseEvidence(runnerTools) }
     },
     npm,
     cargo,
     filterLists,
-    downloadedTools
+    downloadedTools,
+    runnerNpm,
+    runnerTools
   };
 }
 

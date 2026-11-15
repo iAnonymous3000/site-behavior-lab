@@ -15,6 +15,11 @@ function fixtureRoot(): string {
   mkdirSync(path.join(root, "tools", "adblock-wasm"), { recursive: true });
   mkdirSync(path.join(root, "lib", "adblock-wasm"), { recursive: true });
   mkdirSync(path.join(root, "scripts"), { recursive: true });
+  mkdirSync(path.join(root, "investigation", "runner", "s4"), { recursive: true });
+  for (const file of ["package-lock-6.8.0.json", "node-runtime.json"]) {
+    const relative = path.join("investigation", "runner", "s4", file);
+    writeFileSync(path.join(root, relative), readFileSync(path.join(process.cwd(), relative), "utf8"), "utf8");
+  }
 
   writeFileSync(
     path.join(root, "package-lock.json"),
@@ -327,4 +332,43 @@ test("the deployed Container Worker dependency participates in runtime license r
   const item = inventory.npm.find((entry: { name: string }) => entry.name === "@cloudflare/containers");
   assert.ok(item, "deployed Containers SDK must be inventoried");
   assert.equal(item.developmentOnly, false, "a Worker runtime import cannot bypass runtime review as build tooling");
+});
+
+test("the investigation runner's packages and second Node are inventoried apart from the scanner's", (context) => {
+  const root = fixtureRoot();
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+  const generated = run(root);
+  assert.equal(generated.status, 0, generated.stderr);
+  const inventory = JSON.parse(readFileSync(path.join(root, "THIRD_PARTY_INVENTORY.json"), "utf8"));
+  const byName = (name: string) => inventory.runnerNpm.filter((entry: { name: string }) => entry.name === name);
+  const [openpgp] = byName("openpgp");
+  assert.deepEqual([openpgp.license, openpgp.licenseMeaning, openpgp.runnerInstall, openpgp.developmentOnly], ["LGPL-3.0+", "LGPL-3.0 or later", "required", false]);
+  assert.equal(byName("rea-agents")[0].runnerInstall, "required");
+  assert.equal(byName("frida")[0].runnerInstall, "optional-not-installed");
+  assert.equal(byName("@lydell/node-pty-linux-arm64")[0].runnerInstall, "linux-prebuild");
+  assert.equal(byName("@lydell/node-pty-darwin-arm64")[0].runnerInstall, "optional-not-installed");
+  assert.ok(inventory.runnerNpm.every((entry: { developmentOnly: boolean }) => entry.developmentOnly === false));
+  // Installed on at least one Linux architecture: the 149 required entries and both Linux prebuilds (one per image).
+  assert.equal(inventory.summary.runnerNpm.installed, 151);
+  const [node] = inventory.runnerTools;
+  assert.deepEqual([node.version, node.runtime, node.checksumManifest.signature.signerFingerprint], ["24.22.3", true, "5BE8A3F6C8A5C01D106C0AD820B1A390B168D356"]);
+  // The scanner's own sections do not change: the second Node is not one of its downloaded tools.
+  assert.deepEqual(inventory.downloadedTools.map((tool: { id: string }) => tool.id), ["github-cli"]);
+});
+
+test("a runner Node manifest that drops its signer or pins an archive outside its source is refused", (context) => {
+  const manifestPath = path.join("investigation", "runner", "s4", "node-runtime.json");
+  for (const [name, edit] of [
+    ["no signer", (manifest: { checksumManifest: { signature: { signerFingerprint?: string } } }) => { delete manifest.checksumManifest.signature.signerFingerprint; }],
+    ["an archive elsewhere", (manifest: { assets: { url: string }[] }) => { manifest.assets[0].url = "https://example.invalid/node.tar.xz"; }]
+  ] as const) {
+    const root = fixtureRoot();
+    context.after(() => rmSync(root, { recursive: true, force: true }));
+    const manifest = JSON.parse(readFileSync(path.join(root, manifestPath), "utf8"));
+    (edit as (value: unknown) => void)(manifest);
+    writeFileSync(path.join(root, manifestPath), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+    const result = run(root);
+    assert.notEqual(result.status, 0, name);
+    assert.match(result.stderr, /node-runtime\.json/, name);
+  }
 });

@@ -15,8 +15,12 @@ const RUNNER = "investigation/runner";
 const HARNESS = `${RUNNER}/s4/harness`;
 const SELF = "investigation/test/runner-boundaries.test.ts";
 
-/** The only files outside the runner folder that may name it: the two harness suites in scripts/. */
-const NAMERS = ["scripts/investigation-runner-controls.test.mjs", "scripts/investigation-runner-driver-core.test.mjs"];
+/**
+ * The only files outside the runner folder that may name it: the two harness suites in scripts/, which
+ * load the harness to test it, and the inventory generator, which reads the runner's lockfile and its
+ * Node manifest as data and imports nothing from the folder.
+ */
+const NAMERS = ["scripts/investigation-runner-controls.test.mjs", "scripts/investigation-runner-driver-core.test.mjs", "scripts/third-party-inventory.mjs"];
 
 /** Every folder that holds code which builds, serves or tests anything, read for a name of the runner folder. */
 const CODE_FOLDERS = ["app", "cloudflare", "lib", "scripts", "research", "calibration", "tools", "investigation/core", "investigation/local", "investigation/test"];
@@ -34,7 +38,7 @@ const filesUnder = (folder: string, keep: RegExp = /./): string[] =>
 const codeFiles: List = () => CODE_FOLDERS.flatMap((folder) => filesUnder(folder, CODE));
 const runnerFiles: List = () => filesUnder(RUNNER);
 
-const NAMED = "no code outside the runner folder names it, other than its two harness suites";
+const NAMED = "no code outside the runner folder names it, other than its two harness suites and the inventory generator";
 const checkNamers = (readFile: Read = read, list: List = codeFiles) => {
   const files = list();
   holds(NAMED, files.some((file) => file.startsWith("lib/")) && files.some((file) => file.startsWith("app/")), () => "the code folders could not be located");
@@ -44,7 +48,7 @@ const checkNamers = (readFile: Read = read, list: List = codeFiles) => {
   }
 };
 
-test("no code outside the runner folder names it, so nothing that builds or serves anything can reach it", async () => {
+test("no code outside the runner folder names it, other than its harness suites and the inventory generator that reads it as data", async () => {
   checkNamers();
   const plant = (target: string, line: string): Read => (file) => (file === target ? `${line}\n${read(file)}` : read(file));
   await assertCaughtBy("the scanner's guard importing the fixture guard", NAMED, () => checkNamers(plant("lib/public-scan-proxy.ts", 'import { startGuardProxy } from "../investigation/runner/s4/harness/guard-proxy.mjs";')));
@@ -75,8 +79,13 @@ test("the harness imports only Node's own modules and its own files, never the s
 
 /** A host's labels joined at run time, so this file's own text holds no host it lists. */
 const dotted = (...labels: readonly string[]) => labels.join(".");
-/** The one real host the runner folder names on purpose: the registry of the scanner's pinned base image, in the command list. */
-const ALLOWED_HOSTS = new Set([dotted("mcr", "microsoft", "com")]);
+/**
+ * The real hosts the runner folder names on purpose, none of them a site a fixture visits: the registry
+ * of the scanner's pinned base image, in the command list; and in the second Node's manifest, the
+ * Node.js release site its archives and checksum file came from and the raw file host of the pinned
+ * release-keys commit that signed them.
+ */
+const ALLOWED_HOSTS = new Set([dotted("mcr", "microsoft", "com"), dotted("nodejs", "org"), dotted("raw", "githubusercontent", "com")]);
 /** Where every runner lockfile entry must come from. */
 const REGISTRY = `https://${dotted("registry", "npmjs", "org")}/`;
 const HOST = /\b(?:[a-z0-9-]+\.)+(?:com|net|org|io|co|gov|edu|dev|app|ai|tv|me|us|uk|de|fr|jp|cn|ru|xyz|info|biz|site|online|cloud|page)\b/gi;

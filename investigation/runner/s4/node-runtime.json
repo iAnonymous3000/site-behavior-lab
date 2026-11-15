@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "artifactKind": "investigation-runner-node-runtime-manifest",
+  "id": "investigation-runner-node",
+  "name": "Node.js",
+  "version": "24.22.3",
+  "sourceUrl": "https://nodejs.org/dist/v24.22.3/",
+  "checksumManifest": {
+    "url": "https://nodejs.org/dist/v24.22.3/SHASUMS256.txt",
+    "sha256": "06d17307d84ec057dd2783863f12cb228c9273f9424b330532e4e3699f5d47c9",
+    "signature": {
+      "url": "https://nodejs.org/dist/v24.22.3/SHASUMS256.txt.sig",
+      "signerFingerprint": "5BE8A3F6C8A5C01D106C0AD820B1A390B168D356",
+      "keyring": {
+        "url": "https://raw.githubusercontent.com/nodejs/release-keys/481637f813e912c4aa3622d7964ab426c97b8e8d/gpg-only-active-keys/pubring.kbx",
+        "gitBlob": "bae91a9ce595d5775a2e2a998af04dee044c865d"
+      }
+    }
+  },
+  "license": "MIT",
+  "licenseStatus": "declared-in-archive-license-file",
+  "licenseEvidence": "LICENSE in each archive (157,609 bytes): the Node.js MIT text followed by the notices of the components it bundles",
+  "usage": "runtime",
+  "runtime": true,
+  "redistributed": false,
+  "assets": [
+    {
+      "platform": "linux-arm64",
+      "archive": "node-v24.22.3-linux-arm64.tar.xz",
+      "directory": "node-v24.22.3-linux-arm64",
+      "format": "tar.xz",
+      "url": "https://nodejs.org/dist/v24.22.3/node-v24.22.3-linux-arm64.tar.xz",
+      "archiveSha256": "6e51a2ada00f0011cc266f65d98922b403d7ad88f809ca2aa615a5fe1ce6e86c",
+      "binarySha256": "8f9c2a55879e9705cb285b6cdd649d95df642c6720f052cb30f300d2677da99f"
+    },
+    {
+      "platform": "linux-x64",
+      "archive": "node-v24.22.3-linux-x64.tar.xz",
+      "directory": "node-v24.22.3-linux-x64",
+      "format": "tar.xz",
+      "url": "https://nodejs.org/dist/v24.22.3/node-v24.22.3-linux-x64.tar.xz",
+      "archiveSha256": "4f2b175a6d53a5c617a80dba2676238a0688cef28c6da4eba35c7d844e66fcfb",
+      "binarySha256": "a7ec1b37e6ff9d187e4198c5b6df9a4eb1c74dd31804fb3bac55cc4ceca1ac01"
+    }
+  ]
+}
