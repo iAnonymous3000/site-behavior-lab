@@ -24,10 +24,11 @@ function bodyReadLimits(source: string): Array<{ index: number; limit: string }>
 }
 
 test("the Worker's public body limit equals the container's", () => {
-  const declarations = [...worker.matchAll(/^[ \t]*(?:export[ \t]+)?(?:const|let|var)[ \t]+MAX_BODY_BYTES\b(.*)$/gm)];
+  // Anywhere in the file, so a shadowing declaration in some scope counts.
+  const declarations = [...worker.matchAll(/\b(?:const|let|var)\s+MAX_BODY_BYTES\b/g)];
   assert.equal(declarations.length, 1, `${WORKER} must declare MAX_BODY_BYTES exactly once`);
-  const literal = declarations[0][0].match(/^const MAX_BODY_BYTES = ([0-9][0-9_]*);$/);
-  assert.ok(literal, `${WORKER} must declare MAX_BODY_BYTES as one top-level numeric constant: ${declarations[0][0].trim()}`);
+  const literal = worker.match(/^const MAX_BODY_BYTES = ([0-9][0-9_]*);$/m);
+  assert.ok(literal, `${WORKER} must declare MAX_BODY_BYTES as one top-level numeric constant`);
   assert.equal(Number(literal[1].replaceAll("_", "")), MAX_BODY_BYTES, `${WORKER} MAX_BODY_BYTES differs from lib/scan-limits.ts`);
 });
 
