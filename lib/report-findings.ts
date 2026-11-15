@@ -91,7 +91,7 @@ import {
 
 // The request log's provenance text moved beside its row predicates; readers
 // that took it from here still do.
-export { requestProvenanceSearchText, requestProvenanceSummary } from "./request-log-filters";
+export { requestProvenanceSummary } from "./request-log-filters";
 
 export type FindingLevel = ReportSeverity;
 

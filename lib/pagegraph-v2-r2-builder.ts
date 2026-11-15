@@ -59,13 +59,6 @@ import type { NetworkRequestProvenance, NetworkRequestRecord } from "./types";
 
 /** Exact sidecar contract accepted by the browser-safe PageGraph r2 importer. */
 export const PAGEGRAPH_CAPTURE_METADATA_SCHEMA = "site-behavior-lab/pagegraph-capture@1" as const;
-export {
-  PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST,
-  PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
-  PAGEGRAPH_R2_DETECTOR_VERSION,
-  PAGEGRAPH_R2_METHODOLOGY_VERSION
-} from "./scan-report-v2-r2-producer-contract";
-export { PAGEGRAPH_R2_NORMALIZATION_VERSION } from "./scan-report-v2-normalization";
 
 const SHA256 = /^[0-9a-f]{64}$/;
 const FULL_GIT_SHA = /^[0-9a-f]{40}$/;

@@ -44,7 +44,7 @@ import { assertInspectionRunnable, assertScrollCheckRunnable, prepareScanRequest
 import { refuseSeamOption, refuseSeamVisit } from "./seam-visit-mark";
 import { scanAbortError } from "./scan-runtime";
 
-export { prepareScanRequest, ScanGate, scanRateLimitCost, type PreparedScanRequest } from "./scan-gate";
+export { prepareScanRequest, type PreparedScanRequest } from "./scan-gate";
 
 export type ScanRunner = (
   payload: ScanRequestPayload,

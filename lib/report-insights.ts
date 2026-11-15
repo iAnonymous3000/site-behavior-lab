@@ -358,7 +358,7 @@ export function scanPageSubjectUnverified(run: {
 }
 
 /** All fingerprint/behavioral detections on a scan (safe on legacy reports without the field). */
-export function fingerprintDetections(result: Pick<ScanResult, "fingerprintDetections">): FingerprintDetectionSummary[] {
+function fingerprintDetections(result: Pick<ScanResult, "fingerprintDetections">): FingerprintDetectionSummary[] {
   return result.fingerprintDetections ?? [];
 }
 
@@ -370,7 +370,7 @@ export function fingerprintDetections(result: Pick<ScanResult, "fingerprintDetec
  * in-page probe's hostname heuristic misclassified. Origins absent from the
  * request log are kept, since the report holds no evidence either way.
  */
-export function crossSiteListenerOrigins(result: Pick<ScanResult, "domains">, origins: string[]): string[] {
+function crossSiteListenerOrigins(result: Pick<ScanResult, "domains">, origins: string[]): string[] {
   const firstPartyHosts = new Set(
     result.domains.filter((domain) => !domain.thirdParty).map((domain) => normalizeOriginHost(domain.domain))
   );
