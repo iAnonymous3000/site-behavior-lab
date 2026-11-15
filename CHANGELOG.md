@@ -9,6 +9,24 @@ public API or a 1.0 release.
 
 ### Added
 
+- The investigation workspace's recorder release is REA 6.8.0, chosen by
+  the owner after fixture runs on local test pages only, in a runner image
+  built by hand on linux/arm64 with no network, on the scanner's own pinned
+  Chromium (158). The runner folder (`investigation/runner/s4`) holds that
+  image's Dockerfile, its harness and fixture pages, both candidates' locks
+  and the command list; `investigation/core/recorder-shapes-6-8-0.ts` reads
+  6.8.0's outputs strictly, and a failed call as one of six typed outcomes,
+  so its 32 MiB source refusal reads as a budget refusal, apart from
+  6.7.0's unreadable output for the same page. CI runs the harness tests
+  and the adapter tests on recorded output; it does not build the runner
+  image or run any fixture. Limits: arm64 only, and nothing here shows
+  behaviour on amd64; not shown are the October negative-column defect (not
+  reproduced on two pages), the POST budget fix (a large POST ended the
+  observation in both releases, at the recorder's 64 MiB protocol budget),
+  and the worker inventory (the inspect command has no switch for it);
+  6.5.0's evidence-id recipe does not recompute 6.8.0's ids, so none is
+  checked. No scanner code, scan or report changes.
+
 - Tests that set the scanner's private connection point (the investigation
   seam) on a local fixture server and hold five things of such a visit: the
   order its script runs in, bounded hooks, that the visit records what an
