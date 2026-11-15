@@ -1,0 +1,341 @@
+{
+ "comment": "S4 phase B plan, both candidates (no flag here differs between 6.7.0 and 6.8.0 schemas). Positional endpoint and targetId and camelCase options from phase A schemas; flags written kebab-case (incur's form, not yet confirmed by a run). Placeholders filled by the driver: {endpoint} {target} {origin} {results}.",
+ "steps": [
+  {
+   "name": "01-control-observe",
+   "page": "control.html",
+   "control": true,
+   "args": [
+    "observe-web-execution",
+    "{endpoint}",
+    "{target}",
+    "--observation-ms",
+    "5000",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "02-control-inspect",
+   "page": "control.html",
+   "control": true,
+   "args": [
+    "inspect-web-page",
+    "{endpoint}",
+    "{target}",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "03-negcol-observe",
+   "page": "negative-column.html",
+   "args": [
+    "observe-web-execution",
+    "{endpoint}",
+    "{target}",
+    "--observation-ms",
+    "5000",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "04-budget-observe",
+   "page": "source-budget.html",
+   "args": [
+    "observe-web-execution",
+    "{endpoint}",
+    "{target}",
+    "--observation-ms",
+    "5000",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "05-budget-inspect",
+   "page": "source-budget.html",
+   "args": [
+    "inspect-web-page",
+    "{endpoint}",
+    "{target}",
+    "--include-script-sources",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "06-budget-export",
+   "page": null,
+   "args": [
+    "export-web-scripts",
+    "{results}/05-budget-inspect.stdout.json",
+    "{results}/06-budget-export",
+    "--json"
+   ]
+  },
+  {
+   "name": "07-post-observe",
+   "page": "post-budget.html",
+   "args": [
+    "observe-web-execution",
+    "{endpoint}",
+    "{target}",
+    "--observation-ms",
+    "5000",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "08-signal-sigint",
+   "page": "control.html",
+   "signal": {
+    "kind": "SIGINT",
+    "after_ms": 3000
+   },
+   "args": [
+    "observe-web-execution",
+    "{endpoint}",
+    "{target}",
+    "--observation-ms",
+    "20000",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "09-signal-sigterm",
+   "page": "control.html",
+   "signal": {
+    "kind": "SIGTERM",
+    "after_ms": 3000
+   },
+   "args": [
+    "observe-web-execution",
+    "{endpoint}",
+    "{target}",
+    "--observation-ms",
+    "20000",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "10-signal-crash",
+   "page": "control.html",
+   "signal": {
+    "kind": "crash",
+    "after_ms": 3000
+   },
+   "args": [
+    "observe-web-execution",
+    "{endpoint}",
+    "{target}",
+    "--observation-ms",
+    "20000",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "11-signal-kill-browser",
+   "page": "control.html",
+   "signal": {
+    "kind": "kill-browser",
+    "after_ms": 3000
+   },
+   "args": [
+    "observe-web-execution",
+    "{endpoint}",
+    "{target}",
+    "--observation-ms",
+    "20000",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "12-emulation-inspect",
+   "page": "emulation.html",
+   "emulation": true,
+   "args": [
+    "inspect-web-page",
+    "{endpoint}",
+    "{target}",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "13-workers-observe",
+   "page": "workers.html",
+   "args": [
+    "observe-web-execution",
+    "{endpoint}",
+    "{target}",
+    "--observation-ms",
+    "5000",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "14-workers-inspect",
+   "page": "workers.html",
+   "args": [
+    "inspect-web-page",
+    "{endpoint}",
+    "{target}",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "15-cmd-inspect-a",
+   "page": "commands.html",
+   "args": [
+    "inspect-web-page",
+    "{endpoint}",
+    "{target}",
+    "--include-script-sources",
+    "--include-console-text",
+    "--include-storage-keys",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "16-cmd-screenshot-a",
+   "page": "commands.html",
+   "args": [
+    "capture-web-screenshot",
+    "{endpoint}",
+    "{target}",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "17-cmd-export",
+   "page": null,
+   "args": [
+    "export-web-scripts",
+    "{results}/15-cmd-inspect-a.stdout.json",
+    "{results}/17-cmd-export",
+    "--json"
+   ]
+  },
+  {
+   "name": "18-cmd-analyze",
+   "page": "commands.html",
+   "args": [
+    "analyze-web-bundle",
+    "{endpoint}",
+    "{target}",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "19-cmd-session",
+   "page": "commands.html",
+   "args": [
+    "observe-web-session",
+    "{endpoint}",
+    "{target}",
+    "--observation-ms",
+    "5000",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "20-cmd-inspect-b",
+   "page": "commands.html",
+   "args": [
+    "inspect-web-page",
+    "{endpoint}",
+    "{target}",
+    "--include-script-sources",
+    "--include-console-text",
+    "--include-storage-keys",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "21-cmd-compare-captures",
+   "page": null,
+   "args": [
+    "compare-web-captures",
+    "{results}/15-cmd-inspect-a.stdout.json",
+    "{results}/20-cmd-inspect-b.stdout.json",
+    "--json"
+   ]
+  },
+  {
+   "name": "22-cmd-screenshot-b",
+   "page": "commands.html",
+   "args": [
+    "capture-web-screenshot",
+    "{endpoint}",
+    "{target}",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "23-cmd-compare-screenshots",
+   "page": null,
+   "args": [
+    "compare-web-screenshots",
+    "{results}/16-cmd-screenshot-a.stdout.json",
+    "{results}/22-cmd-screenshot-b.stdout.json",
+    "--json"
+   ]
+  },
+  {
+   "name": "24-cmd-scenario",
+   "page": "commands.html",
+   "args": [
+    "capture-browser-scenario",
+    "{\"browser\": {\"mode\": \"connect\", \"cdp_endpoint\": \"{endpoint}\", \"target_id\": \"{target}\"}, \"steps\": [{\"step_id\": \"open\", \"action\": \"goto\", \"destination\": {\"url\": \"{origin}/commands.html\"}, \"wait_until\": \"load\"}, {\"step_id\": \"press\", \"action\": \"click\", \"locator\": {\"kind\": \"css\", \"selector\": \"#b\"}}]}",
+    "--json"
+   ]
+  },
+  {
+   "name": "25-probe-inspect",
+   "page": "egress-probe.html",
+   "probe": true,
+   "args": [
+    "inspect-web-page",
+    "{endpoint}",
+    "{target}",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  }
+ ]
+}

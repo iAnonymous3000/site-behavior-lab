@@ -1,0 +1,13 @@
+<!doctype html><title>negative-column</title>
+<script>
+// Exploratory: the October trial saw startColumn -7071 refused, by a mechanism not known from reading.
+// Two candidate shapes: an inline script written into a document rewritten after load, and a script
+// built from a string in a srcdoc frame with a long prefix line.
+function rewrite() {
+  const pad = " ".repeat(8000);
+  document.open();
+  document.write("<!doctype html><title>rewritten</title>" + pad + "<script>setInterval(function rw(){return 1},50)<\/script>");
+  document.close();
+}
+setTimeout(rewrite, 300);
+</script>

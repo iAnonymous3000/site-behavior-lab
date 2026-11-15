@@ -1,0 +1,7 @@
+<!doctype html><title>emulation</title>
+<script>
+// The driver sets a timezone override on its own CDP session before the recorder attaches and reads
+// this value again after the recorder detaches.
+window.zoneNow = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
+setInterval(function tick(){return 1}, 50);
+</script>

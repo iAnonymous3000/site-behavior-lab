@@ -1,0 +1,7 @@
+<!doctype html><title>post-budget</title>
+<script>
+// A same-origin POST of 9 MiB, sent only when the driver calls sendPost() during the window, after the
+// recorder is watching (issue 6474: retained request metadata budget 8 MiB).
+window.sendPost = () => { fetch("/post", { method: "POST", body: new Uint8Array(9 * 1024 * 1024) }); return true; };
+setInterval(function tick(){return 1}, 50);
+</script>

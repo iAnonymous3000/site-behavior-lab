@@ -1,0 +1,8 @@
+<!doctype html><title>egress-probe</title>
+<script>
+// Deliberate attempts to leave the fixture origin. Each must reach the guard proxy and be refused.
+// This is the only fixture whose refusals are expected; it runs last.
+fetch("http://192.0.2.1/probe").catch(() => {});
+fetch("https://example.invalid/probe").catch(() => {});
+new Image().src = "http://198.51.100.7/probe.png";
+</script>

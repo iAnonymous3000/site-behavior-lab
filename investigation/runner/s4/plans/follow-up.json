@@ -1,0 +1,265 @@
+{
+ "comment": "S4 follow-up plan, both candidates. Same driver rules as phase B. derive steps run no recorder. Not in it: the worker inventory, which the inspect command's declared options cannot switch on.",
+ "steps": [
+  {
+   "name": "01-control-observe",
+   "page": "control.html",
+   "control": true,
+   "args": [
+    "observe-web-execution",
+    "{endpoint}",
+    "{target}",
+    "--observation-ms",
+    "5000",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "02-negcol2-observe",
+   "page": "negative-column-2.html",
+   "args": [
+    "observe-web-execution",
+    "{endpoint}",
+    "{target}",
+    "--observation-ms",
+    "5000",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ],
+   "note": "second and last attempt at the negative-column defect"
+  },
+  {
+   "name": "03-post-observe",
+   "page": "post-budget.html",
+   "trigger": {
+    "after_ms": 2500,
+    "expression": "window.sendPost()"
+   },
+   "args": [
+    "observe-web-execution",
+    "{endpoint}",
+    "{target}",
+    "--observation-ms",
+    "6000",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ],
+   "note": "POST fired by the driver 2.5 s after the recorder starts; arming took under 1 s in phase B"
+  },
+  {
+   "name": "04-cmd-inspect-a",
+   "page": "commands.html",
+   "args": [
+    "inspect-web-page",
+    "{endpoint}",
+    "{target}",
+    "--include-script-sources",
+    "--include-console-text",
+    "--include-storage-keys",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "05-cmd-export",
+   "page": null,
+   "args": [
+    "export-web-scripts",
+    "{results}/04-cmd-inspect-a.stdout.json",
+    "{results}/05-cmd-export",
+    "--json"
+   ]
+  },
+  {
+   "name": "06-trace-source",
+   "page": null,
+   "section": "trace (small plan)",
+   "args": [
+    "trace-web-source-location",
+    "{results}/05-cmd-export/manifest.json",
+    "2",
+    "/opt/harness/fixtures/app.js.map",
+    "http://127.0.0.1:8081/app.js.map",
+    "1",
+    "0",
+    "--json"
+   ],
+   "note": "manifest index 2 was app.js in both phase B exports; line one-based, column zero-based per the schema; source map read from a local path, no fetch"
+  },
+  {
+   "name": "07-trace-module",
+   "page": null,
+   "section": "trace (small plan)",
+   "args": [
+    "trace-web-module-imports",
+    "{results}/05-cmd-export/manifest.json",
+    "0",
+    "--importer-url",
+    "http://127.0.0.1:8081/commands.html",
+    "--json"
+   ],
+   "note": "index 0 was the inline module script in phase B; launches its own Chromium through the recorder's playwright-core 1.58.2 (REA_BROWSER_EXECUTABLE), a launch the scanner does not make: this run only, counts for nothing in selection"
+  },
+  {
+   "name": "08-cmd-screenshot-a",
+   "page": "commands.html",
+   "args": [
+    "capture-web-screenshot",
+    "{endpoint}",
+    "{target}",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "09-cmd-screenshot-b",
+   "page": "commands.html",
+   "args": [
+    "capture-web-screenshot",
+    "{endpoint}",
+    "{target}",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "10-derive-shot-a",
+   "page": null,
+   "derive": {
+    "from": "{results}/08-cmd-screenshot-a.stdout.json",
+    "pointer": "/normalized_result/artifact",
+    "to": "{results}/10-shot-a.json"
+   }
+  },
+  {
+   "name": "11-derive-shot-b",
+   "page": null,
+   "derive": {
+    "from": "{results}/09-cmd-screenshot-b.stdout.json",
+    "pointer": "/normalized_result/artifact",
+    "to": "{results}/11-shot-b.json"
+   }
+  },
+  {
+   "name": "12-compare-screenshots",
+   "page": null,
+   "args": [
+    "compare-web-screenshots",
+    "{results}/10-shot-a.json",
+    "{results}/11-shot-b.json",
+    "--json"
+   ]
+  },
+  {
+   "name": "13-cmd-inspect-b",
+   "page": "commands.html",
+   "args": [
+    "inspect-web-page",
+    "{endpoint}",
+    "{target}",
+    "--include-script-sources",
+    "--include-console-text",
+    "--include-storage-keys",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  },
+  {
+   "name": "14-derive-inspect-a",
+   "page": null,
+   "derive": {
+    "from": "{results}/04-cmd-inspect-a.stdout.json",
+    "pointer": "/normalized_result",
+    "to": "{results}/14-inspect-a.json"
+   }
+  },
+  {
+   "name": "15-derive-inspect-b",
+   "page": null,
+   "derive": {
+    "from": "{results}/13-cmd-inspect-b.stdout.json",
+    "pointer": "/normalized_result",
+    "to": "{results}/15-inspect-b.json"
+   }
+  },
+  {
+   "name": "16-compare-captures-passive",
+   "page": null,
+   "args": [
+    "compare-web-captures",
+    "{results}/14-inspect-a.json",
+    "{results}/15-inspect-b.json",
+    "--json"
+   ],
+   "note": "first of two input forms tried: two normalized inspections"
+  },
+  {
+   "name": "17-scenario-a",
+   "page": "commands.html",
+   "args": [
+    "capture-browser-scenario",
+    "{\"browser\": {\"mode\": \"connect\", \"cdp_endpoint\": \"{endpoint}\", \"target_id\": \"{target}\"}, \"start_url\": {\"url\": \"{origin}/commands.html\"}, \"actions\": [{\"step_id\": \"press\", \"action\": \"click\", \"locator\": {\"kind\": \"css\", \"selector\": \"#b\"}}]}",
+    "--json"
+   ]
+  },
+  {
+   "name": "18-scenario-b",
+   "page": "commands.html",
+   "args": [
+    "capture-browser-scenario",
+    "{\"browser\": {\"mode\": \"connect\", \"cdp_endpoint\": \"{endpoint}\", \"target_id\": \"{target}\"}, \"start_url\": {\"url\": \"{origin}/commands.html\"}, \"actions\": [{\"step_id\": \"press\", \"action\": \"click\", \"locator\": {\"kind\": \"css\", \"selector\": \"#b\"}}]}",
+    "--json"
+   ]
+  },
+  {
+   "name": "19-derive-scenario-a",
+   "page": null,
+   "derive": {
+    "from": "{results}/17-scenario-a.stdout.json",
+    "pointer": "/normalized_result",
+    "to": "{results}/19-scenario-a.json"
+   }
+  },
+  {
+   "name": "20-derive-scenario-b",
+   "page": null,
+   "derive": {
+    "from": "{results}/18-scenario-b.stdout.json",
+    "pointer": "/normalized_result",
+    "to": "{results}/20-scenario-b.json"
+   }
+  },
+  {
+   "name": "21-compare-captures-scenario",
+   "page": null,
+   "args": [
+    "compare-web-captures",
+    "{results}/19-scenario-a.json",
+    "{results}/20-scenario-b.json",
+    "--json"
+   ],
+   "note": "second input form: two scenario captures (the shape the phase B error named)"
+  },
+  {
+   "name": "22-probe-inspect",
+   "page": "egress-probe.html",
+   "probe": true,
+   "args": [
+    "inspect-web-page",
+    "{endpoint}",
+    "{target}",
+    "--allowed-origins",
+    "{origin}",
+    "--json"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+<!doctype html><title>negative-column-2</title>
+<!-- Second and last attempt at the October startColumn refusal (mechanism unknown). Four shapes that make V8
+     compile script text at an offset inside another resource: an inline handler attribute after a long line,
+     a string timer, a script element filled from text after load, and eval with a sourceURL. -->
+<div id="h">..........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................<span id="t" onclick="window.handled = (window.handled || 0) + 1">x</span></div>
+<script>
+setInterval(() => document.getElementById("t").click(), 100);
+setInterval("window.fromString = (window.fromString || 0) + 1", 100);
+setTimeout(() => {
+  const s = document.createElement("script");
+  s.textContent = " ".repeat(8000) + "setInterval(function late(){ return 1; }, 100);";
+  document.body.appendChild(s);
+}, 300);
+eval(" ".repeat(4000) + "setInterval(function evaled(){ return 1; }, 100);\n//# sourceURL=evaled.js");
+</script>

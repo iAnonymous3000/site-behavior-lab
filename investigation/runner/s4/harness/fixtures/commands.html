@@ -1,0 +1,11 @@
+<!doctype html><title>commands</title>
+<link rel="stylesheet" href="data:text/css,body{font:16px sans-serif}">
+<h1>Commands fixture</h1><button id="b" onclick="clicked()">button</button>
+<script src="/app.js"></script>
+<script type="module">import { value } from "/mod.mjs"; window.modValue = value;</script>
+<script>
+localStorage.setItem("s4-key", "x"); sessionStorage.setItem("s4-session", "y");
+console.log("s4 console line");
+function clicked() { return 1; }
+setInterval(function tick(){return 1}, 50);
+</script>

@@ -1,0 +1,7 @@
+<!doctype html><title>workers</title>
+<script>
+// A dedicated worker from the origin and a blob: worker. Output must carry no worker-session data.
+new Worker("/worker.js");
+new Worker(URL.createObjectURL(new Blob(["setInterval(function blobWork(){return 1},50)"], { type: "text/javascript" })));
+setInterval(function mainTick(){return 1}, 50);
+</script>
