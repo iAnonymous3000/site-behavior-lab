@@ -9,6 +9,19 @@ public API or a 1.0 release.
 
 ### Added
 
+- Tests that set the scanner's private connection point (the investigation
+  seam) on a local fixture server and hold five things of such a visit: the
+  order its script runs in, bounded hooks, that the visit records what an
+  ordinary visit records apart from the mark and named clock fields, that
+  every publishing step refuses a marked visit, and the readback of what was
+  set (`lib/investigation-seam-setting.test.ts`, described in
+  `docs/runtime-boundaries.md`). One test holds the limit of the third: a
+  page that reads something the seam's script defines acts differently, and
+  its visit records that. They run with the other browser tests on every
+  push. They are not a required suite of the formal-verification gate and
+  the claims register has no row for them; no scanner code, scan or report
+  changes.
+
 - The owner-only investigation workspace can hold cases on Durable Objects,
   built and tested locally only: nothing is deployed, no bucket or object
   exists, and the public scanner and site are unchanged. One object for each
