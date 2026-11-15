@@ -407,3 +407,307 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- Direction A (app/_design/): the page under the .da root ----
+ * A register, so it uses the page's width: the counts as label over number,
+ * the search field and the select in the homepage field's style, the table
+ * in the evidence table's style, the notes that limit the register as limit
+ * lines. No card, no tint, no rounded corner.
+ */
+:global(.da) .page {
+  max-width: none;
+  margin: 0;
+  padding: 0 0 var(--a-s7);
+  color: var(--a-carbon);
+  font: 400 var(--a-t-body) / 1.5 var(--a-sans);
+}
+
+:global(.da) .header {
+  margin: 0;
+  padding: 34px 0 0;
+  border: 0;
+}
+
+:global(.da) .page :global(.eyebrow) {
+  margin: 0;
+  color: var(--a-carbon);
+  font: 600 var(--a-t-fine) / 1.4 var(--a-sans);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+:global(.da) .header h1 {
+  margin: 6px 0 0;
+  max-width: 20em;
+  font: 500 var(--a-t-home) / 1.1 var(--a-serif);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+:global(.da) .header p:not(:global(.eyebrow)) {
+  margin: 14px 0 0;
+  max-width: var(--a-read);
+  color: var(--a-carbon);
+  font: 400 var(--a-t-read) / 1.5 var(--a-serif);
+}
+
+:global(.da) .sectionIntro,
+:global(.da) .resultCount,
+:global(.da) .empty {
+  max-width: 76ch;
+  color: var(--a-carbon);
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+:global(.da) .resultCount {
+  color: var(--a-slate);
+  font-size: var(--a-t-small);
+}
+
+:global(.da) .page a {
+  color: var(--a-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+/* The counts: label over number, no card. */
+:global(.da) .summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 16px 28px;
+  margin: 26px 0 0;
+}
+
+:global(.da) .summary article {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+:global(.da) .summary strong {
+  color: var(--a-carbon);
+  font: 500 1.75rem / 1.15 var(--a-serif);
+}
+
+:global(.da) .summary span {
+  color: var(--a-slate);
+  font: 400 var(--a-t-fine) / 1.35 var(--a-sans);
+}
+
+:global(.da) .section {
+  margin: var(--a-s7) 0 0;
+  padding: 14px 0 0;
+  border: 0;
+  border-top: 2px solid var(--a-carbon);
+}
+
+:global(.da) .section h2 {
+  margin: 0;
+  font: var(--a-w-find) var(--a-t-h2) / 1.15 var(--a-serif);
+  letter-spacing: -0.01em;
+}
+
+:global(.da) .page h3 {
+  font: 600 var(--a-t-body) / 1.35 var(--a-sans);
+}
+
+/* A note: plain text. A note that limits the register is a limit line
+   (the class a-lim, whose hatched edge components.css draws). */
+:global(.da) .note {
+  margin: 14px 0 0;
+  padding: 0;
+  max-width: 76ch;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--a-carbon);
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+:global(.da) .note:global(.a-lim) {
+  padding-left: 22px;
+}
+
+/* Search and select: the homepage field's box. */
+:global(.da) .controls {
+  gap: 12px 16px;
+  margin: 18px 0 0;
+}
+
+:global(.da) .controls label > span {
+  color: var(--a-carbon);
+  font: 600 var(--a-t-fine) / 1.4 var(--a-sans);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+:global(.da) .controls input,
+:global(.da) .controls select {
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--a-carbon);
+  border-radius: 2px;
+  background: var(--a-paper);
+  color: var(--a-carbon);
+  font: 400 var(--a-t-body) / 1.3 var(--a-mono);
+}
+
+:global(.da) .controls select {
+  font-family: var(--a-sans);
+}
+
+:global(.da) .controls :is(input, select):focus-visible,
+:global(.da) .tableWrap:focus-visible,
+:global(.da) .page summary:focus-visible {
+  outline: 3px solid var(--a-focus);
+  outline-offset: 2px;
+}
+
+/* The table: the evidence table's style. */
+:global(.da) .tableWrap {
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+:global(.da) .table {
+  border-collapse: collapse;
+  font: 400 var(--a-t-small) / 1.45 var(--a-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+:global(.da) .table th,
+:global(.da) .table td {
+  padding: 10px 14px 10px 0;
+  border: 0;
+  border-bottom: 1px solid var(--a-rule);
+  background: none;
+  vertical-align: top;
+}
+
+:global(.da) .table th {
+  padding-top: 0;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid var(--a-carbon);
+  background: none;
+  color: var(--a-carbon);
+  font: 600 var(--a-t-fine) / 1.35 var(--a-sans);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+:global(.da) .table code,
+:global(.da) .page code {
+  background: none;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  font: 400 0.94em / 1.4 var(--a-mono);
+  overflow-wrap: anywhere;
+}
+
+:global(.da) .table small {
+  color: var(--a-slate);
+  font-size: var(--a-t-fine);
+}
+
+/* Fixture and boundary records: blocks under hairlines, no card. */
+:global(.da) .validationGrid {
+  gap: 0 40px;
+  margin: 18px 0 0;
+}
+
+:global(.da) .validationCard,
+:global(.da) .studyRegister > ul > li {
+  padding: 14px 0 16px;
+  border: 0;
+  border-top: 1px solid var(--a-rule);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+:global(.da) .validationCard h3 {
+  margin: 0;
+}
+
+:global(.da) .version,
+:global(.da) .digest,
+:global(.da) .studyIdentity code {
+  color: var(--a-slate);
+  font: 400 var(--a-t-fine) / 1.45 var(--a-mono);
+  overflow-wrap: anywhere;
+}
+
+:global(.da) .caseCounts span {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--a-carbon);
+  font: 400 var(--a-t-small) / 1.4 var(--a-sans);
+}
+
+:global(.da) .limitations,
+:global(.da) .studyCases,
+:global(.da) .studyWhy {
+  color: var(--a-carbon);
+  font: 400 var(--a-t-small) / 1.5 var(--a-sans);
+}
+
+/* A study's status is a word in the text color, in a hairline box. */
+:global(.da) .studyStatus,
+:global(.da) .studyStatus[data-status="sample-estimate"] {
+  padding: 1px 8px;
+  border: 1px solid var(--a-carbon);
+  border-radius: 2px;
+  background: none;
+  color: var(--a-carbon);
+  font: 400 var(--a-t-fine) / 1.5 var(--a-sans);
+}
+
+:global(.da) .studyRegister {
+  margin: 20px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+:global(.da) .validationCard summary,
+:global(.da) .studyReasons summary {
+  cursor: pointer;
+  width: fit-content;
+  color: var(--a-link);
+  font: 400 var(--a-t-small) / 1.4 var(--a-sans);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+:global(.da) .fixtureList {
+  font: 400 var(--a-t-small) / 1.5 var(--a-sans);
+}
+
+:global(.da) .boundaryGroup {
+  margin: 26px 0 0;
+}
+
+@media (max-width: 720px) {
+  :global(.da) .page {
+    padding: 0 0 var(--a-s6);
+  }
+
+  :global(.da) .header {
+    padding-top: 22px;
+  }
+
+  :global(.da) .summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

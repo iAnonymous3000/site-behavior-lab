@@ -1,0 +1,56 @@
+/*
+ * Direction A: the three typefaces, served from this site's own origin.
+ *
+ * Latin subsets built by scripts/build-design-fonts.mjs from each project's
+ * upstream TTF; the files and their license texts are under public/fonts/.
+ * Nothing is requested from another origin.
+ *
+ * These rules are a stylesheet, stored once, and not markup in each page: a
+ * report page is one of about a thousand and the static export keeps each
+ * page's markup several times over. The files are named by a path relative
+ * to this file, so the build emits them beside the stylesheet and writes the
+ * address itself, base path included.
+ *
+ * Every file is variable in weight: STIX Two Text from 400 to 700, the
+ * Atkinson files from 200 to 800. Each family has a roman and an italic file
+ * (Mono a roman only).
+ */
+@font-face {
+  font-family: "STIX Two Text";
+  src: url("../../public/fonts/stix-two-text/STIXTwoText-wght.latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "STIX Two Text";
+  src: url("../../public/fonts/stix-two-text/STIXTwoText-Italic-wght.latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("../../public/fonts/atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-wght.latin.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("../../public/fonts/atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-Italic-wght.latin.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  src: url("../../public/fonts/atkinson-hyperlegible-mono/AtkinsonHyperlegibleMono-wght.latin.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}

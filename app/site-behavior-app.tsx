@@ -45,6 +45,7 @@ import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "@/lib/report-resource-limi
 import { readClientFileText } from "@/lib/client-file-policy";
 import { isStaticReportManifest } from "@/lib/static-report-manifest-guard";
 import type { HomepageDiscovery, HomepageFeaturedGroup } from "@/lib/homepage-discovery";
+import { OPEN_LATEST_REPORT_LABEL } from "@/lib/homepage-labels";
 import { plural } from "@/lib/text-format";
 import { readLoadedReport, asLocalReport } from "@/lib/client-report-reader";
 // Type-only: the deep reader module stays lazy-loaded (client-report-reader);
@@ -92,12 +93,21 @@ type SiteBehaviorAppProps = {
   homepageDiscovery?: HomepageDiscovery | null;
   /** What a scan does to the page, rendered by the server page (app/page.tsx). */
   scanDisclosure?: ReactNode;
+  /** The latest report as a record, rendered by the server page, or null. */
+  frontRecord?: ReactNode;
+  /** Each featured report's marks by report id, rendered by the server page. */
+  rowMarks?: Record<string, ReactNode>;
+  /** The key under the site rows, rendered by the server page. */
+  rowKey?: ReactNode;
 };
 
 export function SiteBehaviorApp({
   corpusHighlights = null,
   homepageDiscovery = null,
-  scanDisclosure = null
+  scanDisclosure = null,
+  frontRecord = null,
+  rowMarks = {},
+  rowKey = null
 }: SiteBehaviorAppProps) {
   const {
     form,
@@ -367,6 +377,8 @@ export function SiteBehaviorApp({
         </span>
       }
       skipToId="report"
+      /* "da" opts this route into the direction A stylesheet (app/_design/). */
+      shellClassName="da"
     >
           <section className="scan-workbench" id="scan">
             <div className="workbench-lede">
@@ -386,26 +398,6 @@ export function SiteBehaviorApp({
               <StaticPublicPanel onUploadReport={loadReportFile} onUploadError={surfaceReportOperationError} />
             )}
 
-            {/* What the reader gets for the URL they type, beside the control
-                that produces it. This column used to hold a decorative card
-                restating the methodology page's thesis; the checks are what
-                a first-time reader needs to decide whether to run one. */}
-            <section className="method-card" aria-labelledby="method-card-title">
-              <p className="eyebrow">One controlled visit records</p>
-              <h2 id="method-card-title">Evidence, then interpretation</h2>
-              <ul className="method-list">
-                {SCAN_CHECKS.map((check) => (
-                  <li key={check.label}>
-                    <strong>{check.label}</strong>
-                    <span>{check.question}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="method-note">
-                Every report records its own conditions and which evidence families were captured, censored or
-                unsupported. Signals describe one visit, not a verdict about the site.
-              </p>
-            </section>
           </section>
 
         <ScanRecoveryBanner
@@ -425,8 +417,11 @@ export function SiteBehaviorApp({
         />
 
           <section aria-label="Results" id="report" ref={reportRegionRef} tabIndex={-1}>
+          {!loaded && !loading && !activeScanJob && !pendingScanAdmission && frontRecord}
           {!loaded && !loading && !activeScanJob && !pendingScanAdmission && (
             <EmptyState
+              rowMarks={rowMarks}
+              rowKey={rowKey}
               onUploadReport={loadReportFile}
               onUploadPageGraph={loadPageGraphFile}
               onUploadError={surfaceReportOperationError}
@@ -476,6 +471,26 @@ export function SiteBehaviorApp({
                 earlierResultId={earlierResultId} inspection={inspection} scrollCheck={scrollCheck} />
             </Suspense>
           )}
+          </section>
+
+          {/* What one controlled visit records: the checks behind every
+              report. It closes the page, after the library and the sites on
+              record, and stays under a scan's result. */}
+          <section className="method-card" aria-labelledby="method-card-title">
+            <p className="eyebrow">One controlled visit records</p>
+            <h2 id="method-card-title">Evidence, then interpretation</h2>
+            <ul className="method-list">
+              {SCAN_CHECKS.map((check) => (
+                <li key={check.label}>
+                  <strong>{check.label}</strong>
+                  <span>{check.question}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="method-note">
+              Every report records its own conditions and which evidence families were captured, censored or
+              unsupported. Signals describe one visit, not a verdict about the site.
+            </p>
           </section>
     </SiteChrome>
   );
@@ -573,6 +588,8 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
 }
 
 function EmptyState({
+  rowMarks,
+  rowKey,
   onUploadReport,
   onUploadPageGraph,
   onUploadError,
@@ -587,6 +604,8 @@ function EmptyState({
   archiveRequested,
   onLoadArchive
 }: {
+  rowMarks: Record<string, ReactNode>;
+  rowKey: ReactNode;
   onUploadReport: (file: File | null) => Promise<void>;
   onUploadPageGraph: (selection: PageGraphUploadSelection) => Promise<void>;
   /** Surfaces picker-side rejections (e.g. the size cap) that never reach the upload handlers. */
@@ -649,7 +668,9 @@ function EmptyState({
         </p>
       </div>
       {highlights && <CorpusHero highlights={highlights} />}
-      {homepageDiscovery && <HomepageFeaturedGallery groups={homepageDiscovery.featuredGroups} />}
+      {homepageDiscovery && (
+        <HomepageFeaturedGallery groups={homepageDiscovery.featuredGroups} rowMarks={rowMarks} rowKey={rowKey} />
+      )}
       <div className="homepage-discovery-actions">
         {latestReport && (
           <a
@@ -657,7 +678,7 @@ function EmptyState({
             href={committedReportLocation(latestReport.latestReportId, clientReportRuntime()).pagePath}
           >
             <FileJson size={17} aria-hidden="true" />
-            Open latest report
+            {OPEN_LATEST_REPORT_LABEL}
           </a>
         )}
         <a className="secondary-button" href={staticAssetPath("/directory/")}>Browse all sites</a>
@@ -713,7 +734,15 @@ function EmptyState({
   );
 }
 
-function HomepageFeaturedGallery({ groups }: { groups: HomepageFeaturedGroup[] }) {
+function HomepageFeaturedGallery({
+  groups,
+  rowMarks,
+  rowKey
+}: {
+  groups: HomepageFeaturedGroup[];
+  rowMarks: Record<string, ReactNode>;
+  rowKey: ReactNode;
+}) {
   if (groups.length === 0) return null;
 
   return (
@@ -729,22 +758,25 @@ function HomepageFeaturedGallery({ groups }: { groups: HomepageFeaturedGroup[] }
             <h4>{group.label}</h4>
             <div className="featured-cards">
               {group.items.map((item) => (
-                <a
-                  className={`featured-card tone-${item.tone}`}
-                  href={committedReportLocation(item.id, clientReportRuntime()).pagePath}
-                  key={item.id}
-                >
-                  <span className="featured-card-top">
-                    <span className="featured-card-site">{item.siteLabel}</span>
-                    {!item.requestEvidenceComplete && (
-                      <span className="capped-chip">
-                        {item.requestCapped ? "recording capped" : "request evidence incomplete"}
-                      </span>
-                    )}
-                    <span className="featured-card-dot" aria-hidden="true" />
-                  </span>
+                // A row, not a card: the site's name is the link, then its lead
+                // finding as worded, a limit where the evidence is incomplete,
+                // and the two count sentences. No tone and no mark: a color or
+                // a sign beside a site reads as a verdict on it.
+                <div className="featured-card" key={item.id}>
+                  <a
+                    className="featured-card-site"
+                    href={committedReportLocation(item.id, clientReportRuntime()).pagePath}
+                  >
+                    {item.siteLabel}
+                  </a>
                   <span className="featured-card-headline">{item.headline}</span>
+                  {!item.requestEvidenceComplete && (
+                    <span className="capped-chip">
+                      {item.requestCapped ? "recording capped" : "request evidence incomplete"}
+                    </span>
+                  )}
                   <span className="featured-card-stats">
+                    {rowMarks[item.id]}
                     <span className="featured-card-stat">
                       {!item.requestEvidenceComplete && "at least "}
                       <b>{item.thirdPartyRequests.toLocaleString("en-US")}</b> third-party{" "}
@@ -756,12 +788,13 @@ function HomepageFeaturedGallery({ groups }: { groups: HomepageFeaturedGroup[] }
                       {item.trackerRequests === 1 ? "request" : "requests"}
                     </span>
                   </span>
-                </a>
+                </div>
               ))}
             </div>
           </div>
         ))}
       </div>
+      {rowKey}
     </section>
   );
 }

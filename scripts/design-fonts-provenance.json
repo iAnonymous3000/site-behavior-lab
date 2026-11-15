@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "artifactKind": "design-fonts-provenance",
+  "builtBy": "scripts/build-design-fonts.mjs",
+  "subsetter": "hb-subset (HarfBuzz) 15.0.0",
+  "families": [
+    {
+      "id": "stix-two-text",
+      "name": "STIX Two Text",
+      "sourceUrl": "https://github.com/stipub/stixfonts",
+      "license": "OFL-1.1"
+    },
+    {
+      "id": "atkinson-hyperlegible-next",
+      "name": "Atkinson Hyperlegible Next",
+      "sourceUrl": "https://github.com/googlefonts/atkinson-hyperlegible-next",
+      "license": "OFL-1.1"
+    },
+    {
+      "id": "atkinson-hyperlegible-mono",
+      "name": "Atkinson Hyperlegible Mono",
+      "sourceUrl": "https://github.com/googlefonts/atkinson-hyperlegible-next-mono",
+      "license": "OFL-1.1"
+    }
+  ],
+  "files": [
+    {
+      "path": "public/fonts/stix-two-text/STIXTwoText-wght.latin.woff2",
+      "family": "stix-two-text",
+      "usage": "served",
+      "weight": null,
+      "sourceFile": "STIXTwoText.ttf",
+      "sourceVersion": "Version 2.13 b171",
+      "sourceSha256": "7962b8b7811e6a896c9a91a0bccbb5241047770eb24d4997c5cb5fe21d5c0df2",
+      "licenseFile": "public/fonts/stix-two-text/OFL.txt"
+    },
+    {
+      "path": "public/fonts/stix-two-text/STIXTwoText-Italic-wght.latin.woff2",
+      "family": "stix-two-text",
+      "usage": "served",
+      "weight": null,
+      "sourceFile": "STIXTwoText-Italic.ttf",
+      "sourceVersion": "Version 2.13 b171",
+      "sourceSha256": "88c0e2e316eaff56eddc9e51e4850317e2a1e490bbf758b2dec4793aedba9c74",
+      "licenseFile": "public/fonts/stix-two-text/OFL.txt"
+    },
+    {
+      "path": "public/fonts/atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-wght.latin.woff2",
+      "family": "atkinson-hyperlegible-next",
+      "usage": "served",
+      "weight": null,
+      "sourceFile": "AtkinsonHyperlegibleNext[wght].ttf",
+      "sourceVersion": "Version 2.001",
+      "sourceSha256": "5a455d1cfa099b601ab70751bb9673e8fe1854dc4500c80e1a220d0d75e31745",
+      "licenseFile": "public/fonts/atkinson-hyperlegible-next/OFL.txt"
+    },
+    {
+      "path": "public/fonts/atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-Italic-wght.latin.woff2",
+      "family": "atkinson-hyperlegible-next",
+      "usage": "served",
+      "weight": null,
+      "sourceFile": "AtkinsonHyperlegibleNext-Italic[wght].ttf",
+      "sourceVersion": "Version 2.001",
+      "sourceSha256": "ce9cffed32742ad2d9238c561a93220385e5934cdc02b8eb4097a50efa957dc6",
+      "licenseFile": "public/fonts/atkinson-hyperlegible-next/OFL.txt"
+    },
+    {
+      "path": "public/fonts/atkinson-hyperlegible-mono/AtkinsonHyperlegibleMono-wght.latin.woff2",
+      "family": "atkinson-hyperlegible-mono",
+      "usage": "served",
+      "weight": null,
+      "sourceFile": "AtkinsonHyperlegibleMono[wght].ttf",
+      "sourceVersion": "Version 2.001",
+      "sourceSha256": "5ce8b1698d1ded7dff2178c1a3ad159470085a58ea239e8b2cb88f4fb4a6f646",
+      "licenseFile": "public/fonts/atkinson-hyperlegible-mono/OFL.txt"
+    },
+    {
+      "path": "lib/og-fonts/STIXTwoText-500.latin.ttf",
+      "family": "stix-two-text",
+      "usage": "share-card-build-and-container",
+      "weight": 500,
+      "sourceFile": "STIXTwoText.ttf",
+      "sourceVersion": "Version 2.13 b171",
+      "sourceSha256": "7962b8b7811e6a896c9a91a0bccbb5241047770eb24d4997c5cb5fe21d5c0df2",
+      "licenseFile": "lib/og-fonts/STIXTwoText-OFL.txt"
+    },
+    {
+      "path": "lib/og-fonts/STIXTwoText-600.latin.ttf",
+      "family": "stix-two-text",
+      "usage": "share-card-build-and-container",
+      "weight": 600,
+      "sourceFile": "STIXTwoText.ttf",
+      "sourceVersion": "Version 2.13 b171",
+      "sourceSha256": "7962b8b7811e6a896c9a91a0bccbb5241047770eb24d4997c5cb5fe21d5c0df2",
+      "licenseFile": "lib/og-fonts/STIXTwoText-OFL.txt"
+    },
+    {
+      "path": "lib/og-fonts/AtkinsonHyperlegibleNext-400.latin.ttf",
+      "family": "atkinson-hyperlegible-next",
+      "usage": "share-card-build-and-container",
+      "weight": 400,
+      "sourceFile": "AtkinsonHyperlegibleNext[wght].ttf",
+      "sourceVersion": "Version 2.001",
+      "sourceSha256": "5a455d1cfa099b601ab70751bb9673e8fe1854dc4500c80e1a220d0d75e31745",
+      "licenseFile": "lib/og-fonts/AtkinsonHyperlegibleNext-OFL.txt"
+    },
+    {
+      "path": "lib/og-fonts/AtkinsonHyperlegibleNext-600.latin.ttf",
+      "family": "atkinson-hyperlegible-next",
+      "usage": "share-card-build-and-container",
+      "weight": 600,
+      "sourceFile": "AtkinsonHyperlegibleNext[wght].ttf",
+      "sourceVersion": "Version 2.001",
+      "sourceSha256": "5a455d1cfa099b601ab70751bb9673e8fe1854dc4500c80e1a220d0d75e31745",
+      "licenseFile": "lib/og-fonts/AtkinsonHyperlegibleNext-OFL.txt"
+    }
+  ]
+}

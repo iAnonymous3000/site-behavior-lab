@@ -9,6 +9,7 @@ import {
 } from "@/lib/client-fetch-policy";
 import { parseDigestBoundReportJson } from "@/lib/client-report-integrity";
 import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
+import { claimRowsLink } from "@/lib/claim-rows-link";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "@/lib/report-resource-limits";
 import type { LoadedReport } from "@/lib/scan-report-view";
 import { SiteChrome } from "@/app/_components/site-chrome";
@@ -34,7 +35,8 @@ export function SavedReportClient({
   summary,
   visitSummary,
   siteHistoryHref,
-  freshResult
+  freshResult,
+  summaryBenchmarkScope
 }: {
   id: string;
   evidenceHref: string;
@@ -63,6 +65,12 @@ export function SavedReportClient({
    */
   siteHistoryHref: string | null;
   /**
+   * The cohort sentence of the bottom line this page's server built, null when
+   * it does not rank: the explorer's Methodology block prints this, never a
+   * sentence from findings the browser builds after fetching statistics.
+   */
+  summaryBenchmarkScope: string | null;
+  /**
    * Whether the server read this report from the runtime share store, a live
    * scan's fresh result: the explorer's board then offers the same new visit
    * the summary board did, from the same value.
@@ -77,6 +85,8 @@ export function SavedReportClient({
   const evidenceOperationRef = useRef<LatestClientOperation | null>(null);
   const evidenceIdentityRef = useRef({ id, evidenceHref, expectedEvidenceSha256 });
   const autoOpenedRef = useRef(false);
+  // The finding evidence link whose press loaded the evidence, if one did.
+  const pressedClaimRef = useRef<HTMLAnchorElement | null>(null);
   if (!evidenceOperationRef.current) evidenceOperationRef.current = new LatestClientOperation();
   const evidenceOperation = evidenceOperationRef.current;
 
@@ -92,14 +102,18 @@ export function SavedReportClient({
       setLoading(false);
       setError(null);
       autoOpenedRef.current = false;
+      pressedClaimRef.current = null;
     }
     return () => evidenceOperation.cancel();
   }, [evidenceHref, evidenceOperation, expectedEvidenceSha256, id]);
 
   // The trigger disappears when the lazy explorer opens. Move focus to the
-  // replacement region so keyboard and screen-reader users do not fall back
-  // to the document body.
+  // explorer, which starts with its evidence head, so keyboard and
+  // screen-reader users do not fall back to the document body.
+  // A finding's evidence link is the exception: its rows open under its own
+  // claim, the link is still there, and focus stays on it.
   useEffect(() => {
+    if (pressedClaimRef.current) return;
     if (loaded) evidenceExplorerRef.current?.focus();
   }, [loaded]);
 
@@ -148,6 +162,23 @@ export function SavedReportClient({
   const loadEvidenceRef = useRef(loadEvidence);
   loadEvidenceRef.current = loadEvidence;
 
+  // A finding's evidence link opens that finding's rows under its claim, and
+  // the rows are the explorer's. Nothing is loaded before the first press:
+  // the press loads the evidence, and the explorer then opens that link's
+  // rows (report-renderer.tsx, which handles every later press itself).
+  useEffect(() => {
+    if (loaded) return;
+    function loadForClaim(event: MouseEvent) {
+      const pressed = claimRowsLink(event.target);
+      if (!pressed || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      pressedClaimRef.current = pressed.anchor;
+      void loadEvidenceRef.current();
+    }
+    document.addEventListener("click", loadForClaim, true);
+    return () => document.removeEventListener("click", loadForClaim, true);
+  }, [loaded]);
+
   // "#evidence=..." links are minted by the explorer itself and documented as
   // reload-free, but the code that reads the fragment ships with the lazy
   // renderer, which on this page mounts only when someone presses the button
@@ -176,10 +207,16 @@ export function SavedReportClient({
          the visible heading is now the site, rendered once in the context. */
       mainId="report"
       mainProps={{ "aria-label": title, tabIndex: -1 }}
-      shellClassName="report-page-shell"
+      /* "da" opts this route into the direction A stylesheet (app/_design/). */
+      /* "is-evidence-open": the page's own excerpt of the domain table and
+         its visit-order line give way to the explorer's full table and its
+         comparison section, which say the same thing (report.css). */
+      shellClassName={`report-page-shell da${loaded ? " is-evidence-open" : ""}`}
     >
           {context}
-          {!loaded && summary}
+          {/* The report stays when the explorer opens: the evidence opens
+              under the findings, and nothing above it is replaced. */}
+          {summary}
           {!loaded && (
             <section
               className="report-evidence-loader"
@@ -219,7 +256,8 @@ export function SavedReportClient({
             >
               <Suspense fallback={<p className="muted">Preparing the evidence explorer…</p>}>
                 <LazyReportRenderer loaded={loaded} liveApiServesReportPages pdfExportQuery={pdfExportQuery}
-                  visitSummary={visitSummary} siteHistoryHref={siteHistoryHref} freshResult={freshResult} />
+                  visitSummary={visitSummary} siteHistoryHref={siteHistoryHref} freshResult={freshResult} summaryBenchmarkScope={summaryBenchmarkScope} evidenceOnly
+                  pressedClaim={pressedClaimRef.current} />
               </Suspense>
             </section>
           )}

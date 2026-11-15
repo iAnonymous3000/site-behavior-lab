@@ -1,0 +1,1595 @@
+/*
+ * Direction A: the evidence explorer.
+ *
+ * One record, read down. The report stays above; the evidence opens under
+ * the findings: the evidence head, the bar, then each section under a rule,
+ * its heading at the left and what limits it at the right. Every list is set
+ * in the evidence table's style (components.css). No card, no pill, no
+ * status color.
+ *
+ * Scope: the explorer's blocks inside .report-grid, on a report page and in
+ * a homepage result. Step 1 returns those blocks to the browser's defaults;
+ * its selector sits in :where(), so every rule after it that starts
+ * .da.da.da wins. The evidence table, the limit line and the figure's marks
+ * keep their shared rules, so the reset leaves them alone.
+ */
+.da.da.da .report-grid :where(
+  .report-header, .evidence-bar, .comparison-card, .numbers-section, .viz-card, .data-section,
+  .side-card, .warnings, .export-error, .earlier-result-note
+),
+.da.da.da .report-grid :where(
+  .report-header, .evidence-bar, .comparison-card, .numbers-section, .viz-card, .data-section,
+  .side-card, .warnings, .export-error, .earlier-result-note
+) :where(*:not(svg, svg *, .a-ev, .a-ev *, .a-lim, .a-marks, .a-marks *, .visually-hidden)) {
+  all: revert;
+  box-sizing: border-box;
+}
+
+.da.da.da .report-grid,
+.da.da.da .report-grid > :is(.report-main, .report-evidence-tables, .report-sidebar) {
+  display: block;
+  position: static;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--a-carbon);
+  font: 400 var(--a-t-body) / 1.5 var(--a-sans);
+}
+
+.da.da.da .report-focus-target {
+  margin-top: var(--a-s7);
+}
+
+/* With the explorer open the page has one domain table and states the visit
+   order once: the report's excerpt and its visit-order line give way to the
+   explorer's full table and its comparison section. */
+.da.da.da.is-evidence-open .report-page-summary > section[aria-labelledby="domain-table-title"],
+.da.da.da.is-evidence-open .report-page-summary .headline-visit-order {
+  display: none;
+}
+
+/* ---- A result with no page of its own ----
+   The report page's record and summary, in place (report.css lays them out
+   on .result-page as it does on the report page). The comparison section
+   under them states the visit order, so the summary's own line is withheld,
+   as it is on a report page once the explorer is open. */
+.da.da.da .result-page {
+  margin: 0 0 var(--a-s7);
+}
+
+.da.da.da .result-page .headline-visit-order {
+  display: none;
+}
+
+/* The report page's grid keeps its first two rows for the breadcrumb and a
+   correction notice, and places the record and the sentence on the third.
+   A result has neither, so an empty item holds those rows: without it the
+   figure and the numbers would flow into them, above the site. */
+@media screen and (min-width: 901px) {
+  .da.da.da .result-page:not(:has(> .earlier-result-note))::before {
+    content: "";
+    grid-column: 1 / -1;
+    grid-row: 1 / span 2;
+    order: 0;
+  }
+
+  /* The link back to an earlier result takes those rows when there is one. */
+  .da.da.da .result-page > .earlier-result-note {
+    grid-column: 1 / -1;
+    grid-row: 1 / span 2;
+  }
+}
+
+.da.da.da .result-page > .earlier-result-note {
+  order: 0;
+  margin: 0 0 var(--a-s5);
+}
+
+.da.da.da .result-page > .earlier-result-note p {
+  margin: 4px 0 0;
+  max-width: 86ch;
+  color: var(--a-slate);
+  font: 400 var(--a-t-small) / 1.5 var(--a-sans);
+}
+
+/* A result opens under the form as every result state does: after the
+   section space, under the heavy rule (home.css gives the running and failed
+   states theirs). On the result's own grid, so the file notice, the link back
+   and a check's panel are under it too. */
+.da.da.da .report-grid:has(> .report-main > .result-page) {
+  margin-top: var(--a-s7);
+  padding-top: 16px;
+  border-top: 2px solid var(--a-carbon);
+}
+
+/* The homepage's results region holds focus only while a result loads; the
+   result then moves it to its first heading. A ring round the region would
+   frame the whole result and touch its text, so the region draws none. */
+.da.da.da section#report:focus,
+.da.da.da section#report:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* The heading a result's focus lands on: the ring clears the text (4 px out,
+   so it also stays clear of the labels under the site), and the
+   heading stops below the sticky top bar when it is scrolled to. */
+.da.da.da #report :is(.result-page > .report-identity h2, .connection-inspection h2, .scroll-check h2) {
+  scroll-margin-top: 96px;
+}
+
+.da.da.da #report :is(.result-page > .report-identity h2, .connection-inspection h2, .scroll-check h2):focus-visible {
+  outline: 3px solid var(--a-focus);
+  outline-offset: 4px;
+  border-radius: 1px;
+}
+
+/* What the page did not vouch for: a limit on the whole result, first. */
+.da.da.da .report-grid > .report-main > .report-incomplete-notice {
+  position: relative;
+  max-width: 86ch;
+  margin: 0 0 var(--a-s5);
+  padding: 0 0 0 22px;
+  border: 0;
+  background: none;
+  color: var(--a-carbon);
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+/* ---- 1. A section: a rule, the heading at the left, its limits at the right ---- */
+.da.da.da .report-grid :is(.comparison-card, .numbers-section, .viz-card, .data-section, .side-card, .warnings) {
+  margin: var(--a-s7) 0 0;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--a-carbon);
+}
+
+.da.da.da .report-grid :is(.comparison-card, .numbers-section, .data-section, .side-card) {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  column-gap: 56px;
+  align-items: start;
+}
+
+.da.da.da .report-grid :is(.comparison-card, .numbers-section, .data-section, .side-card) > * {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+/* An open disclosure lays its content out on the section's two columns. */
+.da.da.da .report-grid details.data-section[open]::details-content {
+  display: contents;
+}
+
+.da.da.da .report-grid details.data-section:not([open]) {
+  display: block;
+}
+
+.da.da.da .report-grid :is(.data-section, .side-card, .viz-card, .warnings) h2,
+.da.da.da .report-grid .comparison-card h2 {
+  margin: 0;
+  font: var(--a-w-title) var(--a-t-h3) / 1.2 var(--a-serif);
+  letter-spacing: -0.005em;
+}
+
+.da.da.da .report-grid .eyebrow {
+  margin: 0;
+  color: var(--a-carbon);
+  font: 600 var(--a-t-fine) / 1.4 var(--a-sans);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.da.da.da .report-grid :is(.data-section, .side-card) > :is(.section-heading, h2) {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.da.da.da .report-grid .section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+
+.da.da.da .report-grid summary.section-heading {
+  cursor: pointer;
+  list-style: none;
+}
+
+.da.da.da .report-grid summary.section-heading::-webkit-details-marker {
+  display: none;
+}
+
+.da.da.da .report-grid .disclosure-chevron {
+  align-self: center;
+  width: 16px;
+  height: 16px;
+  color: var(--a-slate);
+  transition: none;
+}
+
+.da.da.da .report-grid details:not([open]) > summary .disclosure-chevron {
+  transform: rotate(-90deg);
+}
+
+.da.da.da .report-grid :is(.count-badge, .warnings-count) {
+  color: var(--a-slate);
+  font: 400 var(--a-t-small) / 1.4 var(--a-sans);
+}
+
+/* The limits of a section, beside its heading. Each is a limit line. */
+.da.da.da .report-grid .ev-limits {
+  grid-column: 2;
+  grid-row: 1;
+  display: grid;
+  gap: 10px;
+}
+
+.da.da.da .report-grid .ev-limits:empty {
+  display: none;
+}
+
+.da.da.da .report-grid :is(.muted, .table-empty, .row-more, .disclosure-lazy-note, .attribution-map-empty) {
+  margin: 12px 0 0;
+  max-width: 86ch;
+  color: var(--a-slate);
+  font: 400 var(--a-t-small) / 1.5 var(--a-sans);
+}
+
+.da.da.da .report-grid :is(.table-empty, .attribution-map-empty) {
+  color: var(--a-carbon);
+  font-size: var(--a-t-limit);
+}
+
+.da.da.da .report-grid :where(a) {
+  color: var(--a-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.da.da.da .report-grid :where(a):hover {
+  text-decoration-thickness: 2px;
+}
+
+.da.da.da .report-grid :is(a, button, summary, input, select):focus-visible {
+  outline: 3px solid var(--a-focus);
+  outline-offset: 2px;
+  border-radius: 1px;
+}
+
+/* ---- 2. The evidence head ---- */
+.da.da.da .report-grid .report-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  column-gap: 56px;
+  align-items: start;
+  margin: 0;
+  padding: 16px 0 0;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da.da .report-grid .report-header > * {
+  grid-column: 1;
+  min-width: 0;
+}
+
+.da.da.da .report-grid .report-header h2 {
+  margin: 4px 0 10px;
+  font: var(--a-w-title) var(--a-t-h2) / 1.15 var(--a-serif);
+  letter-spacing: -0.01em;
+  overflow-wrap: break-word;
+}
+
+.da.da.da .report-grid .report-url-label {
+  margin-right: 6px;
+  color: var(--a-slate);
+  font: 400 var(--a-t-small) / 1.5 var(--a-sans);
+}
+
+.da.da.da .report-grid .report-header :is(.report-url, .report-url-label + a) {
+  color: var(--a-carbon);
+  font: 400 var(--a-t-small) / 1.5 var(--a-mono);
+  overflow-wrap: anywhere;
+}
+
+.da.da.da .report-grid .report-header .report-url-label + a > svg {
+  display: none;
+}
+
+/* The five actions, as links. */
+.da.da.da .report-grid .report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 22px;
+  margin: 14px 0 0;
+}
+
+.da.da.da .report-grid .report-actions :is(a, button) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--a-link);
+  font: 400 var(--a-t-small) / 1.4 var(--a-sans);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  cursor: pointer;
+}
+
+.da.da.da .report-grid .report-actions :is(a, button):hover {
+  text-decoration-thickness: 2px;
+}
+
+.da.da.da .report-grid .report-actions svg {
+  display: none;
+}
+
+/* Post on X and Copy post: one group in the row, which wraps as a whole so
+   the two stay together. */
+.da.da.da .report-grid .report-actions .headline-actions {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: 4px 22px;
+}
+
+/* What limits the head: the state of the request evidence, and the format. */
+.da.da.da .report-grid .report-header-limits {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: grid;
+  gap: 10px;
+}
+
+.da.da.da .report-grid .report-header-limits .capped-chip {
+  display: block;
+  font-weight: 600;
+}
+
+.da.da.da .report-grid .report-header-limits .request-evidence-explanation {
+  margin: 0;
+}
+
+.da.da.da .report-grid :is(.export-error, .earlier-result-note) {
+  margin: 12px 0 0;
+  max-width: 86ch;
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+/* ---- 3. The bar: the visit shown, and the section list ---- */
+.da.da.da .report-grid .evidence-bar {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  margin: 22px 0 0;
+  padding: 10px 0 12px;
+  border-top: 1px solid var(--a-rule);
+  border-bottom: 1px solid var(--a-carbon);
+  background: var(--a-paper);
+}
+
+.da.da.da .report-grid .arm-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 0 0 10px;
+}
+
+.da.da.da .report-grid .arm-switcher > span {
+  font: 600 var(--a-t-small) / 1.3 var(--a-sans);
+}
+
+.da.da.da .report-grid .arm-option {
+  min-height: 32px;
+  margin: 0 0 0 -1px;
+  padding: 4px 14px;
+  border: 1px solid var(--a-carbon);
+  border-radius: 0;
+  background: var(--a-paper);
+  color: var(--a-carbon);
+  font: 400 var(--a-t-small) / 1.3 var(--a-sans);
+  cursor: pointer;
+}
+
+.da.da.da .report-grid .arm-switcher > span + .arm-option {
+  margin-left: 0;
+}
+
+/* The visit shown: the heavier face and a rule under it, never a color alone. */
+.da.da.da .report-grid .arm-option.is-active {
+  background: var(--a-bench);
+  font-weight: 600;
+  box-shadow: inset 0 -3px 0 var(--a-carbon);
+}
+
+.da.da.da .report-grid .arm-option:focus-visible {
+  position: relative;
+}
+
+.da.da.da .report-grid .report-section-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.da.da.da .report-grid .report-section-nav a {
+  display: inline-block;
+  padding: 2px 0;
+  font: 400 var(--a-t-small) / 1.4 var(--a-sans);
+  white-space: nowrap;
+}
+
+.da.da.da .report-grid .report-section-nav a[aria-current] {
+  font-weight: 600;
+  text-decoration-thickness: 2px;
+}
+
+.da.da.da .report-grid .report-section-count {
+  display: inline-block;
+  margin-left: 5px;
+  color: var(--a-slate);
+  font-size: var(--a-t-fine);
+  font-weight: 400;
+}
+
+/* The bar's own bottom rule is the rule above the first section after it:
+   no second rule and no empty band between them. */
+.da.da.da .report-grid .evidence-bar + :is(.comparison-card, .numbers-section, .viz-card, .data-section, .side-card, .warnings) {
+  margin-top: 0;
+  border-top: 0;
+}
+
+/* A section lands under the bar, not behind it. */
+.da.da.da .report-grid :is(.comparison-card, .numbers-section, .viz-card, .data-section, .side-card, .warnings) {
+  scroll-margin-top: 96px;
+}
+
+/* ---- 4. Comparison ---- */
+.da.da.da .report-grid .comparison-heading {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.da.da.da .report-grid .comparison-card h2 {
+  max-width: 22em;
+  margin-top: 4px;
+  text-wrap: balance;
+}
+
+.da.da.da .report-grid .comparison-runs {
+  display: grid;
+  gap: 2px;
+  margin: 12px 0 0;
+  color: var(--a-slate);
+  font: 400 var(--a-t-small) / 1.5 var(--a-sans);
+}
+
+.da.da.da .report-grid .comparison-runs > * {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+/* Why the pair is not compared: a limit on the section. */
+.da.da.da .report-grid .comparison-ineligible {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  position: relative;
+  padding-left: 22px;
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+.da.da.da .report-grid .comparison-ineligible > * {
+  margin: 0 0 8px;
+  color: var(--a-carbon);
+  font: inherit;
+}
+
+.da.da.da .report-grid .comparison-ineligible > :first-child {
+  font-weight: 600;
+}
+
+.da.da.da .report-grid .comparison-ineligible ul {
+  padding: 0;
+  list-style: none;
+}
+
+.da.da.da .report-grid .comparison-ineligible li + li {
+  margin-top: 6px;
+}
+
+/* An allowed comparison: its differences as rows. */
+.da.da.da .report-grid .comparison-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 22px 28px;
+  margin: 24px 0 0;
+}
+
+.da.da.da .report-grid .delta-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  color: var(--a-carbon);
+  font: 400 var(--a-t-fine) / 1.4 var(--a-sans);
+}
+
+.da.da.da .report-grid .delta-tile strong {
+  font: 500 1.625rem / 1.15 var(--a-serif);
+}
+
+.da.da.da .report-grid .delta-tile :is(span, small) {
+  color: var(--a-slate);
+}
+
+.da.da.da .report-grid .comparison-privacy-note {
+  grid-column: 1 / -1;
+}
+
+.da.da.da .report-grid .comparison-lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px 56px;
+  margin: 28px 0 0;
+}
+
+.da.da.da .report-grid .comparison-lists h3 {
+  margin: 0 0 4px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--a-carbon);
+  font: 600 var(--a-t-fine) / 1.3 var(--a-sans);
+}
+
+.da.da.da .report-grid .change-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px 16px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--a-rule);
+  font: 400 0.875rem / 1.4 var(--a-sans);
+}
+
+.da.da.da .report-grid .change-row :is(code, .mono, strong:first-child) {
+  font: 400 var(--a-t-fine) / 1.4 var(--a-mono);
+  overflow-wrap: anywhere;
+}
+
+.da.da.da .report-grid .change-row :is(small, .change-tag, span) {
+  color: var(--a-slate);
+  font-weight: 400;
+}
+
+/* A change row: the name, then each fact on its own line, the number at the right. */
+.da.da.da .report-grid .change-row > span {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  flex: 1 1 0;
+  color: var(--a-carbon);
+}
+
+.da.da.da .report-grid .change-row > span > strong {
+  font: 400 var(--a-t-fine) / 1.45 var(--a-mono);
+}
+
+.da.da.da .report-grid .change-row > span > small {
+  font-size: var(--a-t-fine);
+}
+
+.da.da.da .report-grid .change-row > b {
+  color: var(--a-carbon);
+  font: 600 0.875rem / 1.4 var(--a-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+.da.da.da .report-grid .change-list-toggle {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--a-link);
+  font: 400 var(--a-t-small) / 1.4 var(--a-sans);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  cursor: pointer;
+}
+
+/* ---- 5. Numbers: label over number ---- */
+.da.da.da .report-grid .numbers-heading {
+  display: grid;
+  grid-template-columns: subgrid;
+}
+
+.da.da.da .report-grid .numbers-heading > .eyebrow {
+  grid-column: 1;
+  font-size: var(--a-t-body);
+}
+
+/* What the counts are: a limit beside the heading. */
+.da.da.da .report-grid .numbers-heading > span {
+  grid-column: 2;
+  position: relative;
+  padding-left: 22px;
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+.da.da.da .report-grid .metric-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 26px 28px;
+  margin: 26px 0 0;
+}
+
+.da.da.da .report-grid .metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.da.da.da .report-grid .metric-card > svg {
+  display: none;
+}
+
+.da.da.da .report-grid .metric-card :is(.m-label, .m-detail) {
+  color: var(--a-slate);
+  font: 400 var(--a-t-fine) / 1.4 var(--a-sans);
+}
+
+.da.da.da .report-grid .metric-card .m-value {
+  color: var(--a-carbon);
+  font: 500 1.625rem / 1.2 var(--a-serif);
+  font-variant-numeric: lining-nums;
+}
+
+.da.da.da .report-grid .metric-card .m-detail {
+  margin-top: 3px;
+}
+
+/* ---- 6. Timeline: the three counts as text, then the marks ---- */
+.da.da.da .report-grid .party-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 40px;
+  margin: 16px 0 0;
+  font: 400 var(--a-t-small) / 1.4 var(--a-sans);
+}
+
+.da.da.da .report-grid .legend-swatch {
+  display: none;
+}
+
+.da.da.da .report-grid .legend-count {
+  margin-left: 4px;
+  font: 500 1.0625rem / 1.2 var(--a-serif);
+}
+
+.da.da.da .report-grid .timeline {
+  display: flex;
+  flex-direction: column;
+  margin: 12px 0 0;
+}
+
+.da.da.da .report-grid .timeline > svg {
+  order: 1;
+  display: block;
+  width: 100%;
+  height: 34px;
+  border-left: 1px solid var(--a-rule);
+  border-right: 1px solid var(--a-rule);
+}
+
+.da.da.da .report-grid .timeline :is(.timeline-tracker, .timeline-third-party) {
+  fill: var(--a-third);
+}
+
+.da.da.da .report-grid .timeline .timeline-first-party {
+  fill: var(--a-first);
+}
+
+.da.da.da .report-grid .timeline-axis {
+  order: 2;
+  display: flex;
+  justify-content: space-between;
+  margin: 4px 0 0;
+  color: var(--a-slate);
+  font: 400 var(--a-t-fine) / 1.4 var(--a-mono);
+}
+
+.da.da.da .report-grid .timeline > .muted {
+  order: 3;
+}
+
+/* ---- 7. Tables: the evidence table's style ---- */
+.da.da.da .report-grid :is(.section-tools, .request-log-tools) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin: 18px 0 10px;
+}
+
+.da.da.da .report-grid .filter-input,
+.da.da.da .report-grid .section-tools select {
+  min-height: 38px;
+  padding: 7px 12px;
+  border: 1.5px solid var(--a-carbon);
+  border-radius: 0;
+  background: var(--a-paper);
+  color: var(--a-carbon);
+  font: 400 var(--a-t-small) / 1.3 var(--a-sans);
+}
+
+.da.da.da .report-grid .filter-input {
+  width: min(280px, 100%);
+}
+
+.da.da.da .report-grid .filter-input::placeholder {
+  color: var(--a-slate);
+  opacity: 1;
+}
+
+.da.da.da .report-grid .request-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.da.da.da .report-grid .request-filter-chips button {
+  min-height: 38px;
+  margin: 0 -1px -1px 0;
+  padding: 6px 13px;
+  border: 1px solid var(--a-carbon);
+  border-radius: 0;
+  background: var(--a-paper);
+  color: var(--a-carbon);
+  font: 400 var(--a-t-small) / 1.3 var(--a-sans);
+  cursor: pointer;
+}
+
+.da.da.da .report-grid .request-filter-chips button[aria-pressed="true"] {
+  background: var(--a-bench);
+  font-weight: 600;
+  box-shadow: inset 0 -3px 0 var(--a-carbon);
+}
+
+.da.da.da .report-grid .request-filter-chips button:focus-visible {
+  position: relative;
+}
+
+.da.da.da .report-grid .table-wrap {
+  overflow-x: auto;
+}
+
+/* The scroller is a tab stop: its focus is a ring drawn as a shadow, so the
+   rows it clips do not clip the ring. */
+.da.da.da .report-grid .table-wrap:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--a-focus);
+}
+
+.da.da.da .report-grid .attribution-active-filter {
+  margin: 0 0 10px;
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+/* The earlier sheet fixes the explorer's column widths; this table sizes its own. */
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev {
+  table-layout: auto;
+  min-width: 0;
+}
+
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev :is(th, td) {
+  width: auto;
+  min-width: 0;
+  max-width: none;
+}
+
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev th {
+  position: static;
+}
+
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev td[data-label="Type"],
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev td[data-label="Status"] {
+  white-space: nowrap;
+}
+
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev td.a-t {
+  width: 170px;
+  min-width: 170px;
+}
+
+/* Cells of the request log that the evidence table has no column for. */
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev .time-cell {
+  padding-right: 22px;
+  font: 400 var(--a-t-fine) / 1.5 var(--a-mono);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev th.time-cell {
+  font: 600 var(--a-t-fine) / 1.3 var(--a-sans);
+}
+
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev.a-log td.a-t {
+  width: 146px;
+  min-width: 146px;
+}
+
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev.a-log .a-strip {
+  width: 130px;
+}
+
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev.a-log .a-strip path {
+  stroke-width: 2;
+  stroke-opacity: 1;
+}
+
+/* A status is its number: no color says good or bad. */
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev :is(.status-ok, .status-bad, .status-pending) {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--a-carbon);
+  font: 400 var(--a-t-fine) / 1.5 var(--a-mono);
+}
+
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev .provenance-cell {
+  display: block;
+  color: var(--a-slate);
+  font-size: var(--a-t-fine);
+}
+
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev .provenance-cell small {
+  display: block;
+  font-size: inherit;
+}
+
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev .muted {
+  margin: 0;
+  font-size: var(--a-t-fine);
+}
+
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev .url-cell {
+  max-width: 340px;
+  color: var(--a-slate);
+  font: 400 var(--a-t-fine) / 1.5 var(--a-mono);
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.da.da.da :is(.report-grid, .claim-rows-host) table.a-ev .inspect-connection-link {
+  display: block;
+  font-family: var(--a-sans);
+}
+
+/* A table the evidence table has no builder for (visit phases). */
+.da.da.da .report-grid .table-wrap table:not(.a-ev) {
+  width: 100%;
+  border-collapse: collapse;
+  font: 400 0.875rem / 1.4 var(--a-sans);
+}
+
+.da.da.da .report-grid .table-wrap table:not(.a-ev) th {
+  padding: 8px 14px 8px 0;
+  border-bottom: 2px solid var(--a-carbon);
+  font: 600 var(--a-t-fine) / 1.3 var(--a-sans);
+  text-align: left;
+  vertical-align: bottom;
+}
+
+.da.da.da .report-grid .table-wrap table:not(.a-ev) td {
+  padding: 7px 14px 7px 0;
+  border-bottom: 1px solid var(--a-rule);
+  vertical-align: top;
+}
+
+.da.da.da .report-grid :is(.mono, .phase-code) {
+  font-family: var(--a-mono);
+  font-size: var(--a-t-fine);
+}
+
+.da.da.da .report-grid .table-wrap small {
+  display: block;
+  color: var(--a-slate);
+  font-size: var(--a-t-fine);
+}
+
+/* ---- A finding's rows, under its claim ----
+   Directly after the finding's card, across the board's width: the count line
+   the log prints under the finding's filter, the first rows, the way to the log. */
+.da.da.da .claim-rows-host :where(*:not(svg, svg *, .a-ev, .a-ev *)) {
+  all: revert;
+  box-sizing: border-box;
+}
+
+.da.da.da .claim-rows-host {
+  display: block;
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  margin: 0 0 22px;
+  padding: 16px 18px 14px;
+  background: var(--a-bench);
+}
+
+.da.da.da .claim-rows {
+  min-width: 0;
+}
+
+.da.da.da .claim-rows-host .claim-rows-count {
+  margin: 0 0 10px;
+  color: var(--a-carbon);
+  font: 400 var(--a-t-body) / 1.4 var(--a-sans);
+}
+
+.da.da.da .claim-rows-host .claim-rows-table {
+  overflow-x: auto;
+}
+
+.da.da.da .claim-rows-host .claim-rows-table:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--a-focus);
+}
+
+.da.da.da .claim-rows-host table.a-ev th {
+  background: none;
+}
+
+.da.da.da .claim-rows-host table.a-ev tbody tr:hover td {
+  background: none;
+}
+
+.da.da.da .claim-rows-host a {
+  color: var(--a-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.da.da.da .claim-rows-host a:focus-visible {
+  outline: 3px solid var(--a-focus);
+  outline-offset: 2px;
+}
+
+.da.da.da .claim-rows-host .row-more {
+  margin: 10px 0 0;
+  color: var(--a-slate);
+  font: 400 var(--a-t-small) / 1.5 var(--a-sans);
+}
+
+/* ---- 8. Cookies and storage: rows ---- */
+.da.da.da .report-grid .evidence-group-list {
+  margin: 18px 0 0;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da.da .report-grid .evidence-group {
+  display: grid;
+  grid-template-columns: minmax(0, 270px) minmax(0, 230px) minmax(0, 1fr) auto;
+  column-gap: 20px;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--a-rule);
+  font: 400 0.875rem / 1.45 var(--a-sans);
+}
+
+.da.da.da .report-grid .evidence-group-top {
+  display: contents;
+}
+
+.da.da.da .report-grid .evidence-group-top > svg {
+  display: none;
+}
+
+.da.da.da .report-grid .evidence-group-name {
+  grid-column: 1;
+  position: relative;
+  font: 400 var(--a-t-fine) / 1.5 var(--a-mono);
+  overflow-wrap: anywhere;
+}
+
+/* The party of a cookie's domain: the table's own square. */
+.da.da.da .report-grid .evidence-group:has(.ico-third, .ico-first) .evidence-group-name {
+  padding-left: 18px;
+}
+
+.da.da.da .report-grid .evidence-group:has(.ico-third, .ico-first) .evidence-group-name::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 8px;
+  height: 8px;
+  background: var(--a-third);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.da.da.da .report-grid .evidence-group:has(.ico-first) .evidence-group-name::before {
+  background: var(--a-first);
+}
+
+.da.da.da .report-grid .evidence-group-count {
+  grid-column: 4;
+  grid-row: 1;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.da.da.da .report-grid .evidence-group-facts {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+}
+
+.da.da.da .report-grid .evidence-group-names {
+  grid-column: 3;
+  grid-row: 1;
+  margin: 0;
+  color: var(--a-slate);
+  font: 400 var(--a-t-fine) / 1.5 var(--a-mono);
+  overflow-wrap: anywhere;
+}
+
+/* ---- 9. Signals and pixels: two columns of rows ---- */
+.da.da.da .report-grid .compact-list {
+  columns: 2;
+  column-gap: 56px;
+  margin: 18px 0 0;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da.da .report-grid .compact-list > div {
+  break-inside: avoid;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--a-rule);
+}
+
+.da.da.da .report-grid .compact-list > div > svg {
+  display: none;
+}
+
+.da.da.da .report-grid .compact-list > div > span {
+  display: block;
+  font: 600 0.875rem / 1.4 var(--a-sans);
+  overflow-wrap: anywhere;
+}
+
+.da.da.da .report-grid .compact-list small {
+  display: block;
+  margin-top: 2px;
+  color: var(--a-slate);
+  font: 400 var(--a-t-fine) / 1.45 var(--a-sans);
+}
+
+/* ---- 10. Measurement limits: limit lines under their group labels ---- */
+.da.da.da .report-grid .warnings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 56px;
+  align-items: start;
+}
+
+.da.da.da .report-grid .warnings-heading {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+
+.da.da.da .report-grid .warnings-heading > svg {
+  display: none;
+}
+
+.da.da.da .report-grid .warnings-group-label {
+  margin: 0 0 10px;
+  font: 600 var(--a-t-fine) / 1.4 var(--a-sans);
+}
+
+.da.da.da .report-grid .warnings ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.da.da.da .report-grid .warnings li {
+  position: relative;
+  margin: 0 0 10px;
+  padding-left: 22px;
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+  overflow-wrap: anywhere;
+}
+
+/* ---- 11. Methodology: a two-column list ---- */
+.da.da.da .report-grid .side-card.methodology dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 56px;
+  margin: 18px 0 0;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da.da .report-grid .side-card.methodology dl > div {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  column-gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--a-rule);
+  font: 400 0.875rem / 1.5 var(--a-sans);
+}
+
+.da.da.da .report-grid .side-card.methodology dt {
+  color: var(--a-slate);
+}
+
+.da.da.da .report-grid .side-card.methodology dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.da.da.da .report-grid .side-card.methodology > p {
+  margin: 12px 0 0;
+  max-width: 86ch;
+  color: var(--a-slate);
+  font: 400 var(--a-t-small) / 1.5 var(--a-sans);
+}
+
+/* The viewport capture, after the conditions it was taken under. */
+.da.da.da .report-grid .screenshot-card img {
+  display: block;
+  width: min(480px, 100%);
+  height: auto;
+  margin: 16px 0 0;
+  border: 1px solid var(--a-rule);
+}
+
+/* ---- 12. Visit phases and the attribution map: heading and limits ---- */
+.da.da.da .report-grid .visit-phase-intro,
+.da.da.da .report-grid :is(.state-change-caveat, .state-change-warning, .state-change-note) {
+  margin: 10px 0 0;
+  max-width: 86ch;
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+.da.da.da .report-grid .state-change-disclosure {
+  margin: 22px 0 0;
+}
+
+.da.da.da .report-grid .state-change-disclosure h3 {
+  margin: 0;
+  font: 600 var(--a-t-body) / 1.3 var(--a-sans);
+}
+
+.da.da.da .report-grid .state-change-list {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da.da .report-grid .state-change-row {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--a-rule);
+  font: 400 0.875rem / 1.45 var(--a-sans);
+}
+
+.da.da.da .report-grid .state-change-meta {
+  color: var(--a-slate);
+  font-size: var(--a-t-fine);
+}
+
+/* ---- 13. The attribution map: grouped by the recorded actor ----
+   The heading and its three counts at the left, what limits them at the
+   right. Under them one block per actor: its name with the party square and
+   its detail line, and beside it one line per destination: the name, the
+   count, and one mark per request. A line is the control that selects that
+   relationship. No curve, no card. */
+.da.da.da .report-grid .causal-graph-card {
+  grid-template-rows: auto 1fr;
+}
+
+.da.da.da .report-grid .causal-graph-card > .section-heading {
+  display: contents;
+}
+
+.da.da.da .report-grid .causal-graph-card > .section-heading > h2 {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.da.da.da .report-grid .causal-graph-card .attribution-coverage {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 44px;
+  margin: 18px 0 0;
+}
+
+.da.da.da .report-grid .attribution-coverage > div {
+  display: flex;
+  flex-direction: column;
+  max-width: 9em;
+}
+
+.da.da.da .report-grid .attribution-coverage dt {
+  color: var(--a-slate);
+  font: 400 var(--a-t-fine) / 1.4 var(--a-sans);
+}
+
+.da.da.da .report-grid .attribution-coverage dd {
+  margin: 0;
+  font: 500 1.625rem / 1.2 var(--a-serif);
+}
+
+/* The limits: what attribution is, what could not be attributed, the floor. */
+.da.da.da .report-grid .causal-graph-card > .section-heading > .muted,
+.da.da.da .report-grid .causal-graph-card > .attribution-coverage-note {
+  grid-column: 2;
+  position: relative;
+  max-width: none;
+  margin: 0 0 12px;
+  padding-left: 22px;
+  color: var(--a-carbon);
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+.da.da.da .report-grid .causal-graph-card > .section-heading > .muted {
+  grid-row: 1 / span 2;
+}
+
+.da.da.da .report-grid .causal-graph-card:not(:has(.attribution-coverage)) > .section-heading > .muted {
+  grid-row: 1;
+}
+
+.da.da.da .report-grid .attribution-groups {
+  margin: 14px 0 0;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da.da .report-grid .attribution-group {
+  display: grid;
+  grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+  column-gap: 28px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--a-rule);
+}
+
+.da.da.da .report-grid .attribution-actor {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 3px 0 0 18px;
+  position: relative;
+}
+
+.da.da.da .report-grid .attribution-actor::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 8px;
+  height: 8px;
+  background: var(--a-third);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.da.da.da .report-grid .attribution-group.is-site .attribution-actor::before {
+  background: var(--a-first);
+}
+
+.da.da.da .report-grid .attribution-actor-name {
+  font: 400 var(--a-t-small) / 1.45 var(--a-mono);
+  overflow-wrap: anywhere;
+}
+
+.da.da.da .report-grid .attribution-actor-detail {
+  color: var(--a-slate);
+  font: 400 var(--a-t-fine) / 1.45 var(--a-sans);
+}
+
+.da.da.da .report-grid .attribution-edge-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.da.da.da .report-grid .attribution-edge-control {
+  display: grid;
+  grid-template-columns: minmax(0, 250px) 190px minmax(0, 1fr);
+  column-gap: 16px;
+  align-items: start;
+  width: 100%;
+  min-height: 32px;
+  padding: 3px 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--a-carbon);
+  font: 400 var(--a-t-small) / 1.45 var(--a-sans);
+  text-align: left;
+  cursor: pointer;
+}
+
+.da.da.da .report-grid .attribution-edge-control:hover {
+  background: var(--a-bench);
+}
+
+/* The selected line: the heavier face and a rule beside it, not a color. */
+.da.da.da .report-grid .attribution-edge-control.is-selected {
+  background: var(--a-bench);
+  box-shadow: inset 3px 0 0 var(--a-carbon);
+}
+
+.da.da.da .report-grid .attribution-edge-control.is-selected .attribution-edge-pair {
+  font-weight: 600;
+}
+
+.da.da.da .report-grid .attribution-edge-pair {
+  grid-column: 1;
+  grid-row: 1;
+  padding-left: 8px;
+  font: 400 var(--a-t-small) / 1.45 var(--a-mono);
+  overflow-wrap: anywhere;
+}
+
+.da.da.da .report-grid .attribution-edge-service {
+  grid-column: 1;
+  grid-row: 2;
+  padding-left: 8px;
+  color: var(--a-slate);
+  font-size: var(--a-t-fine);
+}
+
+.da.da.da .report-grid .attribution-edge-meta {
+  grid-column: 2;
+  grid-row: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.da.da.da .report-grid .attribution-edge-control .a-marks {
+  grid-column: 3;
+  grid-row: 1;
+  align-self: center;
+}
+
+/* The selected relationship's detail and the way to its rows. */
+.da.da.da .report-grid .attribution-selection-open {
+  grid-column: 2;
+  margin: 8px 0 2px;
+  padding: 10px 12px;
+  background: var(--a-bench);
+  font: 400 var(--a-t-small) / 1.5 var(--a-sans);
+}
+
+.da.da.da .report-grid .attribution-selection-open .attribution-selection-detail {
+  margin: 0 0 4px;
+  overflow-wrap: anywhere;
+}
+
+.da.da.da .report-grid .attribution-selection .attribution-selection-detail {
+  margin: 12px 0 0;
+}
+
+/* ---- Narrow screens: one column, in source order ---- */
+@media (max-width: 900px) {
+  .da.da.da .report-grid :is(.comparison-card, .numbers-section, .data-section, .side-card),
+  .da.da.da .report-grid .report-header,
+  .da.da.da .report-grid .warnings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .da.da.da .report-grid :is(.ev-limits, .report-header-limits, .comparison-ineligible),
+  .da.da.da .report-grid .numbers-heading > span {
+    grid-column: 1;
+    grid-row: auto;
+    margin-top: 12px;
+  }
+
+  .da.da.da .report-grid .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .da.da.da .report-grid .causal-graph-card > .section-heading > .muted,
+  .da.da.da .report-grid .causal-graph-card > .attribution-coverage-note,
+  .da.da.da .report-grid .causal-graph-card .attribution-coverage,
+  .da.da.da .report-grid .causal-graph-card > .section-heading > h2 {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .da.da.da .report-grid .causal-graph-card > .section-heading > .muted {
+    margin-top: 14px;
+  }
+
+  .da.da.da .report-grid .attribution-group {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 6px;
+  }
+
+  .da.da.da .report-grid .attribution-edge-list,
+  .da.da.da .report-grid .attribution-selection-open {
+    grid-column: 1;
+    padding-left: 10px;
+  }
+
+  .da.da.da .report-grid .attribution-edge-control {
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 44px;
+  }
+
+  .da.da.da .report-grid .attribution-edge-control .a-marks {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    padding-left: 8px;
+  }
+
+  .da.da.da .report-grid .compact-list {
+    columns: 1;
+  }
+
+  .da.da.da .report-grid .comparison-lists,
+  .da.da.da .report-grid .side-card.methodology dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The bar keeps one line of sections, which scrolls sideways inside it. */
+  .da.da.da .report-grid .report-section-nav {
+    overflow-x: auto;
+  }
+
+  .da.da.da .report-grid .report-section-nav ul {
+    flex-wrap: nowrap;
+  }
+
+  .da.da.da .report-grid .evidence-group {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .da.da.da .report-grid .evidence-group-count {
+    grid-column: 2;
+  }
+
+  .da.da.da .report-grid :is(.evidence-group-facts, .evidence-group-names) {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+}
+
+/* ---- A phone: each table row is a block (components.css), and the earlier
+   sheet's own phone table (a label column drawn from data-label) is cleared
+   from the cells of this one. ---- */
+@media screen and (max-width: 900px) {
+  .da.da.da :is(.report-grid, .claim-rows-host) table.a-ev td {
+    display: block;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    overflow-wrap: anywhere;
+  }
+
+  .da.da.da :is(.report-grid, .claim-rows-host) table.a-ev td::before {
+    font: inherit;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .da.da.da :is(.report-grid, .claim-rows-host) table.a-ev tr {
+    padding: 9px 0;
+  }
+
+  .da.da.da :is(.report-grid, .claim-rows-host) table.a-ev td.a-t {
+    width: auto;
+    min-width: 0;
+  }
+
+  /* The request log's row: the domain and the time, the tick, then each
+     remaining cell under its column's name. */
+  .da.da.da :is(.report-grid, .claim-rows-host) table.a-ev.a-log td.a-h {
+    order: 1;
+    grid-column: 1;
+  }
+
+  .da.da.da :is(.report-grid, .claim-rows-host) table.a-ev.a-log td.time-cell {
+    order: 2;
+    grid-column: 2;
+    padding-right: 0;
+  }
+
+  .da.da.da :is(.report-grid, .claim-rows-host) table.a-ev.a-log td.time-cell::before {
+    content: none;
+  }
+
+  .da.da.da :is(.report-grid, .claim-rows-host) table.a-ev.a-log td.a-t {
+    order: 3;
+  }
+
+  .da.da.da :is(.report-grid, .claim-rows-host) table.a-ev.a-log td:not(.a-h, .time-cell, .a-t) {
+    order: 4;
+    grid-column: 1 / -1;
+    max-width: none;
+    padding-left: 18px;
+    color: var(--a-slate);
+    font-size: var(--a-t-fine);
+    white-space: normal;
+  }
+
+  .da.da.da :is(.report-grid, .claim-rows-host) table.a-ev.a-log td:not(.a-h, .time-cell, .a-t)::before {
+    content: attr(data-label) ": ";
+    color: var(--a-slate);
+    font-family: var(--a-sans);
+  }
+
+  .da.da.da :is(.report-grid, .claim-rows-host) table.a-ev.a-log .provenance-cell,
+  .da.da.da :is(.report-grid, .claim-rows-host) table.a-ev.a-log .provenance-cell small {
+    display: inline;
+  }
+
+  .da.da.da .report-grid .request-filter-chips button {
+    min-height: 44px;
+  }
+
+  .da.da.da .report-grid .filter-input,
+  .da.da.da .report-grid .section-tools select {
+    min-height: 44px;
+  }
+}
+
+/* A finger needs 44 px: on a narrow screen, and on any screen that has a
+   touch input beside its mouse (scripts/smoke-static-site.mjs measures the
+   visit switch and the head's actions in both). */
+@media (max-width: 900px), (any-pointer: coarse) {
+  .da.da.da .report-grid .arm-option,
+  .da.da.da .report-grid .report-actions :is(a, button),
+  .da.da.da .report-grid .request-filter-chips button,
+  .da.da.da .report-grid .attribution-edge-control,
+  .da.da.da .report-grid .filter-input,
+  .da.da.da .report-grid .section-tools select {
+    min-height: 44px;
+  }
+
+  .da.da.da .report-grid .report-actions :is(a, button) {
+    min-width: 44px;
+  }
+
+  .da.da.da .report-grid .report-section-nav a {
+    padding: 10px 0;
+  }
+}
+
+/* Forced colors drop backgrounds and shadows: the pressed control keeps a
+   heavier edge, so what is selected is still told apart without a color. */
+@media (forced-colors: active) {
+  .da.da.da .report-grid .arm-option.is-active,
+  .da.da.da .report-grid .request-filter-chips button[aria-pressed="true"] {
+    border-bottom-width: 4px;
+  }
+
+  .da.da.da .report-grid .attribution-edge-control.is-selected {
+    border-left: 4px solid CanvasText;
+  }
+
+  .da.da.da .report-grid .report-section-nav a[aria-current] {
+    text-decoration-thickness: 3px;
+  }
+}

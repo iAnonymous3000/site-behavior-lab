@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -19,6 +20,15 @@ function fixtureRoot(): string {
   for (const file of ["package-lock-6.8.0.json", "node-runtime.json"]) {
     const relative = path.join("investigation", "runner", "s4", file);
     writeFileSync(path.join(root, relative), readFileSync(path.join(process.cwd(), relative), "utf8"), "utf8");
+  }
+  // The site's typefaces: the manifest, and every file it names, copied as committed.
+  const fontManifest = path.join("scripts", "design-fonts-provenance.json");
+  writeFileSync(path.join(root, fontManifest), readFileSync(path.join(process.cwd(), fontManifest)));
+  for (const file of JSON.parse(readFileSync(path.join(process.cwd(), fontManifest), "utf8")).files as { path: string; licenseFile: string }[]) {
+    for (const relative of [file.path, file.licenseFile]) {
+      mkdirSync(path.dirname(path.join(root, relative)), { recursive: true });
+      writeFileSync(path.join(root, relative), readFileSync(path.join(process.cwd(), relative)));
+    }
   }
 
   writeFileSync(
@@ -370,5 +380,88 @@ test("a runner Node manifest that drops its signer or pins an archive outside it
     const result = run(root);
     assert.notEqual(result.status, 0, name);
     assert.match(result.stderr, /node-runtime\.json/, name);
+  }
+});
+
+test("the site's typefaces are inventoried from their manifest, with digests measured from the files", (context) => {
+  const root = fixtureRoot();
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+  const generated = run(root);
+  assert.equal(generated.status, 0, generated.stderr);
+  const inventory = JSON.parse(readFileSync(path.join(root, "THIRD_PARTY_INVENTORY.json"), "utf8"));
+  const files = inventory.designFonts.files as {
+    path: string; bytes: number; sha256: string; served: boolean; usage: string; weight: number | null;
+    sourceUrl: string; sourceFile: string; sourceVersion: string; sourceSha256: string;
+    license: string; licenseStatus: string; licenseEvidence: { path: string; sha256: string };
+  }[];
+  // The five served files and the four card files, each measured from its bytes.
+  assert.deepEqual(files.filter((file) => file.served).map((file) => file.path), [
+    "public/fonts/stix-two-text/STIXTwoText-wght.latin.woff2",
+    "public/fonts/stix-two-text/STIXTwoText-Italic-wght.latin.woff2",
+    "public/fonts/atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-wght.latin.woff2",
+    "public/fonts/atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-Italic-wght.latin.woff2",
+    "public/fonts/atkinson-hyperlegible-mono/AtkinsonHyperlegibleMono-wght.latin.woff2"
+  ]);
+  assert.deepEqual(files.filter((file) => !file.served).map((file) => [file.path, file.weight]), [
+    ["lib/og-fonts/STIXTwoText-500.latin.ttf", 500],
+    ["lib/og-fonts/STIXTwoText-600.latin.ttf", 600],
+    ["lib/og-fonts/AtkinsonHyperlegibleNext-400.latin.ttf", 400],
+    ["lib/og-fonts/AtkinsonHyperlegibleNext-600.latin.ttf", 600]
+  ]);
+  const sha = (relative: string) => createHash("sha256").update(readFileSync(path.join(process.cwd(), relative))).digest("hex");
+  for (const file of files) {
+    assert.equal(file.sha256, sha(file.path), file.path);
+    assert.equal(file.bytes, readFileSync(path.join(process.cwd(), file.path)).length, file.path);
+    assert.equal(file.licenseEvidence.sha256, sha(file.licenseEvidence.path), file.path);
+    assert.deepEqual([file.license, file.licenseStatus], ["OFL-1.1", "declared-in-committed-license-file"], file.path);
+    assert.match(file.sourceSha256, /^[a-f0-9]{64}$/, file.path);
+    assert.match(file.sourceVersion, /^Version \d/, file.path);
+  }
+  const stix = files.find((file) => file.path === "lib/og-fonts/STIXTwoText-500.latin.ttf")!;
+  assert.deepEqual([stix.sourceUrl, stix.sourceFile, stix.sourceVersion, stix.sourceSha256], [
+    "https://github.com/stipub/stixfonts", "STIXTwoText.ttf", "Version 2.13 b171", "7962b8b7811e6a896c9a91a0bccbb5241047770eb24d4997c5cb5fe21d5c0df2"
+  ]);
+  assert.deepEqual(inventory.summary.designFonts, { total: 9, declared: 9, unknown: 0, served: 5 });
+
+  // The committed inventory is the same section, over every font file the repository holds.
+  const committed = JSON.parse(readFileSync(path.join(process.cwd(), "THIRD_PARTY_INVENTORY.json"), "utf8"));
+  assert.deepEqual(committed.designFonts, inventory.designFonts);
+  const onDisk = ["public/fonts", "lib/og-fonts"].flatMap((directory) =>
+    (readdirSync(path.join(process.cwd(), directory), { recursive: true }) as string[])
+      .filter((name) => /\.(?:woff2?|ttf|otf)$/.test(name))
+      .map((name) => `${directory}/${name.split(path.sep).join("/")}`)
+  ).sort();
+  assert.deepEqual(onDisk, files.map((file) => file.path).sort());
+});
+
+test("a font file the manifest does not name, a named file that is missing, or a license file without the OFL text is caught", (context) => {
+  const cases: [string, (root: string) => void, RegExp | null][] = [
+    ["an unnamed font file", (root) => writeFileSync(path.join(root, "lib", "og-fonts", "Extra-400.ttf"), "x"), /does not name lib\/og-fonts\/Extra-400\.ttf/],
+    ["a missing font file", (root) => rmSync(path.join(root, "public", "fonts", "stix-two-text", "STIXTwoText-wght.latin.woff2")), /STIXTwoText-wght\.latin\.woff2 does not exist/],
+    ["a malformed source digest", (root) => {
+      const file = path.join(root, "scripts", "design-fonts-provenance.json");
+      const manifest = JSON.parse(readFileSync(file, "utf8"));
+      manifest.files[0].sourceSha256 = "not-a-digest";
+      writeFileSync(file, `${JSON.stringify(manifest, null, 2)}\n`);
+    }, /sourceSha256 must be a lowercase SHA-256 digest/],
+    ["a license file without the OFL text", (root) => writeFileSync(path.join(root, "lib", "og-fonts", "STIXTwoText-OFL.txt"), "All rights reserved.\n"), null]
+  ];
+  for (const [name, edit, refusal] of cases) {
+    const root = fixtureRoot();
+    context.after(() => rmSync(root, { recursive: true, force: true }));
+    edit(root);
+    const result = run(root);
+    if (refusal) {
+      assert.notEqual(result.status, 0, name);
+      assert.match(result.stderr, refusal, name);
+      continue;
+    }
+    // A license the file does not state is recorded as unknown, never as declared.
+    assert.equal(result.status, 0, result.stderr);
+    const inventory = JSON.parse(readFileSync(path.join(root, "THIRD_PARTY_INVENTORY.json"), "utf8"));
+    const stix = inventory.designFonts.files.filter((file: { licenseEvidence: { path: string } }) => file.licenseEvidence.path === "lib/og-fonts/STIXTwoText-OFL.txt");
+    assert.equal(stix.length, 2, name);
+    for (const file of stix) assert.deepEqual([file.license, file.licenseStatus], ["UNKNOWN", "unknown-license-file-does-not-state-the-declared-license"], name);
+    assert.equal(inventory.summary.designFonts.unknown, 2, name);
   }
 });

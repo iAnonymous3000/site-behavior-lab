@@ -1,3 +1,4 @@
+import { INCOMPLETE_VISIT_NOTICE } from "@/lib/incomplete-visit-notice";
 import { publishedReportCorrections } from "@/lib/published-report-corrections";
 import { completeDocumentExportRefusal } from "@/lib/complete-document-export";
 import { reportPdfExportQuery } from "@/lib/report-pdf-export-query";
@@ -30,6 +31,10 @@ import { displayHost, displayPublicUrl } from "@/lib/text-format";
 
 const SOURCE_REPOSITORY = "https://github.com/iAnonymous3000/site-behavior-lab";
 
+// The incomplete-visit notice's label and title, shared with the permalink's
+// and the homepage record's limit lines (lib/incomplete-visit-notice.ts).
+export { INCOMPLETE_VISIT_NOTICE };
+
 /**
  * Server-rendered identity, activation and verification surface for a saved
  * report. Keeping these outside the client report renderer makes history,
@@ -57,6 +62,8 @@ const SOURCE_REPOSITORY = "https://github.com/iAnonymous3000/site-behavior-lab";
 export function ReportPageContext({
   corrections,
   id,
+  identity,
+  omitIncompleteNotice,
   permanent,
   reportUrl,
   view
@@ -64,6 +71,18 @@ export function ReportPageContext({
   corrections: ReportCorrections;
   id: string;
   permanent: boolean;
+  /**
+   * Replaces the identity header on the permalink, which renders the same
+   * facts as labelled rows (app/_design/record-block.tsx). The printable
+   * route passes none and keeps the header below.
+   */
+  identity?: ReactNode;
+  /**
+   * The permalink states the incomplete-visit notice itself, as a limit line
+   * under its finding sentence, from INCOMPLETE_VISIT_NOTICE and the same
+   * degradedRunNotice; it sets this so the notice is not printed twice.
+   */
+  omitIncompleteNotice?: boolean;
   reportUrl: string;
   view: ReportView;
 }) {
@@ -93,6 +112,7 @@ export function ReportPageContext({
         </ol>
       </nav>
 
+      {identity ?? (
       <header className="report-identity">
         <div className="report-identity-title">
           {/* Names the arm below it, not the report. The domain, URL and
@@ -141,6 +161,7 @@ export function ReportPageContext({
           </a>
         </div>
       </header>
+      )}
 
       {(corrections.currentSubjectEvent || corrections.replacementEvents.length > 0) && (
         <ReportCorrectionNotice corrections={corrections} />
@@ -150,10 +171,10 @@ export function ReportPageContext({
           receipt already carries per-visit run quality, but it sits several
           facts down inside a section a reader scrolling to the tables never
           reads, and on paper the tables look complete for pages. */}
-      {degradedNotice && (
+      {degradedNotice && !omitIncompleteNotice && (
         <section className="report-incomplete-notice" role="status" aria-labelledby="report-incomplete-title">
-          <p className="eyebrow">Evidence quality</p>
-          <h2 id="report-incomplete-title">This report is built on an incomplete visit</h2>
+          <p className="eyebrow">{INCOMPLETE_VISIT_NOTICE.label}</p>
+          <h2 id="report-incomplete-title">{INCOMPLETE_VISIT_NOTICE.title}</h2>
           <p>{degradedNotice}</p>
         </section>
       )}

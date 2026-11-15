@@ -17,6 +17,15 @@ type OgReportCardModule = {
   buildReportCardSubhead: (view: ReportView, headline?: ReportHeadline) => string;
   buildReportCardAttribution: (view: ReportView, domain?: string) => string;
   buildReportCardStats: (headline: ReportHeadline) => ReportHeadline["stats"];
+  buildReportCardLayout: (view: ReportView) => {
+    attribution: string;
+    correctionLabel: string | null;
+    sentence: string;
+    sentenceSize: { size: number; lineHeight: number };
+    limit: string;
+    subhead: string;
+    stats: ReportHeadline["stats"];
+  };
 };
 
 const reportsDir = path.join(process.cwd(), "public", "reports");
@@ -282,4 +291,124 @@ test("identifier-field social copy keeps its complete evidence boundary", () => 
   assert.match(compact, /fields designated for personal identifiers/);
   assert.match(compact, /never their values/);
   assert.match(compact, /contents, hashing, successful delivery, and eventual use are unverified/);
+});
+
+test("every committed card states its limit whole and sets its sentence in at most three lines, never cut", async () => {
+  const og = loadOgReportCardModule();
+  const { lineCount, CARD_TEXT_WIDTH, SENTENCE_SIZES } = await import("./og-card-layout");
+  const { publishedReportCorrections } = await import("./published-report-corrections");
+  let cards = 0;
+  let stepped = 0;
+  for (const name of readdirSync(reportsDir).filter((entry) => reportFilePattern.test(entry))) {
+    const view = readReportView(name);
+    const headline = buildReportHeadline(view);
+    const card = og.buildReportCardLayout(view);
+    cards += 1;
+    // The limit is the headline's caveat (or the correction sentence), in full.
+    const expected = publishedReportCorrections(view.reportId).currentSubjectEvent
+      ? "Read the report and public correction together before using these findings."
+      : headline.caveat;
+    assert.equal(card.limit, expected, name);
+    assert.ok(lineCount(card.limit, "sans400", 24, CARD_TEXT_WIDTH - 22) <= 2, `${name}: the limit runs past two lines`);
+    // The sentence is the headline itself, never cut, at one of the three sizes.
+    assert.equal(card.sentence, headline.headline, name);
+    assert.ok(SENTENCE_SIZES.some((step) => step.size === card.sentenceSize.size), name);
+    if (card.sentenceSize.size !== SENTENCE_SIZES[0].size) stepped += 1;
+    assert.ok(lineCount(card.sentence, "serif500", card.sentenceSize.size, CARD_TEXT_WIDTH) <= 3, `${name}: the sentence needs more than three lines`);
+    // The three texts the owner dropped are not on the card.
+    assert.ok(!JSON.stringify(card).includes("See what a site does"), name);
+    assert.ok(!JSON.stringify(card).includes("open source"), name);
+    assert.notEqual(card.correctionLabel, "What this actually means", name);
+  }
+  assert.ok(cards > 1000, `only ${cards} committed cards were read`);
+  console.log(`cards ${cards}, sentence stepped down ${stepped}`);
+});
+
+/**
+ * Which code points a static TrueType font draws: a cmap (format 4) entry
+ * that maps to a glyph whose glyf record holds an outline (whitespace needs
+ * only the entry). Read here on its
+ * own, not through lib/og-card-layout.ts, so a fault in the card's measure
+ * cannot hide one in this check.
+ */
+function drawnCodePoints(file: string): (codePoint: number) => boolean {
+  const bytes = readFileSync(path.join(process.cwd(), "lib", "og-fonts", file));
+  const tables = new Map<string, number>();
+  for (let index = 0; index < bytes.readUInt16BE(4); index += 1) {
+    const record = 12 + index * 16;
+    tables.set(bytes.toString("latin1", record, record + 4), bytes.readUInt32BE(record + 8));
+  }
+  const at = (tag: string) => {
+    const offset = tables.get(tag);
+    assert.ok(offset !== undefined, `${file} has no ${tag} table`);
+    return offset;
+  };
+  const longLoca = bytes.readInt16BE(at("head") + 50) === 1;
+  const loca = at("loca");
+  const glyphLength = (glyph: number) => longLoca
+    ? bytes.readUInt32BE(loca + 4 * (glyph + 1)) - bytes.readUInt32BE(loca + 4 * glyph)
+    : 2 * (bytes.readUInt16BE(loca + 2 * (glyph + 1)) - bytes.readUInt16BE(loca + 2 * glyph));
+  const cmap = at("cmap");
+  let table = -1;
+  for (let index = 0; index < bytes.readUInt16BE(cmap + 2) && table < 0; index += 1) {
+    const offset = cmap + bytes.readUInt32BE(cmap + 4 + index * 8 + 4);
+    if (bytes.readUInt16BE(offset) === 4) table = offset;
+  }
+  assert.ok(table >= 0, `${file} has no format 4 cmap`);
+  const segments = bytes.readUInt16BE(table + 6) / 2;
+  const ends = table + 14;
+  const starts = ends + 2 * segments + 2;
+  const deltas = starts + 2 * segments;
+  const ranges = deltas + 2 * segments;
+  const glyphOf = (codePoint: number) => {
+    for (let segment = 0; segment < segments; segment += 1) {
+      if (codePoint > bytes.readUInt16BE(ends + 2 * segment)) continue;
+      const start = bytes.readUInt16BE(starts + 2 * segment);
+      if (codePoint < start) return 0;
+      const delta = bytes.readUInt16BE(deltas + 2 * segment);
+      const range = bytes.readUInt16BE(ranges + 2 * segment);
+      if (range === 0) return (codePoint + delta) & 0xffff;
+      const glyph = bytes.readUInt16BE(ranges + 2 * segment + range + 2 * (codePoint - start));
+      return glyph === 0 ? 0 : (glyph + delta) & 0xffff;
+    }
+    return 0;
+  };
+  // A space has an empty outline by design: mapped is drawn.
+  return (codePoint) => {
+    const glyph = glyphOf(codePoint);
+    return glyph !== 0 && (glyphLength(glyph) > 0 || /\s/.test(String.fromCodePoint(codePoint)));
+  };
+}
+
+test("every character of a card's numbers is drawn by the static font it is set in", () => {
+  // The card sets a number's leading sign ("≥" on a lower bound) in Atkinson
+  // 400 and the figure in STIX 500. A font with no glyph for a character
+  // draws nothing or a box, and the fit test still passes, so each character
+  // is checked against the font file the card hands next/og.
+  const og = loadOgReportCardModule();
+  const card = readFileSync(path.join(process.cwd(), "lib", "og-report-card.tsx"), "utf8");
+  assert.match(card, /<span style=\{\{ fontFamily: "Atkinson Hyperlegible Next", fontWeight: 400 \}\}>\s*\{String\(stat\.value\)\.match\(\/\^\[\^0-9\]\+\/\)!\[0\]\}/);
+  assert.match(card, /\{ name: "Atkinson Hyperlegible Next", data: cardFont\("sans400"\), weight: 400 as const/);
+  assert.match(card, /<div style=\{\{ display: "flex", fontFamily: "STIX Two Text", fontWeight: 500, fontSize: 40/);
+  const sign = drawnCodePoints("AtkinsonHyperlegibleNext-400.latin.ttf");
+  const figure = drawnCodePoints("STIXTwoText-500.latin.ttf");
+  const signs = new Set<string>();
+  let numbers = 0;
+  for (const name of readdirSync(reportsDir).filter((entry) => reportFilePattern.test(entry))) {
+    for (const stat of og.buildReportCardLayout(readReportView(name)).stats) {
+      const value = String(stat.value);
+      const prefix = value.match(/^[^0-9]+/)?.[0] ?? "";
+      for (const character of prefix) {
+        assert.ok(sign(character.codePointAt(0)!), `${name}: Atkinson 400 draws no ${JSON.stringify(character)}`);
+        signs.add(character);
+      }
+      for (const character of value.slice(prefix.length)) {
+        assert.ok(figure(character.codePointAt(0)!), `${name}: STIX 500 draws no ${JSON.stringify(character)}`);
+      }
+      numbers += 1;
+    }
+  }
+  // Lower bounds are on committed cards today, so the sign was checked, not skipped.
+  assert.ok(signs.has("≥"), `no committed card carries a lower-bound sign (signs seen: ${[...signs].join(" ")})`);
+  assert.ok(numbers > 500, `only ${numbers} card numbers were read`);
 });

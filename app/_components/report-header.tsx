@@ -1,9 +1,10 @@
 "use client";
 
+import { usePrintComplete } from "./print-mode";
 import { publishedReportCorrections } from "@/lib/published-report-corrections";
 import { completeDocumentExportRefusal } from "@/lib/complete-document-export";
 import { AlertCircle, CheckCircle2, Copy, Download, ExternalLink } from "lucide-react";
-import type { MouseEvent } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { absoluteShareUrl, reportPdfHref, reportSharePath } from "./report-overview";
 import type { RunFacts } from "@/lib/report-facts";
@@ -27,7 +28,8 @@ export function ReportHeader({
   liveApiServesReportPages,
   pdfExportQuery,
   exportsOffered = true,
-  visitStartShown = false
+  visitStartShown = false,
+  postActions = null
 }: {
   /** The wire report's share pointer, needed only to resolve the permalink. */
   share: ReportShare | null;
@@ -60,8 +62,15 @@ export function ReportHeader({
    * site does today.
    */
   visitStartShown?: boolean;
+  /**
+   * The headline's two sharing controls ("Post on X", "Copy post"), as the
+   * last of the head's actions, where the result renders no headline banner
+   * to hold them.
+   */
+  postActions?: ReactNode;
 }) {
   const run = runFacts.run;
+  const printComplete = usePrintComplete();
   const formatChip = reportFormatChip(view);
   const sharePath = reportSharePath(share, liveApiServesReportPages);
   // Hidden with the receipt's controls when the PDF could not carry every
@@ -127,20 +136,31 @@ export function ReportHeader({
     }
   }
 
-  return (
-    <section className="report-header">
-      <div>
-        <p className="eyebrow">
-          {view.reportType === "comparison" ? "Comparison Report" : "Scan Report"}
-          {formatChip && <span className="report-provenance">{formatChip}</span>}
-          {selectedRequestEvidence !== "complete" && (
+  // The state of the selected visit's request evidence, and the sentence
+  // that explains it. On paper both stay where they were, in the label line
+  // and under the address. On screen they are the head's limits, set beside
+  // it with the format note (app/_design/explorer.css).
+  const evidenceState = selectedRequestEvidence !== "complete" && (
             <span
               aria-describedby="request-evidence-explanation"
               className="capped-chip"
             >
               {selectedRequestEvidence === "failed" ? "visit failed" : selectedRequestEvidence === "capped" ? "recording capped" : "request evidence incomplete"}
             </span>
-          )}
+  );
+  const evidenceExplanation = requestEvidenceExplanation && (
+          <p className="request-evidence-explanation" id="request-evidence-explanation">
+            {requestEvidenceExplanation}
+          </p>
+  );
+
+  return (
+    <section className="report-header">
+      <div>
+        <p className="eyebrow">
+          {view.reportType === "comparison" ? "Comparison Report" : "Scan Report"}
+          {printComplete && formatChip && <span className="report-provenance">{formatChip}</span>}
+          {printComplete && evidenceState}
         </p>
         <h2>{title || displayHost(run.domain)}</h2>
         {/* Labeled because the permalink also prints the REQUESTED address,
@@ -164,11 +184,7 @@ export function ReportHeader({
             <span className="report-url">{readableVisitStart(run.startedAt) ?? unshownVisitStart(run.startedAt)}</span>
           </>
         )}
-        {requestEvidenceExplanation && (
-          <p className="request-evidence-explanation" id="request-evidence-explanation">
-            {requestEvidenceExplanation}
-          </p>
-        )}
+        {printComplete && evidenceExplanation}
       </div>
       <div className="report-actions">
         {sharePath && (
@@ -237,7 +253,14 @@ export function ReportHeader({
             </span>
           </>
         )}
+        {postActions}
       </div>
+      {!printComplete && (evidenceState || formatChip) && (
+        <div className="report-header-limits">
+          {evidenceState && <div className="a-lim">{evidenceState}{evidenceExplanation}</div>}
+          {formatChip && <p className="a-lim">{formatChip && <span className="report-provenance">{formatChip}</span>}</p>}
+        </div>
+      )}
     </section>
   );
 }

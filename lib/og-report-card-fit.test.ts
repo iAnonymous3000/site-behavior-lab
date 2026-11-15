@@ -20,11 +20,12 @@ type OgReportCardModule = {
 const reportsDir = path.join(process.cwd(), "public", "reports");
 const reportFilePattern = /^[0-9]{8}-[0-9a-f]{32}\.json$/;
 
-// A pixel counts as card text when any channel reaches this. The card's
-// background and the accent glow over it stay below 50 in every channel for
-// every accent, and the dimmest card text colour reaches 144, so neither the
-// background nor the edge of a glyph can be mistaken for the other.
-const TEXT_CHANNEL_MIN = 100;
+// A pixel counts as card text when no channel is above this. The card's
+// paper reaches 253 and its one rule 217 (#c8d1d9), while the lightest card
+// text colour, Slate #46535f, reaches 95, so neither the ground nor the rule
+// can be mistaken for text, and the core of every glyph is counted. The
+// control test fails at 220 (the rule counted) and at 40 (Slate missed).
+const TEXT_CHANNEL_MAX = 160;
 
 /**
  * Compile the renderer with the real next/og, so the card is laid out and
@@ -107,18 +108,17 @@ function decodePng(png: Buffer): Pixels {
 type PaddingHits = { right: number; left: number; bottom: number; top: number };
 
 /**
- * Count text pixels inside the card's padding. The 12 px accent bar along the
- * top edge is decoration inside the top padding and is skipped. Text that runs
- * off an edge is cut there, and the part still on the card always crosses the
- * padding beside that edge, so a cut line is always counted.
+ * Count text pixels inside the card's padding. Text that runs off an edge is
+ * cut there, and the part still on the card always crosses the padding beside
+ * that edge, so a cut line is always counted.
  */
 function textInPadding(pixels: Pixels, padding: OgReportCardModule["OG_REPORT_CARD_PADDING"]): PaddingHits {
   const hits: PaddingHits = { right: 0, left: 0, bottom: 0, top: 0 };
   const { width, height, channels, data } = pixels;
-  for (let y = 12; y < height; y++) {
+  for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const at = (y * width + x) * channels;
-      if (Math.max(data[at], data[at + 1], data[at + 2]) < TEXT_CHANNEL_MIN) continue;
+      if (Math.max(data[at], data[at + 1], data[at + 2]) > TEXT_CHANNEL_MAX) continue;
       if (x >= width - padding.horizontal) hits.right++;
       else if (x < padding.horizontal) hits.left++;
       else if (y >= height - padding.vertical) hits.bottom++;
@@ -137,10 +137,14 @@ test("the padding check sees text placed in each padding band", async () => {
   const { width, height } = og.OG_SIZE;
   const { vertical, horizontal } = og.OG_REPORT_CARD_PADDING;
   const at = (left: number, top: number) =>
-    createElement("div", { style: { position: "absolute", left, top, display: "flex", fontSize: 16, color: "#7a9085" } }, "cut");
-  // The clean card carries the brightest glow a report card paints (the alarm
-  // accent at the card's alpha, centred on the corner where it is strongest),
-  // so a threshold low enough to mistake background for text fails here.
+    createElement("div", { style: { position: "absolute", left, top, display: "flex", fontSize: 16, color: "#46535f" } }, "cut");
+  // The planted text is Slate, the lightest text colour the card sets. The
+  // clean card carries the card's rule across its full width, inside every
+  // side band, so a threshold high enough to mistake the rule for text fails
+  // here.
+  const rule = createElement("div", {
+    style: { position: "absolute", left: 0, top: height - vertical - 60, width, height: 1, display: "flex", backgroundColor: "#c8d1d9" }
+  });
   const card = (...children: ReturnType<typeof at>[]) =>
     new ImageResponse(
       createElement(
@@ -150,10 +154,10 @@ test("the padding check sees text placed in each padding band", async () => {
             display: "flex",
             width: "100%",
             height: "100%",
-            backgroundColor: "#0b1110",
-            backgroundImage: "radial-gradient(900px 420px at 100% 100%, #fb718526, transparent 60%)"
+            backgroundColor: "#fbfcfd"
           }
         },
+        rule,
         ...children
       ),
       og.OG_SIZE

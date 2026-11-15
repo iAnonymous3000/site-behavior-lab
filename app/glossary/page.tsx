@@ -1,5 +1,6 @@
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { SiteChrome } from "../_components/site-chrome";
+import "@/app/_design/reading-imports";
 
 export const dynamic = "force-static";
 
@@ -96,7 +97,7 @@ const ENTRIES: GlossaryEntry[] = [
 
 export default function GlossaryPage() {
   return (
-    <SiteChrome activePath="/glossary/">
+    <SiteChrome activePath="/glossary/" shellClassName="da">
       <div className="legal-page">
       <header className="legal-header">
         <p className="eyebrow">Glossary</p>

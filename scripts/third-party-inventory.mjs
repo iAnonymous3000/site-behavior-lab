@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { sha256Hex } from "./brave-list-digests.mjs";
@@ -21,8 +21,17 @@ const INPUT_PATHS = Object.freeze({
   // Node it installs. The runner image is built by hand and is not the scanner's; its packages and its
   // Node are inventoried apart from the scanner's, under runnerNpm and runnerTools.
   runnerPackageLock: "investigation/runner/s4/package-lock-6.8.0.json",
-  runnerNodeRuntime: "investigation/runner/s4/node-runtime.json"
+  runnerNodeRuntime: "investigation/runner/s4/node-runtime.json",
+  // The site's own typefaces: the files public/fonts serves and the share card's static instances in
+  // lib/og-fonts, each named with the upstream file it was made from (scripts/build-design-fonts.mjs).
+  designFonts: "scripts/design-fonts-provenance.json"
 });
+/** Where font files live; every font file under these must be named by the design-fonts manifest. */
+const DESIGN_FONT_DIRECTORIES = ["public/fonts", "lib/og-fonts"];
+const DESIGN_FONT_FILE_PATTERN = /\.(?:woff2?|ttf|otf)$/;
+const DESIGN_FONT_USAGES = new Set(["served", "share-card-build-and-container"]);
+/** The text an OFL 1.1 license file carries; the declared identifier is accepted only beside it. */
+const OFL_11_HEADING = "SIL OPEN FONT LICENSE Version 1.1";
 /**
  * The runner lockfile's optional entries that the runner image does install: the terminal module's
  * Linux prebuilds, one per architecture, which the owner approved by name. Every other optional
@@ -369,6 +378,70 @@ function parseRunnerNodeRuntime(source) {
   return tool;
 }
 
+/**
+ * The site's typefaces, read strictly. The manifest names each file's family, its upstream file, that
+ * file's version and SHA-256, and the license file committed beside it; the bytes and digest of each
+ * font file and license file are measured here from the repository, never copied from the manifest.
+ * Every font file under the font directories must be named, and every named file must exist.
+ */
+function buildDesignFontInventory(source, fileBytes, listedFontPaths) {
+  const label = INPUT_PATHS.designFonts;
+  const manifest = requireObject(parseJson(source, label), label);
+  const keys = ["schemaVersion", "artifactKind", "builtBy", "subsetter", "families", "files"];
+  if (Object.keys(manifest).join() !== keys.join()) throw new Error(`${label} must hold exactly ${keys.join(", ")}, in that order`);
+  if (manifest.schemaVersion !== 1 || manifest.artifactKind !== "design-fonts-provenance") throw new Error(`${label} has an unknown schema`);
+  requireString(manifest.builtBy, `${label}.builtBy`);
+  requireString(manifest.subsetter, `${label}.subsetter`);
+  if (!Array.isArray(manifest.families) || !Array.isArray(manifest.files)) throw new Error(`${label}.families and .files must be arrays`);
+  const families = new Map();
+  for (const [index, raw] of manifest.families.entries()) {
+    const at = `${label}.families[${index}]`;
+    const family = requireObject(raw, at);
+    for (const key of ["id", "name", "license"]) requireString(family[key], `${at}.${key}`);
+    requireHttpsUrl(family.sourceUrl, `${at}.sourceUrl`);
+    if (families.has(family.id)) throw new Error(`${at}.id ${family.id} is named twice`);
+    families.set(family.id, family);
+  }
+  const digest = (bytes) => sha256Hex(bytes);
+  const files = manifest.files.map((raw, index) => {
+    const at = `${label}.files[${index}]`;
+    const file = requireObject(raw, at);
+    for (const key of ["path", "family", "usage", "sourceFile", "sourceVersion", "licenseFile"]) requireString(file[key], `${at}.${key}`);
+    const family = families.get(file.family);
+    if (!family) throw new Error(`${at}.family ${file.family} is not a declared family`);
+    if (!DESIGN_FONT_USAGES.has(file.usage)) throw new Error(`${at}.usage must be one of ${[...DESIGN_FONT_USAGES].join(", ")}`);
+    if (file.weight !== null && !Number.isSafeInteger(file.weight)) throw new Error(`${at}.weight must be null or an integer`);
+    const fontBytes = fileBytes[file.path];
+    if (!fontBytes) throw new Error(`${at}.path ${file.path} does not exist`);
+    const licenseBytes = fileBytes[file.licenseFile];
+    if (!licenseBytes) throw new Error(`${at}.licenseFile ${file.licenseFile} does not exist`);
+    const declaredOfl = family.license === "OFL-1.1" && licenseBytes.toString("utf8").includes(OFL_11_HEADING);
+    return {
+      path: file.path,
+      bytes: fontBytes.length,
+      sha256: digest(fontBytes),
+      family: family.id,
+      name: family.name,
+      usage: file.usage,
+      served: file.usage === "served",
+      redistributed: true,
+      weight: file.weight,
+      sourceUrl: family.sourceUrl,
+      sourceFile: file.sourceFile,
+      sourceVersion: file.sourceVersion,
+      sourceSha256: validateDigest(file.sourceSha256, `${at}.sourceSha256`),
+      license: declaredOfl ? family.license : UNKNOWN_LICENSE,
+      licenseStatus: declaredOfl ? "declared-in-committed-license-file" : "unknown-license-file-does-not-state-the-declared-license",
+      licenseEvidence: { path: file.licenseFile, sha256: digest(licenseBytes) }
+    };
+  });
+  const named = files.map((file) => file.path);
+  if (new Set(named).size !== named.length) throw new Error(`${label} names a file twice`);
+  const unnamed = listedFontPaths.filter((fontPath) => !named.includes(fontPath));
+  if (unnamed.length > 0) throw new Error(`${label} does not name ${unnamed.join(", ")}`);
+  return { builtBy: manifest.builtBy, subsetter: manifest.subsetter, files };
+}
+
 function buildDownloadedToolInventory(source) {
   const manifest = parseGithubCliBuildToolManifest(
     source,
@@ -387,6 +460,11 @@ export function buildThirdPartyInventory(inputSources) {
   const downloadedTools = buildDownloadedToolInventory(inputSources.githubCliBuildTool);
   const runnerNpm = buildRunnerNpmInventory(inputSources.runnerPackageLock);
   const runnerTools = [parseRunnerNodeRuntime(inputSources.runnerNodeRuntime)];
+  const designFonts = buildDesignFontInventory(
+    inputSources.designFonts,
+    inputSources.designFontFiles ?? {},
+    inputSources.designFontPaths ?? []
+  );
   const cargoThirdParty = cargo.filter((entry) => entry.kind === "third-party");
 
   return {
@@ -414,14 +492,19 @@ export function buildThirdPartyInventory(inputSources) {
         ...summarizeLicenseEvidence(runnerNpm),
         installed: runnerNpm.filter((entry) => entry.runnerInstall !== "optional-not-installed").length
       },
-      runnerTools: { scope: RUNNER_SCOPE, ...summarizeLicenseEvidence(runnerTools) }
+      runnerTools: { scope: RUNNER_SCOPE, ...summarizeLicenseEvidence(runnerTools) },
+      designFonts: {
+        ...summarizeLicenseEvidence(designFonts.files),
+        served: designFonts.files.filter((file) => file.served).length
+      }
     },
     npm,
     cargo,
     filterLists,
     downloadedTools,
     runnerNpm,
-    runnerTools
+    runnerTools,
+    designFonts
   };
 }
 
@@ -430,7 +513,7 @@ export function serializeThirdPartyInventory(inventory) {
 }
 
 async function readInputs(rootDir) {
-  return Object.fromEntries(
+  const inputs = Object.fromEntries(
     await Promise.all(
       Object.entries(INPUT_PATHS).map(async ([name, inputPath]) => [
         name,
@@ -438,6 +521,35 @@ async function readInputs(rootDir) {
       ])
     )
   );
+  // Every font file under the font directories, and the bytes of each file the manifest names.
+  const designFontPaths = [];
+  for (const directory of DESIGN_FONT_DIRECTORIES) {
+    let entries = [];
+    try {
+      entries = await readdir(path.join(rootDir, directory), { recursive: true, withFileTypes: true });
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+    for (const entry of entries) {
+      if (!entry.isFile() || !DESIGN_FONT_FILE_PATTERN.test(entry.name)) continue;
+      designFontPaths.push(path.relative(rootDir, path.join(entry.parentPath, entry.name)).split(path.sep).join("/"));
+    }
+  }
+  designFontPaths.sort(compareStrings);
+  const manifest = JSON.parse(inputs.designFonts);
+  const named = Array.isArray(manifest?.files)
+    ? [...new Set(manifest.files.flatMap((file) => [file?.path, file?.licenseFile]).filter((value) => typeof value === "string"))]
+    : [];
+  const designFontFiles = {};
+  for (const relative of named) {
+    if (relative.split("/").includes("..") || path.isAbsolute(relative)) throw new Error(`${INPUT_PATHS.designFonts} names a path outside the repository: ${relative}`);
+    try {
+      designFontFiles[relative] = await readFile(path.join(rootDir, relative));
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+  }
+  return { ...inputs, designFontFiles, designFontPaths };
 }
 
 function parseArguments(argv) {

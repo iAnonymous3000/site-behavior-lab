@@ -1,6 +1,7 @@
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { DEFAULT_REPORT_MAX_AGE_DAYS, DEFAULT_REPORT_MAX_COUNT } from "@/lib/report-share-retention";
 import { SiteChrome } from "../_components/site-chrome";
+import "@/app/_design/reading-imports";
 
 export const dynamic = "force-static";
 
@@ -13,7 +14,7 @@ export const metadata = publicPageMetadata({
 
 export default function PrivacyPage() {
   return (
-    <SiteChrome>
+    <SiteChrome shellClassName="da">
       <div className="legal-page">
       <header className="legal-header">
         <p className="eyebrow">Privacy &amp; data handling</p>

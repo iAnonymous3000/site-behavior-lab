@@ -1,5 +1,5 @@
 import { publishedReportCorrections } from "./published-report-corrections";
-import { entryEvidenceCompleteness } from "./scan-report-views";
+import { entryEvidenceCompleteness, runLoadedSuccessfully } from "./scan-report-views";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { CompatibilityFingerprint, ComparisonDecision } from "./comparison-decision";
@@ -606,12 +606,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
     // Lead with the baseline (off / unprotected) run for GPC/Shields so the directory
     // lists and ranks what each site actually did, not the protected residual.
     const run = displayRunView(view);
-    const successfulRuns = view.runs.filter(
-      (candidate) =>
-        candidate.quality.outcome === "complete" &&
-        typeof candidate.status === "number" &&
-        candidate.status < 400
-    );
+    const successfulRuns = view.runs.filter(runLoadedSuccessfully);
     // Keep reserved/test domains out of the public directory, mirroring the gallery
     // manifest exclusion (a reserved-domain report is reachable by permalink only).
     if (isReservedReportDomain(run.domain)) continue;

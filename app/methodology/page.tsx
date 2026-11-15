@@ -7,6 +7,7 @@ import {
 } from "@/lib/measurement-candidate-binding";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { SiteChrome } from "../_components/site-chrome";
+import "@/app/_design/reading-imports";
 
 export const dynamic = "force-static";
 
@@ -24,7 +25,7 @@ export default function MethodologyPage() {
   // its mind about.
   const calibration = committedDetectorCalibrationReadiness();
   return (
-    <SiteChrome activePath="/methodology/">
+    <SiteChrome activePath="/methodology/" shellClassName="da">
       <div className="legal-page">
       <header className="legal-header">
         <p className="eyebrow">Methodology</p>

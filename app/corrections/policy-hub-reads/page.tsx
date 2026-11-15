@@ -1,4 +1,5 @@
 import { SiteChrome } from "@/app/_components/site-chrome";
+import "@/app/_design/reading-imports";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import Link from "next/link";
 
@@ -10,7 +11,7 @@ export const metadata = publicPageMetadata({
 });
 
 export default function PolicyHubReadsCorrectionPage() {
-  return <SiteChrome><div className="legal-page"><section className="legal-section">
+  return <SiteChrome shellClassName="da"><div className="legal-page"><section className="legal-section">
     <h1>Privacy hubs read as the policy</h1>
     <p>Correction SBL-CORR-2026-005 is a reviewed clarification for 52 committed reports. In each, the privacy-policy cross-check read a privacy hub, a page that links to the site&apos;s policy without containing it, as the policy itself. The reports and their provenance are unchanged. The <Link href="/corrections/">public ledger</Link> identifies every affected report. Two of them are redacted copies that replaced their originals for privacy under SBL-CORR-2026-004, so the ledger names those two through their originals, and the copies carry this clarification.</p>
     <h2>What the reports published</h2>

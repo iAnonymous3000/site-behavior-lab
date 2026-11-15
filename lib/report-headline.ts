@@ -137,8 +137,24 @@ export type ReportHeadline = {
   };
 };
 
-const KICKER = "What this actually means";
+/** The banner label of every headline but a corrected or withdrawn report's. */
+export const HEADLINE_KICKER = "What this actually means";
+const KICKER = HEADLINE_KICKER;
 const SHARE_TAGLINE = "See what a site does, not what it says. Open-source and reproducible:";
+
+/**
+ * The compact notice of a published clarification that applies to a report
+ * whose findings stay indexed, or null. The share card's compact subhead and
+ * the front-page record (homepage and site page) both take this one string,
+ * so a surface that states the report's finding cannot drop the notice the
+ * report page and the card print.
+ */
+export function publishedClarificationNotice(reportId: string | null | undefined): string | null {
+  const context = publishedReportCorrections(reportId);
+  const event = context.currentSubjectEvent;
+  if (!event || context.suppressIndexing) return null;
+  return `A public clarification applies. Open the report and read ${event.eventId} before using its findings.`;
+}
 
 export function buildReportHeadline(
   view: ReportView,
@@ -148,6 +164,7 @@ export function buildReportHeadline(
   const context = publishedReportCorrections(view.reportId);
   const event = context.currentSubjectEvent;
   if (!event) return headline;
+  const clarification = publishedClarificationNotice(view.reportId);
   const notice = `${event.eventId}: ${event.summary}`;
   // A clarification joins the lead claim's own qualification, it does not
   // replace it. Replaced, a headline such as "<site>'s observed Meta Pixel
@@ -156,9 +173,9 @@ export function buildReportHeadline(
   // it, for a notice about a different measurement that the page already
   // prints in full above the headline. A superseding correction below still
   // replaces everything: there the claim itself is withdrawn.
-  if (!context.suppressIndexing) return {
+  if (clarification !== null) return {
     ...headline, subhead: `${headline.subhead} ${notice}`, subheadPrimaryClaim: notice,
-    compactSubhead: `A public clarification applies. Open the report and read ${event.eventId} before using its findings.`,
+    compactSubhead: clarification,
     // The card takes the compact form only when it was written for exactly
     // this subhead, so the source is the joined text, not the notice alone.
     compactSubheadSource: `${headline.subhead} ${notice}`,

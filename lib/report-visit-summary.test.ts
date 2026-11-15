@@ -629,8 +629,16 @@ test("the board states the summary right after its bottom line, and the header k
     /\{limit\.entry && \(\s*<span className="report-visit-entry">\s*<a className="finding-look-closer-link" href=\{limit\.entry\.href\}>\{limit\.entry\.label\}<\/a>\s*<span className="report-visit-entry-sentence">\{limit\.entry\.sentence\}<\/span>\s*<\/span>\s*\)\}/
   );
   assert.match(permalink, /<ReportPageSummary[\s\S]*?visitSummary=\{visitSummary\}[\s\S]*?\/>\s*\}\s*visitSummary=\{visitSummary\}\s*\/>/);
-  assert.match(permalink, /afterBottomLine=\{visitSummary\}/);
-  assert.match(source("app/reports/[id]/print/page.tsx"), new RegExp(`<ReportRenderer[\\s\\S]*?visitSummary=\\{\\s*${built.source}\\s*\\}`));
+  // The page's summary is a component of its own (a result on the homepage
+  // renders it too), and it is the one that places the lists.
+  assert.match(source("app/_design/report-summary.tsx"), /afterBottomLine=\{visitSummary\}/);
+  // Paper renders the report page's own summary, which places the lists after
+  // the bottom line; the summary is built once from the same inputs and handed
+  // to the summary and to the renderer.
+  const printPage = source("app/reports/[id]/print/page.tsx");
+  assert.match(printPage, new RegExp(`const visitSummary = ${built.source};`));
+  assert.match(printPage, /<ReportPageSummary[\s\S]*?visitSummary=\{visitSummary\}[\s\S]*?\/>/);
+  assert.match(printPage, /<ReportRenderer[\s\S]*?visitSummary=\{visitSummary\}/);
   assert.match(source("app/reports/[id]/saved-report-client.tsx"), /<LazyReportRenderer[^>]*visitSummary=\{visitSummary\}/);
   assert.match(source("app/_components/report-renderer.tsx"), /<FindingsBoard [^>]*afterBottomLine=\{visitSummary\} \/>/);
   assert.match(source("app/_components/report-overview.tsx"), /afterBottomLine=\{afterBottomLine\}/);

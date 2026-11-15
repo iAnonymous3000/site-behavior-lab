@@ -1,0 +1,1461 @@
+/*
+ * Direction A: the report page (app/reports/[id]/).
+ *
+ * The page's skeleton is the one scripts/smoke-static-site.mjs holds in place:
+ * the identity header with the site as its <h1>, the headline banner, the
+ * findings board with the visit summary directly after its bottom line, and
+ * the receipt. Those blocks keep their class names, which the board shares
+ * with the evidence explorer, and are dressed here. The figure, the limit
+ * lines, the record identifiers and the domain table are new
+ * (app/_design/*.tsx, components.css).
+ *
+ * Step 1 below returns every dressed block to the browser's defaults, so
+ * nothing from app/globals.css leaks into this page. Its list sits in
+ * :where(), so the rule weighs three classes whatever the list holds, and
+ * every rule after it that starts .da.da and names one more class wins.
+ */
+
+/* ---- 1. Clear the earlier design from the blocks this page dresses ---- */
+.da.da.da :where(
+  .report-breadcrumbs, .report-breadcrumbs ol, .report-breadcrumbs li,
+  .report-identity, .report-identity-title, .report-identity .eyebrow, .report-identity h1, .report-identity h2,
+  .report-url, .report-url-label, .report-identity-landing, .report-identity-when,
+  .report-identity-actions, .report-provenance,
+  .report-correction-notice, .report-correction-notice :is(.eyebrow, h2, p, strong),
+  .report-incomplete-notice, .report-incomplete-notice :is(.eyebrow, h2, p),
+  .report-page-summary,
+  .report-page-summary :is(.headline-banner, .headline-kicker, .headline-title, .headline-subhead, .headline-stats,
+    .headline-stat, .headline-stat-value, .headline-stat-label, .headline-footer, .headline-caveat, .headline-visit-order),
+  .findings-board, .findings-heading, .findings-heading :is(.eyebrow, h2, span, div), .finding-list,
+  .finding-card, .finding-card > div, .finding-icon, .finding-level, .finding-card h3, .finding-card p,
+  .finding-meta, .finding-meta span, .finding-look-closer, .finding-look-closer-name, .finding-look-closer-sentence,
+  .report-visit-summary, .report-visit-checked, .report-visit-limits, .report-visit-heading,
+  .report-visit-summary :is(dl, dl > div, dt, dd, ul, li, strong), .report-visit-entry, .report-visit-entry-sentence,
+  .report-evidence-loader, .report-evidence-loader :is(div, .eyebrow, h2, p), .report-evidence-load-error,
+  .evidence-receipt, .evidence-receipt-retention, .evidence-receipt-heading, .evidence-receipt-heading :is(div, .eyebrow, h2),
+  .evidence-receipt-links, .evidence-receipt-summary, .evidence-receipt :is(dl, dl > div, dt, dd),
+  .evidence-receipt-details, .evidence-receipt-details > summary, .evidence-receipt-runs, .evidence-receipt-run,
+  .evidence-receipt-run h3, .evidence-receipt-note, .evidence-receipt-boundaries
+) {
+  all: revert;
+  box-sizing: border-box;
+}
+
+/* Links and buttons that carried the earlier design's button classes. */
+.da.da :is(.report-identity-actions, .report-page-summary, .evidence-receipt, .findings-board) a:is(.primary-button, .secondary-button, .glossary-link, .finding-look-closer-link),
+.da.da .report-identity-actions .topbar-link {
+  all: unset;
+  cursor: pointer;
+  color: var(--a-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.da.da :is(.report-identity-actions, .report-page-summary, .evidence-receipt, .findings-board) a:is(.primary-button, .secondary-button, .glossary-link, .finding-look-closer-link):hover,
+.da.da .report-identity-actions .topbar-link:hover {
+  text-decoration-thickness: 2px;
+}
+
+.da.da :is(.report-identity-actions, .report-page-summary, .evidence-receipt, .findings-board) a:is(.primary-button, .secondary-button, .glossary-link, .finding-look-closer-link):focus-visible,
+.da.da .report-identity-actions .topbar-link:focus-visible,
+.da.da .report-evidence-loader button.primary-button:focus-visible {
+  outline: 3px solid var(--a-focus);
+  outline-offset: 2px;
+  border-radius: 1px;
+}
+
+.da.da .report-evidence-loader button.primary-button {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 2px;
+  background: var(--a-prussian);
+  color: var(--a-on-prussian);
+  font: 600 1rem / 1 var(--a-sans);
+  white-space: nowrap;
+}
+
+.da.da .report-evidence-loader button.primary-button:disabled {
+  cursor: progress;
+  opacity: 0.75;
+}
+
+/* ---- 2. Page grid ----
+ * Two columns from the top, the ones the finding cards use: the claim at the
+ * left, its limits at the right.
+ *   wide    breadcrumb
+ *           correction notice
+ *           site, visit, address | the limits on the whole report
+ *           finding sentence     | (the limits run on beside it)
+ *           figure
+ *           opening paragraph    | the numbers, two by two
+ *           the record's three links
+ *   narrow  one column in source order
+ *   paper   one column: dateline, finding and limits, figure, paragraph,
+ *           numbers, then the whole record
+ * Source order is reading order: site, visit, address, sentence, limits,
+ * figure. A limit on the whole report is above the figure at every width.
+ */
+/* On the root as well: WebKit still scrolls sideways when only the body clips. */
+:root:has(.da),
+body:has(.da) {
+  overflow-x: clip;
+}
+
+.da.da.report-page-shell > main,
+.da.da.da .result-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  /* Rows: breadcrumb, notice, record, finding sentence. The limits span the
+     last two; the sentence's row is the flexible one, so limits taller than
+     the text beside them add space under the sentence, not above it. */
+  grid-template-rows: auto auto auto 1fr;
+  column-gap: 56px;
+  align-items: start;
+}
+
+.da.da.da :is(.report-page-context, .report-page-summary) {
+  display: contents;
+}
+
+.da.da.report-page-shell > main > *,
+.da.da.da .result-page > *,
+.da.da.da :is(.report-page-context, .report-page-summary) > * {
+  grid-column: 1 / -1;
+  min-width: 0;
+  order: 6;
+}
+
+.da.da.da .report-breadcrumbs,
+.da.da.da .report-correction-notice {
+  order: 0;
+}
+
+.da.da.da .report-breadcrumbs {
+  grid-row: 1;
+}
+
+.da.da.da .report-correction-notice {
+  grid-row: 2;
+}
+
+/* No notice: the breadcrumb holds its row too, so nothing flows into it. */
+.da.da.report-page-shell > main:not(:has(.report-correction-notice)) .report-breadcrumbs {
+  grid-row: 1 / span 2;
+}
+
+.da.da.da .report-page-summary > .headline-banner {
+  order: 1;
+}
+
+.da.da.da .report-page-summary > .a-plate {
+  order: 2;
+}
+
+.da.da.da .report-page-summary > :is(.headline-subhead, .headline-stats) {
+  order: 3;
+}
+
+/* The record's three links follow the numbers, in the source and on screen. */
+.da.da.da .report-identity-actions {
+  order: 4;
+}
+
+@media screen {
+  .da.da.da .report-identity {
+    order: 1;
+  }
+}
+
+@media screen and (min-width: 901px) {
+  /* The banner spans both columns and both rows and lays its sentence and
+     its limits on the page's own tracks. Its first cell is the record's,
+     which is raised so the banner's empty corner does not cover it.
+     Only where the browser has subgrid. Without it the banner's tracks would
+     be its own and the sentence could land on the record, so these rules do
+     not apply and the record, the sentence and the limits stack in source
+     order, as they do on a narrow screen. */
+  @supports (grid-template-columns: subgrid) {
+    .da.da.da .report-identity {
+      grid-column: 1;
+      grid-row: 3;
+      position: relative;
+      z-index: 1;
+    }
+
+    .da.da.da .report-page-summary > .headline-banner {
+      grid-row: 3 / span 2;
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-template-rows: subgrid;
+      align-items: start;
+    }
+
+    .da.da.da .report-page-summary .headline-title {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .da.da.da .report-page-summary .headline-footer {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+  }
+
+  .da.da.da .report-page-summary > .headline-subhead {
+    grid-column: 1;
+  }
+
+  .da.da.da .report-page-summary > .headline-stats {
+    grid-column: 2;
+  }
+
+}
+
+/* The dateline is for paper only (record-block.tsx). */
+.da .a-dateline {
+  display: none;
+}
+
+/* ---- 3. Breadcrumb ---- */
+.da.da .report-breadcrumbs {
+  padding: 22px 0 0;
+  font-size: 0.875rem;
+  color: var(--a-slate);
+}
+
+.da.da .report-breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.da.da .report-breadcrumbs a {
+  color: var(--a-slate);
+}
+
+/* ---- 4. The finding sentence, its limits, the summary and the numbers ---- */
+.da.da .report-page-summary > .headline-banner {
+  padding: 20px 0 0;
+}
+
+.da.da .report-page-summary .headline-title {
+  margin: 0;
+  font: var(--a-w-find) var(--a-t-find) / 1.12 var(--a-serif);
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+.da.da .report-page-summary .headline-footer {
+  display: grid;
+  gap: 6px;
+  margin: 18px 0 0;
+}
+
+/* One line each: the limit sentence, with anything more behind it. */
+.da.da .report-page-summary .headline-footer .a-lim {
+  position: relative;
+  margin: 0;
+  padding-left: 22px;
+  font: 400 var(--a-t-body) / 1.45 var(--a-sans);
+}
+
+.da.da .report-page-summary .headline-footer .a-lim strong {
+  font-weight: 600;
+}
+
+.da.da .report-page-summary .headline-visit-order {
+  margin: 0 0 0 22px;
+  font-size: var(--a-t-small);
+  color: var(--a-slate);
+}
+
+.da.da .report-page-summary > .headline-subhead {
+  margin: 18px 0 0;
+  max-width: none;
+  font: 400 var(--a-t-read) / 1.5 var(--a-serif);
+}
+
+.da.da .report-page-summary > .a-plate {
+  margin-top: 28px;
+}
+
+.da.da .report-page-summary > .headline-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px 28px;
+  margin: 0;
+  padding: 16px 28px 0;
+}
+
+/* On screen the sentence is a standfirst under the site, and the limits are
+   set at the limit size in their own column. Paper keeps the rules above. */
+@media screen {
+  .da.da .report-page-summary > .headline-banner {
+    padding: 0;
+  }
+
+  .da.da .report-page-summary .headline-title {
+    margin: 22px 0 0;
+    font: 400 var(--a-t-stand) / 1.28 var(--a-serif);
+    letter-spacing: -0.006em;
+    text-wrap: pretty;
+  }
+
+  .da.da .report-page-summary .headline-footer {
+    gap: 10px;
+    margin: 30px 0 0;
+    align-content: start;
+  }
+
+  .da.da .report-page-summary .headline-footer .a-lim {
+    font-size: var(--a-t-limit);
+  }
+
+  .da.da .report-page-summary > .headline-subhead {
+    margin: 24px 0 0;
+  }
+
+  .da.da .report-page-summary > .headline-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 28px;
+    margin: 26px 0 0;
+    padding: 0;
+    align-self: start;
+  }
+}
+
+.da.da .report-page-summary .headline-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.da.da .report-page-summary .headline-stat-value {
+  font: 500 1.5rem / 1.15 var(--a-serif);
+}
+
+/* A value that is words, not a count, is set as text. */
+.da.da .report-page-summary .is-words .headline-stat-value {
+  font: 600 0.9375rem / 1.45 var(--a-sans);
+  padding-top: 0.35rem;
+}
+
+.da.da .report-page-summary .headline-stat-label {
+  font-size: var(--a-t-fine);
+  line-height: 1.35;
+  color: var(--a-slate);
+}
+
+/* ---- 5. Record: the identity header, as labelled rows ---- */
+.da.da .report-identity {
+  margin: 26px 0 0;
+  padding: 12px 0 0;
+  border-top: 2px solid var(--a-carbon);
+  font-size: var(--a-t-small);
+  line-height: 1.4;
+}
+
+.da.da .a-rec {
+  margin: 0;
+}
+
+.da.da .a-rec dt {
+  margin: 8px 0 0;
+  font-size: var(--a-t-fine);
+  color: var(--a-slate);
+}
+
+.da.da .a-rec dt:first-child {
+  margin-top: 0;
+}
+
+.da.da .a-rec dd {
+  margin: 0;
+}
+
+.da.da .a-rec dd p {
+  margin: 4px 0 0;
+}
+
+.da.da .a-rec :is(h1, h2) {
+  margin: 0;
+  font: 600 1.0625rem / 1.3 var(--a-mono);
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+/* 13px mono: 32 characters measure about 250px, inside the rail and a phone column. */
+.da.da .a-rec .a-mono {
+  font-size: 0.8125rem;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+/* The id breaks only at its <wbr>, the digest only between its two halves. */
+.da.da .a-rec dd.a-mono {
+  overflow-wrap: normal;
+}
+
+.da.da .a-rec dd.a-mono > span {
+  white-space: nowrap;
+}
+
+.da.da .a-rec .a-digest > span {
+  display: block;
+}
+
+.da.da .report-identity-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 14px 0 0;
+}
+
+/* On screen the record opens the page: the site is the largest type, with
+   the visit and the requested address under it as label over value. The
+   report id (4th pair), the digest (5th) and the scanner (last) are the
+   receipt's on screen and stay in the markup for paper. A format note that
+   is a row of the record (record-block.tsx) is the 6th pair of seven and is
+   shown under the address. */
+@media screen {
+  /* The rule and the small type above are paper's. */
+  .da.da.da .report-identity {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .da.da.da .a-rec {
+    display: grid;
+    grid-template-columns: fit-content(45%) minmax(0, 1fr);
+    gap: 0 36px;
+    margin: 12px 0 0;
+    font-size: var(--a-t-small);
+    line-height: 1.4;
+  }
+
+  .da.da.da .a-rec dt {
+    margin: 0;
+  }
+
+  .da.da.da .a-rec dt:first-child {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .da.da.da .a-rec dd:first-of-type {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .da.da.da .a-rec :is(h1, h2) {
+    margin: 0 0 8px;
+    font: 500 var(--a-t-site) / 1.05 var(--a-serif);
+    letter-spacing: -0.018em;
+    overflow-wrap: anywhere;
+  }
+
+  /* A long name, a step smaller (lib/site-name-size.ts). */
+  .da.da.da .a-rec :is(h1, h2).a-site-long {
+    font-size: var(--a-t-site-long);
+  }
+
+  .da.da.da .a-rec :is(h1, h2).a-site-longer {
+    font-size: var(--a-t-site-longer);
+  }
+
+  .da.da.da .a-rec dt:nth-of-type(2) {
+    grid-area: 2 / 1;
+  }
+
+  .da.da.da .a-rec dd:nth-of-type(2) {
+    grid-area: 3 / 1;
+  }
+
+  .da.da.da .a-rec dt:nth-of-type(3) {
+    grid-area: 2 / 2;
+  }
+
+  .da.da.da .a-rec dd:nth-of-type(3) {
+    grid-area: 3 / 2;
+  }
+
+  .da.da.da .a-rec :is(dt, dd):is(:nth-of-type(4), :nth-of-type(5), :last-of-type) {
+    display: none;
+  }
+
+  .da.da.da .a-rec dt:nth-of-type(6) {
+    grid-area: 4 / 1 / auto / -1;
+    margin-top: 8px;
+  }
+
+  .da.da.da .a-rec dd:nth-of-type(6) {
+    grid-area: 5 / 1 / auto / -1;
+  }
+
+  .da.da.da .report-identity-actions {
+    margin: 22px 0 0;
+    font-size: 0.875rem;
+  }
+}
+
+/* ---- 6. Correction notice ---- */
+.da.da .report-correction-notice {
+  margin: 20px 0 0;
+  padding: 12px 16px 14px;
+  border: 1px solid var(--a-carbon);
+  background: none;
+  font-size: var(--a-t-small);
+  line-height: 1.45;
+}
+
+.da.da .report-correction-notice .eyebrow {
+  margin: 0 0 2px;
+  font-size: var(--a-t-fine);
+  color: var(--a-slate);
+}
+
+.da.da .report-correction-notice h2 {
+  margin: 0 0 6px;
+  font: 600 0.9375rem / 1.35 var(--a-sans);
+}
+
+.da.da .report-correction-notice p {
+  margin: 0 0 6px;
+  max-width: 92ch;
+}
+
+.da.da .report-correction-notice p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---- 7. Findings board ---- */
+.da.da .findings-board {
+  margin: var(--a-s7) 0 0;
+}
+
+/* One row: the title at the left, the glossary link at the right. */
+.da.da .findings-heading,
+.da.da .findings-heading > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 24px;
+  font-size: var(--a-t-small);
+  color: var(--a-slate);
+}
+
+.da.da .findings-heading {
+  padding-top: 14px;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da .findings-heading > div {
+  flex: 1 1 auto;
+}
+
+.da.da .findings-heading .eyebrow {
+  order: 2;
+  margin: 0;
+}
+
+.da.da .findings-heading h2 {
+  margin: 0;
+  font: 600 0.9375rem / 1.3 var(--a-sans);
+  color: var(--a-carbon);
+}
+
+/* The board also renders inside the explorer's narrower column, so its
+   two-column cards answer to the board's own width, not the window's. */
+.da.da .finding-list {
+  container-type: inline-size;
+}
+
+/* The index (findings-list.tsx): every title under its filed label, three
+   columns wide, each column topped by its tier's rule. Labels and titles
+   only. Its lists are plain lists, each named by the label above it. */
+.da.da .a-fx {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 40px;
+  margin: 18px 0 30px;
+}
+
+.da.da .a-fx > div > p {
+  margin: 0 0 8px;
+  padding: 9px 0 0;
+  border-top: 1px solid var(--a-rule);
+  font: 600 var(--a-t-fine) / 1.4 var(--a-sans);
+  color: var(--a-carbon);
+}
+
+.da.da .a-fx > .tile-loud > p {
+  border-top: 3px solid var(--a-carbon);
+  padding-top: 7px;
+}
+
+.da.da .a-fx > .tile-warn > p {
+  border-top-color: var(--a-carbon);
+}
+
+.da.da .a-fx ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font: 400 var(--a-t-small) / 1.4 var(--a-sans);
+}
+
+.da.da .a-fx li {
+  margin: 0 0 6px;
+}
+
+/* The tier sets a card's weight: the rule above it and the size of its
+   title. Review-worthy 3px and 28px, Worth checking 1px in the text color
+   and 22px, the rest a hairline and 18px. The limit is one size on all. */
+.da.da .finding-card {
+  /* Evidence lines carry URLs and API names with no break point. */
+  overflow-wrap: anywhere;
+  padding: 16px 0 30px;
+  border-top: 1px solid var(--a-rule);
+  scroll-margin-top: 16px;
+}
+
+.da.da .finding-card.tile-loud {
+  border-top: 3px solid var(--a-carbon);
+  padding-top: 14px;
+}
+
+.da.da .finding-card.tile-warn {
+  border-top-color: var(--a-carbon);
+}
+
+.da.da .finding-icon {
+  display: none;
+}
+
+/* The claim at the left on the reading measure, its limit beside it. */
+.da.da .finding-card > div:last-child {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  grid-template-areas:
+    "level ."
+    "title limit"
+    "lead limit"
+    "meta limit"
+    "closer limit";
+  grid-template-rows: auto auto auto auto 1fr;
+  column-gap: 56px;
+  align-items: start;
+}
+
+.da.da .finding-card h3 {
+  grid-area: title;
+  margin: 0 0 6px;
+  font: var(--a-w-title) 1.125rem / 1.3 var(--a-serif);
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+
+.da.da .finding-card.tile-loud h3 {
+  margin-bottom: 8px;
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+
+.da.da .finding-card.tile-warn h3 {
+  margin-bottom: 8px;
+  font-size: 1.375rem;
+  line-height: 1.25;
+}
+
+.da.da .finding-card .finding-lead {
+  grid-area: lead;
+  margin: 0;
+  font: 400 1.0625rem / 1.5 var(--a-serif);
+}
+
+.da.da .finding-card:is(.tile-loud, .tile-warn) .finding-lead {
+  font-size: var(--a-t-read);
+}
+
+/* The card's explanatory paragraph is its limit: printed whole, marked as one. */
+.da.da .finding-card .finding-lead + p {
+  grid-area: limit;
+  position: relative;
+  margin: 5px 0 0;
+  padding-left: 22px;
+  max-width: 60ch;
+  font: 400 0.9375rem / 1.5 var(--a-sans);
+}
+
+/* The report page's own cards take the limit from the evidence layer: one
+   sentence at the top of the column, beside the claim's first line, with the
+   text behind it under the sentence when the reader opens it. A card with no
+   short limit prints its full string in the same column, whole. The columns
+   stay top aligned: a short limit beside a tall claim is not centered. */
+.da.da .finding-card .finding-limit {
+  grid-area: limit;
+  margin: 5px 0 0;
+  max-width: 60ch;
+}
+
+.da.da.da .finding-limit .a-lim {
+  position: relative;
+  margin: 0;
+  padding-left: 22px;
+  font: 400 0.9375rem / 1.5 var(--a-sans);
+  color: var(--a-carbon);
+}
+
+.da.da.da .finding-limit .a-lim-behind > p {
+  margin: 8px 0 0;
+  max-width: 60ch;
+  font: 400 0.9375rem / 1.5 var(--a-sans);
+  color: var(--a-slate);
+}
+
+/* The filed label leads its card, in the text color: the first thing read. */
+.da.da .finding-level {
+  grid-area: level;
+  margin: 0 0 8px;
+  font: 600 var(--a-t-fine) / 1.4 var(--a-sans);
+  color: var(--a-carbon);
+}
+
+/* The evidence line, then the card's links. */
+.da.da .finding-meta {
+  grid-area: meta;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin: 12px 0 0;
+  font-size: var(--a-t-small);
+  line-height: 1.5;
+  color: var(--a-slate);
+}
+
+.da.da .finding-look-closer {
+  grid-area: closer;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 10px;
+  margin: 8px 0 0;
+  font-size: var(--a-t-small);
+  line-height: 1.5;
+}
+
+.da.da .finding-look-closer-name {
+  margin: 0;
+  color: var(--a-slate);
+}
+
+.da.da .finding-look-closer-sentence {
+  margin: 0;
+  flex-basis: 100%;
+  font-size: 0.875rem;
+  color: var(--a-slate);
+}
+
+@container (max-width: 760px) {
+  .da.da .finding-card > div:last-child {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "level" "title" "lead" "limit" "meta" "closer";
+    grid-template-rows: none;
+  }
+
+  .da.da .finding-card .finding-lead + p,
+  .da.da .finding-card .finding-limit {
+    margin-top: 12px;
+    max-width: none;
+  }
+
+  .da.da .report-visit-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* On screen the one-column card is a wrapping row instead (paper keeps the
+   grid above: it prints no links, so nothing can collide there). */
+@media screen {
+  @container (max-width: 760px) {
+    /* A wrapping row of full-width blocks: the meta block and the
+       look-closer block give their children to the card.
+         the filed label, a full row
+         title, lead and limit, each a full row
+         evidence lines, each a full row, then the evidence link
+         "Look closer" and its link
+         the view's sentence, a full row */
+    .da.da .finding-card > div:last-child {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      column-gap: 10px;
+    }
+
+    .da.da .finding-card > div:last-child > :is(.finding-level, h3, .finding-lead, .finding-limit),
+    .da.da .finding-card .finding-lead + p {
+      flex: 0 0 100%;
+    }
+
+    .da.da .finding-card .finding-meta,
+    .da.da .finding-card .finding-look-closer {
+      display: contents;
+    }
+
+    .da.da.da.da .finding-card .finding-meta > span {
+      order: 1;
+      flex: 0 0 100%;
+      margin-top: 4px;
+    }
+
+    /* 12px between the limit and the evidence line. */
+    .da.da.da.da .finding-card .finding-meta > span:first-child {
+      margin-top: 12px;
+    }
+
+    .da.da.da.da .finding-card .finding-meta > a {
+      order: 2;
+      margin-top: 4px;
+    }
+
+    /* A full-width break, so a look-closer row starts on a line of its own. */
+    .da.da .finding-card > div:last-child:has(> .finding-look-closer)::before {
+      content: "";
+      order: 3;
+      flex: 0 0 100%;
+    }
+
+    .da.da.da.da .finding-card :is(.finding-look-closer-name, .finding-look-closer-link) {
+      order: 4;
+      margin-top: 8px;
+    }
+
+    .da.da .finding-card .finding-look-closer-sentence {
+      order: 6;
+    }
+  }
+}
+
+/* ---- 8. Visit summary: what was checked, what the visit could not see ---- */
+.da.da .report-visit-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px 56px;
+  padding: 22px 0 24px;
+  font-size: var(--a-t-small);
+  line-height: 1.45;
+}
+
+.da.da .report-visit-heading {
+  margin: 0 0 10px;
+  font: 600 0.9375rem / 1.3 var(--a-sans);
+}
+
+.da.da .report-visit-summary dl {
+  margin: 0;
+}
+
+.da.da .report-visit-summary dl > div {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 0 14px;
+  margin: 0 0 6px;
+}
+
+.da.da .report-visit-summary dt {
+  color: var(--a-slate);
+}
+
+.da.da .report-visit-summary dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.da.da .report-visit-summary ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Each item carries the limit mark (components.css). */
+.da.da .report-visit-summary li {
+  position: relative;
+  margin: 0 0 9px;
+  padding-left: 22px;
+}
+
+.da.da .report-visit-entry {
+  display: block;
+  margin-top: 4px;
+}
+
+.da.da .report-visit-entry-sentence {
+  margin-left: 0.5em;
+  color: var(--a-slate);
+}
+
+/* ---- 9. Evidence loader ---- */
+.da.da .report-evidence-loader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 40px;
+  margin: var(--a-s7) 0 0;
+  padding: 22px 28px;
+  background: var(--a-bench);
+}
+
+.da.da .report-evidence-loader > div {
+  flex: 1 1 420px;
+  max-width: var(--a-read);
+}
+
+.da.da .report-evidence-loader .eyebrow {
+  margin: 0 0 2px;
+  font-size: var(--a-t-small);
+  color: var(--a-slate);
+}
+
+.da.da .report-evidence-loader h2 {
+  margin: 0 0 6px;
+  font: var(--a-w-title) var(--a-t-h3) / 1.25 var(--a-serif);
+}
+
+.da.da .report-evidence-loader p {
+  margin: 0;
+  font-size: var(--a-t-limit);
+  line-height: 1.5;
+}
+
+.da.da .report-evidence-load-error {
+  flex-basis: 100%;
+  padding-left: 12px;
+  border-left: 3px solid var(--a-carbon);
+}
+
+.da.da .spin {
+  animation: a-spin 0.9s linear infinite;
+}
+
+@keyframes a-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- 10. Evidence receipt ---- */
+.da.da .evidence-receipt {
+  margin: var(--a-s7) 0 0;
+  padding-top: 14px;
+  border-top: 2px solid var(--a-carbon);
+  font-size: var(--a-t-small);
+  line-height: 1.5;
+  scroll-margin-top: 16px;
+}
+
+.da.da .evidence-receipt-heading {
+  order: -1;
+}
+
+.da.da .evidence-receipt {
+  display: flex;
+  flex-direction: column;
+}
+
+.da.da .evidence-receipt-heading .eyebrow {
+  margin: 0 0 2px;
+  color: var(--a-slate);
+}
+
+.da.da .evidence-receipt-heading h2 {
+  margin: 0;
+  font: var(--a-w-find) var(--a-t-h2) / 1.15 var(--a-serif);
+  letter-spacing: -0.01em;
+}
+
+.da.da .evidence-receipt-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  margin-top: 12px;
+  font-size: var(--a-t-body);
+}
+
+.da.da .evidence-receipt-retention {
+  margin: 12px 0 0;
+  max-width: var(--a-read);
+  font: 400 var(--a-t-body) / 1.5 var(--a-sans);
+}
+
+.da.da .evidence-receipt-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px 32px;
+  margin: 18px 0 0;
+  padding: 14px 0;
+  border-top: 1px solid var(--a-rule);
+  border-bottom: 1px solid var(--a-rule);
+}
+
+.da.da .evidence-receipt dt {
+  color: var(--a-slate);
+}
+
+.da.da .evidence-receipt dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.da.da .evidence-receipt dd > * {
+  display: block;
+}
+
+.da.da .evidence-receipt-details {
+  margin: 14px 0 0;
+}
+
+.da.da .evidence-receipt-details > summary {
+  cursor: pointer;
+  width: fit-content;
+  color: var(--a-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  font-size: var(--a-t-body);
+}
+
+.da.da .evidence-receipt-runs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px 56px;
+  margin: 14px 0 0;
+}
+
+.da.da .evidence-receipt-run h3 {
+  margin: 0 0 8px;
+  font: 600 0.9375rem / 1.3 var(--a-sans);
+}
+
+.da.da .evidence-receipt-run dl {
+  margin: 0;
+}
+
+.da.da .evidence-receipt-run dl > div {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 0 14px;
+  margin: 0 0 6px;
+}
+
+.da.da .evidence-receipt-note {
+  position: relative;
+  margin: 12px 0 0;
+  max-width: 92ch;
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+/* The boundary sentences qualify every number above: each is a limit line. */
+.da.da .evidence-receipt-boundaries .evidence-receipt-note {
+  padding-left: 22px;
+}
+
+/* ---- 11. The evidence explorer ---- (its colors and faces: base.css) */
+.da.da .report-focus-target {
+  margin-top: var(--a-s5);
+}
+
+/* ---- Narrow screens and paper: one column, in reading order ---- */
+@media screen and (max-width: 900px), print {
+  .da.da.report-page-shell > main,
+  .da.da.da .result-page {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+  }
+
+  .da.da.report-page-shell > main > *,
+  .da.da.da .result-page > *,
+  .da.da.da :is(.report-page-context, .report-page-summary) > * {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+
+  .da.da .report-page-summary > .headline-stats {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    padding: 16px 0 0;
+  }
+
+  .da.da .report-breadcrumbs {
+    padding-top: 14px;
+  }
+
+  .da.da .report-page-summary > .a-plate {
+    margin-top: 20px;
+  }
+
+  .da.da .finding-card > div:last-child {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "level" "title" "lead" "limit" "meta" "closer";
+    grid-template-rows: none;
+  }
+
+  .da.da .a-fx {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .da.da .finding-card .finding-lead + p,
+  .da.da .finding-card .finding-limit {
+    margin-top: 12px;
+    max-width: none;
+  }
+
+  .da.da .report-visit-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .da.da .report-evidence-loader {
+    margin-left: calc(var(--a-gut) * -1);
+    margin-right: calc(var(--a-gut) * -1);
+    padding: 20px var(--a-gut);
+  }
+
+  .da.da .evidence-receipt-run dl > div {
+    grid-template-columns: 110px minmax(0, 1fr);
+  }
+}
+
+/* A phone: label beside value, the links after the numbers. */
+@media screen and (max-width: 900px) {
+  .da.da .finding-card.tile-loud h3 {
+    font-size: 1.5rem;
+  }
+
+  .da.da .finding-card.tile-warn h3 {
+    font-size: 1.25rem;
+  }
+
+  .da.da .finding-card:not(.tile-loud, .tile-warn) h3 {
+    font-size: 1.0625rem;
+  }
+
+  .da.da.da .a-rec {
+    gap: 2px 8px;
+  }
+
+  .da.da.da .a-rec dd:nth-of-type(2) {
+    grid-area: 2 / 2;
+  }
+
+  /* The address has its label above it, so the value has the whole line. */
+  .da.da.da .a-rec dt:nth-of-type(3) {
+    grid-area: 3 / 1 / auto / -1;
+    margin-top: 4px;
+  }
+
+  .da.da.da .a-rec dd:nth-of-type(3) {
+    grid-area: 4 / 1 / auto / -1;
+  }
+
+  .da.da.da .a-rec dt:nth-of-type(6) {
+    grid-area: 5 / 1;
+    margin-top: 4px;
+  }
+
+  .da.da.da .a-rec dd:nth-of-type(6) {
+    grid-area: 5 / 2;
+    margin-top: 4px;
+  }
+
+  .da.da .report-page-summary .headline-title {
+    margin-top: 16px;
+  }
+
+  .da.da .report-page-summary .headline-footer {
+    margin-top: 16px;
+  }
+
+  .da.da .report-page-summary > .headline-subhead {
+    margin-top: 18px;
+  }
+
+  .da.da .report-page-summary > .headline-stats {
+    margin-top: 0;
+    padding: 16px 0 0;
+  }
+
+  .da.da.da .report-identity-actions {
+    gap: 4px 16px;
+  }
+}
+
+/* ---- Print: the same document in ink ---- */
+@media print {
+  /* Paper: the whole record after the numbers. */
+  .da.da.da .report-identity {
+    order: 5;
+    margin-top: 24px;
+  }
+
+  /* On paper the order is the phone's: finding and limits, the figure, the
+     summary and numbers, then the record. The record follows the figure so
+     the figure starts on page one, and is set as a compact grid: three
+     columns of label over value, the digest on a row of its own. */
+  .da.da.da .report-page-summary > .headline-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .da.da.da .report-identity {
+    margin-top: 5mm;
+    padding-top: 2mm;
+    break-inside: avoid;
+    font-size: 9pt;
+  }
+
+  .da.da .a-rec {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-flow: row dense;
+    gap: 0 6mm;
+  }
+
+  /* Label over value in one cell: each pair shares a column, label first. */
+  .da.da .a-rec dt {
+    margin: 2mm 0 0;
+    font-size: 8pt;
+    grid-row: span 1;
+  }
+
+  .da.da .a-rec dt:first-child {
+    margin-top: 2mm;
+  }
+
+  /* Row one: site, visit, requested address. Row two: report id, format
+     note (when the report has one), scanner. The digest, the fifth pair,
+     is placed last and spans the width. */
+  .da.da .a-rec dt:nth-of-type(1),
+  .da.da .a-rec dt:nth-of-type(1) + dd,
+  .da.da .a-rec dt:nth-of-type(4),
+  .da.da .a-rec dt:nth-of-type(4) + dd {
+    grid-column: 1;
+  }
+
+  .da.da .a-rec dt:nth-of-type(2),
+  .da.da .a-rec dt:nth-of-type(2) + dd,
+  .da.da .a-rec dt:nth-of-type(6),
+  .da.da .a-rec dt:nth-of-type(6) + dd {
+    grid-column: 2;
+  }
+
+  .da.da .a-rec dt:nth-of-type(3),
+  .da.da .a-rec dt:nth-of-type(3) + dd,
+  .da.da .a-rec dt:nth-of-type(7),
+  .da.da .a-rec dt:nth-of-type(7) + dd {
+    grid-column: 3;
+  }
+
+  .da.da .a-rec dt:nth-of-type(5),
+  .da.da .a-rec dt:nth-of-type(5) + dd {
+    grid-column: 1 / -1;
+    order: 1;
+  }
+
+  .da.da .a-rec :is(h1, h2) {
+    font-size: 10pt;
+  }
+
+  .da.da .a-rec .a-mono {
+    font-size: 8pt;
+  }
+
+  .da.da .a-rec .a-digest > span {
+    display: inline;
+  }
+
+  /* Page one names the site and the visit date: one line above the finding
+     sentence, where the breadcrumb is on screen, set like a row of the record. */
+  .da.da.da .report-page-summary > .a-dateline {
+    display: block;
+    order: 1;
+    margin: 2mm 0 0;
+    padding: 0 0 1.5mm;
+    border-bottom: 1px solid var(--a-carbon);
+    font-size: 9.5pt;
+    line-height: 1.3;
+    color: var(--a-carbon);
+  }
+
+  .da.da .a-dateline .a-dateline-l {
+    color: var(--a-slate);
+  }
+
+  .da.da .a-dateline .a-dateline-l:not(:first-child) {
+    margin-left: 6mm;
+  }
+
+  .da.da .a-dateline .a-mono {
+    font-weight: 600;
+  }
+
+  /* Above the figure, set small enough that the figure fits under it. */
+  .da.da .report-page-summary > .headline-banner {
+    padding-top: 2mm;
+  }
+
+  .da.da .report-page-summary .headline-footer {
+    margin-top: 3mm;
+    gap: 1mm;
+  }
+
+  .da.da .report-page-summary .headline-footer .a-lim {
+    font-size: 9.5pt;
+  }
+
+  .da.da .report-page-summary .headline-footer .a-lim-behind > p {
+    margin-top: 1mm;
+    font-size: 8.5pt;
+    line-height: 1.4;
+  }
+
+  .da.da .report-page-summary .headline-visit-order {
+    font-size: 8.5pt;
+  }
+
+  /* The index is a way around the screen page: links, which paper has not. */
+  .da.da .a-fx {
+    display: none;
+  }
+
+  .da.da .report-visit-summary {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .da.da .report-page-summary > .headline-banner {
+    break-inside: avoid;
+  }
+
+  .da.da .report-breadcrumbs,
+  .da.da .report-identity-actions,
+  .da.da .finding-look-closer,
+  .da.da .report-visit-entry,
+  .da.da .report-evidence-loader button {
+    display: none !important;
+  }
+
+  /* The loader's sentences stay: on paper they are the mark that more
+     evidence exists than this page prints. */
+  .da.da .report-evidence-loader {
+    display: block;
+    margin: 6mm 0 0;
+    padding: 3mm 4mm;
+    border: 0.75pt solid #000;
+    break-inside: avoid;
+  }
+
+  .da.da .finding-meta a,
+  .da.da .findings-heading .glossary-link {
+    display: none !important;
+  }
+
+  .da.da .report-page-summary .headline-title {
+    font-size: 21pt;
+  }
+
+  .da.da .report-page-summary > .headline-subhead,
+  .da.da .finding-card .finding-lead {
+    font-size: 11.5pt;
+  }
+
+  .da.da .report-page-summary > .a-plate {
+    margin-top: 3mm;
+  }
+
+  .da.da .findings-board,
+  .da.da .evidence-receipt {
+    margin-top: 6mm;
+  }
+
+  .da.da .findings-heading {
+    break-after: avoid;
+  }
+
+  .da.da .finding-card {
+    padding: 4mm 0;
+    break-inside: avoid;
+  }
+
+  .da.da .finding-card h3 {
+    font-size: 11pt;
+  }
+
+  .da.da .finding-card.tile-loud h3 {
+    font-size: 15pt;
+  }
+
+  .da.da .finding-card.tile-warn h3 {
+    font-size: 13pt;
+  }
+
+  .da.da .finding-card:not(.tile-loud, .tile-warn) .finding-lead {
+    font-size: 10.5pt;
+  }
+
+  .da.da .finding-card .finding-lead + p {
+    margin-top: 2mm;
+    font-size: 9.5pt;
+  }
+
+  .da.da .finding-card .finding-limit {
+    margin-top: 2mm;
+  }
+
+  .da.da.da .finding-limit .a-lim {
+    font-size: 9.5pt;
+  }
+
+  /* The text behind a card's limit, on paper. */
+  .da.da.da.da .finding-limit .a-lim-behind > p {
+    margin: 1mm 0 0;
+    font: 400 9.5pt / 1.45 var(--a-sans);
+    color: var(--a-slate);
+  }
+
+  .da.da .finding-meta,
+  .da.da .finding-level {
+    font-size: 9pt;
+  }
+
+  .da.da .report-visit-summary {
+    font-size: 9pt;
+    padding: 4mm 0;
+  }
+
+  .da.da .report-visit-summary a {
+    text-decoration: none;
+  }
+
+  .da.da .evidence-receipt {
+    font-size: 9pt;
+  }
+
+  .da.da .evidence-receipt-heading h2 {
+    font-size: 16pt;
+  }
+}

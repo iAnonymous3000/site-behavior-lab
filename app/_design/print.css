@@ -1,0 +1,474 @@
+/*
+ * Direction A: paper.
+ *
+ * The print route renders the report page's own components under .da (the
+ * record, the summary, the evidence). This sheet adapts them to a sheet of
+ * Letter: type in points, no fills, nothing closed, claim and limit kept
+ * together, and the marks that carry meaning printed exactly. The product's
+ * renderer prints with printBackground false (lib/report-pdf.ts), so a mark
+ * drawn as a background prints only with print-color-adjust: exact.
+ */
+
+/* Screen: paper's own pieces stay off the screen of a homepage result. */
+@media screen {
+  .da .print-table-limits,
+  .da .print-table-limit-row {
+    display: none;
+  }
+}
+
+@media print {
+  /* ---- Page and type ---- */
+  .da.da.da.printable-report {
+    background: #fff;
+    color: var(--a-carbon);
+    font: 400 10pt / 14pt var(--a-sans);
+    orphans: 3;
+    widows: 3;
+  }
+
+  .da.da.da.printable-report :is(h1, h2, h3, h4, .section-heading, .warnings-heading, .numbers-heading, .comparison-heading) {
+    break-after: avoid;
+  }
+
+  .da.da.da.printable-report :is(.finding-card, .report-identity, .metric-card, .evidence-group, .compact-list > div, .attribution-group, .warnings-group, .methodology dl > div, tr) {
+    break-inside: avoid;
+  }
+
+  /* The sentence and its limits start on page one together: the banner may
+     run on to the next page (it is two columns, so each starts on the same
+     line). The figure never splits: when it does not fit under the sentence
+     it starts the next page whole, frame, rows, Not measured and key. */
+  .da.da.da.printable-report .report-page-summary > .a-plate {
+    break-inside: avoid;
+  }
+
+  /* The sentence shares its row with its limits, so it never ends a page
+     alone; its own avoid would pass to the whole banner and carry the banner
+     on to the next page with the figure. */
+  .da.da.da.printable-report .report-page-summary .headline-title {
+    break-after: auto;
+  }
+
+  /* No fills on paper; the figure and a claim's rows get a hairline frame. */
+  .da.da.da.printable-report :is(.a-plate, .claim-rows-host, .attribution-selection-open, .arm-option.is-active) {
+    background: none !important;
+    border: 0.75pt solid var(--a-rule);
+  }
+
+  /* Colour on paper: Carbon text, Prussian rules, Tracer for third-party
+     marks only. No tone, no status colour. */
+  .da.da.da.printable-report :is(.status-ok, .status-bad, .status-pending, .role-tag, .capped-chip, .count-pill, .eyebrow, .warnings-heading, .warnings-group-label, .comparison-ineligible) {
+    color: var(--a-carbon) !important;
+    background: none !important;
+    border-color: var(--a-carbon) !important;
+  }
+
+  .da.da.da.printable-report svg:not(.a-strip, .causal-graph) {
+    display: none;
+  }
+
+  /* ---- Page one: the record, then the sentence and its limits, then the figure ---- */
+  /* Block flow, not the screen's page grid: a grid item that runs across
+     pages is fragmented badly (blocks overlapped on the last pages). The
+     source order already reads record, sentence and limits, figure. */
+  .da.da.printable-report > main,
+  .da.da.printable-report :is(.report-page-context, .report-page-summary) {
+    display: block;
+  }
+
+  .da.da.da.printable-report .report-identity {
+    margin: 0 0 3mm;
+    padding: 0 0 2mm;
+    border-bottom: 1.5pt solid var(--a-prussian);
+  }
+
+  /* The record: the site across the top; the visit, the requested address
+     and the scanner in one row of three; then the report id, the digest and
+     the format note (when the report has one) each on a row of its own, so an
+     id never breaks at its hyphen. Pairs are counted by place: 1 site, 2
+     visit, 3 address, 4 id, 5 digest, then the format note when there is one,
+     and the scanner last. */
+  .da.da.da.printable-report .a-rec :is(dt, dd) {
+    order: 0;
+  }
+
+  .da.da.da.printable-report .a-rec dt:nth-of-type(1) { grid-area: 1 / 1 / auto / -1; }
+  .da.da.da.printable-report .a-rec dd:nth-of-type(1) { grid-area: 2 / 1 / auto / -1; }
+  .da.da.da.printable-report .a-rec dt:nth-of-type(2) { grid-area: 3 / 1; }
+  .da.da.da.printable-report .a-rec dd:nth-of-type(2) { grid-area: 4 / 1; }
+  .da.da.da.printable-report .a-rec dt:nth-of-type(3) { grid-area: 3 / 2; }
+  .da.da.da.printable-report .a-rec dd:nth-of-type(3) { grid-area: 4 / 2; }
+  .da.da.da.printable-report .a-rec dt:last-of-type { grid-area: 3 / 3; }
+  .da.da.da.printable-report .a-rec dd:last-of-type { grid-area: 4 / 3; }
+  .da.da.da.printable-report .a-rec dt:nth-of-type(4) { grid-area: 5 / 1 / auto / -1; }
+  .da.da.da.printable-report .a-rec dd:nth-of-type(4) { grid-area: 6 / 1 / auto / -1; }
+  .da.da.da.printable-report .a-rec dt:nth-of-type(5) { grid-area: 7 / 1 / auto / -1; }
+  .da.da.da.printable-report .a-rec dd:nth-of-type(5) { grid-area: 8 / 1 / auto / -1; }
+  .da.da.da.printable-report .a-rec dt:nth-of-type(6):not(:last-of-type) { grid-area: 9 / 1 / auto / -1; }
+  .da.da.da.printable-report .a-rec dd:nth-of-type(6):not(:last-of-type) { grid-area: 10 / 1 / auto / -1; }
+
+  .da.da.da.printable-report .a-rec h1 {
+    margin: 0;
+    color: var(--a-prussian);
+    font: 500 24pt / 1.1 var(--a-serif);
+  }
+
+  .da.da.da.printable-report .report-page-summary > .a-dateline,
+  .da.da.da.printable-report .report-breadcrumbs,
+  .da.da.da.printable-report .report-identity-actions {
+    display: none;
+  }
+
+  .da.da.da.printable-report .report-page-summary > .headline-banner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    column-gap: 8mm;
+    align-items: start;
+  }
+
+  .da.da.da.printable-report .report-page-summary .headline-title {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+    font: 500 15pt / 19pt var(--a-serif);
+  }
+
+  .da.da.da.printable-report .report-page-summary .headline-footer {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+  }
+
+  .da.da.da.printable-report .report-page-summary > .a-plate {
+    margin-top: 4mm;
+    padding: 3mm 4mm;
+  }
+
+  /* Paper always prints the evidence, so a comparison's visit order is stated
+     once, in its comparison section, as on screen once the explorer is open
+     (explorer.css). Only where that section is on the sheet. */
+  .da.da.da.printable-report:has(.comparison-runs) .report-page-summary .headline-visit-order {
+    display: none;
+  }
+
+  .da.da.da.printable-report .report-page-summary > .headline-subhead {
+    margin: 4mm 0 0;
+    font: 400 10pt / 14pt var(--a-serif);
+  }
+
+  .da.da.da.printable-report .report-page-summary > .headline-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2mm 6mm;
+    margin: 3mm 0 0;
+  }
+
+  .da.da.da.printable-report .report-header .report-provenance,
+  .da.da.da.printable-report .report-header .capped-chip {
+    margin-left: 2mm;
+  }
+
+  /* ---- Limits and labels: 8.5 pt on 12 pt ---- */
+  .da.da.da.printable-report :is(.a-lim, .a-lim-behind, .finding-limit, .report-visit-summary li, .warnings li, .ev-limits p, .print-table-limits p, .comparison-ineligible, .numbers-heading > span, .attribution-coverage-note, .report-visit-summary dt, .report-visit-summary dd, .m-label, .m-detail, .count-badge, .evidence-group-facts, .compact-list small, .methodology dt, .methodology dd) {
+    font-size: 8.5pt !important;
+    line-height: 12pt !important;
+  }
+
+  /* A limit and the text behind it are one block: the limit line at 8.5 pt
+     on 12 in Carbon, the text behind it the same size directly under it, and
+     the hatched edge running down both. */
+  .da.da.da.da.printable-report :is(.a-lim, details.a-lim > summary, .a-lim-behind, .a-lim-behind > p) {
+    font: 400 8.5pt / 12pt var(--a-sans) !important;
+    color: var(--a-carbon) !important;
+  }
+
+  .da.da.da.da.printable-report details.a-lim:has(+ .a-lim-behind) {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .da.da.da.da.printable-report details.a-lim:has(+ .a-lim-behind)::before {
+    bottom: 0;
+  }
+
+  .da.da.da.da.printable-report .a-lim-behind {
+    position: relative;
+    margin: 0;
+    padding-left: 22px;
+  }
+
+  .da.da.da.da.printable-report .a-lim-behind::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0.2em;
+    width: 8px;
+    background: repeating-linear-gradient(135deg, var(--a-lim-ink) 0 1.5px, transparent 1.5px 4.5px);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .da.da.da.da.printable-report .a-lim-behind > p {
+    margin: 0;
+    padding-top: 1mm;
+    max-width: none;
+  }
+
+  /* The hatched edge, the figure's marks and the time strips are drawn as
+     backgrounds or colours: they print exactly, not as fills a printer may drop. */
+  .da.da.da.printable-report :is(.a-lim, .a-marks, .a-run, .a-open, .a-strip, .a-hatch, .timeline-lanes svg, .attribution-actor, td.a-h)::before,
+  .da.da.da.printable-report :is(.a-lim, .a-marks, .a-run, .a-open, .a-strip, .a-hatch, .timeline-lanes svg) {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ---- Sections ---- */
+  .da.da.da.printable-report .report-grid :is(.comparison-card, .numbers-section, .viz-card, .data-section, .side-card, .warnings) {
+    margin-top: 6mm;
+    padding-top: 3mm;
+  }
+
+  .da.da.da.printable-report .report-grid :is(.data-section, .side-card, .viz-card, .warnings, .comparison-card) h2 {
+    font: 600 13pt / 16pt var(--a-serif);
+  }
+
+  /* By the numbers: four to a row on portrait. */
+  .da.da.da.printable-report .report-grid .metric-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 3mm 6mm;
+    margin-top: 3mm;
+  }
+
+  .da.da.da.printable-report .metric-card .m-value {
+    font: 500 15pt / 18pt var(--a-serif);
+  }
+
+  /* The visit heading paper opens each visit with. */
+  .da.da.da.printable-report .print-visit-heading {
+    margin: 0 0 4mm;
+    padding: 0 0 2mm;
+    border-bottom: 1.5pt solid var(--a-prussian);
+  }
+
+  .da.da.da.printable-report .print-visit-heading h2 {
+    margin: 0;
+    font: 500 15pt / 19pt var(--a-serif);
+  }
+
+  .da.da.da.printable-report .print-visit-heading p {
+    margin: 1mm 0 0;
+    font-size: 8.5pt;
+    line-height: 12pt;
+  }
+
+  /* ---- The timeline as three lanes ---- */
+  .da.da.da.printable-report .timeline-lanes {
+    order: 1;
+    display: grid;
+    gap: 1.5mm;
+    margin: 2mm 0 0;
+  }
+
+  .da.da.da.printable-report .timeline-lane {
+    display: grid;
+    grid-template-columns: 52mm minmax(0, 1fr);
+    align-items: center;
+    column-gap: 3mm;
+  }
+
+  .da.da.da.printable-report .timeline-lane-label {
+    font-size: 8.5pt;
+  }
+
+  .da.da.da.printable-report .timeline-lane svg {
+    display: block;
+    width: 100%;
+    height: 4mm;
+    border-left: 0.75pt solid var(--a-rule);
+    border-right: 0.75pt solid var(--a-rule);
+  }
+
+  .da.da.da.printable-report .timeline-lane .timeline-first-party {
+    fill: var(--a-carbon);
+  }
+
+  .da.da.da.printable-report .timeline-lane :is(.timeline-third-party, .timeline-tracker) {
+    fill: var(--a-third);
+  }
+
+  /* ---- Tables: 7.5 pt (a request reference 9 pt), rows never split, the head repeats with the limit ---- */
+  .da.da.da.printable-report .table-wrap {
+    overflow: visible;
+  }
+
+  .da.da.da.printable-report table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .da.da.da.printable-report thead {
+    display: table-header-group;
+  }
+
+  .da.da.da.printable-report :is(td, th),
+  .da.da.da.printable-report :is(td, th) :is(span, small, code, a) {
+    font-size: 7.5pt !important;
+    line-height: 9pt !important;
+  }
+
+  .da.da.da.printable-report .report-grid .table-wrap table :is(td, th) {
+    padding: 0.5pt 4pt 0.5pt 0 !important;
+    vertical-align: top;
+  }
+
+  /* The one exception to 7.5 pt: a request reference prints at 9 pt, so a
+     reader can find the row a reference names. It never wraps, the other
+     cells of its row share its first baseline, and its line stays 9 pt, so
+     the row keeps its height. */
+  .da.da.da.printable-report .request-table td.request-ref,
+  .da.da.da.printable-report .request-table td.request-ref code {
+    font-family: var(--a-mono) !important;
+    font-size: 9pt !important;
+    line-height: 9pt !important;
+    white-space: nowrap;
+  }
+
+  .da.da.da.printable-report .report-grid .request-table.table-wrap tbody td {
+    vertical-align: baseline;
+  }
+
+  /* An address prints whole: it wraps between its parts, never clipped. */
+  .da.da.da.printable-report .report-grid .table-wrap table .url-cell {
+    max-width: none !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere;
+    word-break: break-all;
+  }
+
+  .da.da.da.printable-report :is(td, th).mono,
+  .da.da.da.printable-report :is(.url-cell, .request-ref, .time-cell, .mono) {
+    font-family: var(--a-mono);
+  }
+
+  .da.da.da.printable-report .print-table-limits {
+    margin: 2mm 0;
+  }
+
+  .da.da.da.printable-report .print-table-limit-row th {
+    padding: 0.75pt 0 1.5mm !important;
+    border: 0;
+    font: 400 8.5pt / 12pt var(--a-sans) !important;
+    text-align: left;
+  }
+
+  .da.da.da.printable-report .provenance-cell,
+  .da.da.da.printable-report .provenance-cell small {
+    display: inline;
+  }
+
+  .da.da.da.printable-report .provenance-cell small::before {
+    content: " ";
+  }
+}
+
+@media print {
+  /* Paper has no sideways scroll to hide: the screen's clip would cut the
+     right-hand column of a wide table off the sheet. */
+  :root:has(.printable-report.da),
+  body:has(.printable-report.da) {
+    overflow: visible !important;
+  }
+
+  /* The request log fits the sheet: fixed columns, the address and the
+     provenance wrap inside theirs. Columns are counted from the right,
+     because the phase column is there only for phase-tagged evidence. */
+  .da.da.da.printable-report .request-table table {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  /* (Important: the earlier sheet sets every printed head cell to auto with
+     !important, app/globals.css.) Domain and provenance get the width a typical row needs to stay on one
+     line; the address takes what is left and wraps. */
+  .da.da.da.printable-report .request-table thead tr:not(.print-table-limit-row) th:nth-last-child(1) { width: 29.75% !important; }
+  .da.da.da.printable-report .request-table thead tr:not(.print-table-limit-row) th:nth-last-child(2) { width: 24% !important; }
+  .da.da.da.printable-report .request-table thead tr:not(.print-table-limit-row) th:nth-last-child(3) { width: 21% !important; }
+  .da.da.da.printable-report .request-table thead tr:not(.print-table-limit-row) th:nth-last-child(4) { width: 7% !important; }
+  .da.da.da.printable-report .request-table thead tr:not(.print-table-limit-row) th:nth-last-child(5) { width: 4% !important; }
+  .da.da.da.printable-report .request-table thead th.time-cell { width: 6% !important; }
+  .da.da.da.printable-report .request-table thead th.request-ref { width: 8.25% !important; }
+
+  /* Only the address breaks anywhere. A host breaks between its labels (the
+     cell has a break opportunity after each dot), never inside one. */
+  .da.da.da.printable-report .request-table :is(td, th) {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  .da.da.da.printable-report .request-table td.host-cell {
+    hyphens: none;
+  }
+}
+
+@media print {
+  /* The attribution map's text list prints on paper (the drawing may not
+     survive the page width); the direction A base would keep it hidden. */
+  .da.da.da.printable-report .print-text-equivalent {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 2mm 0 0;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: normal;
+    font-size: 8.5pt;
+    line-height: 12pt;
+  }
+
+  /* The drawn attribution map: square hairline boxes, no fill, Carbon text.
+     Every path ends at a third-party destination (the map is built from
+     third-party request rows only, lib/request-attribution-map.ts), so every
+     path is drawn in Tracer. The line weight stays the drawing's own
+     attribute, which carries the count; no stroke width is set here. */
+  .da.da.da.printable-report .causal-node rect {
+    rx: 0;
+    ry: 0;
+    fill: none;
+    stroke: var(--a-carbon);
+    stroke-width: 0.75;
+    stroke-dasharray: none;
+  }
+
+  .da.da.da.printable-report :is(.causal-node-label, .causal-node-detail) {
+    fill: var(--a-carbon);
+  }
+
+  .da.da.da.printable-report .causal-edge {
+    stroke: var(--a-third);
+    opacity: 1;
+  }
+
+  /* The boxes' outer edges sit on the drawing's own edge, where half of each
+     stroke fell outside it and was cut: the drawing is drawn a hair inside the
+     content width and may paint past its box, so every box shows four sides. */
+  .da.da.da.printable-report .causal-graph-scroll {
+    overflow: visible;
+  }
+
+  .da.da.da.printable-report .causal-graph {
+    width: calc(100% - 2pt) !important;
+    overflow: visible;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Links are text on paper, in the text colour. */
+  .da.da.da.printable-report a {
+    color: var(--a-carbon);
+  }
+}

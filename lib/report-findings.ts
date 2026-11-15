@@ -60,6 +60,18 @@ import {
   type RunView
 } from "./scan-report-views";
 import { runCensorshipNotes } from "./scan-report-censorship";
+import {
+  CUT_SHORT_LIMIT,
+  FORMED_FINDING_LIMITS,
+  NAMED_FINDING_LIMITS,
+  NEW_FINDING_LIMITS,
+  WHOLE_FINDING_LIMITS,
+  limitTakenWhole,
+  limitTakenWholeOfForm,
+  limitWithSubjectNamed,
+  limitWrittenNew,
+  type FindingLimit
+} from "./finding-limits";
 import type { LookCloserKey, NewVisitKey } from "./finding-look-closer";
 import {
   requestMatchesQuery,
@@ -140,6 +152,16 @@ export type Finding = {
   title: string;
   lead: string;
   detail: string;
+  /**
+   * The card's one-sentence limit and the text behind it, on a card whose
+   * limit sentence was approved (lib/finding-limits.ts). `detail` is still
+   * the card's whole explanatory string. Absent on every other card, which
+   * prints `detail` in full. Set at the branch that writes the card, and
+   * removed again when a scope sentence is appended to `detail` afterwards
+   * (hedgeAbsenceCards). A limit establishes nothing new, so the
+   * report-consistency gate does not read it.
+   */
+  limit?: FindingLimit;
   evidence: string;
   benchmark?: string;
   /**
@@ -464,6 +486,35 @@ function withLookCloser(key: LookCloserKey | null): { lookCloser?: LookCloserKey
 }
 
 /**
+ * A card with its approved limit, when its string holds one.
+ *
+ * `approved` names the limit sentences of this card's branches; the one that
+ * is a whole sentence of the string the branch wrote is the limit. A card
+ * that claims an absence, or reports a check as not made, takes the cut-short
+ * sentence first when its string ends with it. `subjectNamed` is a sentence
+ * of the string approved with its subject named, tried next. `ofForm` is the
+ * approved form of a sentence that carries the card's counts, tried after
+ * that. `writtenNew` is the sentence approved for a string that states no
+ * limit of its own, and is used only when none of those applies. With none,
+ * the card is returned as it is and prints its full string.
+ */
+function limited(
+  finding: Finding,
+  approved: readonly string[],
+  writtenNew: string | null = null,
+  subjectNamed: { inString: string; sentence: string } | null = null,
+  ofForm: RegExp | null = null
+): Finding {
+  const cutShortFirst = finding.claim !== undefined && finding.claim.mode !== "presence";
+  const limit =
+    limitTakenWhole(finding.detail, cutShortFirst ? [CUT_SHORT_LIMIT, ...approved] : approved) ??
+    (subjectNamed === null ? undefined : limitWithSubjectNamed(finding.detail, subjectNamed)) ??
+    (ofForm === null ? undefined : limitTakenWholeOfForm(finding.detail, ofForm)) ??
+    (writtenNew === null ? undefined : limitWrittenNew(finding.detail, writtenNew));
+  return limit ? { ...finding, limit } : finding;
+}
+
+/**
  * The cohort a ranked bottom line's percentiles come from, and that cohort's
  * coverage, for the methodology block and the evidence receipt.
  *
@@ -502,6 +553,29 @@ function corpusBenchmarkScope(corpus: CorpusStats): string {
       ? ` Each percentile card's measured sites are among ${coverage.toLocaleString("en-US")} sites with a successful load. Request-capped, post-choice consent, and v2 loads are included in that coverage but excluded from this legacy-v1 cohort, while failed or block-page attempts are outside it.`
       : ""
   }${PERCENTILE_INCOMPLETE_VISITS_NOTE}`;
+}
+
+/** The bottom-line card's cohort sentence (Finding.benchmarkScope), or undefined when it does not rank. */
+export function bottomLineBenchmarkScope(findings: readonly Finding[]): string | undefined {
+  return findings.find((finding) => finding.id === "bottom-line")?.benchmarkScope;
+}
+
+/**
+ * The cohort sentence the evidence's Methodology block prints. Where a server
+ * built the report's summary (a permalink and its printed route), the server's
+ * summary is the one source: its bottom line was built from the committed
+ * corpus statistics, and the block takes the same sentence, so a late or
+ * failed statistics fetch in the browser cannot print a ranked bottom line
+ * beside a block that names no cohort. Null from the server means its bottom
+ * line does not rank. Only the homepage's own result, which no server
+ * summarized, reads the browser's findings.
+ */
+export function methodologyBenchmarkScope(
+  summaryBenchmarkScope: string | null | undefined,
+  clientFindings: readonly Finding[]
+): string | undefined {
+  if (summaryBenchmarkScope !== undefined) return summaryBenchmarkScope ?? undefined;
+  return bottomLineBenchmarkScope(clientFindings);
 }
 
 export function buildFindings(
@@ -855,7 +929,7 @@ export function buildFindings(
     // The first recipient the card names, never one the sanitizer could not
     // record. The log does not mark which row carried the value.
     const recipientHost = lookCloserHost(keystrokeDetection.evidence.recipients[0]);
-    findings.push({
+    findings.push(limited({
       id: "keystroke-exfiltration",
       icon: "keyboard",
       level: hashed ? "loud" : "warn",
@@ -879,13 +953,15 @@ export function buildFindings(
           ? { variant: "keystroke-recipient", host: recipientHost }
           : null
       )
-    });
+      // The recoverable-form string only, and without the sentence about
+      // same-organization recipients, which no approved card carried.
+    }, recipientOwnershipNote === "" ? [WHOLE_FINDING_LIMITS.typedValueRecoverable] : []));
   }
 
   const cnameCloaks = trackingCnameCloaks;
   if (cnameCloaks.length > 0) {
     const listMatches = cnameCloaks.filter((cloak) => cloak.tracker.confidence === "shields-list");
-    findings.push({
+    findings.push(limited({
       id: "cname-cloaking",
       icon: "radar",
       level: "warn",
@@ -909,7 +985,7 @@ export function buildFindings(
         (count) => `Plus ${plural(count, "other DNS alias", "other DNS aliases")}.`
       ),
       claim: findingClaim(facts, "cname-cloaking", "presence")
-    });
+    }, [WHOLE_FINDING_LIMITS.dnsAliases]));
   }
 
   // The pre-consent framing ("the scanner never clicks the banner") only holds
@@ -935,7 +1011,7 @@ export function buildFindings(
     // The platform view calls its host "the consent platform's address", which
     // a framework endpoint is not, so that card offers no view.
     const consentPlatformHost = frameworkEndpoint ? null : lookCloserHost(consentPlatform.domain);
-    findings.push({
+    findings.push(limited({
       id: "consent-banner",
       icon: "cookie",
       level: preConsentTrackers > 0 ? "warn" : "info",
@@ -985,7 +1061,10 @@ export function buildFindings(
             ? { variant: "consent-banner-platform", host: consentPlatformHost }
             : null
       )
-    });
+      // One string, two claims: with tracking-service requests the limit is
+      // what the report does not determine about them; with tooling alone it
+      // is what a request and a response do not prove about a banner.
+    }, [preConsentTrackers > 0 ? WHOLE_FINDING_LIMITS.consentToolingAndTrackers : WHOLE_FINDING_LIMITS.consentToolingOnly]));
   }
 
   const policy = run.evidence.privacyPolicy;
@@ -997,7 +1076,7 @@ export function buildFindings(
   // card's shape.
   const policyFacts = facts.signals.policy;
   if (policy && policyFacts.read === "shell-suspected") {
-    findings.push({
+    findings.push(limited({
       id: "privacy-policy",
       icon: "file-text",
       methodology: true,
@@ -1007,7 +1086,7 @@ export function buildFindings(
       detail: "The scanner that recorded this visit read a policy page a fixed second after it began loading. Some pages render their policy later, and some had requests refused by the scan's own traffic budget. A short read can therefore be the page around a policy that never arrived. Company mentions and policy statements recorded from it are not used; later scanner versions wait for the page to settle and withhold such a read.",
       evidence: `Page recorded as the policy: ${displayPublicUrl(policy.url)} (${plural(policy.policyTextLength, "character")} of text); no policy text compared.`,
       claim: findingClaim(facts, "privacy-policy", "unavailable")
-    });
+    }, [WHOLE_FINDING_LIMITS.policyShortRead]));
   } else if (policy && policyFacts.read === "site-root") {
     // The document read as the policy was the site root: the homepage, not a
     // policy. Its text supports neither an omission nor a contradiction, so
@@ -1018,7 +1097,7 @@ export function buildFindings(
     const policyReadNoteShown = run.warnings.some((warning) =>
       warning.startsWith(`Read the site's privacy policy (${policy.url}) `)
     );
-    findings.push({
+    findings.push(limited({
       id: "privacy-policy",
       icon: "file-text",
       methodology: true,
@@ -1030,7 +1109,7 @@ export function buildFindings(
       }`,
       evidence: `Page recorded as the policy: ${displayPublicUrl(policy.url)} (the site root); no policy text compared.`,
       claim: findingClaim(facts, "privacy-policy", "unavailable")
-    });
+    }, [WHOLE_FINDING_LIMITS.policySiteRoot]));
   } else if (policy) {
     // Each entry pairs a testable statement from the policy with the observed
     // evidence that cuts against it. Quotes come along so a reader can check
@@ -1156,7 +1235,7 @@ export function buildFindings(
       lead: `The policy's checkable statements did not contradict this visit's evidence (${coverage}).${unknownPolicyMentionsNote}`,
       retainedEvidenceLead: `The policy's checkable statements did not contradict the retained evidence (${coverage}).${unknownPolicyMentionsNote}`
     });
-    findings.push({
+    findings.push(limited({
       id: "privacy-policy",
       icon: "file-text",
       ...(policyCheckUnavailable ? { methodology: true as const } : {}),
@@ -1219,7 +1298,21 @@ export function buildFindings(
           ? { variant: "policy-unnamed-companies" }
           : null
       )
-    });
+      // The conflict strings hold neither sentence and keep their full text.
+      // The Global Privacy Control sentence is the limit only of the card
+      // that says nothing could be checked. On the card that says no checked
+      // statement was contradicted it does not bound the claim, so that card,
+      // where its claim is stated as fact and nothing was cut short, takes
+      // the sentence written for it.
+    }, [WHOLE_FINDING_LIMITS.policyUnnamedCompanies, ...(noCheckableClaims ? [WHOLE_FINDING_LIMITS.policyChecksMade] : [])],
+      conflicts.length === 0 &&
+        conditionalConflicts.length === 0 &&
+        unmentionedTrackingEntities.length === 0 &&
+        !noCheckableClaims &&
+        !policyAbsenceIneligible
+        ? NEW_FINDING_LIMITS.policyNothingContradicted
+        : null
+    ));
   }
 
   const servicesAbsence = absenceCopy(facts, "third-party-services", {
@@ -1228,7 +1321,15 @@ export function buildFindings(
     retainedEvidenceLead:
       "No third-party domain in the retained evidence matched the service catalog or another identity source."
   });
-  findings.push({
+  // No service, operator or alias named: the card whose string opens "No
+  // known operator or catalog entity was matched."
+  const servicesNoneMatched =
+    trackingEntities.length === 0 &&
+    trackingCnameNames.length === 0 &&
+    operationalEntities.length === 0 &&
+    unclassifiedEntities.length === 0 &&
+    nonCatalogIdentityNames.length === 0;
+  findings.push(limited({
     id: "third-party-services",
     icon: "globe",
     level:
@@ -1356,7 +1457,27 @@ export function buildFindings(
         : "absence",
       servicesAbsence.leadScope
     )
-  });
+  }, [
+    WHOLE_FINDING_LIMITS.servicesCatalogMatch,
+    WHOLE_FINDING_LIMITS.servicesOperationalRoles,
+    WHOLE_FINDING_LIMITS.servicesOperatorIdentity,
+    WHOLE_FINDING_LIMITS.servicesOwnershipRelation,
+    WHOLE_FINDING_LIMITS.servicesUnclassifiedRole
+  ],
+    // "No known operator or catalog entity was matched." alone, stated as
+    // fact: no third-party host on record, so no coverage sentence follows,
+    // and nothing cut short.
+    facts.claims["third-party-services"].allowed &&
+      catalogCoverageNote === "" &&
+      servicesNoneMatched
+      ? NEW_FINDING_LIMITS.servicesNoneMatched
+      : null,
+    null,
+    // The same string with the coverage sentence after it: that sentence,
+    // which counts the hosts no source identified, is the limit. Only here.
+    // On a card that names a service it stays behind that card's own limit.
+    servicesNoneMatched ? FORMED_FINDING_LIMITS.servicesHostsUnidentified : null
+  ));
 
   // The title carries the lead's scope word. Without "catalogued" it read as
   // an absence of the platforms themselves, above request rows to hosts such
@@ -1367,7 +1488,7 @@ export function buildFindings(
     retainedEvidenceLead:
       "No requests to catalogued Google, Meta, TikTok, X, Microsoft, LinkedIn, or Pinterest domains appear in the retained evidence."
   });
-  findings.push({
+  findings.push(limited({
     id: "named-platforms",
     icon: "network",
     level:
@@ -1453,14 +1574,19 @@ export function buildFindings(
         : "absence",
       platformsAbsence.leadScope
     )
-  });
+  }, [
+    WHOLE_FINDING_LIMITS.platformsMatched,
+    WHOLE_FINDING_LIMITS.platformsNoneRecorded,
+    WHOLE_FINDING_LIMITS.platformsNotInCatalog,
+    WHOLE_FINDING_LIMITS.platformsSameOrganization
+  ]));
 
   const pixelEvents = pixelEventSummaries(run.evidence);
   if (pixelEvents.length > 0) {
     const pixelsWithMatching = facts.signals.pixels.withIdentifiers;
     const pixelsWithEvents = facts.signals.pixels.withEventLabels;
     const matchingFields = Array.from(new Set(pixelsWithMatching.flatMap((pixel) => pixel.advancedMatching))).map(pixelFieldLabel);
-    findings.push({
+    findings.push(limited({
       id: "pixel-events",
       icon: "radar",
       level: pixelsWithMatching.length > 0 ? "warn" : "info",
@@ -1500,7 +1626,11 @@ export function buildFindings(
         (count) => `Plus ${plural(count, "other pixel")}.`
       ),
       claim: findingClaim(facts, "pixel-events", "presence")
-    });
+    }, [
+      WHOLE_FINDING_LIMITS.pixelIdentifiers,
+      WHOLE_FINDING_LIMITS.pixelEventLabels,
+      WHOLE_FINDING_LIMITS.pixelRetainedLabels
+    ]));
   }
 
   if (run.conditions.automation === "brave-pagegraph") {
@@ -1550,7 +1680,7 @@ export function buildFindings(
         });
   const GA_SYNC_UNTOLD_DETAIL =
     "The sync goes to stats.g.doubleclick.net, and a published report writes that name the same way as DoubleClick's ad-serving hosts. This report neither shows nor rules out the sync.";
-  findings.push({
+  findings.push(limited({
     id: "ga-remarketing",
     icon: "radar",
     level: gaRemarketingOn ? "warn" : gaSyncIndistinguishable || requestsCensored ? "info" : "ok",
@@ -1605,14 +1735,26 @@ export function buildFindings(
       gaRemarketingOn || gaSyncIndistinguishable ? "presence" : "absence",
       gaAbsence.leadScope
     )
-  });
+  }, [WHOLE_FINDING_LIMITS.analyticsSyncUntold],
+    // The two absence strings that restate the claim, stated as fact and not
+    // cut short. The Tag Manager string has a sentence of its own.
+    gaRemarketingOn || gaSyncIndistinguishable || googleTagManagerOnly || !facts.claims["ga-remarketing"].allowed
+      ? null
+      : googleAnalyticsPresent
+        ? NEW_FINDING_LIMITS.analyticsNoSync
+        : NEW_FINDING_LIMITS.analyticsNone,
+    // Where the string's last word on the matter is what Tag Manager can
+    // fetch: not where the sync cannot be told or the evidence was cut
+    // short, whose whole sentences come first.
+    NAMED_FINDING_LIMITS.analyticsTagManagerOnly
+  ));
 
   const cookiesAbsence = absenceCopy(facts, "third-party-cookies", {
     title: "No third-party cookies observed",
     lead: "The automated visit did not observe third-party cookies.",
     retainedEvidenceLead: "No third-party cookies appear in the retained evidence."
   });
-  findings.push({
+  findings.push(limited({
     id: "third-party-cookies",
     icon: "cookie",
     level:
@@ -1664,7 +1806,7 @@ export function buildFindings(
     // The other retained visits' counts, on the site's history page. Offered
     // only where the server says that page lists another report for this site.
     ...withLookCloser(!cookiesUnsupported && run.counts.thirdPartyCookies > 0 ? { variant: "cookie-history" } : null)
-  });
+  }, [WHOLE_FINDING_LIMITS.cookiesPresent, WHOLE_FINDING_LIMITS.cookiesNoneObserved]));
 
   // Restricted to genuinely cross-site listener origins: the in-page probe's
   // hostname heuristic can misread same-site siblings (verified.example.com vs
@@ -1744,7 +1886,7 @@ export function buildFindings(
           ? { variant: "listener-script-origin", host: listenerOriginHost }
           : null;
 
-    findings.push({
+    findings.push(limited({
       id: "session-recording-input-monitoring",
       icon: "eye",
       level: replayCorroborated ? "warn" : "info",
@@ -1787,7 +1929,14 @@ export function buildFindings(
       evidence: behaviorNotes.join(" "),
       claim: findingClaim(facts, "session-recording-input-monitoring", "presence"),
       ...withLookCloser(listenerView)
-    });
+      // The listener sentence only where a listener registration was
+      // recorded, which is what it is about. A card whose evidence is a
+      // vendor request alone has the sentence on what a domain match proves.
+    }, [
+      sessionRecordingDetection || inputMonitoringDetection
+        ? WHOLE_FINDING_LIMITS.listenerSignal
+        : WHOLE_FINDING_LIMITS.sessionVendorDomainMatch
+    ]));
   }
 
   const highEntropyDetections = facts.signals.fingerprint.highEntropyDetections;
@@ -1834,7 +1983,7 @@ export function buildFindings(
     lead: "The scan did not observe the instrumented high-entropy browser APIs.",
     retainedEvidenceLead: "The retained evidence holds no calls to the instrumented high-entropy browser APIs."
   });
-  findings.push({
+  findings.push(limited({
     id: "fingerprint-apis",
     icon: "fingerprint",
     // Elevated to "info" with nothing observed means the detector did not
@@ -1922,7 +2071,12 @@ export function buildFindings(
           : "absence",
       fingerprintAbsence.leadScope
     )
-  });
+  }, [
+    WHOLE_FINDING_LIMITS.fingerprintNoneObserved,
+    WHOLE_FINDING_LIMITS.fingerprintHeuristics,
+    WHOLE_FINDING_LIMITS.fingerprintSingleSignalWebgl,
+    WHOLE_FINDING_LIMITS.fingerprintCalls
+  ]));
 
   // Every comparison card runs through the SHARED claim policy (the seam's
   // default-deny derivation, the same one the comparison panel's banner and
@@ -2031,7 +2185,7 @@ export function buildFindings(
         const simulationNote = view.claims.interventionAttribution
           ? "The blocking visit ran with Brave's ad-block engine and default Shields filter lists verified as actively blocking. It was a simulation in this scanner's browser, not a live Brave-browser visit."
           : "The blocking visit ran with the scanner configured to apply Brave's ad-block engine and default Shields filter lists. It was a simulation in this scanner's browser, not a live Brave-browser visit, and application was not verified.";
-        findings.unshift({
+        findings.unshift(limited({
           id: "shields-comparison",
           icon: "shield-check",
           level: direction === "decreased" ? "ok" : direction === "flat" ? "quiet" : "info",
@@ -2058,7 +2212,7 @@ export function buildFindings(
               : "an observed difference, not a measured blocking rate"
           }.`,
           evidence: `Signed per-metric differences between the two visits; nothing is summed across metrics.`
-        });
+        }, [WHOLE_FINDING_LIMITS.shieldsComparisonChanged, WHOLE_FINDING_LIMITS.shieldsComparisonNoChange]));
       }
     }
   }
@@ -2376,7 +2530,7 @@ export function buildFindings(
       (view.reportType === "single" || axis === "gpc") &&
       requestEvidenceState(run) === "complete" &&
       run.conditions.automation !== "brave-pagegraph";
-    findings.unshift({
+    findings.unshift(limited({
       id: "shields-blocked",
       icon: "shield-check",
       level: blocked === 0 ? "ok" : blocked >= 10 ? "warn" : "info",
@@ -2410,7 +2564,7 @@ export function buildFindings(
       )} in this visit.`,
       ...(offersBlockerComparison ? { newVisit: { variant: "blocker-comparison" as const } } : {}),
       claim: findingClaim(facts, "shields-blocked", blocked > 0 ? "presence" : "absence", shieldsAbsence.leadScope)
-    });
+    }, [WHOLE_FINDING_LIMITS.shieldsMatches]));
   }
 
   const censorshipNotes = runCensorshipNotes(run);
@@ -2519,7 +2673,7 @@ export function buildFindings(
     !quietEnough &&
     findings.some((finding) => finding.incompleteOnly === true) &&
     (observedLevel === "ok" || observedLevel === "quiet");
-  findings.unshift({
+  findings.unshift(limited({
     id: "bottom-line",
     icon: quietEnough && !censoredQuiet && !unsupportedQuiet ? "check" : "alert",
     level: censoredQuiet || unsupportedQuiet || detectorQuiet ? "info" : overallLevel,
@@ -2561,7 +2715,12 @@ export function buildFindings(
       facts.evidence.requests.state
     ))} observed in one controlled visit.`,
     ...(benchmarkScope !== null ? { benchmarkScope } : {})
-  });
+  },
+    [WHOLE_FINDING_LIMITS.bottomLineNotRanked, WHOLE_FINDING_LIMITS.bottomLineFixedThresholds],
+    // The ranked string's cohort sentence opens "That cohort" and cannot
+    // stand alone, so that string takes the sentence written for it.
+    benchmarkScope !== null ? NEW_FINDING_LIMITS.bottomLineRanked : null
+  ));
 
   // Emit every finding. The conditionals above bound this to at most ~9 cards,
   // all of them meaningful; a fixed cap here silently dropped the last-pushed
@@ -2634,7 +2793,7 @@ function entitiesOnlyIn(run: RunView, other: RunView): string[] {
  * fails: it names the disqualifying facts and makes no claim from the pair.
  */
 function ineligibleComparisonFinding(id: string, title: string, gate: ClaimGate): Finding {
-  return {
+  return limited({
     id,
     icon: "alert",
     level: "info",
@@ -2648,7 +2807,9 @@ function ineligibleComparisonFinding(id: string, title: string, gate: ClaimGate)
     detail:
       "The raw request logs of both visits remain below for transparency, but the diff between them supports no claim about what the compared condition changed.",
     evidence: `${plural(gate.reasons.length, "disqualifying condition")} named by the report's claim policy.`
-  };
+    // The Shields and GPC cards only: the same sentence on a consent or a
+    // before/after card has no approved limit yet.
+  }, id === "shields-comparison" || id === "gpc-comparison" ? [WHOLE_FINDING_LIMITS.comparisonNoClaim] : []);
 }
 
 /**
@@ -2692,7 +2853,7 @@ function buildConsentComparisonFinding(
     : "Third-party request totals are not comparable across these two visits, so no count delta is quoted.";
 
   if (!acceptClicked && !rejectClicked) {
-    return {
+    return limited({
       id: "consent-comparison",
       icon: "cookie",
       level: "info",
@@ -2709,7 +2870,7 @@ function buildConsentComparisonFinding(
       detail:
         "Many consent banners are only shown to visitors in regions where the law requires them (the EEA, UK, or California), so this scanner's location may simply not be served one. A banner may also use controls this scanner's catalog does not recognize. Or a click may have been dispatched on a candidate that showed no observable reaction within the scanner's confirmation window. No claim about the site's consent behavior can be made from this pair of visits.",
       evidence
-    };
+    }, [WHOLE_FINDING_LIMITS.consentNoActivation]);
   }
 
   if (acceptClicked !== rejectClicked) {
@@ -2742,7 +2903,7 @@ function buildConsentComparisonFinding(
     !familyCensoredOnRun(variant, "requests") &&
     trackerRequestsAllPrecedeConsentPhase(variant, rejectTracking.map((entity) => entity.entity))
   ) {
-    return {
+    return limited({
       id: "consent-comparison",
       icon: "cookie",
       level: "info",
@@ -2764,7 +2925,7 @@ function buildConsentComparisonFinding(
           ? { variant: "reject-all-visit-matches" }
           : null
       )
-    };
+    }, [WHOLE_FINDING_LIMITS.consentBeforeClick]);
   }
 
   if (rejectTracking.length > 0) {
@@ -2854,6 +3015,9 @@ function hedgeAbsenceCards(findings: Finding[], scope: string): void {
     finding.level = "info";
     finding.benchmark = undefined;
     if (!finding.detail.includes(scope)) finding.detail = `${finding.detail} ${scope}`;
+    // The scope sentence is now the card's narrowest restriction and has no
+    // approved one-sentence form, so the card prints its full string.
+    delete finding.limit;
     finding.claim = { ...finding.claim, mode: "qualified-absence", scope: "returned-document" };
   }
 }

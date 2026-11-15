@@ -1,170 +1,164 @@
 import { ImageResponse } from "next/og";
 import { publishedReportCorrections } from "./published-report-corrections";
 import {
+  HEADLINE_KICKER,
   buildReportHeadline,
-  type HeadlineTone,
   type ReportHeadline,
   type ReportHeadlineStat
 } from "./report-headline";
 import type { ReportView } from "./scan-report-views";
-import { displayHost } from "./text-format";
+import { CARD_TEXT_WIDTH, OG_REPORT_CARD_FOOT, OG_REPORT_CARD_PADDING, OG_REPORT_CARD_SIDE, OG_REPORT_CARD_TOP, cardFont, lineCount, sentenceSize } from "./og-card-layout";
 
 /**
  * Shared `next/og` social-card renderers for report and homepage links.
  *
- * Kept out of the route files so the `opengraph-image` conventions can stay
- * thin, self-contained route segments (re-exporting route
+ * Kept out of the route files so both the `opengraph-image` and `twitter-image`
+ * conventions can stay thin, self-contained route segments (re-exporting route
  * config across files defeats Next's static analysis under `output: export`).
  */
 
 export const OG_SIZE = { width: 1200, height: 630 } as const;
 export const OG_CONTENT_TYPE = "image/png";
 export const OG_REPORT_SUBHEAD_MAX_CHARACTERS = 300;
-/**
- * The report card's padding. Every line of the card's text must lie inside
- * it; og-report-card-fit.test.ts renders every committed report's card and
- * fails when text reaches into this padding or past the card's edge.
- */
-export const OG_REPORT_CARD_PADDING = { vertical: 36, horizontal: 64 } as const;
-
-const TONE_HEX: Record<HeadlineTone, string> = {
-  alarm: "#fb7185",
-  warn: "#f5a524",
-  info: "#7fb3ef",
-  calm: "#4ade80"
-};
+/** The bands the card keeps free of text, defined beside its text width (lib/og-card-layout.ts). */
+export { OG_REPORT_CARD_PADDING };
 
 const BG = "#0b1110";
-const SURFACE = "#182220";
-const BORDER = "#2c3d38";
 const TEXT = "#eef3ef";
 const MUTED = "#9bb0a6";
 const SUBTLE = "#7a9085";
 const HOME_ACCENT = "#2dd4bf";
 
-export function renderReportCard(view: ReportView): ImageResponse {
-  const headline = buildReportHeadline(view);
-  const subhead = buildReportCardSubhead(view, headline);
-  const attribution = buildReportCardAttribution(view, headline.domain);
-  const cardCaveat = publishedReportCorrections(view.reportId).currentSubjectEvent
-    ? "Read the report and public correction together before using these findings." : headline.caveat;
-  const accent = TONE_HEX[headline.tone];
-  const stats = buildReportCardStats(headline);
-  const headlineSize = headline.headline.length > 64 ? 50 : headline.headline.length > 44 ? 58 : 66;
-  const subheadSize = subhead.length > 240 ? 18 : subhead.length > 180 ? 22 : 26;
+/** Direction A's paper and inks, as in app/_design/tokens.css. */
+const PAPER = "#fbfcfd";
+const CARBON = "#101820";
+const SLATE = "#46535f";
+const RULE = "#c8d1d9";
 
+/** The card's fonts, as next/og takes them: static TrueType instances (lib/og-card-layout.ts). */
+function cardFonts() {
+  return [
+    { name: "STIX Two Text", data: cardFont("serif500"), weight: 500 as const, style: "normal" as const },
+    { name: "STIX Two Text", data: cardFont("serif600"), weight: 600 as const, style: "normal" as const },
+    { name: "Atkinson Hyperlegible Next", data: cardFont("sans400"), weight: 400 as const, style: "normal" as const },
+    { name: "Atkinson Hyperlegible Next", data: cardFont("sans600"), weight: 600 as const, style: "normal" as const }
+  ];
+}
+
+/**
+ * Everything the report card states, in the order it states it, and the sizes
+ * it is set at. Built apart from the drawing so a test can hold every card to
+ * its rules (the limit whole, the sentence never cut) without decoding images.
+ */
+export function buildReportCardLayout(view: ReportView) {
+  const headline = buildReportHeadline(view);
+  const correction = publishedReportCorrections(view.reportId).currentSubjectEvent ? true : false;
+  return {
+    attribution: buildReportCardAttribution(view, headline.domain),
+    // The correction label stands in the kicker's place; an ordinary card has none.
+    correctionLabel: headline.kicker !== HEADLINE_KICKER ? headline.kicker : null,
+    sentence: headline.headline,
+    sentenceSize: sentenceSize(headline.headline),
+    limit: correction ? "Read the report and public correction together before using these findings." : headline.caveat,
+    subhead: buildReportCardSubhead(view, headline, (text) =>
+      text.length <= OG_REPORT_SUBHEAD_MAX_CHARACTERS && lineCount(text, "sans400", 22, CARD_TEXT_WIDTH) <= 3
+    ),
+    stats: buildReportCardStats(headline)
+  };
+}
+
+/**
+ * The share card, in direction A: paper, Carbon text, no tone colour. The
+ * wordmark and the attribution line, the finding sentence (with the
+ * correction label above it when there is one), its limit directly under it
+ * with the hatched edge, the subhead, and the numbers as plain figures under
+ * a rule in the site's rule colour.
+ */
+export function renderReportCard(view: ReportView): ImageResponse {
+  const card = buildReportCardLayout(view);
   return new ImageResponse(
     (
       <div
         style={{
-          position: "relative",
           display: "flex",
           flexDirection: "column",
           width: "100%",
           height: "100%",
-          padding: `${OG_REPORT_CARD_PADDING.vertical}px ${OG_REPORT_CARD_PADDING.horizontal}px`,
-          backgroundColor: BG,
-          backgroundImage: `radial-gradient(900px 420px at 88% -8%, ${accent}26, transparent 60%)`,
-          color: TEXT,
-          fontFamily: "sans-serif"
+          padding: `${OG_REPORT_CARD_TOP}px ${OG_REPORT_CARD_SIDE}px ${OG_REPORT_CARD_FOOT}px`,
+          backgroundColor: PAPER,
+          color: CARBON,
+          fontFamily: "Atkinson Hyperlegible Next"
         }}
       >
-        <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: 12, backgroundColor: accent }} />
-
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: 14,
-                backgroundColor: `${accent}22`,
-                border: `2px solid ${accent}`,
-                marginRight: 18
-              }}
-            />
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: 1 }}>SITE BEHAVIOR LAB</div>
-              <div style={{ fontSize: 18, color: MUTED }}>See what a site does, not what it says.</div>
-            </div>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", flexShrink: 0, fontFamily: "STIX Two Text", fontWeight: 600, fontSize: 30 }}>
+            Site Behavior Lab
           </div>
+          <div style={{ display: "flex", marginLeft: 40, fontSize: 22, lineHeight: "30px", textAlign: "right", justifyContent: "flex-end" }}>
+            {card.attribution}
+          </div>
+        </div>
+
+        {card.correctionLabel && (
+          <div style={{ display: "flex", marginTop: 28, fontSize: 20, fontWeight: 600 }}>{card.correctionLabel}</div>
+        )}
+
+        <div
+          style={{
+            display: "flex",
+            marginTop: card.correctionLabel ? 10 : 34,
+            fontFamily: "STIX Two Text",
+            fontWeight: 500,
+            fontSize: card.sentenceSize.size,
+            lineHeight: `${card.sentenceSize.lineHeight}px`
+          }}
+        >
+          {card.sentence}
+        </div>
+
+        <div style={{ display: "flex", marginTop: 16 }}>
+          {/* The hatched edge every limit carries (app/_design/components.css). */}
           <div
             style={{
               display: "flex",
-              fontSize: 26,
-              fontWeight: 700,
-              color: TEXT,
-              padding: "10px 20px",
-              borderRadius: 999,
-              backgroundColor: SURFACE,
-              border: `1px solid ${BORDER}`
+              width: 8,
+              flexShrink: 0,
+              marginTop: 4,
+              marginBottom: 4,
+              marginRight: 14,
+              backgroundImage: `repeating-linear-gradient(135deg, ${CARBON} 0px, ${CARBON} 1.5px, transparent 1.5px, transparent 4.5px)`
             }}
-          >
-            {truncate(displayHost(headline.domain), 30)}
-          </div>
+          />
+          <div style={{ display: "flex", fontSize: 24, lineHeight: "32px" }}>{card.limit}</div>
         </div>
 
-        {/*
-          The headline block takes the free height and centres in it, with a
-          fixed minimum space above and below so it can never touch the
-          header or the footer when the footer needs a second line.
-        */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            flexGrow: 1,
-            flexShrink: 0,
-            paddingTop: 8,
-            paddingBottom: 8
-          }}
-        >
-          <div style={{ display: "flex", fontSize: 22, fontWeight: 700, letterSpacing: 2, color: accent, textTransform: "uppercase" }}>
-            {headline.kicker}
-          </div>
-          <div style={{ display: "flex", fontSize: headlineSize, fontWeight: 800, lineHeight: 1.1, marginTop: 10 }}>
-            {headline.headline}
-          </div>
-          <div style={{ display: "flex", fontSize: subheadSize, color: MUTED, lineHeight: 1.3, marginTop: 12, maxWidth: 1000 }}>
-            {subhead}
-          </div>
-        </div>
+        <div style={{ display: "flex", marginTop: 16, fontSize: 22, lineHeight: "30px", color: SLATE }}>{card.subhead}</div>
 
-        {/*
-          The attribution block sits beside the stat chips only when it fits
-          there; otherwise the row wraps and the block takes its own line,
-          still right-aligned. Nothing in the card may shrink, so text that
-          does not fit pushes past the bottom edge, where the per-card margin
-          check sees it, instead of being clipped or overlapped silently.
-        */}
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            columnGap: 24,
-            rowGap: 8,
-            flexShrink: 0
-          }}
-        >
-          <div style={{ display: "flex", flexShrink: 0 }}>
-            {stats.map((stat) => (
-              <StatChip key={stat.label} stat={stat} accent={accent} />
+        {card.stats.length > 0 && (
+          // A rule across the text width, 24 px above the numerals, anchors the
+          // foot row when the sentence is short.
+          <div style={{ display: "flex", marginTop: "auto", paddingTop: 24, borderTop: `1px solid ${RULE}` }}>
+            {card.stats.map((stat, index) => (
+              <div key={stat.label} style={{ display: "flex", flexDirection: "column", marginLeft: index === 0 ? 0 : 48 }}>
+                <div style={{ display: "flex", fontFamily: "STIX Two Text", fontWeight: 500, fontSize: 40, lineHeight: "44px" }}>
+                  {/* STIX Two Text has no "≥" (it is in STIX Two Math), so the
+                      sign is set in Atkinson and the figure in STIX, as the
+                      browser does on the site. */}
+                  {String(stat.value).match(/^[^0-9]+/) && (
+                    <span style={{ fontFamily: "Atkinson Hyperlegible Next", fontWeight: 400 }}>
+                      {String(stat.value).match(/^[^0-9]+/)![0]}
+                    </span>
+                  )}
+                  <span>{String(stat.value).replace(/^[^0-9]+/, "")}</span>
+                </div>
+                <div style={{ display: "flex", fontSize: 20, lineHeight: "26px" }}>{stat.label}</div>
+              </div>
             ))}
           </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", marginLeft: "auto", flexShrink: 0 }}>
-            <div style={{ display: "flex", fontSize: 19, color: TEXT }}>{attribution}</div>
-            <div style={{ display: "flex", fontSize: 18, color: SUBTLE }}>open source · reproducible</div>
-            <div style={{ display: "flex", fontSize: 16, color: SUBTLE, marginTop: 4, maxWidth: 520, textAlign: "right" }}>
-              {cardCaveat}
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     ),
-    { ...OG_SIZE }
+    { ...OG_SIZE, fonts: cardFonts() }
   );
 }
 
@@ -195,12 +189,17 @@ export function buildReportCardAttribution(view: ReportView, domain = buildRepor
  * restatement for its own full claim, use it only while that source claim is
  * unchanged; a caller-modified headline must not inherit stale compact copy.
  */
-export function buildReportCardSubhead(view: ReportView, headline = buildReportHeadline(view)): string {
-  if (headline.subhead.length <= OG_REPORT_SUBHEAD_MAX_CHARACTERS) return headline.subhead;
+export function buildReportCardSubhead(
+  view: ReportView,
+  headline = buildReportHeadline(view),
+  /** Whether a form fits the card; the character bound unless the card measures it. */
+  fits: (text: string) => boolean = (text) => text.length <= OG_REPORT_SUBHEAD_MAX_CHARACTERS
+): string {
+  if (fits(headline.subhead)) return headline.subhead;
   if (
     headline.compactSubhead &&
     headline.compactSubheadSource === headline.subhead &&
-    headline.compactSubhead.length <= OG_REPORT_SUBHEAD_MAX_CHARACTERS
+    fits(headline.compactSubhead)
   ) {
     return headline.compactSubhead;
   }
@@ -213,7 +212,7 @@ export function buildReportCardSubhead(view: ReportView, headline = buildReportH
   // the clause is removed as a whole, by the headline itself, never cut.
   if (
     headline.subheadPrimaryClaim !== headline.subhead &&
-    headline.subheadPrimaryClaim.length <= OG_REPORT_SUBHEAD_MAX_CHARACTERS
+    fits(headline.subheadPrimaryClaim)
   ) {
     return headline.subheadPrimaryClaim;
   }
@@ -280,25 +279,6 @@ function renderBrandedCard(title: string, subtitle: string): ImageResponse {
       </div>
     ),
     { ...OG_SIZE }
-  );
-}
-
-function StatChip({ stat, accent }: { stat: ReportHeadlineStat; accent: string }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        padding: "10px 20px",
-        marginRight: 14,
-        borderRadius: 14,
-        backgroundColor: stat.emphasis ? `${accent}1f` : SURFACE,
-        border: `1px solid ${stat.emphasis ? accent : BORDER}`
-      }}
-    >
-      <div style={{ display: "flex", fontSize: 40, fontWeight: 800, color: stat.emphasis ? accent : TEXT }}>{stat.value}</div>
-      <div style={{ display: "flex", fontSize: 18, color: MUTED, marginTop: 2 }}>{stat.label}</div>
-    </div>
   );
 }
 

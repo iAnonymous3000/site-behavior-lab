@@ -51,6 +51,7 @@ import {
 } from "@/lib/report-locator";
 import { buildRequestComposition } from "@/lib/request-composition";
 import { buildRequestTimelineModel } from "@/lib/request-timeline";
+import { visitTimeScale } from "@/lib/domain-evidence-table";
 import type { ReportView } from "@/lib/scan-report-views";
 import { plural } from "@/lib/text-format";
 import { isCanonicalTimestamp } from "@/lib/canonical-timestamp";
@@ -136,6 +137,60 @@ export function HeadlineBanner({
    */
   sharingOffered?: boolean;
 }) {
+  return (
+    <section className={`headline-banner tone-${headline.tone}`} aria-label="Plain-language summary">
+      {/* The banner's tone had one channel, a hue on its left border and its
+          kicker, and the kicker text is a single constant across all four
+          tones. The icon is the shape channel WCAG 1.4.1 asks for. It stays
+          aria-hidden deliberately: the headline sentence below already carries
+          the meaning in words, and inventing a second spoken rank here would
+          put a name on the tone that the findings board's own severity scale
+          does not have to agree with. */}
+      <p className="headline-kicker">
+        <ToneIcon tone={headline.tone} />
+        {headline.kicker}
+      </p>
+      <h2 className="headline-title">{headline.headline}</h2>
+      <p className="headline-subhead">{headline.subhead}</p>
+
+      {headline.stats.length > 0 && (
+        <div className="headline-stats">
+          {headline.stats.map((stat) => (
+            <div className={`headline-stat${stat.emphasis ? " is-emphasis" : ""}`} key={stat.label}>
+              <span className="headline-stat-value">{stat.value}</span>
+              <span className="headline-stat-label">{stat.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="headline-footer">
+        <span className="headline-caveat">{headline.caveat}</span>
+        {sharingOffered && (
+          <div className="headline-actions">
+            <HeadlinePostActions share={share} headline={headline} liveApiServesReportPages={liveApiServesReportPages} />
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * "Post on X" and "Copy post": the headline's two sharing controls. One
+ * component, so the banner and the evidence head (which carries them on a
+ * report page, where the explorer renders no banner of its own) offer the
+ * same link and the same post.
+ */
+export function HeadlinePostActions({
+  share,
+  headline,
+  liveApiServesReportPages
+}: {
+  share: ReportShare | null;
+  headline: ReportHeadline;
+  liveApiServesReportPages: boolean;
+}) {
   const [shareLink, setShareLink] = useState("");
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
 
@@ -169,36 +224,7 @@ export function HeadlineBanner({
   }
 
   return (
-    <section className={`headline-banner tone-${headline.tone}`} aria-label="Plain-language summary">
-      {/* The banner's tone had one channel, a hue on its left border and its
-          kicker, and the kicker text is a single constant across all four
-          tones. The icon is the shape channel WCAG 1.4.1 asks for. It stays
-          aria-hidden deliberately: the headline sentence below already carries
-          the meaning in words, and inventing a second spoken rank here would
-          put a name on the tone that the findings board's own severity scale
-          does not have to agree with. */}
-      <p className="headline-kicker">
-        <ToneIcon tone={headline.tone} />
-        {headline.kicker}
-      </p>
-      <h2 className="headline-title">{headline.headline}</h2>
-      <p className="headline-subhead">{headline.subhead}</p>
-
-      {headline.stats.length > 0 && (
-        <div className="headline-stats">
-          {headline.stats.map((stat) => (
-            <div className={`headline-stat${stat.emphasis ? " is-emphasis" : ""}`} key={stat.label}>
-              <span className="headline-stat-value">{stat.value}</span>
-              <span className="headline-stat-label">{stat.label}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="headline-footer">
-        <span className="headline-caveat">{headline.caveat}</span>
-        {sharingOffered && (
-          <div className="headline-actions">
+    <>
             <a className="headline-share primary" href={xHref} target="_blank" rel="noreferrer">
               <ExternalLink size={15} aria-hidden="true" />
               Post on X
@@ -214,10 +240,7 @@ export function HeadlineBanner({
               )}
               {copyState === "copied" ? "Copied" : copyState === "failed" ? "Copy failed" : "Copy post"}
             </button>
-          </div>
-        )}
-      </div>
-    </section>
+    </>
   );
 }
 
@@ -556,6 +579,7 @@ export function MetricGrid({ facts }: { facts: RunFacts }) {
 
 export function TrafficViz({ facts }: { facts: RunFacts }) {
   const evidenceId = useEvidenceIds();
+  const printComplete = usePrintComplete();
   const run = facts.run;
   const total = run.counts.totalRequests;
   const {
@@ -573,7 +597,9 @@ export function TrafficViz({ facts }: { facts: RunFacts }) {
   return (
     <section className="viz-card" id={evidenceId("traffic")}>
       <h2>{facts.evidence.requests.state === "censored" ? "Retained request composition & timeline" : "Request composition & timeline"}</h2>
-      <div
+      {/* The composition bar is paper's: on screen the report's request figure
+          draws the same three counts, which stay as text over the timeline. */}
+      {printComplete && <div
         className="party-bar"
         role="img"
         aria-label={`${facts.evidence.requests.state === "censored" ? "Retained requests: " : ""}${first} first-party, ${otherThirdParty} other third-party, ${catalogMatchedThirdParty} catalog-matched third-party requests`}
@@ -583,7 +609,7 @@ export function TrafficViz({ facts }: { facts: RunFacts }) {
         {catalogMatchedThirdParty > 0 && (
           <span className="party-seg-track" style={{ width: pct(catalogMatchedThirdParty) }} />
         )}
-      </div>
+      </div>}
       <div className="party-legend">
         <div>
           <span className="legend-swatch party-seg-first" />
@@ -599,14 +625,31 @@ export function TrafficViz({ facts }: { facts: RunFacts }) {
           <span className="legend-count">{catalogMatchedThirdParty.toLocaleString("en-US")}</span>
         </div>
       </div>
-      <RequestTimeline requests={run.evidence.requests} />
+      {/* On screen the timeline runs on the visit's one time scale, the scale
+          of the tables' time strips. */}
+      <RequestTimeline requests={run.evidence.requests} spanMs={printComplete ? undefined : visitTimeScale(run).spanMs}
+        lanes={printComplete ? LANE_LABELS : null} />
     </section>
   );
 }
 
-function RequestTimeline({ requests }: { requests: NetworkRequestRecord[] }) {
+/**
+ * Paper's lanes: one row per class of request, named with the composition's
+ * own labels, so the position of a mark carries its class in grayscale.
+ */
+const LANE_LABELS = [
+  { role: "first-party", label: "First-party requests" },
+  { role: "third-party", label: "Other third-party requests" },
+  { role: "tracker", label: "Catalog-matched third-party requests" }
+] as const;
+
+function RequestTimeline({ requests, spanMs, lanes = null }: {
+  requests: NetworkRequestRecord[];
+  spanMs?: number;
+  lanes?: typeof LANE_LABELS | null;
+}) {
   if (requests.length === 0) return null;
-  const { marks, maxTime } = buildRequestTimelineModel(requests);
+  const { marks, maxTime } = buildRequestTimelineModel(requests, undefined, spanMs);
   const timingSummary = requestTimingSummary(requests);
   const width = 1000;
   const height = 44;
@@ -617,7 +660,21 @@ function RequestTimeline({ requests }: { requests: NetworkRequestRecord[] }) {
         {timingSummary}{" "}
         <a href={buildEvidenceHash({ section: "requests" })}>Open the request log for exact timing and request details.</a>
       </p>
-      <svg
+      {lanes && (
+        <div className="timeline-lanes" aria-hidden="true">
+          {lanes.map((lane) => (
+            <div className="timeline-lane" key={lane.role}>
+              <span className="timeline-lane-label">{lane.label}</span>
+              <svg viewBox={`0 0 ${width} 10`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                {marks.filter((mark) => mark.role === lane.role).map((mark, index) => (
+                  <rect key={index} className={`timeline-${mark.role}`} x={mark.xRatio * (width - 2)} y={0} width={2} height={10} />
+                ))}
+              </svg>
+            </div>
+          ))}
+        </div>
+      )}
+      {!lanes && <svg
         viewBox={`0 0 ${width} ${height}`}
         preserveAspectRatio="none"
         aria-hidden="true"
@@ -630,9 +687,9 @@ function RequestTimeline({ requests }: { requests: NetworkRequestRecord[] }) {
             : mark.role === "third-party"
               ? "var(--sig-info)"
               : "var(--sig-quiet)";
-          return <rect key={index} x={x} y={mark.role === "tracker" ? 4 : mark.role === "third-party" ? 12 : 20} width={2} height={height - 24} fill={color} opacity={0.85} rx={1} />;
+          return <rect key={index} className={`timeline-${mark.role}`} x={x} y={mark.role === "tracker" ? 4 : mark.role === "third-party" ? 12 : 20} width={2} height={height - 24} fill={color} opacity={0.85} rx={1} />;
         })}
-      </svg>
+      </svg>}
       <div className="timeline-axis">
         <span>0 ms</span>
         <span>{maxTime.toLocaleString("en-US")} ms</span>

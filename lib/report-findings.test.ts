@@ -25,6 +25,15 @@ import {
   type FindingNewVisit,
   type LookCloserVariant
 } from "./finding-look-closer";
+import {
+  CUT_SHORT_LIMIT,
+  FORMED_FINDING_LIMITS,
+  NAMED_FINDING_LIMITS,
+  NEW_FINDING_LIMITS,
+  WHOLE_FINDING_LIMITS,
+  cardSentences,
+  wholeLimitHoldsString
+} from "./finding-limits";
 import { buildReportShare } from "./report-locator";
 import { reportNewVisitFrom, reportNewVisitTarget } from "./report-rescan-targets";
 import { normalizeScanUrl, resolveScanPrefillNavigation } from "./scan-prefill";
@@ -39,8 +48,10 @@ import {
 import { buildReportFacts, REPORT_SEVERITY_LABELS, type ReportFacts } from "./report-facts";
 import { requestMatchesQuery, requestMatchesSignalFilter } from "./request-log-filters";
 import {
+  bottomLineBenchmarkScope,
   bottomLineSignalTitle,
   buildFindings,
+  methodologyBenchmarkScope,
   provenanceChangeText,
   requestProvenanceSummary,
   type Finding,
@@ -2011,17 +2022,50 @@ test("the methodology block and the receipt state the bottom line's cohort from 
   // a cohort on a page whose card fell back to fixed thresholds.
   const source = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
   const renderer = source("app/_components/report-renderer.tsx");
-  assert.match(renderer, /const benchmarkScope = findings\.find\(\(finding\) => finding\.id === "bottom-line"\)\?\.benchmarkScope;/);
+  assert.match(renderer, /const benchmarkScope = methodologyBenchmarkScope\(summaryBenchmarkScope, findings\);/);
   assert.match(renderer, /\{benchmarkScope && <p>\{benchmarkScope\}<\/p>\}/);
   assert.equal(renderer.match(/benchmarkScope=\{benchmarkScope\}/g)?.length, 2, "both the screen and the print visits");
   assert.match(
     source("app/reports/[id]/page.tsx"),
-    /benchmarkScope=\{findings\.find\(\(finding\) => finding\.id === "bottom-line"\)\?\.benchmarkScope\}/
+    /benchmarkScope=\{bottomLineBenchmarkScope\(findings\)\}/
   );
   assert.match(
     source("app/_components/report-page-context.tsx"),
     /\{benchmarkScope && <p className="evidence-receipt-note">\{benchmarkScope\}<\/p>\}/
   );
+});
+
+test("the Methodology block's cohort sentence is the server summary's on the permalink and on paper", () => {
+  // Paper's bottom line is built on the server from the committed corpus
+  // statistics; the explorer's findings are built in the browser after a
+  // fetch that starts at null. With two sources a late or failed fetch
+  // printed a ranked bottom line beside a block that named no cohort.
+  const client = [{ id: "bottom-line", benchmarkScope: "client cohort" }] as unknown as Finding[];
+  const unranked = [{ id: "bottom-line" }] as unknown as Finding[];
+  assert.equal(bottomLineBenchmarkScope(client), "client cohort");
+  assert.equal(bottomLineBenchmarkScope(unranked), undefined);
+  // A server summary wins over whatever the browser built, both ways.
+  assert.equal(methodologyBenchmarkScope("server cohort", unranked), "server cohort");
+  assert.equal(methodologyBenchmarkScope("server cohort", client), "server cohort");
+  assert.equal(methodologyBenchmarkScope(null, client), undefined, "a server bottom line that does not rank names no cohort");
+  // Only with no server summary (the homepage's own result) the browser's.
+  assert.equal(methodologyBenchmarkScope(undefined, client), "client cohort");
+
+  const source = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+  const renderer = source("app/_components/report-renderer.tsx");
+  assert.match(renderer, /const benchmarkScope = methodologyBenchmarkScope\(summaryBenchmarkScope, findings\);/);
+  assert.doesNotMatch(renderer, /finding\.id === "bottom-line"/, "the renderer must not read the bottom line from its own findings");
+  // The permalink's server passes its own summary's sentence to the explorer,
+  // which hands it on; the printed route passes the same.
+  const page = source("app/reports/[id]/page.tsx");
+  assert.match(page, /const findings = buildFindings\(view, await loadCommittedCorpusStats\(\), facts, evidenceArm\);/);
+  assert.match(page, /summaryBenchmarkScope=\{bottomLineBenchmarkScope\(findings\) \?\? null\}/);
+  assert.match(source("app/reports/[id]/saved-report-client.tsx"), /<LazyReportRenderer [^>]*summaryBenchmarkScope=\{summaryBenchmarkScope\}/);
+  const print = source("app/reports/[id]/print/page.tsx");
+  assert.match(print, /const findings = buildFindings\(view, await loadCommittedCorpusStats\(\), facts, evidenceArm\);/);
+  assert.match(print, /<ReportRenderer[^>]*summaryBenchmarkScope=\{bottomLineBenchmarkScope\(findings\) \?\? null\}/);
+  // The homepage's result has no server summary and passes none.
+  assert.doesNotMatch(source("app/site-behavior-app.tsx"), /summaryBenchmarkScope/);
 });
 
 test("the board withholds a percentile rank from a run the corpus builder excludes, even where the claim gate allows one", () => {
@@ -5489,11 +5533,439 @@ test("every committed bottom line names its own level", async () => {
 
 test("both headline banners keep the headline's own tone", () => {
   const source = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
-  assert.match(source("app/reports/[id]/page.tsx"), /<section className=\{`headline-banner tone-\$\{headline\.tone\}`\}/);
+  // The report page's banner is in its summary, a component of its own that
+  // a result on the homepage renders too.
+  assert.match(source("app/_design/report-summary.tsx"), /<section className=\{`headline-banner tone-\$\{headline\.tone\}`\}/);
   const overview = source("app/_components/report-overview.tsx");
   const banner = overview.slice(overview.indexOf("export function HeadlineBanner"), overview.indexOf("// Module-level cache"));
   assert.match(banner, /className=\{`headline-banner tone-\$\{headline\.tone\}`\}/);
   assert.match(banner, /<ToneIcon tone=\{headline\.tone\} \/>/);
+});
+
+/** A card's limit is this approved sentence, taken whole from the card's own string. */
+function assertWholeLimit(card: Finding, sentence: string) {
+  assert.equal(card.limit?.sentence, sentence, `${card.id}: ${card.detail}`);
+  assert.ok(card.limit);
+  assert.equal(
+    wholeLimitHoldsString(card.detail, card.limit),
+    true,
+    `${card.id}: the limit and the text behind it are not the card's string`
+  );
+}
+
+/** A card's limit is this sentence written for it, with the card's full string behind it. */
+function assertNewLimit(card: Finding, sentence: string) {
+  assert.deepEqual(card.limit, { sentence, behind: [card.detail] }, `${card.id}: ${card.detail}`);
+  assert.equal(cardSentences(card.detail).includes(sentence), false, `${card.id}: the string already holds the new sentence`);
+}
+
+test("an absence card's limit is its own sentence, or the sentence written for a string that states none", () => {
+  const quiet = buildFindings(viewFromV1Report(makeResult()), null);
+  // One-sentence strings: the sentence is the limit and nothing is behind it.
+  for (const [id, sentence] of [
+    ["third-party-cookies", WHOLE_FINDING_LIMITS.cookiesNoneObserved],
+    ["fingerprint-apis", WHOLE_FINDING_LIMITS.fingerprintNoneObserved],
+    ["named-platforms", WHOLE_FINDING_LIMITS.platformsNoneRecorded]
+  ] as const) {
+    const card = byId(quiet, id);
+    assertWholeLimit(card, sentence);
+    assert.deepEqual(card.limit?.behind, [], id);
+    assert.equal(card.detail, sentence, id);
+  }
+  // Strings that restate the claim: the new sentence, in front of all of it.
+  const analytics = byId(quiet, "ga-remarketing");
+  assert.equal(analytics.detail, "Neither Google Analytics nor its remarketing sync was observed in this visit.");
+  assertNewLimit(analytics, NEW_FINDING_LIMITS.analyticsNone);
+  const services = byId(quiet, "third-party-services");
+  assert.equal(services.detail, "No known operator or catalog entity was matched.");
+  assertNewLimit(services, NEW_FINDING_LIMITS.servicesNoneMatched);
+  // The bottom line by how its severity was set: fixed thresholds here, a
+  // cohort once the corpus ranks the visit.
+  const unranked = byId(quiet, "bottom-line");
+  assertWholeLimit(unranked, WHOLE_FINDING_LIMITS.bottomLineFixedThresholds);
+  assert.deepEqual(unranked.limit?.behind, ["The request log, domain table, and methodology remain below for verification."]);
+  const ranked = byId(buildFindings(viewFromV1Report(makeResult()), makeCorpus(60)), "bottom-line");
+  assert.ok(ranked.benchmarkScope, "the fixture is not ranked against the corpus");
+  assertNewLimit(ranked, NEW_FINDING_LIMITS.bottomLineRanked);
+});
+
+test("a presence card's limit is taken whole, with the rest of its string behind it in order", () => {
+  const busy = buildFindings(
+    viewFromV1Report(
+      makeResult({
+        domains: [makeTrackerDomain("google-analytics.com", 6, "Google", "analytics")],
+        thirdPartyRequests: 6,
+        thirdPartyDomains: 1,
+        thirdPartyCookies: 3,
+        fingerprintEvents: 2
+      })
+    ),
+    null
+  );
+  const services = byId(busy, "third-party-services");
+  assertWholeLimit(services, WHOLE_FINDING_LIMITS.servicesCatalogMatch);
+  // The first sentence is the limit; every later sentence is behind it.
+  assert.equal(services.detail, `${WHOLE_FINDING_LIMITS.servicesCatalogMatch} ${services.limit?.behind[0]}`);
+  assertWholeLimit(byId(busy, "named-platforms"), WHOLE_FINDING_LIMITS.platformsMatched);
+  const cookies = byId(busy, "third-party-cookies");
+  assertWholeLimit(cookies, WHOLE_FINDING_LIMITS.cookiesPresent);
+  // The last sentence is the limit; the one before it is behind it.
+  assert.deepEqual(cookies.limit?.behind, [
+    "The scanner observed cookie metadata whose domain crossed the scanned site's registrable-domain boundary."
+  ]);
+  assertWholeLimit(byId(busy, "fingerprint-apis"), WHOLE_FINDING_LIMITS.fingerprintCalls);
+  // Analytics on record and no sync: a string that restates the claim.
+  const analytics = byId(busy, "ga-remarketing");
+  assert.equal(analytics.title, "Google Analytics present, no remarketing signal");
+  assertNewLimit(analytics, NEW_FINDING_LIMITS.analyticsNoSync);
+
+  // The typing test, the DNS aliases and the consent tooling.
+  const typed = byId(
+    buildFindings(viewFromV1Report(makeResult({ fingerprintDetections: [makeKeystrokeDetection(["plain"])] })), null),
+    "keystroke-exfiltration"
+  );
+  assertWholeLimit(typed, WHOLE_FINDING_LIMITS.typedValueRecoverable);
+  assert.deepEqual(typed.limit?.behind, [
+    "The synthetic value appeared in a recoverable form (plain). The scanner types only synthetic values and never submits the form."
+  ]);
+  const aliased: ScanResult = {
+    ...makeResult({ firstPartyDomain: "shop.example" }),
+    cnameCloaks: [
+      {
+        host: "metrics.shop.example",
+        cname: "edge.tracker.example",
+        tracker: { domain: "tracker.example", entity: "Adobe", category: "analytics", confidence: "curated" }
+      }
+    ]
+  };
+  assertWholeLimit(byId(buildFindings(viewFromV1Report(aliased), null), "cname-cloaking"), WHOLE_FINDING_LIMITS.dnsAliases);
+  const frameworkDomain: DomainSummary = {
+    domain: "mysite.mgr.consensu.org",
+    requests: 2,
+    thirdParty: true,
+    tracker: null,
+    statuses: [200],
+    resourceTypes: ["script"]
+  };
+  // One string, two claims: the limit follows what the card claims.
+  const toolingOnly = byId(buildFindings(viewFromV1Report(makeResult({ domains: [frameworkDomain] })), null), "consent-banner");
+  assertWholeLimit(toolingOnly, WHOLE_FINDING_LIMITS.consentToolingOnly);
+  const toolingAndTrackers = byId(
+    buildFindings(
+      viewFromV1Report(makeResult({ domains: [frameworkDomain, makeTrackerDomain("ads.example", 3, "AdCo", "advertising")] })),
+      null
+    ),
+    "consent-banner"
+  );
+  assertWholeLimit(toolingAndTrackers, WHOLE_FINDING_LIMITS.consentToolingAndTrackers);
+  assert.equal(toolingOnly.detail, toolingAndTrackers.detail);
+
+  // A listener registration on record.
+  const listener = byId(
+    buildFindings(viewFromV1Report(makeResult({ fingerprintDetections: [makeSessionRecordingDetection()] })), null),
+    "session-recording-input-monitoring"
+  );
+  assertWholeLimit(listener, WHOLE_FINDING_LIMITS.listenerSignal);
+});
+
+test("the Tag Manager card names its subject, and the policy card's limit follows what the card claims", () => {
+  // Tag Manager with no Analytics request: the string's second sentence opens
+  // "It". The limit names Tag Manager, and the first sentence is behind it.
+  const tagManager = byId(
+    buildFindings(
+      viewFromV1Report(makeResult({ domains: [makeTrackerDomain("www.googletagmanager.com", 2, "Google", "tag management")] })),
+      null
+    ),
+    "ga-remarketing"
+  );
+  assert.equal(tagManager.title, "Google Tag Manager loaded, no Analytics request recorded");
+  assert.equal(
+    tagManager.detail,
+    `Tag Manager is a loader. ${NAMED_FINDING_LIMITS.analyticsTagManagerOnly.inString}`,
+    "the card's own string still holds the sentence with its pronoun"
+  );
+  assert.deepEqual(tagManager.limit, {
+    sentence: NAMED_FINDING_LIMITS.analyticsTagManagerOnly.sentence,
+    behind: ["Tag Manager is a loader."]
+  });
+
+  // One policy string, two claims. Where a statement was checked and not
+  // contradicted, the limit is how little is checked, in front of all of it.
+  const policyResult = (claims: NonNullable<ScanResult["privacyPolicy"]>["claims"]) => {
+    const result = makeResult({});
+    result.privacyPolicy = {
+      url: "https://example.com/privacy",
+      claims,
+      mentionedEntities: [],
+      unmentionedEntities: [],
+      policyTextLength: 5000
+    };
+    return result;
+  };
+  const checked = byId(
+    buildFindings(
+      viewFromV1Report(policyResult([{ kind: "no-selling-or-sharing", quote: "We do not sell or share your personal information." }])),
+      null
+    ),
+    "privacy-policy"
+  );
+  assert.equal(checked.title, "Privacy policy read; no checked statement contradicted");
+  assertNewLimit(checked, NEW_FINDING_LIMITS.policyNothingContradicted);
+  assert.ok(cardSentences(checked.detail).includes(WHOLE_FINDING_LIMITS.policyChecksMade), "the full string is behind it");
+  // Where nothing could be checked, the same string keeps its own sentence.
+  const unchecked = byId(buildFindings(viewFromV1Report(policyResult([])), null), "privacy-policy");
+  assert.equal(unchecked.title, "Privacy policy read; it made no statement this scan can check");
+  assert.equal(unchecked.detail, checked.detail);
+  assertWholeLimit(unchecked, WHOLE_FINDING_LIMITS.policyChecksMade);
+});
+
+test("a comparison card's limit is taken whole from its own string", () => {
+  const neither = (mode: "accept-all" | "reject-all") => ({
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 18 }),
+    consentInteraction: { mode, clicked: false }
+  });
+  const consent = byId(
+    buildFindings(viewFromV1Report(consentPair(neither("accept-all"), neither("reject-all"))), null),
+    "consent-comparison"
+  );
+  assert.equal(consent.title, "No consent control activation was recorded in either visit");
+  assertWholeLimit(consent, WHOLE_FINDING_LIMITS.consentNoActivation);
+
+  // A Shields or GPC pair, conclusive or not, carries one of its three limits.
+  const pairLimits: readonly string[] = [
+    WHOLE_FINDING_LIMITS.comparisonNoClaim,
+    WHOLE_FINDING_LIMITS.shieldsComparisonChanged,
+    WHOLE_FINDING_LIMITS.shieldsComparisonNoChange
+  ];
+  const shields = byId(
+    buildFindings(viewFromV1Report(shieldsPair(makeResult({ thirdPartyRequests: 9 }), makeResult({ thirdPartyRequests: 4 }))), null),
+    "shields-comparison"
+  );
+  assert.ok(shields.limit && pairLimits.includes(shields.limit.sentence), shields.detail);
+  assertWholeLimit(shields, shields.limit.sentence);
+  const gpc = byId(buildFindings(viewFromV1Report(gpcPair(makeResult(), makeResult())), null), "gpc-comparison");
+  if (/not conclusive|no comparable delta/.test(gpc.title)) {
+    assertWholeLimit(gpc, WHOLE_FINDING_LIMITS.comparisonNoClaim);
+    assert.deepEqual(gpc.limit?.behind, []);
+  } else {
+    // An eligible GPC pair's strings have no approved limit.
+    assert.equal(gpc.limit, undefined);
+  }
+});
+
+test("where evidence was cut short, an absence card's limit is the cut-short sentence", () => {
+  const capped: ScanResult = {
+    ...makeResult({ totalRequests: 1200 }),
+    warnings: ["The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget."]
+  };
+  const board = buildFindings(viewFromV1Report(capped), null);
+  let cutShort = 0;
+  for (const card of board) {
+    const sentences = cardSentences(card.detail);
+    if (sentences[sentences.length - 1] !== CUT_SHORT_LIMIT) {
+      assert.notEqual(card.limit?.sentence, CUT_SHORT_LIMIT, card.id);
+      continue;
+    }
+    assert.notEqual(card.claim?.mode, "presence", `${card.id}: the fixture's cut-short cards claim absences`);
+    assertWholeLimit(card, CUT_SHORT_LIMIT);
+    // The card's ordinary sentence is now first in the text behind the line.
+    assert.equal(card.limit?.behind[0], sentences.slice(0, -1).join(" "), card.id);
+    cutShort += 1;
+  }
+  assert.ok(cutShort >= 3, `only ${cutShort} cut-short absence cards on the capped fixture`);
+  // No sentence written new stands over a hedged absence.
+  for (const card of board) {
+    assert.equal((Object.values(NEW_FINDING_LIMITS) as string[]).includes(card.limit?.sentence ?? ""), false, card.id);
+  }
+});
+
+test("a vendor-only session card and a services card that named no host take their own sentences", () => {
+  // A session-replay vendor's request with no listener on record: the limit
+  // is what a domain match proves, never the listener sentence.
+  const vendorBoard = buildFindings(
+    viewFromV1Report(makeResult({ domains: [makeTrackerDomain("replay.example", 2, "Crazy Egg", "session replay")] })),
+    null
+  );
+  const vendorOnly = byId(vendorBoard, "session-recording-input-monitoring");
+  assert.equal(vendorOnly.title, "Session-replay vendor observed");
+  assert.equal(
+    vendorOnly.detail,
+    `Catalog labels include session-replay or behavior-analytics services: Crazy Egg. ${WHOLE_FINDING_LIMITS.sessionVendorDomainMatch} Treat this card as a review prompt rather than proof.`
+  );
+  assertWholeLimit(vendorOnly, WHOLE_FINDING_LIMITS.sessionVendorDomainMatch);
+  assert.deepEqual(vendorOnly.limit?.behind, [
+    "Catalog labels include session-replay or behavior-analytics services: Crazy Egg. Treat this card as a review prompt rather than proof."
+  ]);
+  // The services card of the same visit prints the same sentence, behind its
+  // own limit: the sentence is the limit of the session card alone.
+  const vendorServices = byId(vendorBoard, "third-party-services");
+  assertWholeLimit(vendorServices, WHOLE_FINDING_LIMITS.servicesCatalogMatch);
+  assert.ok(cardSentences(vendorServices.limit?.behind[0] ?? "").includes(WHOLE_FINDING_LIMITS.sessionVendorDomainMatch));
+
+  // Third-party hosts nothing could name, and no service named: the sentence
+  // that counts them is the limit, in each form that was approved.
+  const noneMatched = "No known operator or catalog entity was matched.";
+  const coverage = "That is a limit of identity coverage, not evidence about the site.";
+  for (const [hosts, sentence] of [
+    [
+      ["cdn.unknown-operator.example"],
+      "This scan could not identify the 1 third-party host recorded here, so it cannot say who operates it."
+    ],
+    [
+      ["cdn.unknown-operator.example", "img.other-unknown.example"],
+      "This scan could not identify 2 of the 2 third-party hosts recorded here, so it cannot say who operates them."
+    ]
+  ] as const) {
+    const unnamed = byId(
+      buildFindings(viewFromV1Report(makeResult({ domains: hosts.map((host) => recordedHost(host)) })), null),
+      "third-party-services"
+    );
+    assert.equal(unnamed.detail, `${noneMatched} ${sentence} ${coverage}`);
+    assert.match(sentence, FORMED_FINDING_LIMITS.servicesHostsUnidentified);
+    assertWholeLimit(unnamed, sentence);
+    assert.deepEqual(unnamed.limit?.behind, [`${noneMatched} ${coverage}`]);
+  }
+
+  // A card that names a service keeps its own limit, and the sentence that
+  // counts the unnamed host stays behind it. That sentence says "1 of the 2",
+  // a form that was not approved as a limit anywhere.
+  const mixed = byId(
+    buildFindings(
+      viewFromV1Report(
+        makeResult({
+          domains: [
+            makeTrackerDomain("google-analytics.com", 6, "Google", "analytics"),
+            recordedHost("cdn.unknown-operator.example")
+          ],
+          thirdPartyRequests: 8,
+          thirdPartyDomains: 2
+        })
+      ),
+      null
+    ),
+    "third-party-services"
+  );
+  assertWholeLimit(mixed, WHOLE_FINDING_LIMITS.servicesCatalogMatch);
+  const counted = cardSentences(mixed.limit?.behind[0] ?? "").find((sentence) => sentence.startsWith("This scan could not identify "));
+  assert.equal(counted, "This scan could not identify 1 of the 2 third-party hosts recorded here, so it cannot say who operates it.");
+  assert.doesNotMatch(counted ?? "", FORMED_FINDING_LIMITS.servicesHostsUnidentified);
+
+  // Cut short, the same card claims an absence over partial evidence, and the
+  // cut-short sentence is its limit with the counted hosts behind it.
+  const cappedUnnamed = byId(
+    buildFindings(
+      viewFromV1Report({
+        ...makeResult({ totalRequests: 1200, domains: [recordedHost("cdn.unknown-operator.example")] }),
+        warnings: ["The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget."]
+      }),
+      null
+    ),
+    "third-party-services"
+  );
+  assertWholeLimit(cappedUnnamed, CUT_SHORT_LIMIT);
+  assert.match(cappedUnnamed.limit?.behind[0] ?? "", /^No known operator or catalog entity was matched\. This scan could not identify the 1 third-party host /);
+});
+
+test("a card with no approved limit carries none and keeps its full string", () => {
+  // An error page: every absence card gains a scope sentence and loses its
+  // limit, and the error bottom line never had one.
+  const refused = buildFindings(viewFromV1Report(makeResult({ status: 403 })), null);
+  const scope = "The page returned HTTP 403, so this absence describes an error or block page, not the site.";
+  let hedged = 0;
+  for (const card of refused) {
+    if (card.id === "bottom-line") {
+      assert.equal(card.limit, undefined, "the error bottom line");
+      continue;
+    }
+    if (card.claim?.mode !== "qualified-absence") continue;
+    assert.equal(card.limit, undefined, `${card.id}: a limit over a hedged absence`);
+    assert.ok(card.detail.endsWith(scope), `${card.id}: ${card.detail}`);
+    hedged += 1;
+  }
+  assert.ok(hedged >= 4, `only ${hedged} hedged absence cards on the error fixture`);
+
+  // A hashed typed value: a string of its own, not the approved one.
+  const hashed = byId(
+    buildFindings(viewFromV1Report(makeResult({ fingerprintDetections: [makeKeystrokeDetection(["sha256"])] })), null),
+    "keystroke-exfiltration"
+  );
+  assert.match(hashed.detail, /^The synthetic value was hashed \(sha256\) before being sent\. /);
+  assert.equal(hashed.limit, undefined);
+  // The recoverable form with a recipient in the site's own organization:
+  // the sentence about that recipient was on no approved card.
+  const ownRecipient = byId(
+    buildFindings(
+      viewFromV1Report(
+        makeResult({
+          firstPartyDomain: "youtube.com",
+          fingerprintDetections: [
+            {
+              kind: "keystroke-exfiltration",
+              heuristic: "input-sentinel-exfiltration-v1",
+              count: 1,
+              evidence: { recipients: ["www.google.com"], encodings: ["plain"], fieldsTyped: 2, fieldTypes: ["search"] }
+            }
+          ]
+        })
+      ),
+      null
+    ),
+    "keystroke-exfiltration"
+  );
+  assert.match(ownRecipient.detail, / Of the recipient domains, 1 belongs to the site's same reviewed organization, /);
+  assert.ok(cardSentences(ownRecipient.detail).includes(WHOLE_FINDING_LIMITS.typedValueRecoverable));
+  assert.equal(ownRecipient.limit, undefined);
+
+  // An inconclusive before/after pair prints the sentence the Shields and GPC
+  // cards carry as their limit, and it is approved for those two cards only.
+  const beforeAfter = buildFindings(
+    viewFromV1Report(createTemporalComparisonReport(makeResult(), makeResult())),
+    null
+  ).find((card) => card.id === "temporal-comparison");
+  assert.ok(beforeAfter, "the before/after fixture is conclusive, so its inconclusive card went unchecked");
+  assert.equal(beforeAfter.detail, WHOLE_FINDING_LIMITS.comparisonNoClaim);
+  assert.equal(beforeAfter.limit, undefined);
+
+  // The remarketing sync on record: a string of its own, with no approved limit.
+  const remarketing = byId(
+    buildFindings(
+      viewFromV1Report(
+        makeResult({
+          domains: [
+            makeTrackerDomain("www.google-analytics.com", 4, "Google", "analytics"),
+            makeTrackerDomain("stats.g.doubleclick.net", 1, "Google", "advertising")
+          ],
+          thirdPartyRequests: 5,
+          thirdPartyDomains: 2
+        })
+      ),
+      null
+    ),
+    "ga-remarketing"
+  );
+  assert.equal(remarketing.title, "Google Analytics remarketing signal detected");
+  assert.equal(remarketing.limit, undefined);
+
+  // A bottom line that is not ranked for a reason of its own: that sentence
+  // has no approved limit, and the ranked string's sentence is not for it.
+  const consentVisit = (mode: "accept-all" | "reject-all") => ({
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 18 }),
+    consentInteraction: { mode, clicked: false }
+  });
+  const consentBottomLine = byId(
+    buildFindings(viewFromV1Report(consentPair(consentVisit("accept-all"), consentVisit("reject-all"))), makeCorpus(60)),
+    "bottom-line"
+  );
+  assert.match(consentBottomLine.detail, / A visit asked to make a consent choice is outside the population the corpus percentiles describe, /);
+  assert.equal(consentBottomLine.benchmarkScope, undefined);
+  assert.equal(consentBottomLine.limit, undefined);
+
+  // A one-sided consent pair.
+  const clicked = { ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 20 }), consentInteraction: { mode: "accept-all" as const, clicked: true, cmp: "Cookiebot" } };
+  const unclicked = { ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 18 }), consentInteraction: { mode: "reject-all" as const, clicked: false } };
+  const oneSided = byId(buildFindings(viewFromV1Report(consentPair(clicked, unclicked)), null), "consent-comparison");
+  assert.match(oneSided.title, /^Only the Accept all control's activation was recorded$/);
+  assert.equal(oneSided.limit, undefined);
 });
 
 test("a session-replay card with no listener detection describes only the vendor request", () => {

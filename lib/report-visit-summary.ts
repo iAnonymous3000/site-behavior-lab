@@ -1,8 +1,8 @@
 import { consentChoiceLabel } from "./consent-interaction";
 import { CONSENT_RELOAD_DISCLOSURE } from "./consent-verification";
-import { findingCardDomId, type EvidenceArm } from "./report-evidence-navigation";
+import type { EvidenceArm } from "./report-evidence-navigation";
 import { consentVerificationSummary } from "./report-consent-copy";
-import type { ReportClaimId, ReportFacts, RunFacts } from "./report-facts";
+import type { ReportFacts } from "./report-facts";
 import { gpcRunMeasurement } from "./report-insights";
 import { runCensorshipNotes } from "./scan-report-censorship";
 import {
@@ -16,6 +16,37 @@ import { DEFAULT_SCANNER_EGRESS_LABEL, PUBLIC_SCANNER_EGRESS_LABELS } from "./sc
 import type { ScrollCheckEntry } from "./scroll-check-entry";
 import { displayPublicUrl } from "./text-format";
 import { formatReportTimestamp } from "./visit-timestamp";
+import {
+  AFTER_FURTHER_INTERACTION_CLAUSE,
+  AFTER_INTERACTION_CLAUSE,
+  CATALOG_BIAS_CLAUSE,
+  FIXED_PROFILE_CLAUSE,
+  LOWER_BOUND_SENTENCE_START,
+  OTHER_VISITORS_CLAUSE,
+  POLICY_READ_DISCLOSURE,
+  VISIT_CHECK_LABELS,
+  theVisit,
+  visitArms,
+  visitLimits,
+  type ArmRun,
+  type ReportVisitLimitId,
+  type ReportVisitTextSegment,
+  type VisitLimit
+} from "./visit-limits";
+
+// Moved to lib/visit-limits.ts, which a client chunk may import; re-exported
+// here for the report pages and the tests that read them from this module.
+export {
+  AFTER_FURTHER_INTERACTION_CLAUSE,
+  AFTER_INTERACTION_CLAUSE,
+  CATALOG_BIAS_CLAUSE,
+  FIXED_PROFILE_CLAUSE,
+  LOWER_BOUND_SENTENCE_START,
+  OTHER_VISITORS_CLAUSE,
+  POLICY_READ_DISCLOSURE,
+  VISIT_CHECK_LABELS
+};
+export type { ReportVisitLimitId, ReportVisitTextSegment };
 
 /**
  * "What was checked" and "What this visit could not see": the two short lists
@@ -55,20 +86,8 @@ export type ReportVisitFact = {
   text: string;
 };
 
-/** A run of text, linked to a findings card when `cardId` is set. */
-export type ReportVisitTextSegment = { text: string; cardId?: string };
 
-export type ReportVisitLimitId =
-  | "other-pages"
-  | "other-visitors"
-  | "after-interaction"
-  | "catalog"
-  | "incomplete-checks";
-
-export type ReportVisitLimit = {
-  id: ReportVisitLimitId;
-  lead: string;
-  body: ReportVisitTextSegment[];
+export type ReportVisitLimit = VisitLimit & {
   /**
    * A new visit that answers this limit, rendered after it: a fresh result's
    * "Check after scrolling", on the after-interaction limit only
@@ -108,25 +127,6 @@ export const SCANNER_EGRESS_READER_PHRASES: Readonly<Record<(typeof PUBLIC_SCANN
     test: "a test environment"
   });
 
-/**
- * The reader's name for each check a claim stands for, as it reads inside a
- * sentence. Keyed by every claim, so a new claim must be named here.
- */
-export const VISIT_CHECK_LABELS: Readonly<Record<ReportClaimId, string>> = Object.freeze({
-  "third-party-services": "third-party services",
-  "named-platforms": "named platforms",
-  "ga-remarketing": "Google Analytics remarketing",
-  "third-party-cookies": "third-party cookies",
-  "fingerprint-apis": "fingerprinting",
-  "session-recording-input-monitoring": "session-recording signals",
-  "keystroke-exfiltration": "the typing test",
-  "storage-keys": "storage",
-  "cname-cloaking": "CNAME cloaking",
-  "pixel-events": "advertising pixels",
-  "consent-banner": "the consent banner",
-  "shields-blocked": "Brave Shields matches",
-  "privacy-policy": "the privacy policy check"
-});
 
 // The scanner's own disclosures, matched by the clauses the reader restates.
 // lib/report-visit-summary.test.ts holds each one to the admitted vocabulary.
@@ -137,17 +137,7 @@ export const SCRIPTED_CHOICE_CLAUSES = [
   "with no scrolling or clicking except scripted attempts to activate one choice on the cookie/consent banner"
 ] as const;
 export const CLOUDFLARE_NO_INTERACTION_CLAUSE = "It does not scroll, click, sign in, or interact with consent prompts.";
-export const FIXED_PROFILE_CLAUSE = "from a fixed en-US / UTC profile";
-export const OTHER_VISITORS_CLAUSE =
-  "Sites can behave differently for real users, browsers, regions, accounts, or network locations.";
-export const LOWER_BOUND_SENTENCE_START = "Counts are a lower bound: ";
-export const AFTER_INTERACTION_CLAUSE = "trackers that load only after interaction or consent";
-export const AFTER_FURTHER_INTERACTION_CLAUSE = "trackers that load only after further interaction";
-export const CATALOG_BIAS_CLAUSE =
-  "Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled.";
-export const POLICY_READ_DISCLOSURE = /^Read the site's privacy policy \(.+\) and compared its text against this visit's observed behavior\./;
 
-type ArmRun = { run: RunView; facts: RunFacts; label: string };
 
 export function buildReportVisitSummary(input: {
   view: ReportView;
@@ -164,12 +154,7 @@ export function buildReportVisitSummary(input: {
   scrollCheckEntry?: ScrollCheckEntry | null;
 }): ReportVisitSummary {
   const { view, facts } = input;
-  const comparison = view.reportType === "comparison" && view.runs.length === 2 && view.comparison !== null;
-  const arms: ArmRun[] = view.runs.map((run, index) => ({
-    run,
-    facts: facts.runs[index],
-    label: armLabel(view, run)
-  }));
+  const { arms, comparison } = visitArms(view, facts);
   const display = displayRunView(view);
   return {
     checkedTitle: "What was checked",
@@ -182,20 +167,11 @@ export function buildReportVisitSummary(input: {
       { term: "Outcome", text: outcomeText(arms, comparison) }
     ],
     limitsTitle: comparison ? "What these visits could not see" : "What this visit could not see",
-    limits: limits(arms, comparison, input.findings, input.evidenceArm, input.scrollCheckEntry ?? null)
+    limits: withScrollCheckEntry(visitLimits(arms, comparison, input.findings, input.evidenceArm), input.scrollCheckEntry ?? null)
   };
 }
 
-function armLabel(view: ReportView, run: RunView): string {
-  if (run.label === "baseline") return view.comparison?.runLabels.baseline ?? "baseline";
-  if (run.label === "variant") return view.comparison?.runLabels.variant ?? "variant";
-  return "recorded";
-}
 
-/** "the No blocking visit" */
-function theVisit(arm: ArmRun): string {
-  return `the ${arm.label} visit`;
-}
 
 /**
  * The page the visit checked: the requested address, and, when a visit ended
@@ -539,197 +515,7 @@ function outcomeText(arms: readonly ArmRun[], comparison: boolean): string {
   return `Both visits completed.${unestablishedNote}`;
 }
 
-function everyRunCarries(arms: readonly ArmRun[], test: (warning: string) => boolean): boolean {
-  return arms.length > 0 && arms.every((arm) => arm.run.warnings.some(test));
-}
-
-function limits(
-  arms: readonly ArmRun[],
-  comparison: boolean,
-  findings: readonly { id: string }[],
-  evidenceArm: EvidenceArm | undefined,
-  scrollCheckEntry: ScrollCheckEntry | null
-): ReportVisitLimit[] {
-  const out: ReportVisitLimit[] = [];
-  const policyRead = arms.some((arm) => arm.run.warnings.some((warning) => POLICY_READ_DISCLOSURE.test(warning)));
-  out.push({
-    id: "other-pages",
-    lead: "Other pages on this site.",
-    body: [
-      {
-        text: `Only the requested page's activity was recorded.${
-          policyRead ? " The privacy policy was opened only to read its text, and none of its activity was recorded." : ""
-        }`
-      }
-    ]
-  });
-  if (
-    everyRunCarries(arms, (warning) => warning.includes(OTHER_VISITORS_CLAUSE)) &&
-    everyRunCarries(arms, (warning) => warning.includes(FIXED_PROFILE_CLAUSE))
-  ) {
-    out.push({
-      id: "other-visitors",
-      lead: "Signed-in visitors, other browsers and other regions.",
-      body: [
-        {
-          text: `${comparison ? "Both visits were automated," : "This was one automated visit"} ${FIXED_PROFILE_CLAUSE}. ${OTHER_VISITORS_CLAUSE}`
-        }
-      ]
-    });
-  }
-  const lowerBound = (clause: string) =>
-    everyRunCarries(arms, (warning) => warning.startsWith(LOWER_BOUND_SENTENCE_START) && warning.includes(clause));
-  // A fresh result's check answers this limit, so it sits on it.
-  const entry = scrollCheckEntry ? { entry: scrollCheckEntry } : {};
-  if (lowerBound(AFTER_INTERACTION_CLAUSE)) {
-    out.push({
-      id: "after-interaction",
-      lead: "Anything that loads only after interaction or consent.",
-      body: [{ text: "Trackers that load that late are not observed, so counts are a lower bound." }],
-      ...entry
-    });
-  } else if (lowerBound(AFTER_FURTHER_INTERACTION_CLAUSE)) {
-    out.push({
-      id: "after-interaction",
-      lead: "Anything that loads only after further interaction.",
-      body: [{ text: "Trackers that load that late are not observed, so counts are a lower bound." }],
-      ...entry
-    });
-  }
-  if (everyRunCarries(arms, (warning) => warning.includes(CATALOG_BIAS_CLAUSE))) {
-    out.push({
-      id: "catalog",
-      lead: "Services the catalog does not name.",
-      body: [{ text: CATALOG_BIAS_CLAUSE }]
-    });
-  }
-  const groups = cutShortGroups(arms, comparison, findings, evidenceArm);
-  if (groups.length > 0) {
-    const body: ReportVisitTextSegment[] = [];
-    groups.forEach((group, groupIndex) => {
-      body.push({ text: `${groupIndex > 0 ? " " : ""}${group.intro}` });
-      if (group.every) {
-        body.push({ text: "every check" });
-      } else if (group.except.length > 0) {
-        body.push({ text: `every check except ${group.except.join(" and ")}` });
-      } else {
-        group.checks.forEach((check, index) => {
-          if (index > 0) body.push({ text: index === group.checks.length - 1 ? " and " : ", " });
-          body.push(check.cardId ? { text: check.label, cardId: check.cardId } : { text: check.label });
-        });
-      }
-      body.push({ text: "." });
-    });
-    if (groups.some((group) => group.every && group.onBoard)) {
-      body.push({ text: " Every card below states only what was retained." });
-    } else if (groups.some((group) => group.except.length > 0 && group.onBoard)) {
-      body.push({ text: " The cards for the incomplete checks state only what was retained." });
-    } else if (groups.some((group) => group.checks.some((check) => check.cardId))) {
-      body.push({ text: " Each linked card states what was retained." });
-    }
-    out.push({ id: "incomplete-checks", lead: "Checks with incomplete evidence.", body });
-  }
-  return out;
-}
-
-/** At most this many unaffected checks are named as exceptions to "every check". */
-const MAX_NAMED_EXCEPTIONS = 2;
-
-type CutShortCheck = { claim: ReportClaimId; label: string; cardId: string | null };
-type CutShortGroup = {
-  intro: string;
-  /** Every claim was cut short, so the group names no single check. */
-  every: boolean;
-  /**
-   * The one or two checks NOT cut short, when every other check was. A lost
-   * request log cuts nearly every check at once, and naming eleven of twelve
-   * ran the sentence past what a reader can hold; naming the exceptions says
-   * the same thing in a line. Empty when the group names its checks.
-   */
-  except: string[];
-  /** The board describes a visit this group covers. */
-  onBoard: boolean;
-  checks: CutShortCheck[];
-};
-
-/**
- * The checks whose evidence a visit did not finish collecting, from the claim
- * eligibility ReportFacts derives (a censored evidence family or a detector
- * that did not complete), grouped by the visits that lost them. Board order
- * first within a group, so the links read in the order the cards do.
- *
- * A check is linked only to a card the board renders AND whose visit lost it:
- * the board describes one arm of a comparison, and its card says nothing
- * about a loss in the other arm.
- */
-function cutShortGroups(
-  arms: readonly ArmRun[],
-  comparison: boolean,
-  findings: readonly { id: string }[],
-  evidenceArm: EvidenceArm | undefined
-): CutShortGroup[] {
-  const boardRun = comparison ? arms.find((arm) => arm.run.label === (evidenceArm ?? "baseline")) : arms[0];
-  const cardIds = findings.map((finding) => finding.id);
-  const allClaims = Object.keys(VISIT_CHECK_LABELS) as ReportClaimId[];
-  const position = (claim: ReportClaimId) => {
-    const index = cardIds.indexOf(claim);
-    return index === -1 ? cardIds.length + allClaims.indexOf(claim) : index;
-  };
-  const group = (intro: string, covered: readonly ArmRun[], claims: readonly ReportClaimId[]): CutShortGroup | null => {
-    if (claims.length === 0) return null;
-    const onBoard = boardRun !== undefined && covered.includes(boardRun);
-    const unaffected = allClaims.filter((claim) => !claims.includes(claim));
-    return {
-      intro,
-      every: claims.length === allClaims.length,
-      except:
-        unaffected.length > 0 && unaffected.length <= MAX_NAMED_EXCEPTIONS && claims.length > MAX_NAMED_EXCEPTIONS
-          ? [...unaffected].sort((left, right) => position(left) - position(right)).map((claim) => VISIT_CHECK_LABELS[claim])
-          : [],
-      onBoard,
-      checks: [...claims]
-        .sort((left, right) => position(left) - position(right))
-        .map((claim) => ({
-          claim,
-          label: VISIT_CHECK_LABELS[claim],
-          cardId: onBoard && cardIds.includes(claim) ? findingCardDomId(claim) : null
-        }))
-    };
-  };
-  const lostIn = (arm: ArmRun) => allClaims.filter((claim) => claimCutShort(arm.facts, claim));
-  if (!comparison) {
-    const single = group("In this visit: ", arms, lostIn(arms[0]));
-    return single ? [single] : [];
-  }
-  const lost = arms.map(lostIn);
-  // Two visits that lost exactly the same checks are one sentence, whatever
-  // its form.
-  if (lost.every((claims) => claims.length === lost[0].length && claims.every((claim) => lost[0].includes(claim)))) {
-    return [group("In both visits: ", arms, lost[0])].filter((entry): entry is CutShortGroup => entry !== null);
-  }
-  // A visit that lost every check, or all but one or two, is stated whole,
-  // beside whatever the other visit lost, rather than split across a shared
-  // and an "only" group. Split, its "only" group would either list nearly
-  // every check or name as an exception a check the shared group had just
-  // called incomplete in both visits.
-  const lostNearlyAll = (claims: readonly ReportClaimId[]): boolean =>
-    claims.length > MAX_NAMED_EXCEPTIONS && claims.length >= allClaims.length - MAX_NAMED_EXCEPTIONS;
-  if (lost.some(lostNearlyAll)) {
-    return arms
-      .map((arm, index) => group(`In ${theVisit(arm)}: `, [arm], lost[index]))
-      .filter((entry): entry is CutShortGroup => entry !== null);
-  }
-  const both = allClaims.filter((claim) => lost.every((claims) => claims.includes(claim)));
-  return [
-    group("In both visits: ", arms, both),
-    ...arms.map((arm, index) =>
-      group(`In ${theVisit(arm)} only: `, [arm], lost[index].filter((claim) => !both.includes(claim)))
-    )
-  ].filter((entry): entry is CutShortGroup => entry !== null);
-}
-
-function claimCutShort(facts: RunFacts, claim: ReportClaimId): boolean {
-  return facts.claims[claim].blockers.some(
-    (blocker) => blocker === "family-censored" || blocker === "detector-incomplete"
-  );
+/** A fresh result's check answers the after-interaction limit, so it sits on it. */
+function withScrollCheckEntry(limits: VisitLimit[], scrollCheckEntry: ScrollCheckEntry | null): ReportVisitLimit[] {
+  return limits.map((limit) => (scrollCheckEntry && limit.id === "after-interaction" ? { ...limit, entry: scrollCheckEntry } : limit));
 }

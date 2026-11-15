@@ -17,6 +17,7 @@ import {
   readResponseTextWithinLimit,
   withHttpOperationDeadline
 } from "./http-response.mjs";
+import { NAMED_FINDING_LIMITS, NEW_FINDING_LIMITS, wholeLimitHoldsString } from "../lib/finding-limits.ts";
 import { resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
 import { STATIC_EXPORT_MAX_BYTES, measureStaticExport, reportPageHtmlSizes, staticExportBoundViolation } from "./static-export-bounds.mjs";
 import { reportCorrectionSuppressesIndexing, reportSubjectCorrectionEvents } from "./static-report-corrections.mjs";
@@ -943,39 +944,82 @@ async function main() {
     pass("comparison permalinks state which visit ran first, or that the order was not recorded, without JavaScript");
 
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
-    const summaryFindings = await page.locator(".findings-board .finding-card").allTextContents();
+    const summaryFindings = await readFindingCards(page, { withoutSiteHistory: true });
     const summaryVisitSummary = await page.locator(".findings-board .report-visit-summary").textContent();
     const summaryBanner = await page.locator(".headline-banner").getAttribute("class");
     const summaryVisitOrder = await compactVisitOrderLine(page, "hydrated r2 comparison permalink");
-    const findingLink = page.locator('.findings-board a[href^="#evidence="]').first();
+    // A finding's evidence link whose target is the request log opens that
+    // finding's first matching rows under its claim. The report stays: the
+    // explorer opens under the findings and renders no second board.
+    const findingLink = page.locator('.findings-board .finding-meta > a[href^="#evidence=requests"]').first();
     const findingHash = await findingLink.getAttribute("href");
     if (!findingHash) fail("saved report findings expose no evidence navigation");
+    if ((await page.locator(".report-focus-target").count()) !== 0) fail("the explorer was loaded before any press");
     await findingLink.click();
-    await page.locator(".report-focus-target").waitFor();
-    if (new URL(page.url()).hash !== findingHash) fail("finding link lost its evidence destination");
-    await page.waitForFunction(
-      (expected) => JSON.stringify([...document.querySelectorAll(".findings-board .finding-card")].map(card => card.textContent)) === JSON.stringify(expected),
-      summaryFindings
-    );
-    const explorerFindings = await page.locator(".findings-board .finding-card").allTextContents();
-    if (JSON.stringify(summaryFindings) !== JSON.stringify(explorerFindings)) {
-      fail("saved report summary and loaded explorer disagree on their findings");
+    await page.locator(".report-focus-target .report-header").waitFor();
+    await page.locator(".claim-rows [data-request-row]").first().waitFor();
+    const claim = await page.evaluate(() => {
+      const rows = document.querySelector(".claim-rows");
+      const link = document.querySelector('.finding-meta > a[aria-expanded="true"]');
+      return {
+        rows: rows.querySelectorAll("[data-request-row]").length,
+        count: rows.querySelector(".claim-rows-count")?.textContent?.trim() ?? "",
+        caption: rows.querySelector("caption")?.textContent?.trim() ?? "",
+        showing: rows.querySelector(".row-more")?.firstChild?.nodeType === Node.TEXT_NODE ? rows.querySelector(".row-more").firstChild.textContent : "",
+        fullLog: rows.querySelector(".row-more a")?.getAttribute("href") ?? null,
+        afterItsCard: rows.parentElement.previousElementSibling === link?.closest(".finding-card"),
+        focusOnLink: document.activeElement === link,
+        hash: window.location.hash,
+        summaries: document.querySelectorAll(".report-page-summary").length,
+        boards: document.querySelectorAll(".findings-board").length
+      };
+    });
+    if (claim.rows < 1 || claim.rows > 8) fail(`a finding's evidence link opened ${claim.rows} rows under its claim, not one to eight`);
+    if (!/^\d[\d,]* (?:of \d[\d,]* recorded|recorded requests?)$/.test(claim.count)) fail(`a claim's rows carry no count line: ${JSON.stringify(claim.count)}`);
+    // The table's hidden caption states the visible numbers: the first rows
+    // that match the finding and the count line, never "every row retained".
+    if (!claim.caption.startsWith(`Showing first ${claim.rows} of `) || !claim.caption.includes(`(${claim.count}),`)) {
+      fail(`a claim's table caption does not state its shown rows and count line: ${JSON.stringify(claim.caption)}`);
     }
-    // The explorer's board keeps the same lists in the same place.
-    const explorerVisitSummary = await page.evaluate(() => {
+    if (claim.showing && !claim.caption.startsWith(claim.showing.replace(/\.\s*$/, ""))) {
+      fail(`a claim's table caption and its "Showing first" line disagree: ${JSON.stringify(claim.caption)} against ${JSON.stringify(claim.showing)}`);
+    }
+    if (claim.fullLog !== findingHash) fail("a claim's rows do not link the request log under the finding's own filter");
+    if (!claim.afterItsCard) fail("a claim's rows did not open directly under their finding");
+    if (!claim.focusOnLink) fail("pressing a finding's evidence link moved focus off the link");
+    if (claim.hash !== "") fail("pressing a finding's evidence link navigated to the request log");
+    if (claim.summaries !== 1 || claim.boards !== 1) fail(`opening the explorer left ${claim.summaries} summaries and ${claim.boards} findings boards`);
+    // The permalink's board is built on the server from the committed corpus
+    // statistics; the homepage's result for the same report file builds its
+    // board in the browser from the statistics it fetches. Two builders and
+    // two sources of statistics, so the boards can disagree, and must not.
+    // (With one board on the permalink, comparing it before and after the
+    // explorer opened read the same nodes twice.)
+    await assertHomeBoardAgrees(context, baseUrl, phaseReport.id, summaryFindings);
+    // This report's bottom line uses fixed thresholds, so it reads no
+    // statistics; a second report's bottom line does, on both builders.
+    await assertHomeBoardAgrees(context, baseUrl, await findStatisticsDependentReport(context, baseUrl, manifest), null);
+    pass("a permalink's board and the homepage's board for the same report file agree card for card, on a fixed-threshold and a statistics-dependent bottom line");
+    const boardVisitSummary = await page.evaluate(() => {
       const lists = document.querySelectorAll(".findings-board .report-visit-summary");
       return lists.length === 1 && lists[0].previousElementSibling?.id === "finding-bottom-line" ? lists[0].textContent : null;
     });
-    if (!summaryVisitSummary || explorerVisitSummary !== summaryVisitSummary) {
-      fail("the loaded explorer does not state the visit summary directly after its bottom line, as the summary did");
+    if (!summaryVisitSummary || boardVisitSummary !== summaryVisitSummary) {
+      fail("the board no longer states the visit summary directly after its bottom line once the explorer is open");
     }
-    // The explorer's banner keeps the headline's own tone, as the summary's does.
-    const explorerBanner = await page.locator(".headline-banner").getAttribute("class");
-    if (explorerBanner !== summaryBanner) {
-      fail(`the explorer's banner (${explorerBanner}) carries a different tone from the summary's (${summaryBanner})`);
+    if ((await page.locator(".headline-banner").count()) !== 1 || (await page.locator(".headline-banner").getAttribute("class")) !== summaryBanner) {
+      fail("opening the explorer changed the page's headline banner");
     }
     await assertVisitOrderMovedToPanel(page, summaryVisitOrder, "r2 comparison permalink");
-    pass("server-rendered findings agree with the explorer, keep the visit summary after the bottom line, and open their evidence");
+    // The rows' link opens the whole log under the same filter.
+    await page.locator(".claim-rows .row-more a").click();
+    if (new URL(page.url()).hash !== findingHash) fail("a claim's link to the request log lost its evidence destination");
+    await waitForEvidenceState(page, { open: true }, "a claim's link to the request log did not open the log");
+    // Pressing the finding's link again closes its rows and leaves focus on it.
+    await findingLink.click();
+    await page.locator(".claim-rows").waitFor({ state: "detached" });
+    if (!(await findingLink.evaluate((link) => link === document.activeElement))) fail("closing a claim's rows did not leave focus on the pressed link");
+    pass("a finding's evidence link opens its rows under its claim, the report stays with one board, and the rows link the request log");
     await assertLookCloserViewsLand(context, baseUrl, manifest);
     pass("a consent-banner view opens the request log at its catalog matches, and a cookie card's history view, the same in the explorer, lands on the site's report table");
 
@@ -1063,8 +1107,13 @@ async function main() {
     pass("file upload button exposes visible keyboard focus");
     await reportUploadInput.setInputFiles(singleReportFixture);
     await page.waitForSelector(".report-header", { timeout: 10_000 });
-    const resultRegionHasFocus = await page.locator("#report").evaluate((region) => region === document.activeElement);
-    if (!resultRegionHasFocus) fail("uploaded report did not move focus to the shared results region");
+    // Focus goes to the result's first heading, its site, a frame after the
+    // results region takes it while the result loads.
+    try {
+      await page.waitForFunction(() => document.activeElement?.matches("#report .result-page > .report-identity h2") === true, null, { timeout: 5_000 });
+    } catch {
+      fail("uploaded report did not move focus to the result's site heading");
+    }
     await expectText(page.locator(".party-legend"), "Other third-party");
     const domainTableRegion = page.getByRole("region", { name: "Domain evidence table" });
     if ((await domainTableRegion.getAttribute("tabindex")) !== "0") {
@@ -1713,19 +1762,190 @@ async function compactVisitOrderLine(page, label) {
 }
 
 /**
- * Once the explorer opens, the summary is gone and the comparison panel states
- * the visit-order line instead: exactly once, in the same words. Agreement is
- * checked against the rendered summary, never a restated expectation.
+ * Once the explorer opens, the summary stays and its visit-order line is no
+ * longer shown: the comparison panel states the line instead, exactly once, in
+ * the same words. Agreement is checked against the rendered summary, never a
+ * restated expectation.
  */
+/**
+ * Every findings card on the page's board, as a reader gets it: the level
+ * label, the title, the lead, the evidence line, the limit, and the rest of
+ * the card's text with the limit taken out (its links and its Look closer
+ * view).
+ *
+ * A card prints its limit one of two ways. The report page's own board prints
+ * the short limit: one sentence, which is the summary of a details element,
+ * with the text behind it in the element directly after that details. The
+ * sentence is read without the "Details" control, the last element of the
+ * summary. The explorer prints the card's full string as one paragraph; that
+ * reads as a sentence with nothing behind it.
+ */
+function readFindingCards(page, { withoutSiteHistory = false } = {}) {
+  return page.evaluate((withoutSiteHistory) => [...document.querySelectorAll(".findings-board .finding-card")].map((card) => {
+    const text = (selector) => card.querySelector(selector)?.textContent ?? null;
+    const shortLimit = card.querySelector(".finding-limit");
+    let limit;
+    if (shortLimit) {
+      const details = shortLimit.querySelector(":scope > details");
+      const line = (details ? details.querySelector(":scope > summary") : shortLimit.querySelector(":scope > p"))?.cloneNode(true);
+      if (details) line?.lastElementChild?.remove();
+      const behind = details?.nextElementSibling;
+      limit = {
+        sentence: line?.textContent ?? null,
+        // A details with no text after it reads as a missing limit, never as
+        // a sentence with nothing behind it.
+        behind: details
+          ? behind?.id && behind.id === details.querySelector(":scope > summary")?.getAttribute("aria-controls")
+            ? [...behind.querySelectorAll(":scope > p")].map((paragraph) => paragraph.textContent)
+            : [null]
+          : []
+      };
+    } else {
+      limit = { sentence: text(".finding-lead + p"), behind: [] };
+    }
+    const rest = card.cloneNode(true);
+    rest.querySelector(".finding-limit, .finding-lead + p")?.remove();
+    // The cookie card's site-history view is offered only where a site history
+    // exists to open: a permalink's board, never a homepage result's.
+    if (withoutSiteHistory) rest.querySelector('.finding-look-closer[data-look-closer="cookie-history"]')?.remove();
+    return {
+      id: card.id,
+      level: text(".finding-level"),
+      title: text("h3"),
+      lead: text(".finding-lead"),
+      evidence: text(".finding-meta"),
+      rest: rest.textContent,
+      short: shortLimit !== null,
+      limit
+    };
+  }), withoutSiteHistory);
+}
+
+/**
+ * Whether a short limit and the text behind it say exactly what the card's
+ * full string says, by the rules that made the limit (lib/finding-limits.ts):
+ *   - nothing behind it: the line is the full string;
+ *   - a sentence taken whole: the string's own sentence, once, with the
+ *     string's other sentences behind it, unchanged and in order;
+ *   - a sentence with its subject named: the same, for the sentence as the
+ *     string holds it;
+ *   - a sentence written for the limit: an approved one, with the full string
+ *     behind it.
+ */
+function shortLimitStatesString(limit, fullString) {
+  if (typeof limit.sentence !== "string" || typeof fullString !== "string" || fullString === "") return false;
+  if (limit.behind.length === 0) return limit.sentence === fullString;
+  if (wholeLimitHoldsString(fullString, limit)) return true;
+  const named = Object.values(NAMED_FINDING_LIMITS).find((entry) => entry.sentence === limit.sentence);
+  if (named) return wholeLimitHoldsString(fullString, { sentence: named.inString, behind: limit.behind });
+  return Object.values(NEW_FINDING_LIMITS).includes(limit.sentence)
+    && limit.behind.length === 1
+    && limit.behind[0] === fullString;
+}
+
+/**
+ * Two boards for one report must never disagree about a finding: the
+ * permalink's, built on the server, and the homepage result's for the same
+ * report file, built in the browser. The two used to print every card alike,
+ * and the check compared each card's whole text. The report page prints a
+ * card's short limit where another board may print the full string, so whole
+ * text can differ by design, and the check compares what must still agree,
+ * card by card and in order:
+ * the level label, the title, the lead, the evidence line, the rest of the
+ * card, and the limit. The limits agree when the short limit and the text
+ * behind it say exactly what the explorer's full string says; two boards that
+ * print a limit the same way must print the same limit.
+ */
+function assertFindingCardsAgree(summaryCards, explorerCards) {
+  const disagree = (what) => fail(`two boards for one report disagree on their findings: ${what}`);
+  if (summaryCards.length === 0) disagree("the summary printed no card");
+  const ids = (cards) => JSON.stringify(cards.map((card) => card.id));
+  if (ids(summaryCards) !== ids(explorerCards)) {
+    disagree(`the summary's cards are ${ids(summaryCards)} and the explorer's are ${ids(explorerCards)}`);
+  }
+  summaryCards.forEach((summary, index) => {
+    const explorer = explorerCards[index];
+    for (const field of ["level", "title", "lead", "evidence", "rest"]) {
+      if (typeof summary[field] !== "string" || summary[field] !== explorer[field]) {
+        disagree(`${summary.id}, ${field}: ${JSON.stringify(summary[field])} against ${JSON.stringify(explorer[field])}`);
+      }
+    }
+    const agree = summary.short === explorer.short
+      ? typeof summary.limit.sentence === "string" && JSON.stringify(summary.limit) === JSON.stringify(explorer.limit)
+      : summary.short
+        ? shortLimitStatesString(summary.limit, explorer.limit.sentence)
+        : shortLimitStatesString(explorer.limit, summary.limit.sentence);
+    if (!agree) {
+      disagree(`${summary.id}, limit: ${JSON.stringify(summary.limit)} against ${JSON.stringify(explorer.limit)}`);
+    }
+  });
+}
+
+/**
+ * The homepage's board for a committed report file against that report's
+ * permalink board (read here when `permalinkCards` is null), with the
+ * cookie card's site-history view left out of both.
+ */
+async function assertHomeBoardAgrees(context, baseUrl, id, permalinkCards) {
+  let cards = permalinkCards;
+  if (cards === null) {
+    const permalink = await context.newPage();
+    await permalink.goto(`${baseUrl}/reports/${id}/`, { waitUntil: "networkidle" });
+    cards = await readFindingCards(permalink, { withoutSiteHistory: true });
+    await permalink.close();
+  }
+  const home = await context.newPage();
+  await home.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+  await uploadHomeReport(home, path.join(outDir, "reports", `${id}.json`));
+  await home.waitForLoadState("networkidle");
+  try {
+    assertFindingCardsAgree(cards, await readFindingCards(home, { withoutSiteHistory: true }));
+  } catch (error) {
+    fail(`report ${id}: the permalink's board and the homepage's board for its file: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  await home.close();
+}
+
+/**
+ * The newest committed report whose permalink bottom line was chosen from the
+ * committed corpus statistics (ranked, or not ranked), not one of the fixed
+ * reference thresholds that reads no statistics.
+ */
+async function findStatisticsDependentReport(context, baseUrl, manifest) {
+  const candidates = [...manifest.reports]
+    .sort((a, b) => Date.parse(b.scannedAt) - Date.parse(a.scannedAt) || a.id.localeCompare(b.id))
+    .slice(0, 6);
+  const page = await context.newPage();
+  try {
+    for (const entry of candidates) {
+      await page.goto(`${baseUrl}/reports/${entry.id}/`, { waitUntil: "domcontentloaded" });
+      const bottom = (await readFindingCards(page)).find((card) => card.id === "finding-bottom-line");
+      if (bottom && typeof bottom.limit.sentence === "string" && !/fixed reference thresholds/.test(bottom.limit.sentence)) return entry.id;
+    }
+  } finally {
+    await page.close();
+  }
+  fail(`none of the ${candidates.length} newest committed reports has a bottom line that reads the corpus statistics`);
+}
+
 async function assertVisitOrderMovedToPanel(page, compactLine, label) {
-  if (await page.locator(".headline-visit-order").count() !== 0) {
+  // The report stays when the explorer opens, so the summary keeps its line in
+  // the page and the explorer's sheet hides it (explorer.css): present, not
+  // shown. Counting every line, as when the explorer replaced the summary,
+  // would fail on a line that is correctly hidden; counting only shown lines
+  // must then also require the panel's line to be shown, or a hidden panel
+  // line would pass.
+  if (await page.locator(".report-page-summary .headline-visit-order").count() !== 1) {
+    fail(`${label}: the summary no longer holds its compact visit-order line once the explorer opened`);
+  }
+  if (await page.locator(".headline-visit-order:visible").count() !== 0) {
     fail(`${label} still shows its compact visit-order line after the explorer opened`);
   }
-  const panelLines = (await page.locator(".comparison-runs > span").allTextContents())
+  const panelLines = (await page.locator(".comparison-runs > span:visible").allTextContents())
     .map((text) => text.replace(/\s+/g, " ").trim())
     .filter((text) => text === compactLine);
   if (panelLines.length !== 1) {
-    fail(`${label}: the comparison panel does not state the compact visit-order line ${JSON.stringify(compactLine)} once`);
+    fail(`${label}: the comparison panel does not show the compact visit-order line ${JSON.stringify(compactLine)} once`);
   }
 }
 
@@ -1987,18 +2207,29 @@ async function assertLookCloserViewsLand(context, baseUrl, manifest) {
     const cookies = await firstOffering("cookie-history");
     await page.goto(`${baseUrl}/reports/${cookies.id}/`, { waitUntil: "networkidle" });
     const card = page.locator("#finding-third-party-cookies");
-    const summaryCard = await card.textContent();
+    const cookieCard = async () => (await readFindingCards(page)).find((found) => found.id === "finding-third-party-cookies");
+    const summaryCard = await cookieCard();
+    if (!summaryCard) fail(`report ${cookies.id}: the permalink's board has no cookie card`);
     const historyHref = await card.locator(".finding-look-closer-link").getAttribute("href");
     const siteHistoryHref = await page.locator(".report-identity-actions").getByRole("link", { name: "View site history" }).getAttribute("href");
     if (historyHref !== `${siteHistoryHref}#history`) {
       fail(`report ${cookies.id}: the history view links ${historyHref}, not the report's own site history ${siteHistoryHref}`);
     }
     await page.getByRole("button", { name: "Explore full evidence" }).click();
-    await page.locator(".report-focus-target .findings-board").waitFor();
+    await page.locator(".report-focus-target .report-header").waitFor();
+    // The page keeps its one board once the explorer is open, so the card is
+    // still the permalink's card: the same fields and the same view.
     try {
-      await page.waitForFunction((expected) => document.querySelector("#finding-third-party-cookies")?.textContent === expected, summaryCard, { timeout: 10_000 });
-    } catch {
-      fail(`report ${cookies.id}: the explorer's cookie card does not offer the history view the permalink's did`);
+      await page.waitForFunction(
+        () => document.querySelectorAll(".findings-board").length === 1 && document.querySelectorAll("#finding-third-party-cookies").length === 1,
+        null,
+        { timeout: 10_000 }
+      );
+      const explorerCard = await cookieCard();
+      if (!explorerCard) throw new Error("the explorer's board has no cookie card");
+      assertFindingCardsAgree([summaryCard], [explorerCard]);
+    } catch (error) {
+      fail(`report ${cookies.id}: the explorer's cookie card does not offer the history view the permalink's did (${error instanceof Error ? error.message : String(error)})`);
     }
     if ((await card.locator(".finding-look-closer-link").getAttribute("href")) !== historyHref) {
       fail(`report ${cookies.id}: the explorer's history view links somewhere else`);
@@ -2036,20 +2267,28 @@ async function assertRetainedWatchKeepsEvidenceLinks(context, baseUrl, manifest,
   await uploadHomeReport(single, singleReportFixture);
   const findingLink = single.locator('.findings-board a[href="#evidence=requests&signal=third-party"]').first();
   if ((await findingLink.count()) !== 1) fail("the single-report fixture no longer links its third-party finding to the request log");
+  // The finding's link opens its rows under its claim and navigates nowhere,
+  // so the retained link stays in the address. The rows' own link is the one
+  // that opens the request log on the finding's filter.
   await findingLink.click();
+  await single.locator(".claim-rows [data-request-row]").first().waitFor();
+  if ((await single.locator(".claim-rows [data-request-row]").count()) !== 2) fail("the third-party finding's rows under its claim are not its two matching rows");
+  await expectRetainedWatch(single, watch, "pressing a findings link");
+  const fullLogLink = single.locator('.claim-rows .row-more a[href="#evidence=requests&signal=third-party"]');
+  await fullLogLink.click();
   await waitForEvidenceState(single, { open: true, chip: "Third-party" },
-    "a findings link followed beside a retained #watch= link did not open the request log on its filter");
+    "a claim's link followed beside a retained #watch= link did not open the request log on its filter");
   await expectRequestRowCount(single, 2);
-  await expectRetainedWatch(single, watch, "following a findings link");
+  await expectRetainedWatch(single, watch, "following a claim's link to the request log");
   // With the address already back on #watch=, the same link navigates again.
   // It must re-apply its filter after the reader has reset it by hand.
   await single.locator(".request-filter-chips").getByRole("button", { name: "All", exact: true }).click();
   await waitForEvidenceState(single, { open: true, chip: "All" }, "resetting the request filter by hand did not apply");
-  await findingLink.click();
+  await fullLogLink.click();
   await waitForEvidenceState(single, { open: true, chip: "Third-party" },
-    "repeating a findings link beside a retained #watch= link did not re-apply its filter");
+    "repeating a claim's link beside a retained #watch= link did not re-apply its filter");
   await expectRequestRowCount(single, 2);
-  await expectRetainedWatch(single, watch, "repeating a findings link");
+  await expectRetainedWatch(single, watch, "repeating a claim's link to the request log");
   await single.close();
 
   const { page: comparison, href: armHref } = await openShieldsComparisonWithArmLink(context, baseUrl, watch, manifest);
@@ -2058,7 +2297,12 @@ async function assertRetainedWatchKeepsEvidenceLinks(context, baseUrl, manifest,
   // Show the other visit first, so only the link can switch it back.
   await comparison.locator(".arm-switcher .arm-option").nth(1 - linkArm).click();
   await waitForEvidenceState(comparison, { open: false, arm: 1 - linkArm }, "the evidence switcher did not change visits by hand");
-  await comparison.locator(`a[href="${armHref}"]`).first().click();
+  // A finding's own link opens its rows under its claim first; the rows'
+  // link, with the same address, is then the one that goes to the log.
+  const armLink = comparison.locator(`a[href="${armHref}"]`).first();
+  const opensClaimRows = await armLink.evaluate((link) => link.matches(".finding-meta > a"));
+  await armLink.click();
+  if (opensClaimRows) await comparison.locator(`.claim-rows .row-more a[href="${armHref}"]`).click();
   await waitForEvidenceState(comparison, { open: true, arm: linkArm, query: target.get("query") },
     "a comparison link followed beside a retained #watch= link did not switch to its visit and filter the request log");
   await expectRetainedWatch(comparison, watch, "following a comparison link");
@@ -2461,7 +2705,8 @@ async function assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manif
     if ((await page.locator("#finding-shields-blocked").count()) !== 1) fail(`report ${report.id} lost its Brave-list card`);
     if ((await anyNewVisit(page).count()) !== 0) fail(`committed report ${report.id} offers a new visit before the explorer opens`);
     await page.getByRole("button", { name: "Explore full evidence" }).click();
-    await page.locator(".report-focus-target .findings-board #finding-shields-blocked").waitFor();
+    await page.locator(".report-focus-target .report-header").waitFor();
+    if ((await page.locator("#finding-shields-blocked").count()) !== 1) fail(`report ${report.id} does not keep exactly one Brave-list card once the explorer is open`);
     if ((await anyNewVisit(page).count()) !== 0) fail(`committed report ${report.id}'s explorer offers a new visit`);
   } finally {
     await committedContext.close();
@@ -2577,24 +2822,26 @@ async function assertBlockerComparisonOnlyOnFreshResults(browser, baseUrl, manif
     if ((await backLink(page).locator("#earlier-result-sentence").textContent())?.trim() !== earlierResultSentence) {
       fail("the line back to the earlier result says more than its one sentence");
     }
-    // It sits with the result's identity, ahead of its verdict, on screen
-    // where the result lands, and the comparison offers no visit of its own.
+    // It leads the result, with its identity and ahead of its verdict, on
+    // screen where the result lands, and the comparison offers no visit of
+    // its own. The identity is the record now (the site as the title), which
+    // the link directly precedes inside the result's own block.
     const placement = await page.evaluate(() => {
       const note = document.querySelector(".earlier-result-note");
-      const header = document.querySelector("#report .report-header");
+      const record = document.querySelector("#report .result-page > .report-identity");
       const banner = document.querySelector("#report .headline-banner");
       const follows = (a, b) => Boolean(a && b && a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
       const rect = note?.getBoundingClientRect();
       return {
-        afterHeader: follows(header, note),
+        withIdentity: Boolean(note && record && note.nextElementSibling === record),
         beforeBanner: follows(note, banner),
         top: rect?.top ?? Number.NaN,
         bottom: rect?.bottom ?? Number.NaN,
         viewport: window.innerHeight
       };
     });
-    if (!placement.afterHeader || !placement.beforeBanner) {
-      fail(`the link back is not between the result's header and its headline: ${JSON.stringify(placement)}`);
+    if (!placement.withIdentity || !placement.beforeBanner) {
+      fail(`the link back does not lead the result, directly before its record and ahead of its headline: ${JSON.stringify(placement)}`);
     }
     if (!(placement.top >= 0 && placement.bottom <= placement.viewport)) {
       fail(`the link back is not on screen where the comparison's result lands: ${JSON.stringify(placement)}`);
@@ -2936,8 +3183,8 @@ async function assertInspectionOnlyOnFreshResults(browser, baseUrl, manifest) {
     if (landing.covered || landing.top < 0 || landing.bottom > landing.viewport) {
       fail(`on a phone the inspection's heading arrives off screen or under the sticky strips: ${JSON.stringify(landing)}`);
     }
-    if (landing.focused !== "report") fail(`bringing the inspection into view moved focus to ${landing.focused}`);
-    pass("on a phone, an inspection that replaces an earlier result arrives with its panel's heading on screen below the sticky strips, focus on the result");
+    if (landing.focused !== "connection-inspection-heading") fail(`bringing the inspection into view left focus on ${landing.focused}, not its panel's heading`);
+    pass("on a phone, an inspection that replaces an earlier result arrives with its panel's heading on screen below the sticky strips, focus on that heading");
   } finally {
     await phone.close();
   }
@@ -3276,9 +3523,9 @@ async function assertScrollCheckOnlyFromItsLink(browser, baseUrl, manifest) {
     if (landing.covered || landing.top < 0 || landing.bottom > landing.viewport) {
       fail(`on a phone the check's heading arrives off screen or under the sticky strips: ${JSON.stringify(landing)}`);
     }
-    if (landing.focused !== "report") fail(`bringing the check into view moved focus to ${landing.focused}`);
+    if (landing.focused !== "scroll-check-heading") fail(`bringing the check into view left focus on ${landing.focused}, not its panel's heading`);
     if (landing.overflow) fail("a check's result scrolls sideways on a phone");
-    pass("on a phone, a check that replaces an earlier result arrives with its panel's heading on screen below the sticky strips, focus on the result");
+    pass("on a phone, a check that replaces an earlier result arrives with its panel's heading on screen below the sticky strips, focus on that heading");
   } finally {
     await phone.close();
   }

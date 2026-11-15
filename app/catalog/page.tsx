@@ -12,6 +12,10 @@ import { trackerCatalogMetadata, trackerCatalogRecords } from "@/lib/tracker-cat
 import { CatalogSearch } from "./catalog-search";
 import styles from "./catalog.module.css";
 import { SiteChrome } from "../_components/site-chrome";
+import "@/app/_design/fonts.css";
+import "@/app/_design/tokens.css";
+import "@/app/_design/base.css";
+import "@/app/_design/components.css";
 
 export const dynamic = "force-static";
 
@@ -37,7 +41,7 @@ export default function CatalogPage() {
   const calibration = committedDetectorCalibrationReadiness();
 
   return (
-    <SiteChrome activePath="/catalog/">
+    <SiteChrome activePath="/catalog/" shellClassName="da">
       <div className={styles.page}>
       <header className={styles.header}>
         <p className="eyebrow">Public evidence register</p>
@@ -64,7 +68,7 @@ export default function CatalogPage() {
           This is the effective catalog used for report labels. It is maintained in-repository and does not import a
           competitor tracker dataset. Functional categories are review prompts, not privacy grades.
         </p>
-        <p className={styles.note}>
+        <p className={`${styles.note} a-lim`}>
           Reference scope: an official page identifies the named entity or product only. It is not presented as a
           citation for every suffix or as support for the maintainer-assigned category. The mapping and category remain
           reviewable project assertions; report evidence should always be checked in context.
@@ -83,7 +87,7 @@ export default function CatalogPage() {
           positive, one negative, and one adversarial or failure-boundary case for every detector. {realChromiumCases} selected
           cases run in real Chromium; the others test deterministic detector logic.
         </p>
-        <p className={styles.note}>
+        <p className={`${styles.note} a-lim`}>
           This is an acceptance-fixture inventory, not a representative labeled web corpus. It does not support a
           precision, recall, accuracy, or “all trackers detected” claim. The limitations shown for each detector remain
           part of the result even when every fixture passes.

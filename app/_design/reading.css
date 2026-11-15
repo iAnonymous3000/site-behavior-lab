@@ -1,0 +1,362 @@
+/*
+ * Direction A: the reading pages (methodology, glossary, about, privacy,
+ * security, status, corrections).
+ *
+ * One reading column of 680px. The title is STIX 500 at 40px (30px on a
+ * phone); section headings are STIX 600; running prose, lists and definition
+ * terms are STIX at the reading size (19px, 18px on a phone, line height
+ * 1.5). Tables, forms, counts and controls are Atkinson. The pages keep
+ * their markup and the class names app/globals.css gave them.
+ *
+ * Step 1 returns the whole reading column to the browser's defaults; its
+ * selector sits in :where(), so every rule after it that starts .da.da.da
+ * wins.
+ */
+.da.da.da :where(.legal-page, .legal-page *) {
+  all: revert;
+  box-sizing: border-box;
+}
+
+.da.da.da .legal-page .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.da.da.da .legal-page {
+  max-width: var(--a-read);
+  margin: 0;
+  padding: 34px 0 var(--a-s7);
+  color: var(--a-carbon);
+  font: 400 var(--a-t-read) / 1.5 var(--a-serif);
+  overflow-wrap: break-word;
+}
+
+.da.da.da :where(.legal-page a) {
+  color: var(--a-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.da.da.da .legal-page a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.da.da.da .legal-page :is(a, button, summary, input, select):focus-visible {
+  outline: 3px solid var(--a-focus);
+  outline-offset: 2px;
+  border-radius: 1px;
+}
+
+/* ---- Head ---- */
+.da.da.da .legal-page .eyebrow {
+  margin: 0;
+  font: 600 var(--a-t-fine) / 1.4 var(--a-sans);
+  color: var(--a-carbon);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.da.da.da .legal-page h1 {
+  margin: 6px 0 0;
+  font: 500 var(--a-t-home) / 1.1 var(--a-serif);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.da.da.da .legal-header p:not(.eyebrow) {
+  margin: 16px 0 0;
+}
+
+/* ---- Sections ---- */
+.da.da.da .legal-section {
+  margin: 44px 0 0;
+}
+
+.da.da.da .legal-page h2 {
+  margin: 0;
+  font: 600 var(--a-t-h3) / 1.25 var(--a-serif);
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+
+/* A heading that follows text inside one section starts a new part. */
+.da.da.da .legal-section h2:not(:first-child) {
+  margin-top: 36px;
+}
+
+/* A heading directly under its label sits against it. */
+.da.da.da .legal-page .eyebrow + :is(h1, h2, h3) {
+  margin-top: 4px;
+}
+
+.da.da.da .legal-page h3 {
+  margin: 26px 0 0;
+  font: 600 var(--a-t-read) / 1.35 var(--a-serif);
+}
+
+.da.da.da .legal-section :is(p, ul, ol, dl, blockquote, table, details) {
+  margin: 14px 0 0;
+}
+
+.da.da.da .legal-page :is(ul, ol) {
+  padding-left: 24px;
+}
+
+.da.da.da .legal-page li {
+  margin: 0 0 8px;
+}
+
+.da.da.da .legal-page li > :is(ul, ol) {
+  margin-top: 8px;
+}
+
+.da.da.da .legal-page strong {
+  font-weight: 600;
+}
+
+.da.da.da .legal-page :is(code, .mono) {
+  font: 400 0.84em / 1.4 var(--a-mono);
+  overflow-wrap: anywhere;
+}
+
+.da.da.da .legal-page blockquote {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 18px;
+  border-left: 1px solid var(--a-carbon);
+}
+
+/* Definition terms are the reading face, at weight 600. */
+.da.da.da .legal-page dt {
+  margin: 18px 0 0;
+  font-weight: 600;
+}
+
+.da.da.da .legal-page dd {
+  margin: 4px 0 0;
+}
+
+.da.da.da .legal-page time {
+  white-space: nowrap;
+}
+
+.da.da.da .legal-page details > summary {
+  cursor: pointer;
+  width: fit-content;
+  color: var(--a-link);
+  font: 400 var(--a-t-body) / 1.4 var(--a-sans);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+/* ---- Tables, counts and controls: Atkinson ---- */
+.da.da.da .legal-page table {
+  width: 100%;
+  border-collapse: collapse;
+  font: 400 var(--a-t-small) / 1.45 var(--a-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+.da.da.da .legal-page thead th {
+  padding: 0 14px 8px 0;
+  border-bottom: 1.5px solid var(--a-carbon);
+  font: 600 var(--a-t-fine) / 1.35 var(--a-sans);
+  text-align: left;
+  vertical-align: bottom;
+}
+
+.da.da.da .legal-page :is(td, tbody th) {
+  padding: 10px 14px 10px 0;
+  border-bottom: 1px solid var(--a-rule);
+  font-weight: 400;
+  text-align: left;
+  vertical-align: top;
+}
+
+/* The page's actions: one solid button where the page has one, the rest
+   links. The border is what forced colors keeps of the button. */
+.da.da.da .legal-page .status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 22px;
+  margin: 18px 0 0;
+  font: 400 var(--a-t-body) / 1.4 var(--a-sans);
+}
+
+.da.da.da .legal-page :is(.primary-button, .secondary-button) {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1.5px solid var(--a-prussian);
+  border-radius: 2px;
+  background: var(--a-prussian);
+  color: var(--a-on-prussian);
+  font: 600 var(--a-t-body) / 1.2 var(--a-sans);
+}
+
+.da.da.da .legal-page .secondary-button {
+  background: none;
+  color: var(--a-prussian);
+}
+
+.da.da.da .legal-page :is(.primary-button, .secondary-button) svg {
+  display: none;
+}
+
+@media screen and (max-width: 900px) {
+  .da.da.da .legal-page {
+    padding-top: 22px;
+  }
+
+  .da.da.da .legal-section {
+    margin-top: 36px;
+  }
+}
+
+/* ---- Status: records of what is current, stale or unknown ----
+ * A state is said in words, in the text color: a color for current or stale
+ * would be a second channel for the same word, and the design keeps color
+ * for its two data meanings. Records are Atkinson, under hairlines.
+ */
+.da.da.da .status-page .status-note {
+  margin: 14px 0 0;
+  font: 400 var(--a-t-small) / 1.5 var(--a-sans);
+  color: var(--a-slate);
+}
+
+.da.da.da .legal-page .status-heading-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px 16px;
+}
+
+.da.da.da .legal-page .status-heading-row :is(h2, h3) {
+  margin: 0;
+}
+
+.da.da.da .legal-page .status-heading-row h3 {
+  font: 600 var(--a-t-body) / 1.35 var(--a-sans);
+}
+
+.da.da.da .legal-page .status-badge {
+  padding: 1px 8px;
+  border: 1px solid var(--a-carbon);
+  border-radius: 2px;
+  color: var(--a-carbon);
+  font: 600 var(--a-t-fine) / 1.5 var(--a-sans);
+  white-space: nowrap;
+}
+
+.da.da.da .legal-page .status-live-summary,
+.da.da.da .legal-page .status-card p {
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+.da.da.da .legal-page .status-card {
+  margin: 18px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--a-rule);
+}
+
+.da.da.da .legal-page .status-card .status-value {
+  margin: 6px 0 0;
+  font: 500 1.5rem / 1.2 var(--a-serif);
+}
+
+.da.da.da .legal-page .status-card .status-note {
+  font-size: var(--a-t-small);
+  color: var(--a-slate);
+}
+
+.da.da.da .legal-page .status-fact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px 28px;
+  margin: 16px 0 0;
+  font: 400 var(--a-t-small) / 1.45 var(--a-sans);
+}
+
+.da.da.da .legal-page .status-fact-grid dt {
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--a-t-fine);
+  color: var(--a-slate);
+}
+
+.da.da.da .legal-page .status-fact-grid dd {
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---- Corrections: the ledger's events as records ---- */
+.da.da.da .legal-page .correction-ledger {
+  margin: 20px 0 0;
+}
+
+.da.da.da .legal-page .correction-event {
+  padding: 14px 0 16px;
+  border-top: 1px solid var(--a-carbon);
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+.da.da.da .legal-page .correction-event-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+
+/* The event's identifier, in mono. */
+.da.da.da .legal-page .correction-event .eyebrow {
+  font: 600 var(--a-t-fine) / 1.4 var(--a-mono);
+}
+
+.da.da.da .legal-page .correction-event h3 {
+  margin: 2px 0 0;
+  font: 600 var(--a-t-body) / 1.35 var(--a-sans);
+}
+
+.da.da.da .legal-page .correction-event time {
+  font-size: var(--a-t-small);
+  color: var(--a-slate);
+}
+
+.da.da.da .legal-page .correction-event p {
+  margin: 10px 0 0;
+}
+
+.da.da.da .legal-page .correction-event dl {
+  margin: 10px 0 0;
+}
+
+.da.da.da .legal-page .correction-event dt {
+  margin: 8px 0 0;
+  font-weight: 400;
+  font-size: var(--a-t-fine);
+  color: var(--a-slate);
+}
+
+.da.da.da .legal-page .correction-event dd {
+  margin: 2px 0 0;
+}
+
+.da.da.da .legal-page .correction-event dd > * {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+}

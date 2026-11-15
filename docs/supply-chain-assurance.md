@@ -60,6 +60,16 @@ the canonical `scripts/github-cli-build-tool-manifest.json` declaration.
 It records the evidence present in those files, including package versions,
 registry integrity/checksums, filter URLs, byte counts, and SHA-256 identities.
 
+The site's own typefaces are under `designFonts`: the five WOFF2 files that
+`public/fonts/` serves and the four static TTF files the share card reads from
+`lib/og-fonts/`. `scripts/design-fonts-provenance.json` names each file's
+upstream repository, upstream file, that file's version and SHA-256, and the
+license file beside it; the generator measures each font file and license file
+from the repository, refuses a font file under either folder that the manifest
+does not name, and records the license as declared only where the committed
+license file states it. `scripts/build-design-fonts.mjs` remakes the files from
+the upstream files.
+
 The downloaded-tool entry is GitHub CLI 2.96.0, used only to verify artifact
 attestations when a build host does not provide the exact CLI. The inventory
 binds the immutable upstream release and tagged MIT license, the upstream

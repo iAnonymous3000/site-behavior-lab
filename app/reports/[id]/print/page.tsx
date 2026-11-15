@@ -8,7 +8,7 @@ import { completeDocumentExportRefusal } from "@/lib/complete-document-export";
 import { loadCommittedCorpusStats } from "@/lib/current-scan-cohort";
 import { renderedEvidenceArm } from "@/lib/report-evidence-navigation";
 import { buildReportFacts } from "@/lib/report-facts";
-import { buildFindings } from "@/lib/report-findings";
+import { bottomLineBenchmarkScope, buildFindings } from "@/lib/report-findings";
 import { buildReportHeadline, reportPageTitle } from "@/lib/report-headline";
 import { parseCorrectionsLedger, reportCorrections } from "@/lib/corrections-ledger";
 import { readStoredReportForId } from "@/lib/report-source";
@@ -22,6 +22,20 @@ import { PrintEvidenceFooter } from "@/app/_components/print-evidence-footer";
 import { ReportEvidenceReceipt, ReportPageContext } from "@/app/_components/report-page-context";
 import { ReportRenderer } from "@/app/_components/report-renderer";
 import { ReportVisitSummaryBlock } from "@/app/_components/report-visit-summary-block";
+import { ReportRecord, RecordDateline, schemaNotePlacement } from "@/app/_design/record-block";
+import { ReportPageSummary } from "@/app/_design/report-summary";
+import { RequestFigure } from "@/app/_design/request-figure";
+import { comparisonVisitOrderLine } from "@/lib/comparison-visit-order";
+import { buildRequestFigure } from "@/lib/request-figure";
+import { degradedRunNotice } from "@/lib/scan-report-censorship";
+import { notMeasuredLeads } from "@/lib/visit-limits";
+import "@/app/_design/fonts.css";
+import "@/app/_design/tokens.css";
+import "@/app/_design/base.css";
+import "@/app/_design/components.css";
+import "@/app/_design/report.css";
+import "@/app/_design/explorer.css";
+import "@/app/_design/print.css";
 
 /**
  * The complete printable rendering of one report.
@@ -111,6 +125,7 @@ export default async function PrintableReportPage({ params, searchParams }: {
   const committed = result.origin === "committed";
   const reportUrl = `${siteBaseUrl()}/reports/${id}/`;
   const jsonUrl = `${siteOrigin()}/api/reports/${id}`;
+  const visitSummary = <ReportVisitSummaryBlock summary={buildReportVisitSummary({ view, facts, findings, evidenceArm })} />;
 
   // A document that says it carries every recorded visit is not printed
   // without some of them. The report's own controls never link here for this
@@ -133,17 +148,38 @@ export default async function PrintableReportPage({ params, searchParams }: {
   }
 
   return (
-    <div className="app-shell report-page-shell printable-report">
+    // Under .da: paper is the report page on a sheet. The same record, the
+    // same summary (finding sentence and limits, figure, findings) and the
+    // same evidence components as the screen, adapted by the print layer
+    // (app/_design/print.css).
+    <div className="app-shell report-page-shell printable-report da">
       <main aria-label={reportPageTitle(headline)}>
-        {/* The context block carries this page's one <h1> (the site), matching
-            the interactive route. It used to render a second heading here with
-            the headline sentence, which the banner then repeated verbatim. */}
+        {/* The record carries this page's one <h1> (the site), as on the
+            interactive route. */}
         <ReportPageContext
           id={id}
           corrections={correction}
           permanent={committed}
+          identity={<ReportRecord evidenceSha256={result.wireSha256} id={id} view={view} />}
+          omitIncompleteNotice
           reportUrl={reportUrl}
           view={view}
+        />
+        <ReportPageSummary
+          basePath=""
+          printed
+          headline={headline}
+          dateline={<RecordDateline view={view} />}
+          incompleteNotice={degradedRunNotice(view)}
+          schemaLimit={schemaNotePlacement(view).limit}
+          recordLinks={null}
+          findings={findings}
+          evidenceArm={evidenceArm}
+          automation={facts.display.run.conditions.automation}
+          visitOrder={view.comparison ? comparisonVisitOrderLine(view.comparison.visitOrder, view.comparison.runLabels) : null}
+          visitSummary={visitSummary}
+          figure={<RequestFigure figure={buildRequestFigure(view, facts, evidenceArm)} notMeasured={notMeasuredLeads({ view, facts, findings, evidenceArm })} />}
+          domainTable={null}
         />
         {/* Statically imported, unlike the interactive route's lazy boundary:
             being complete is the entire point of this page. */}
@@ -151,9 +187,9 @@ export default async function PrintableReportPage({ params, searchParams }: {
           loaded={loadedReportFromStored(result.stored)}
           liveApiServesReportPages={false}
           printComplete
-          visitSummary={
-            <ReportVisitSummaryBlock summary={buildReportVisitSummary({ view, facts, findings, evidenceArm })} />
-          }
+          evidenceOnly
+          visitSummary={visitSummary}
+          summaryBenchmarkScope={bottomLineBenchmarkScope(findings) ?? null}
           printGuide={
             <section className="print-document-guide">
               <h2>How to use this report</h2>

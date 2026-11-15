@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { STATIC_BASE_PATH, clientReportRuntime } from "../client-runtime";
 import { CausalityGraph } from "./causality-graph";
 import { ComparisonPanel } from "./comparison-panel";
 import { ConnectionInspectionPanel } from "./connection-inspection-panel";
-import { FindingsBoard, HeadlineBanner, MetricGrid, TrafficViz, useReportFindings } from "./report-overview";
+import { FindingsBoard, HeadlineBanner, HeadlinePostActions, MetricGrid, TrafficViz, useReportFindings } from "./report-overview";
 import { ReportHeader } from "./report-header";
 import { ReportSectionNav, type ReportSection } from "./report-section-nav";
 import { ScrollCheckPanel } from "./scroll-check-panel";
 import {
+  ClaimRows,
   CookieList,
   DomainTable,
   FingerprintList,
@@ -26,9 +28,10 @@ import { consentChoiceLabel } from "@/lib/consent-interaction";
 import { requestLogRecordingState, requestLogToCsv } from "@/lib/csv-export";
 import { EARLIER_RESULT_LINK } from "@/lib/finding-look-closer";
 import { consentVerificationSummary } from "@/lib/report-consent-copy";
-import { buildReportHeadline } from "@/lib/report-headline";
+import { HEADLINE_KICKER, buildReportHeadline } from "@/lib/report-headline";
 import { buildReportFacts, type RunFacts } from "@/lib/report-facts";
-import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
+import { claimRowsLink } from "@/lib/claim-rows-link";
+import { parseEvidenceHash, type EvidenceTarget } from "@/lib/report-evidence-navigation";
 import { locateReport } from "@/lib/report-locator";
 import { reportNewVisitFrom, reportNewVisitTarget } from "@/lib/report-rescan-targets";
 import type { RequestInspectionContext } from "@/lib/request-inspection-link";
@@ -40,7 +43,7 @@ import {
   gpcRunMeasurement
 } from "@/lib/report-insights";
 import type { LoadedReport } from "@/lib/scan-report-view";
-import { runQualitySummary } from "@/lib/scan-report-censorship";
+import { degradedRunNotice, runQualitySummary } from "@/lib/scan-report-censorship";
 import {
   comparisonArmViews,
   schemaProvenanceLabel,
@@ -49,6 +52,14 @@ import {
 } from "@/lib/scan-report-views";
 import { displayHost, plural } from "@/lib/text-format";
 import { publishedReportCorrections } from "@/lib/published-report-corrections";
+import { comparisonVisitOrderLine } from "@/lib/comparison-visit-order";
+import { buildRequestFigure } from "@/lib/request-figure";
+import { notMeasuredLeads } from "@/lib/visit-limits";
+import { ReportRecord, schemaNotePlacement } from "@/app/_design/record-block";
+import { ReportPageSummary } from "@/app/_design/report-summary";
+import { RequestFigure } from "@/app/_design/request-figure";
+import { groupReportWarnings, reportWarningCount } from "@/lib/report-warnings";
+import { methodologyBenchmarkScope } from "@/lib/report-findings";
 
 /**
  * The evidence-heavy half of the product. The homepage imports this module
@@ -67,9 +78,12 @@ export function ReportRenderer({
   visitSummary,
   siteHistoryHref = null,
   freshResult = false,
+  evidenceOnly = false,
+  pressedClaim = null,
   earlierResultId = null,
   inspection = null,
-  scrollCheck = null
+  scrollCheck = null,
+  summaryBenchmarkScope
 }: {
   loaded: LoadedReport;
   liveApiServesReportPages: boolean;
@@ -103,6 +117,17 @@ export function ReportRenderer({
    */
   freshResult?: boolean;
   /**
+   * True on a report page, whose own summary stays above the explorer: the
+   * headline and the findings are on the page already, so the explorer does
+   * not render them a second time and opens at its evidence head.
+   */
+  evidenceOnly?: boolean;
+  /**
+   * The finding evidence link whose press loaded this explorer, on a report
+   * page: its rows open under its claim as soon as the explorer mounts.
+   */
+  pressedClaim?: HTMLAnchorElement | null;
+  /**
    * The share report id of the earlier result whose new visit opened this
    * scan, handed over by the homepage for its own result of a scan that
    * started with that link's arrival intact (app/_hooks/use-scan-runtime.ts),
@@ -125,6 +150,15 @@ export function ReportRenderer({
    * route pass none.
    */
   scrollCheck?: ShownScrollCheck | null;
+  /**
+   * The cohort sentence of the bottom line the server built for this
+   * report's summary (lib/report-findings.ts bottomLineBenchmarkScope), null
+   * when that bottom line does not rank. A permalink's explorer and the
+   * printed route pass it, so the Methodology block and the bottom line come
+   * from one source. The homepage's own result has no server summary and
+   * passes none: its block reads the findings built here.
+   */
+  summaryBenchmarkScope?: string | null;
 }) {
   useEffect(() => {
     if (!printComplete) return;
@@ -166,7 +200,7 @@ export function ReportRenderer({
     scrollCheck && scrollCheck.from && !printComplete
       ? locateReport(scrollCheck.from, { ...clientReportRuntime(), liveApiServesReportPages }).pagePath
       : null;
-  const benchmarkScope = findings.find((finding) => finding.id === "bottom-line")?.benchmarkScope;
+  const benchmarkScope = methodologyBenchmarkScope(summaryBenchmarkScope, findings);
   const primaryRun = reportFacts.display.run;
   const arms = comparisonArmViews(reportView);
   const [selectedArm, setSelectedArm] = useState<"baseline" | "variant" | null>(null);
@@ -201,6 +235,82 @@ export function ReportRenderer({
       document.removeEventListener("click", selectRepeatedLinkedEvidenceArm);
     };
   }, [loaded]);
+
+  // A finding's rows under its claim. Pressing a finding's evidence link
+  // opens the first rows the request log shows under that link's filter,
+  // directly under the finding; pressing it again closes them and leaves focus
+  // on the link. The link's own navigation to the log does not happen: the
+  // rows carry a link to the whole log. Never on paper.
+  type OpenClaim = { anchor: HTMLAnchorElement; target: EvidenceTarget; host: HTMLElement };
+  const [claim, setClaim] = useState<OpenClaim | null>(null);
+  // The open claim's nodes, for the handlers: what they add to the page they
+  // remove themselves, never from inside a state update.
+  const openClaimRef = useRef<OpenClaim | null>(null);
+  useEffect(() => {
+    if (printComplete) return;
+    function close() {
+      const open = openClaimRef.current;
+      if (!open) return;
+      open.host.remove();
+      open.anchor.removeAttribute("aria-expanded");
+      openClaimRef.current = null;
+      setClaim(null);
+    }
+    function open(anchor: HTMLAnchorElement, target: EvidenceTarget) {
+      const card = anchor.closest(".finding-card");
+      if (!card) return;
+      close();
+      const host = document.createElement("div");
+      host.className = "claim-rows-host";
+      // After the card, never inside it: the card lays out its own last child.
+      // (insertAdjacentElement, not after(): the Workers types the investigation
+      // entries bring into the type check give Element.after another signature.)
+      card.insertAdjacentElement("afterend", host);
+      anchor.setAttribute("aria-expanded", "true");
+      openClaimRef.current = { anchor, target, host };
+      setClaim(openClaimRef.current);
+    }
+    function toggle(event: MouseEvent) {
+      const pressed = claimRowsLink(event.target);
+      if (!pressed || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      // The log's own listeners must not read this press as a navigation to it.
+      event.stopPropagation();
+      if (openClaimRef.current?.anchor === pressed.anchor) {
+        close();
+        pressed.anchor.focus();
+        return;
+      }
+      open(pressed.anchor, pressed.target);
+    }
+    const initial = pressedClaim ? claimRowsLink(pressedClaim) : null;
+    if (initial) open(initial.anchor, initial.target);
+    document.addEventListener("click", toggle, true);
+    return () => {
+      document.removeEventListener("click", toggle, true);
+      close();
+    };
+  }, [loaded, pressedClaim, printComplete]);
+  const claimFacts = claim ? (claim.target.arm && reportFacts.arms ? reportFacts.arms[claim.target.arm] : reportFacts.display) : null;
+
+  // When a result arrives on a page of its own making (the homepage), focus
+  // goes to the first heading the result shows: an inspection's or a check's
+  // panel when one leads it, otherwise the site. The homepage first focuses
+  // its results region, which holds focus while this renderer loads; this
+  // runs a frame later, after that, so the heading keeps it. A report page
+  // focuses its own explorer, and paper has no focus.
+  useEffect(() => {
+    if (printComplete || evidenceOnly) return;
+    const frame = window.requestAnimationFrame(() => {
+      const heading = document.querySelector<HTMLElement>(
+        "#report :is(.connection-inspection, .scroll-check) h2, #report .result-page > .report-identity h2"
+      );
+      if (!heading) return;
+      if (!heading.hasAttribute("tabindex")) heading.setAttribute("tabindex", "-1");
+      heading.focus();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [loaded, printComplete, evidenceOnly]);
 
   const headlineFocusArm = arms ? headline.focusArm ?? null : null;
   const defaultArm: "baseline" | "variant" =
@@ -251,27 +361,83 @@ export function ReportRenderer({
     );
   }
 
-  // Reading order, not render order: the rail cards sit beside the main column
-  // on a wide screen but a reader moves through them after it. ReportSectionNav
-  // drops any of these whose section this report did not render, so the list can
-  // stay declarative without shipping an anchor that scrolls nowhere.
+  // In the order the screen shows the sections. ReportSectionNav drops any of
+  // these whose section this report did not render, so the list can stay
+  // declarative without shipping an anchor that scrolls nowhere.
+  // The counts are the ones the sections themselves state for the visit shown.
+  const count = (value: number) => value.toLocaleString("en-US");
+  const shown = displayedRun.evidence;
+  const limitCount = reportWarningCount(groupReportWarnings(reportView.warnings, reportView.comparison?.runLabels ?? null));
   const sections: ReportSection[] = [
     { id: "findings", label: "Findings" },
     { id: "comparison", label: "Comparison" },
-    { id: "causal-map", label: "Attribution" },
     { id: "numbers", label: "Numbers" },
     { id: "traffic", label: "Traffic" },
     { id: "visit-phases", label: "Visit phases" },
+    { id: "domain-evidence", label: "Domains", count: count(shown.domains.length) },
+    { id: "request-evidence", label: "Request log", count: count(shown.requests.length) },
     { id: "third-parties", label: "Third parties" },
-    { id: "pixels", label: "Pixels" },
-    { id: "cookies", label: "Cookies" },
-    { id: "storage", label: "Storage" },
+    { id: "cookies", label: "Cookies", ...(shown.cookies.length > 0 ? { count: count(shown.cookies.length) } : {}) },
+    { id: "storage", label: "Storage", ...(shown.storage.length > 0 ? { count: count(shown.storage.length) } : {}) },
     { id: "signals", label: "Signals" },
-    { id: "domain-evidence", label: "Domains" },
-    { id: "request-evidence", label: "Request log" },
-    { id: "measurement-limits", label: "Limits" },
+    { id: "pixels", label: "Pixels" },
+    { id: "causal-map", label: "Attribution" },
+    { id: "measurement-limits", label: "Limits", ...(limitCount > 0 ? { count: count(limitCount) } : {}) },
     { id: "conditions", label: "Conditions" }
   ];
+
+  // A result with no page of its own (a scan's result on the homepage, a
+  // report opened from a file) reads as a report page does, in place: the
+  // site as the title, the finding sentence and the limits on the whole
+  // report, the request figure, then the findings with their index. The
+  // same components the report page renders on the server, given the same
+  // values; a report page passes evidenceOnly and renders its own.
+  // Where this comparison came from: a link back to the earlier result and
+  // why this pair cannot speak for the card that offered it. Outside the
+  // verdict: it leads the result, in the rows a report page gives its
+  // breadcrumb, and on paper it follows the header.
+  const earlierResult = (
+    <>
+          {earlierResultHref && (
+            <div className="earlier-result-note">
+              <a className="earlier-result-link" href={earlierResultHref} aria-describedby="earlier-result-sentence">
+                {EARLIER_RESULT_LINK.label}
+              </a>
+              <p id="earlier-result-sentence">{EARLIER_RESULT_LINK.sentence}</p>
+            </div>
+          )}
+    </>
+  );
+  const resultSummary = printComplete || evidenceOnly ? null : (
+    <div className="result-page">
+      {earlierResult}
+      <ReportRecord view={reportView} siteHeading="h2" />
+      <ReportPageSummary
+        basePath={STATIC_BASE_PATH}
+        correctionLabel={headline.kicker !== HEADLINE_KICKER ? headline.kicker : null}
+        headline={headline}
+        dateline={null}
+        incompleteNotice={degradedRunNotice(reportView)}
+        schemaLimit={schemaNotePlacement(reportView).limit}
+        recordLinks={null}
+        findings={findings}
+        evidenceArm={evidenceArm}
+        automation={reportFacts.display.run.conditions.automation}
+        visitOrder={reportView.comparison
+          ? comparisonVisitOrderLine(reportView.comparison.visitOrder, reportView.comparison.runLabels)
+          : null}
+        siteHistoryHref={siteHistoryHref}
+        newVisitTarget={newVisitTarget}
+        newVisitFrom={newVisitFrom}
+        visitSummary={visitSummary}
+        // The "Not measured" row: the visit summary's limit leads, from the
+        // module the report page's summary builds them from.
+        figure={<RequestFigure figure={buildRequestFigure(reportView, reportFacts, evidenceArm)}
+          notMeasured={notMeasuredLeads({ view: reportView, facts: reportFacts, findings, evidenceArm })} />}
+        domainTable={null}
+      />
+    </div>
+  );
 
   const overview = (<>
           {/* A file the reader opened is drawn by the same components as a
@@ -300,6 +466,7 @@ export function ReportRenderer({
               <p className="scroll-check-report-note">{scrollCheckReportNote(scrollCheck.evidence)}</p>
             </>
           )}
+          {resultSummary}
           <ReportHeader
             share={shareForLoadedReport(loaded)}
             view={reportView}
@@ -315,19 +482,27 @@ export function ReportRenderer({
             // there and in their identity block. A result with none has no
             // other place that says when its visit ran.
             visitStartShown={visitSummary === undefined}
+            // On screen no result renders the earlier banner, so the banner's
+            // two sharing controls close the head's action row.
+            postActions={!printComplete && scrollCheck === null
+              ? (
+                // The banner's own wrapper and class, so the two controls are
+                // the same group wherever they are offered.
+                <div className="headline-actions">
+                  <HeadlinePostActions share={shareForLoadedReport(loaded)} headline={headline} liveApiServesReportPages={liveApiServesReportPages} />
+                </div>
+              )
+              : null}
           />
           {exportError && <p role="alert" className="export-error">{exportError}</p>}
           {/* Where this comparison came from, beside the report's identity and
               outside its verdict: a link back to the earlier result and why
               this pair cannot speak for the card that offered it. */}
-          {earlierResultHref && (
-            <div className="earlier-result-note">
-              <a className="earlier-result-link" href={earlierResultHref} aria-describedby="earlier-result-sentence">
-                {EARLIER_RESULT_LINK.label}
-              </a>
-              <p id="earlier-result-sentence">{EARLIER_RESULT_LINK.sentence}</p>
-            </div>
-          )}
+          {(printComplete || evidenceOnly) && earlierResult}
+          {/* Paper keeps the banner and the board. On screen a report page has
+              its own summary above the explorer, and any other result gets
+              that same summary before the evidence head (resultSummary). */}
+          {printComplete && !evidenceOnly && (<>
           <HeadlineBanner
             share={shareForLoadedReport(loaded)}
             headline={headline}
@@ -336,27 +511,36 @@ export function ReportRenderer({
           />
           <FindingsBoard evidenceArm={evidenceArm} facts={reportFacts} findings={findings} siteHistoryHref={siteHistoryHref}
             newVisitTarget={newVisitTarget} newVisitFrom={newVisitFrom} afterBottomLine={visitSummary} />
+          </>)}
+          {/* The bar: which visit's evidence is shown, and the section list.
+              It stays under the top of the window while the evidence is read.
+              Paper has no bar: its section list leads the document. */}
+          {!printComplete && (
+          <div className="evidence-bar">
+                {arms && !printComplete && (
+                  <div className="arm-switcher" role="group" aria-label="Which visit's evidence the tables below show">
+                    <span>Evidence shown:</span>
+                    {(["baseline", "variant"] as const).map((arm) => (
+                      <button
+                        key={arm}
+                        type="button"
+                        className={`arm-option${displayedArmLabel === arm ? " is-active" : ""}`}
+                        aria-pressed={displayedArmLabel === arm}
+                        onClick={() => setSelectedArm(arm)}
+                      >
+                        {armDisplayLabel(reportView, arm)}
+                      </button>
+                    ))}
+                    <p className="visually-hidden" role="status" aria-live="polite">
+                      {`Showing evidence from the ${armDisplayLabel(reportView, displayedArmLabel)} visit.`}
+                    </p>
+                  </div>
+                )}
+            <ReportSectionNav sections={sections} />
+          </div>
+          )}
           {reportView.reportType === "comparison" && (
             <ComparisonPanel view={reportView} facts={reportFacts} />
-          )}
-          {arms && !printComplete && (
-            <div className="arm-switcher" role="group" aria-label="Which visit's evidence the tables below show">
-              <span>Evidence shown:</span>
-              {(["baseline", "variant"] as const).map((arm) => (
-                <button
-                  key={arm}
-                  type="button"
-                  className={`arm-option${displayedArmLabel === arm ? " is-active" : ""}`}
-                  aria-pressed={displayedArmLabel === arm}
-                  onClick={() => setSelectedArm(arm)}
-                >
-                  {armDisplayLabel(reportView, arm)}
-                </button>
-              ))}
-              <p className="visually-hidden" role="status" aria-live="polite">
-                {`Showing evidence from the ${armDisplayLabel(reportView, displayedArmLabel)} visit.`}
-              </p>
-            </div>
           )}
   </>);
 
@@ -368,12 +552,23 @@ export function ReportRenderer({
           "recorded request row"
         )}.${reportFacts.display.subject.describesSubject ? "" : " The requested page was not established."}`}
       </p>
-      <ReportSectionNav sections={sections} />
-      {printComplete && <>
-        {overview}
-        <Warnings warnings={reportView.warnings} runLabels={reportView.comparison?.runLabels ?? null} />
-        {printGuide}
-      </>}
+      {claim && claimFacts && createPortal(
+        <ClaimRows requests={claimFacts.run.evidence.requests} phases={claimFacts.run.phases} facts={claimFacts} target={claim.target} />,
+        claim.host
+      )}
+      {printComplete && <ReportSectionNav sections={sections} />}
+      {/* Paper: the evidence head, the comparison, the limits and the guide,
+          inside the same grid the evidence uses, so the explorer's sheet
+          dresses them as it does on screen. */}
+      {printComplete && (
+        <section className="report-grid">
+          <div className="report-main">
+            {overview}
+            <Warnings warnings={reportView.warnings} runLabels={reportView.comparison?.runLabels ?? null} />
+            {printGuide}
+          </div>
+        </section>
+      )}
       {printComplete && reportFacts.arms ? (
         (["baseline", "variant"] as const).map((arm) => (
           <PrintVisitProvider key={arm} arm={arm}>
@@ -421,28 +616,14 @@ function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview,
             ? `the page ${displayHost(displayedRun.domain)} returned on a load that did not complete`
             : displayHost(displayedRun.domain);
 
-  return (
-    <section className={printComplete ? "print-visit" : undefined} data-evidence-arm={arm ?? "single"}>
-      {printComplete && <header className="print-visit-heading">
-        <h2>{arm ? armDisplayLabel(reportView, arm) : "Recorded visit"}: evidence</h2>
-        <p>{displayedRun.startedAt ?? "Visit time not recorded"} · {runQualitySummary(displayedRun)}</p>
-        <p>Retained observations from this visit. Missing measurements do not establish absence of activity.</p>
-      </header>}
-      <section className="report-grid">
-        <div className="report-main">
-          {overview}
+  const causality = (
           <CausalityGraph
             run={displayedRun}
             requestEvidenceState={displayedFacts.evidence.requests.state}
             arm={arm}
           />
-          <MetricGrid facts={displayedFacts} />
-          <TrafficViz facts={displayedFacts} />
-          <VisitPhasesAndStateChanges run={displayedRun} />
-          {!printComplete && <Warnings warnings={reportView.warnings} runLabels={reportView.comparison?.runLabels ?? null} />}
-        </div>
-
-        <aside className="report-sidebar" aria-label="Supporting report evidence">
+  );
+  const screenshotCard = (<>
           {screenshot && (
             <section className="side-card screenshot-card">
               <h2>Viewport</h2>
@@ -474,11 +655,14 @@ function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview,
             </section>
           )}
 
+  </>);
+  const thirdParties = (
           <section className="side-card" id={evidenceId("third-parties")}>
             <h2>Top Third Parties</h2>
             <TopThirdParties facts={displayedFacts} />
           </section>
-
+  );
+  const pixels = (<>
           {(displayedRun.evidence.pixelEvents.length > 0 || displayedFacts.claims["pixel-events"].blockers.some(
             (blocker) => blocker !== "subject-not-established"
           )) && (
@@ -488,6 +672,8 @@ function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview,
             </section>
           )}
 
+  </>);
+  const cookies = (
           <section className="side-card" id={evidenceId("cookies")}>
             <h2>Cookies</h2>
             <CookieList
@@ -495,7 +681,8 @@ function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview,
               facts={displayedFacts}
             />
           </section>
-
+  );
+  const storage = (
           <section className="side-card" id={evidenceId("storage")}>
             <h2>Storage</h2>
             <StorageList
@@ -503,7 +690,8 @@ function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview,
               facts={displayedFacts}
             />
           </section>
-
+  );
+  const signals = (
           <section className="side-card" id={evidenceId("signals")}>
             <h2>Browser Behavior Signals</h2>
             <FingerprintList
@@ -512,7 +700,8 @@ function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview,
               facts={displayedFacts}
             />
           </section>
-
+  );
+  const methodology = (
           <section className="side-card methodology" id={evidenceId("conditions")}>
             <h2>Methodology</h2>
             <dl>
@@ -580,9 +769,8 @@ function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview,
             {benchmarkScope && <p>{benchmarkScope}</p>}
             {displayedRun.conditions.disclosure && <p>{displayedRun.conditions.disclosure}</p>}
           </section>
-        </aside>
-
-        <div className="report-evidence-tables" aria-label="Raw report evidence">
+  );
+  const tables = (<>
           <DomainTable domains={displayedRun.evidence.domains} facts={displayedFacts} />
           <RequestTable
             requests={displayedRun.evidence.requests}
@@ -593,8 +781,78 @@ function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview,
             // offers no new visit of it, gate G3 of the Look closer draft.
             inspection={displayedFacts.subject.describesSubject ? requestInspection : null}
           />
+  </>);
+  const warnings = <Warnings warnings={reportView.warnings} runLabels={reportView.comparison?.runLabels ?? null} />;
+
+  return (
+    <section className={printComplete ? "print-visit" : undefined} data-evidence-arm={arm ?? "single"}>
+      {printComplete && <header className="print-visit-heading">
+        <h2>{arm ? armDisplayLabel(reportView, arm) : "Recorded visit"}: evidence</h2>
+        <p>{displayedRun.startedAt ?? "Visit time not recorded"} · {runQualitySummary(displayedRun)}</p>
+        <p>Retained observations from this visit. Missing measurements do not establish absence of activity.</p>
+      </header>}
+      {printComplete ? (
+      /* Paper reads in the screen's order: numbers, timeline, phases, the two
+         tables, the lists, the attribution map, the conditions. Paper keeps
+         the third-party list the screen leaves to the domain table. */
+      <section className="report-grid">
+        <div className="report-main">
+          <MetricGrid facts={displayedFacts} />
+          <TrafficViz facts={displayedFacts} />
+          <VisitPhasesAndStateChanges run={displayedRun} />
+        </div>
+
+        <div className="report-evidence-tables" aria-label="Raw report evidence">
+          {tables}
+        </div>
+
+        <aside className="report-sidebar" aria-label="Supporting report evidence">
+          {thirdParties}
+          {cookies}
+          {storage}
+          {signals}
+          {pixels}
+        </aside>
+
+        <div className="report-main">
+          {causality}
+          {methodology}
+          {screenshotCard}
         </div>
       </section>
+      ) : (
+      /* On screen, one record read down: numbers, timeline, the two tables,
+         the lists, the attribution map, the limits, the conditions. The
+         source order is the order seen. */
+      <section className="report-grid">
+        <div className="report-main">
+          {overview}
+          <MetricGrid facts={displayedFacts} />
+          <TrafficViz facts={displayedFacts} />
+          <VisitPhasesAndStateChanges run={displayedRun} />
+        </div>
+
+        <div className="report-evidence-tables" aria-label="Raw report evidence">
+          {tables}
+        </div>
+
+        {/* No "Top Third Parties" here: its rows are the first rows of the
+            domain table above. Paper keeps the card. */}
+        <aside className="report-sidebar" aria-label="Supporting report evidence">
+          {cookies}
+          {storage}
+          {signals}
+          {pixels}
+        </aside>
+
+        <div className="report-main">
+          {causality}
+          {warnings}
+          {methodology}
+          {screenshotCard}
+        </div>
+      </section>
+      )}
     </section>
   );
 }

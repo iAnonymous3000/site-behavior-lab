@@ -3213,12 +3213,6 @@ a {
 .featured-card.tone-info  { --tone-color: var(--sig-info); }
 .featured-card.tone-calm  { --tone-color: var(--sig-ok); }
 
-.featured-card-top {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-}
-
 .featured-card-site {
   font-size: 13px;
   font-weight: var(--weight-bold);
@@ -3230,32 +3224,12 @@ a {
    in the homepage's CI-enforced first-load bundle for a 9px mark.
    It stays aria-hidden: the card's headline sentence already carries the
    finding in words. */
-.featured-card-dot {
-  background: var(--tone-color, var(--sig-quiet));
-  border-radius: var(--pill);
-  flex: 0 0 auto;
-  height: 10px;
-  width: 10px;
-}
 
 /* Square. */
-.featured-card.tone-alarm .featured-card-dot {
-  border-radius: 2px;
-}
 
 /* Triangle. */
-.featured-card.tone-warn .featured-card-dot {
-  border-radius: 0;
-  clip-path: polygon(50% 0, 100% 100%, 0 100%);
-  height: 11px;
-  width: 12px;
-}
 
 /* Hollow ring, the quietest mark for the quietest tone. */
-.featured-card.tone-calm .featured-card-dot {
-  background: transparent;
-  border: 2.5px solid var(--tone-color, var(--sig-quiet));
-}
 
 .featured-card-headline {
   font-size: 14.5px;
@@ -3380,16 +3354,6 @@ a {
   line-height: 1.55;
   margin: 0;
   max-width: 68ch;
-}
-
-.legal-back a {
-  color: var(--accent);
-  font-weight: var(--weight-medium);
-  text-decoration: none;
-}
-
-.legal-back a:hover {
-  text-decoration: underline;
 }
 
 .legal-section {
@@ -3657,16 +3621,6 @@ a {
 }
 
 /* The border and spacing move to the row so the theme toggle sits on the same rule. */
-.trust-links-row {
-  align-items: center;
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: space-between;
-  margin-top: 32px;
-  padding-top: 20px;
-}
 
 .trust-links a {
   color: var(--text-muted);
@@ -4463,33 +4417,7 @@ a {
   font-size: 11px;
 }
 
-/* ---- Attribution map: focus, selection, drill-down ---- */
-
-/* Focus mode collapses the report grid to one column so the map can use the
-   full report width, and the sidebar flows below it. Done from the ancestor
-   with :has() rather than by hoisting the section out of .report-main, because
-   hoisting would change the reading order of the whole report permanently to
-   buy a mode that is off by default. A browser without :has() simply keeps the
-   compact layout, which is the pre-existing behaviour rather than a broken one. */
-.report-grid:has(.causal-graph-card.is-focused) {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.attribution-focus-toggle {
-  background: var(--surface-2);
-  border: 1px solid var(--border-strong);
-  border-radius: 6px;
-  color: var(--text);
-  cursor: pointer;
-  font-size: 0.85rem;
-  margin-left: auto;
-  padding: 4px 10px;
-}
-
-.attribution-focus-toggle:focus-visible {
-  box-shadow: 0 0 0 2px var(--accent);
-  outline: none;
-}
+/* ---- Attribution map: selection, drill-down ---- */
 
 .attribution-edge-list {
   display: grid;
@@ -5330,20 +5258,7 @@ details[open] > summary .disclosure-chevron {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  /* The grid above is already one column at this width, so focusing cannot
-     widen anything: measured at 1024, the map is 976px both before and after
-     the toggle. A control that flips a class and moves nothing is a control
-     that lies about what it does, so it is hidden rather than left inert.
-
-     It lives in THIS block on purpose. The toggle is only meaningful while the
-     two-column rule applies, so the width that retires the sidebar is the width
-     that retires the toggle, and a single-sourced breakpoint cannot drift into
-     showing an inert control again. attribution-map-interaction.test.ts holds
-     the two rules together. */
-  .attribution-focus-toggle {
-    display: none;
-  }
-
+  
   .controls-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -5824,7 +5739,6 @@ details[open] > summary .disclosure-chevron {
   .filter-input,
   /* The attribution map's controls. Its relationship list, marked
      print-text-equivalent, is the text form that prints instead. */
-  .attribution-focus-toggle,
   .attribution-edge-list,
   .attribution-selection,
   .disclosure-chevron,

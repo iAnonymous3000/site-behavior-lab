@@ -1,7 +1,7 @@
 "use client";
 import { useEvidenceIds, usePrintVisit } from "./print-mode";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar } from "lucide-react";
 import { requestMatchesQuery, requestMatchesSignalFilter, requestProvenanceSummary } from "@/lib/request-log-filters";
 import { requestInspectionLink, type RequestInspectionContext } from "@/lib/request-inspection-link";
@@ -12,6 +12,8 @@ import { isReviewedCookieName, isReviewedStorageKey } from "@/lib/public-name-po
 import { PRINT_ROW_CAPS } from "@/lib/print-row-caps";
 import { usePrintComplete } from "./print-mode";
 import { listOverflowCopy } from "@/lib/report-table-copy";
+import { CLAIM_ROWS_SHOWN } from "@/lib/claim-rows-link";
+import { buildDomainEvidenceTable, visitTimeScale } from "@/lib/domain-evidence-table";
 import {
   groupCookiesByDomain,
   groupStorageByArea,
@@ -28,7 +30,9 @@ import {
   type RunFacts
 } from "@/lib/report-facts";
 import {
+  buildEvidenceHash,
   parseEvidenceHash,
+  type EvidenceAttributionPair,
   type EvidenceRequestSignal,
   type EvidenceSection,
   type EvidenceTarget
@@ -126,6 +130,76 @@ function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunF
     revealEvidenceSection(detailsRef.current);
   }, [evidenceTarget]);
 
+  // On screen: the evidence table's style, each row with its time strip, on
+  // the visit's one time scale. The rows, the strips and the notes come from
+  // the builder the report page's own table uses, under this field's filter.
+  if (!printComplete) {
+    const table = buildDomainEvidenceTable(facts, null, 100, (domain) => hostMatchesQuery(domain, query));
+    return (
+      <details id={evidenceId("domain-evidence")} ref={detailsRef} className="data-section disclosure" open>
+        <summary className="section-heading">
+          <h2>Domain evidence</h2>
+          <span className="count-badge">{plural(domains.length, "recorded domain")}</span>
+          <ChevronDown className="disclosure-chevron" size={16} aria-hidden="true" />
+        </summary>
+        {table.notes.length > 0 && (
+          <div className="ev-limits">
+            {table.notes.map((note) => <p className="a-lim" key={note}>{note}</p>)}
+          </div>
+        )}
+        <div className="section-tools disclosure-tools">
+          <input
+            className="filter-input"
+            type="search"
+            placeholder="Filter domains"
+            value={query}
+            aria-label="Filter domains"
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </div>
+        <div className="table-wrap" role="region" aria-label="Domain evidence table" tabIndex={0}>
+          <table className="a-ev">
+            <caption className="visually-hidden">
+              Every domain this visit recorded, with its role, request count and catalog match.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Domain</th>
+                <th scope="col" className="a-num">Requests</th>
+                <th scope="col">{table.whenColumn}</th>
+                <th scope="col">Catalog match</th>
+                <th scope="col">Role</th>
+                <th scope="col">Resource types</th>
+              </tr>
+            </thead>
+            <tbody>
+              {table.rows.map((row) => (
+                <tr className={row.site ? "is-site" : undefined} key={row.host}>
+                  <td className="a-h">{row.host}</td>
+                  <td className="a-num">{row.requests.toLocaleString("en-US")}</td>
+                  <td className="a-t"><TimeStrip ticks={row.ticks} label={row.stripLabel} /></td>
+                  <td className="a-c">{row.catalogMatch ?? <span className="a-q">No catalog match</span>}</td>
+                  <td className="a-e a-x" data-l="Role">{row.role}</td>
+                  <td className="a-x" data-l="Resource types">{row.resourceTypes}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {table.matched === 0 && <p className="table-empty">{emptyDomains(query, facts)}</p>}
+          {table.matched > table.rows.length && (
+            <p className="row-more">Showing first {table.rows.length} of {table.matched} matching domains. Export JSON for the full list.</p>
+          )}
+        </div>
+      </details>
+    );
+  }
+
+  const paperLimits = [
+    ...(filtered.length > 0 && facts.evidence.requests.state === "censored"
+      ? ["These are retained domain rows, not a complete inventory."] : []),
+    ...(filtered.length > 0 && !facts.subject.describesSubject
+      ? ["These domains describe the returned document, not a verified normal page load."] : [])
+  ];
   return (
     <details id={evidenceId("domain-evidence")} ref={detailsRef} className="data-section disclosure" open>
       <summary className="section-heading">
@@ -143,6 +217,13 @@ function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunF
           onChange={(event) => setQuery(event.target.value)}
         />
       </div>
+      {/* Paper: what limits the table prints before its rows, and again in
+          the head row every printed page of the table repeats. */}
+      {paperLimits.length > 0 && (
+        <div className="print-table-limits">
+          {paperLimits.map((note) => <p className="a-lim" key={note}>{note}</p>)}
+        </div>
+      )}
       <div className="table-wrap" role="region" aria-label="Domain evidence table" tabIndex={0}>
         <table>
           {/* The wrapper's role="region" names the SCROLLPORT, not the table.
@@ -153,6 +234,9 @@ function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunF
             Every domain this visit recorded, with its role, request count and catalog match.
           </caption>
           <thead>
+            {paperLimits.length > 0 && (
+              <tr className="print-table-limit-row"><th colSpan={5}>{paperLimits.join(" ")}</th></tr>
+            )}
             <tr>
               <th scope="col">Domain</th>
               <th scope="col">Role</th>
@@ -182,25 +266,7 @@ function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunF
             })}
           </tbody>
         </table>
-        {filtered.length === 0 && (
-          <p className="table-empty">
-            {query
-              ? <>No recorded domains match &ldquo;{query}&rdquo;.</>
-              : facts.evidence.requests.state === "unsupported"
-                ? "Domain measurement was unavailable for this report."
-                : facts.evidence.requests.state === "censored"
-                  ? "No domain rows were retained before collection stopped; this is not evidence that no requests occurred."
-                  : facts.subject.describesSubject
-                    ? "No domains were recorded in this passive visit."
-                    : "No domains were recorded for the returned document; the requested page was not established."}
-          </p>
-        )}
-        {filtered.length > 0 && facts.evidence.requests.state === "censored" && (
-          <p className="muted">These are retained domain rows, not a complete inventory.</p>
-        )}
-        {filtered.length > 0 && !facts.subject.describesSubject && (
-          <p className="muted">These domains describe the returned document, not a verified normal page load.</p>
-        )}
+        {filtered.length === 0 && <p className="table-empty">{emptyDomains(query, facts)}</p>}
         {/* The count, not a literal. On a printComplete render this cap is
             PRINT_ROW_CAPS.domains (200), so the hardcoded 100 told a reader of
             the printed exhibit that half the rows in front of them were not
@@ -210,6 +276,35 @@ function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunF
         )}
       </div>
     </details>
+  );
+}
+
+/** What an empty domain table says: the filter matched nothing, or why the visit has no row. */
+function emptyDomains(query: string, facts: RunFacts) {
+  return query
+    ? <>No recorded domains match &ldquo;{query}&rdquo;.</>
+    : facts.evidence.requests.state === "unsupported"
+      ? "Domain measurement was unavailable for this report."
+      : facts.evidence.requests.state === "censored"
+        ? "No domain rows were retained before collection stopped; this is not evidence that no requests occurred."
+        : facts.subject.describesSubject
+          ? "No domains were recorded in this passive visit."
+          : "No domains were recorded for the returned document; the requested page was not established.";
+}
+
+const STRIP_WIDTH = 400;
+
+/** A row's time strip: one tick per request start, as a fraction of the visit's time scale. */
+function TimeStrip({ ticks, label }: { ticks: readonly number[]; label?: string }) {
+  return (
+    <svg
+      className="a-strip"
+      viewBox={`0 0 ${STRIP_WIDTH} 10`}
+      preserveAspectRatio="none"
+      {...(label ? { role: "img", "aria-label": label } : { "aria-hidden": true, focusable: false })}
+    >
+      <path d={ticks.map((tick) => `M${Math.round(tick * STRIP_WIDTH * 10) / 10} 0V10`).join("")} />
+    </svg>
   );
 }
 
@@ -255,23 +350,9 @@ function RequestTable({
     [requests]
   );
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return requests.filter((request) => {
-      if (
-        attributionPair &&
-        !requestMatchesAttributionPair(request, attributionPair, destinationByHost)
-      ) {
-        return false;
-      }
-      if (!requestMatchesSignalFilter(request, signalFilter)) return false;
-      if (!requestMatchesStatusFilter(request, statusFilter)) return false;
-      if (resourceFilter !== "all" && request.resourceType !== resourceFilter) return false;
-      // The same predicates a findings card's Look closer view checks before
-      // it offers a filtered log (lib/request-log-filters.ts).
-      return requestMatchesQuery(request, q);
-    });
-  }, [
+  const filtered = useMemo(
+    () => filterRequestLog(requests, { query, signal: signalFilter, status: statusFilter, resource: resourceFilter, pair: attributionPair }, destinationByHost),
+  [
     attributionPair,
     destinationByHost,
     requests,
@@ -280,6 +361,13 @@ function RequestTable({
     signalFilter,
     statusFilter
   ]);
+  const timeScale = useMemo(() => visitTimeScale(facts.run), [facts.run]);
+  const paperLimits = [
+    ...(filtered.length > 0 && facts.evidence.requests.state === "censored"
+      ? ["This log contains retained rows only; collection did not produce a complete request inventory."] : []),
+    ...(filtered.length > 0 && !facts.subject.describesSubject
+      ? ["These requests describe the returned document, not a verified normal page load."] : [])
+  ];
 
   const shown = filtered.slice(0, printComplete ? PRINT_ROW_CAPS.requests : REQUEST_SCREEN_ROW_CAP);
   const filtersActive =
@@ -342,9 +430,33 @@ function RequestTable({
       </summary>
       {printComplete || opened ? (
         <>
+      {printComplete ? (
+      <>
       <p className="muted privacy-filter-note">
         In hosts and URLs, * and … mark details hidden for privacy.
       </p>
+      {/* Paper: what limits the log prints before its rows, and again in the
+          head row every printed page of the log repeats. */}
+      {paperLimits.length > 0 && (
+        <div className="print-table-limits">
+          {paperLimits.map((note) => <p className="a-lim" key={note}>{note}</p>)}
+        </div>
+      )}
+      </>
+      ) : (
+      /* On screen the log's limits stand beside its heading. */
+      <div className="ev-limits">
+        <p className="a-lim privacy-filter-note">
+          In hosts and URLs, * and … mark details hidden for privacy.
+        </p>
+        {shown.length > 0 && facts.evidence.requests.state === "censored" && (
+          <p className="a-lim">This log contains retained rows only; collection did not produce a complete request inventory.</p>
+        )}
+        {shown.length > 0 && !facts.subject.describesSubject && (
+          <p className="a-lim">These requests describe the returned document, not a verified normal page load.</p>
+        )}
+      </div>
+      )}
       <div className="section-tools disclosure-tools request-log-tools">
         <div className="request-filter-chips" role="group" aria-label="Request signal filters">
           {REQUEST_SIGNAL_FILTERS.map((filter) => (
@@ -431,60 +543,14 @@ function RequestTable({
         aria-label="Request log table"
         tabIndex={0}
       >
-        <table>
+        <table className={printComplete ? undefined : "a-ev a-log"}>
           <caption className="visually-hidden">
             Every request row this visit retained, with its time, status, resource type, domain and
             recorded provenance.
           </caption>
-          <thead>
-            <tr>
-              {printComplete && <th scope="col" className="request-ref">Ref</th>}
-              <th scope="col" className="time-cell">Time</th>
-              {hasPhases && <th scope="col" title="The recorded visit phase this request belongs to; the phase table above shows its span">Phase</th>}
-              <th scope="col">Status</th>
-              <th scope="col">Type</th>
-              <th scope="col">Domain</th>
-              <th scope="col">Provenance</th>
-              <th scope="col">URL</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* Keyed with the index: v2 evidence rows are phase-tagged, so one
-                request id can legitimately appear in several phases. */}
-            {shown.map((request, index) => {
-              const inspect = inspection ? requestInspectionLink(request, inspection) : null;
-              return (
-              <tr key={`${request.id}:${index}`} data-request-row>
-                {printComplete && <td className="request-ref"><code>{`${printVisit ? printVisit[0].toUpperCase() : "S"}:R${String(index + 1).padStart(4, "0")}`}</code></td>}
-                <td className="mono time-cell" data-label="Time">{request.startedAtMs.toLocaleString("en-US")}ms</td>
-                {hasPhases && (
-                  <td data-label="Phase">
-                    {printComplete ? (requestPhaseId(request) === null ? "Not recorded" : `P${requestPhaseId(request)}`) : requestPhaseLabel(request, phaseLabels)}
-                  </td>
-                )}
-                <td data-label="Status">
-                  <StatusCell status={request.status} />
-                </td>
-                <td data-label="Type">{request.resourceType}</td>
-                <td className="mono" data-label="Domain">{displayHost(request.domain)}</td>
-                <td data-label="Provenance">
-                  <RequestProvenanceCell request={request} />
-                </td>
-                <td className="url-cell mono" data-label="URL">
-                  {displayPublicUrl(request.url)}
-                  {/* A new visit that records which scripts were on the call
-                      stack for this address, opened in the scan form; it
-                      runs nothing until the visitor presses Inspect. */}
-                  {inspect && (
-                    <a className="inspect-connection-link" href={inspect.href} aria-label={inspect.name}>
-                      {inspect.label}
-                    </a>
-                  )}
-                </td>
-              </tr>
-              );
-            })}
-          </tbody>
+          <RequestLogRows rows={shown} hasPhases={hasPhases} phaseLabels={phaseLabels} inspection={inspection}
+            printVisit={printVisit} printComplete={printComplete} timeScale={timeScale}
+            limitRow={printComplete ? paperLimits : []} />
         </table>
         {shown.length === 0 && (
           <p className="table-empty">
@@ -507,12 +573,6 @@ function RequestTable({
             )}
           </p>
         )}
-        {shown.length > 0 && facts.evidence.requests.state === "censored" && (
-          <p className="muted">This log contains retained rows only; collection did not produce a complete request inventory.</p>
-        )}
-        {shown.length > 0 && !facts.subject.describesSubject && (
-          <p className="muted">These requests describe the returned document, not a verified normal page load.</p>
-        )}
         {filtered.length > shown.length && (
           <p className="row-more">
             Showing first {shown.length} of {filtered.length} matching requests. Export JSON for the full log.
@@ -527,6 +587,177 @@ function RequestTable({
       )}
     </details>
   );
+}
+
+/**
+ * The request log's column heads and rows. The log renders them, and so do a
+ * finding's rows under its claim (ClaimRows), so both show one row one way.
+ */
+function RequestLogRows({ rows, hasPhases, phaseLabels, inspection, printVisit, printComplete, timeScale, limitRow = [] }: {
+  rows: readonly NetworkRequestRecord[];
+  hasPhases: boolean;
+  phaseLabels: ReadonlyMap<number, string>;
+  inspection: RequestInspectionContext | null;
+  printVisit: ReturnType<typeof usePrintVisit>;
+  printComplete: boolean;
+  timeScale: { spanMs: number; whenColumn: string };
+  /** Paper only: what limits the log, repeated as the first row of the head on every printed page. */
+  limitRow?: readonly string[];
+}) {
+  const columns = (printComplete ? 7 : 7) + (hasPhases ? 1 : 0);
+  return (
+    <>
+          <thead>
+            <tr>
+              {printComplete && <th scope="col" className="request-ref">Ref</th>}
+              <th scope="col" className="time-cell">Time</th>
+              {/* The domain table's strip, one tick per row, on the same time scale. */}
+              {!printComplete && <th scope="col">{timeScale.whenColumn}</th>}
+              {hasPhases && <th scope="col" title="The recorded visit phase this request belongs to; the phase table above shows its span">Phase</th>}
+              <th scope="col">Status</th>
+              <th scope="col">Type</th>
+              <th scope="col">Domain</th>
+              <th scope="col">Provenance</th>
+              <th scope="col">URL</th>
+            </tr>
+            {/* After the column names: a fixed-layout table takes its column
+                widths from its first row. */}
+            {limitRow.length > 0 && (
+              <tr className="print-table-limit-row"><th colSpan={columns}>{limitRow.join(" ")}</th></tr>
+            )}
+          </thead>
+          <tbody>
+            {/* Keyed with the index: v2 evidence rows are phase-tagged, so one
+                request id can legitimately appear in several phases. */}
+            {rows.map((request, index) => {
+              const inspect = inspection ? requestInspectionLink(request, inspection) : null;
+              return (
+              <tr key={`${request.id}:${index}`} data-request-row className={!printComplete && !request.thirdParty ? "is-site" : undefined}>
+                {printComplete && <td className="request-ref"><code>{`${printVisit ? printVisit[0].toUpperCase() : "S"}:R${String(index + 1).padStart(4, "0")}`}</code></td>}
+                <td className="mono time-cell" data-label="Time">{request.startedAtMs.toLocaleString("en-US")}ms</td>
+                {!printComplete && (
+                  <td className="a-t"><TimeStrip ticks={[Math.round((request.startedAtMs / timeScale.spanMs) * 1000) / 1000]} /></td>
+                )}
+                {hasPhases && (
+                  <td data-label="Phase">
+                    {printComplete ? (requestPhaseId(request) === null ? "Not recorded" : `P${requestPhaseId(request)}`) : requestPhaseLabel(request, phaseLabels)}
+                  </td>
+                )}
+                <td data-label="Status">
+                  <StatusCell status={request.status} />
+                </td>
+                <td data-label="Type">{request.resourceType}</td>
+                <td className={printComplete ? "mono host-cell" : "mono a-h"} data-label="Domain">
+                  {/* Paper: a break opportunity after each dot, so a host too
+                      long for its column breaks between labels, never inside one. */}
+                  {printComplete
+                    ? displayHost(request.domain).split(/(?<=\.)/).map((part, index) => (
+                        <Fragment key={index}>{index > 0 && <wbr />}{part}</Fragment>
+                      ))
+                    : displayHost(request.domain)}
+                </td>
+                <td data-label="Provenance">
+                  <RequestProvenanceCell request={request} />
+                </td>
+                <td className="url-cell mono" data-label="URL">
+                  {displayPublicUrl(request.url)}
+                  {/* A new visit that records which scripts were on the call
+                      stack for this address, opened in the scan form; it
+                      runs nothing until the visitor presses Inspect. */}
+                  {inspect && (
+                    <a className="inspect-connection-link" href={inspect.href} aria-label={inspect.name}>
+                      {inspect.label}
+                    </a>
+                  )}
+                </td>
+              </tr>
+              );
+            })}
+          </tbody>
+    </>
+  );
+}
+
+/**
+ * A finding's rows, under its claim: the first rows the request log shows
+ * under the finding's own filter, the count line the log prints under that
+ * filter, and a link to the whole log. Rendered directly after the finding by
+ * the renderer (report-renderer.tsx) when its evidence link is pressed.
+ */
+function ClaimRows({ requests, phases, facts, target }: {
+  requests: NetworkRequestRecord[];
+  phases: PhaseSpan[] | null;
+  facts: RunFacts;
+  target: EvidenceTarget;
+}) {
+  const printVisit = usePrintVisit();
+  const filtered = filterRequestLog(
+    requests,
+    { query: target.query ?? "", signal: target.signal ?? "all", status: "all", resource: "all", pair: target.pair ?? null },
+    attributionDestinationByHost(requests)
+  );
+  const shown = filtered.slice(0, CLAIM_ROWS_SHOWN);
+  const hasPhases = requests.some((request) => requestPhaseId(request) !== null);
+  const phaseLabels = new Map((phases ?? []).map((phase) => [phase.phaseId, visitPhaseLabel(phase.kind)]));
+  // The count line and the "Showing first" line are each written once, and the
+  // table's hidden caption is made of the same two, so a screen reader hears
+  // the numbers a sighted reader sees: these are the first rows that match
+  // the finding, never every row the visit retained.
+  const countLine = filtered.length === requests.length
+    ? plural(requests.length, "recorded request")
+    : `${filtered.length} of ${requests.length} recorded`;
+  const showingLine = `Showing first ${shown.length} of ${plural(filtered.length, "matching request")}`;
+  return (
+    <div className="claim-rows">
+      <p className="claim-rows-count">{countLine}</p>
+      {shown.length > 0 && (
+        <div className="table-wrap claim-rows-table" role="region" aria-label="Request log table" tabIndex={0}>
+          <table className="a-ev a-log">
+            <caption className="visually-hidden">
+              {`${showingLine} (${countLine}), each with its time, status, resource type, domain and recorded provenance.`}
+            </caption>
+            <RequestLogRows rows={shown} hasPhases={hasPhases} phaseLabels={phaseLabels} inspection={null}
+              printVisit={printVisit} printComplete={false} timeScale={visitTimeScale(facts.run)} />
+          </table>
+        </div>
+      )}
+      <p className="row-more">
+        {filtered.length > shown.length && <>{showingLine}.{" "}</>}
+        <a href={buildEvidenceHash(target)}>Open the request log for exact timing and request details.</a>
+      </p>
+    </div>
+  );
+}
+
+/** The request log's filters, as one value. */
+type RequestLogFilter = {
+  query: string;
+  signal: RequestSignalFilter;
+  status: RequestStatusFilter;
+  resource: string;
+  pair: EvidenceAttributionPair | null;
+};
+
+/**
+ * The rows of a visit's request log under a filter. The log itself and a
+ * finding's rows under its claim both call this, so a claim's rows are the
+ * rows the log shows under the same filter and never a second selection.
+ */
+function filterRequestLog(
+  requests: readonly NetworkRequestRecord[],
+  filter: RequestLogFilter,
+  destinationByHost: ReturnType<typeof attributionDestinationByHost>
+): NetworkRequestRecord[] {
+  const q = filter.query.trim().toLowerCase();
+  return requests.filter((request) => {
+    if (filter.pair && !requestMatchesAttributionPair(request, filter.pair, destinationByHost)) return false;
+    if (!requestMatchesSignalFilter(request, filter.signal)) return false;
+    if (!requestMatchesStatusFilter(request, filter.status)) return false;
+    if (filter.resource !== "all" && request.resourceType !== filter.resource) return false;
+    // The same predicates a findings card's Look closer view checks before
+    // it offers a filtered log (lib/request-log-filters.ts).
+    return requestMatchesQuery(request, q);
+  });
 }
 
 /** The v2 evidence row's phase tag, when present (v1 rows never carry one). */
@@ -732,11 +963,11 @@ function TopThirdParties({ facts }: { facts: RunFacts }) {
 }
 
 // Shared "+N more" footer so truncated sidebar lists never look complete.
-function ListOverflowNote({ total, shown, where }: { total: number; shown: number; where?: string }) {
+function ListOverflowNote({ total, shown, where, className = "muted" }: { total: number; shown: number; where?: string; className?: string }) {
   const copy = listOverflowCopy(total, shown, where);
   if (!copy) return null;
   return (
-    <p className="muted list-overflow-note">
+    <p className={`${className} list-overflow-note`}>
       {copy}
     </p>
   );
@@ -769,8 +1000,26 @@ function CookieList({ cookies, facts }: { cookies: CookieRecord[]; facts: RunFac
   // The overflow disclosure counts records, not domains.
   const shown = recordsCovered(groups, shownGroups);
   const hiddenNames = cookies.filter((cookie) => !isReviewedCookieName(cookie.name)).length;
+  // What limits the list: beside the heading on screen, after the rows on paper.
+  const note = printComplete ? "muted" : "a-lim";
+  const notes = (
+    <>
+      {hiddenNames > 0 && (
+        <p className={`${note} privacy-filter-note`}>
+          {plural(hiddenNames, "cookie name")} hidden because unreviewed names can contain identifiers. Cookie values are never recorded.
+        </p>
+      )}
+      <ListOverflowNote className={note} total={cookies.length} shown={shown} />
+      {state === "censored" && <p className={note}>Cookie snapshot incomplete; these are retained rows, not a complete final state.</p>}
+      {!facts.subject.describesSubject && (
+        <p className={note}>These cookies describe the returned document, not a verified normal page load.</p>
+      )}
+    </>
+  );
   return (
-    <div className="evidence-group-list">
+    <>
+      {!printComplete && <div className="ev-limits">{notes}</div>}
+      <div className="evidence-group-list">
       {groups.slice(0, shownGroups).map((group) => (
         <div className="evidence-group" key={group.domain}>
           <div className="evidence-group-top">
@@ -794,17 +1043,9 @@ function CookieList({ cookies, facts }: { cookies: CookieRecord[]; facts: RunFac
           )}
         </div>
       ))}
-      {hiddenNames > 0 && (
-        <p className="muted privacy-filter-note">
-          {plural(hiddenNames, "cookie name")} hidden because unreviewed names can contain identifiers. Cookie values are never recorded.
-        </p>
-      )}
-      <ListOverflowNote total={cookies.length} shown={shown} />
-      {state === "censored" && <p className="muted">Cookie snapshot incomplete; these are retained rows, not a complete final state.</p>}
-      {!facts.subject.describesSubject && (
-        <p className="muted">These cookies describe the returned document, not a verified normal page load.</p>
-      )}
-    </div>
+      {printComplete && notes}
+      </div>
+    </>
   );
 }
 
@@ -832,8 +1073,26 @@ function StorageList({ storage, facts }: { storage: StorageRecord[]; facts: RunF
   const shownGroups = Math.min(groups.length, printComplete ? PRINT_ROW_CAPS.storage : 12);
   const shown = recordsCovered(groups, shownGroups);
   const hiddenKeys = storage.filter((item) => !isReviewedStorageKey(item.key)).length;
+  // What limits the list: beside the heading on screen, after the rows on paper.
+  const note = printComplete ? "muted" : "a-lim";
+  const notes = (
+    <>
+      {hiddenKeys > 0 && (
+        <p className={`${note} privacy-filter-note`}>
+          {plural(hiddenKeys, "storage key")} hidden because unreviewed keys can contain identifiers. Values are not stored; only byte counts are kept.
+        </p>
+      )}
+      <ListOverflowNote className={note} total={storage.length} shown={shown} />
+      {state === "censored" && <p className={note}>Storage snapshot incomplete; these are retained keys, not a complete final state.</p>}
+      {!facts.subject.describesSubject && (
+        <p className={note}>These keys describe the returned document, not a verified normal page load.</p>
+      )}
+    </>
+  );
   return (
-    <div className="evidence-group-list">
+    <>
+      {!printComplete && <div className="ev-limits">{notes}</div>}
+      <div className="evidence-group-list">
       {groups.slice(0, shownGroups).map((group) => (
         <div className="evidence-group" key={group.area}>
           <div className="evidence-group-top">
@@ -849,17 +1108,9 @@ function StorageList({ storage, facts }: { storage: StorageRecord[]; facts: RunF
           )}
         </div>
       ))}
-      {hiddenKeys > 0 && (
-        <p className="muted privacy-filter-note">
-          {plural(hiddenKeys, "storage key")} hidden because unreviewed keys can contain identifiers. Values are not stored; only byte counts are kept.
-        </p>
-      )}
-      <ListOverflowNote total={storage.length} shown={shown} />
-      {state === "censored" && <p className="muted">Storage snapshot incomplete; these are retained keys, not a complete final state.</p>}
-      {!facts.subject.describesSubject && (
-        <p className="muted">These keys describe the returned document, not a verified normal page load.</p>
-      )}
-    </div>
+      {printComplete && notes}
+      </div>
+    </>
   );
 }
 
@@ -872,6 +1123,7 @@ function FingerprintList({
   detections: FingerprintDetectionSummary[];
   facts: RunFacts;
 }) {
+  const printComplete = usePrintComplete();
   const apiState = facts.evidence.fingerprinting.state;
   const detectorIncomplete = facts.claims["fingerprint-apis"].blockers.includes("detector-incomplete");
   const behaviorEvidenceIncomplete = facts.claims["session-recording-input-monitoring"].blockers.some(
@@ -893,8 +1145,25 @@ function FingerprintList({
     return <p className="muted">No instrumented high-entropy API or interaction listener signals were observed.</p>;
   }
 
+  // What limits the list: beside the heading on screen, after the rows on paper.
+  const note = printComplete ? "muted" : "a-lim";
+  const notes = (
+    <>
+      {(apiState === "censored" || detectorIncomplete) && (
+        <p className={note}>Only retained browser-behavior evidence is shown; collection or detector work was incomplete.</p>
+      )}
+      {behaviorEvidenceIncomplete && (
+        <p className={note}>Heuristic and listener evidence is unavailable or incomplete; only retained observations are shown.</p>
+      )}
+      {!facts.subject.describesSubject && (
+        <p className={note}>These signals describe the returned document, not a verified normal page load.</p>
+      )}
+    </>
+  );
   return (
-    <div className="compact-list">
+    <>
+      {!printComplete && <div className="ev-limits">{notes}</div>}
+      <div className="compact-list">
       {detections.map((detection) => (
         <div key={detection.kind}>
           <Fingerprint
@@ -924,20 +1193,14 @@ function FingerprintList({
           </span>
         </div>
       ))}
-      {(apiState === "censored" || detectorIncomplete) && (
-        <p className="muted">Only retained browser-behavior evidence is shown; collection or detector work was incomplete.</p>
-      )}
-      {behaviorEvidenceIncomplete && (
-        <p className="muted">Heuristic and listener evidence is unavailable or incomplete; only retained observations are shown.</p>
-      )}
-      {!facts.subject.describesSubject && (
-        <p className="muted">These signals describe the returned document, not a verified normal page load.</p>
-      )}
-    </div>
+      {printComplete && notes}
+      </div>
+    </>
   );
 }
 
 function PixelEventsList({ pixels, facts, corrected = false }: { pixels: PixelEventSummary[]; facts: RunFacts; corrected?: boolean }) {
+  const printComplete = usePrintComplete();
   const evidenceIncomplete = facts.claims["pixel-events"].blockers.some(
     (blocker) => blocker !== "subject-not-established"
   );
@@ -955,8 +1218,22 @@ function PixelEventsList({ pixels, facts, corrected = false }: { pixels: PixelEv
     );
   }
 
+  // What limits the list: beside the heading on screen, after the rows on paper.
+  const note = printComplete ? "muted" : "a-lim";
+  const notes = (
+    <>
+      {evidenceIncomplete && (
+        <p className={note}>Only retained pixel evidence is shown; collection or decoding was incomplete.</p>
+      )}
+      {!facts.subject.describesSubject && (
+        <p className={note}>These events describe the returned document, not a verified normal page load.</p>
+      )}
+    </>
+  );
   return (
-    <div className="compact-list">
+    <>
+      {!printComplete && <div className="ev-limits">{notes}</div>}
+      <div className="compact-list">
       {pixels.map((pixel) => {
         const events = pixel.events.length > 0
           ? pixel.events.map((event) => pixelEventLabel(pixel.platform, event, corrected)).join(", ")
@@ -978,14 +1255,10 @@ function PixelEventsList({ pixels, facts, corrected = false }: { pixels: PixelEv
           </div>
         );
       })}
-      {evidenceIncomplete && (
-        <p className="muted">Only retained pixel evidence is shown; collection or decoding was incomplete.</p>
-      )}
-      {!facts.subject.describesSubject && (
-        <p className="muted">These events describe the returned document, not a verified normal page load.</p>
-      )}
-    </div>
+      {printComplete && notes}
+      </div>
+    </>
   );
 }
 
-export { CookieList, DomainTable, FingerprintList, PixelEventsList, RequestTable, StorageList, TopThirdParties, Warnings };
+export { ClaimRows, CookieList, DomainTable, FingerprintList, PixelEventsList, RequestTable, StorageList, TopThirdParties, Warnings };

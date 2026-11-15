@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 // navigation and the trust links rather than a lone card with two buttons.
 export default function NotFound() {
   return (
-    <SiteChrome>
+    <SiteChrome shellClassName="da">
       <section className="side-card route-state-card" aria-labelledby="not-found-title">
         <FileQuestion size={32} aria-hidden="true" />
         <p className="eyebrow">Evidence not found</p>

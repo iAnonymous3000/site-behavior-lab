@@ -1,6 +1,7 @@
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { loadStatusSnapshot } from "@/lib/status-snapshot-server";
 import { SiteChrome } from "../_components/site-chrome";
+import "@/app/_design/reading-imports";
 import { LiveDeploymentStatus } from "./live-deployment-status";
 import { StatusEvidence } from "./status-evidence";
 
@@ -20,7 +21,7 @@ export default async function StatusPage() {
   const snapshot = await loadStatusSnapshot();
 
   return (
-    <SiteChrome>
+    <SiteChrome shellClassName="da">
       <div className="legal-page status-page">
       <header className="legal-header">
         <p className="eyebrow">Status &amp; transparency</p>

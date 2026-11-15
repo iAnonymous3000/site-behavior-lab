@@ -1690,6 +1690,15 @@ export function completedVisitsPhrase(
  * The heading for a single arm of a report: what THIS visit is, never how many
  * the report holds.
  */
+/**
+ * Whether a visit loaded its page: it completed and the page answered with a
+ * status below 400. The one rule for "a successful load", read by the corpus
+ * overview's coverage counts and by the homepage's record.
+ */
+export function runLoadedSuccessfully(run: RunView): boolean {
+  return run.quality.outcome === "complete" && typeof run.status === "number" && run.status < 400;
+}
+
 export function runVisitLabel(run: RunView): string {
   if (run.label === "baseline") return "Baseline visit";
   if (run.label === "variant") return "Variant visit";

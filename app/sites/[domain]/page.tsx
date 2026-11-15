@@ -13,7 +13,21 @@ import { safeNavigableHttpUrl } from "@/lib/report-url";
 import { sitePagesBasePath, siteUrl } from "@/lib/site-url";
 import { corpusCohortDifferences } from "@/lib/corpus-cohort";
 import { displayHost, humanList, reportKindLabel } from "@/lib/text-format";
+import { loadCommittedCorpusStats } from "@/lib/current-scan-cohort";
+import { buildFrontPageRecord } from "@/lib/homepage-figures";
+import { readStoredReportForId } from "@/lib/report-source";
+import { siteNameStep } from "@/lib/site-name-size";
+import { RecordLimits } from "@/app/_design/front-page-record";
+import { RequestFigure } from "@/app/_design/request-figure";
+import { SiteNameText } from "@/app/_design/site-name";
 import { SiteChrome } from "../../_components/site-chrome";
+import "@/app/_design/fonts.css";
+import "@/app/_design/tokens.css";
+import "@/app/_design/base.css";
+import "@/app/_design/components.css";
+import "@/app/_design/pages.css";
+import "@/app/_design/record.css";
+import "@/app/_design/site.css";
 
 export const dynamic = "force-static";
 
@@ -103,8 +117,22 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
     ).values()
   ]);
 
+  // The latest visit as a record: the report's request figure, its finding
+  // sentence and its own limits, from the builder the homepage's record uses
+  // (lib/homepage-figures.ts). It builds nothing for a withheld report, a
+  // visit that did not load or one with no figure; the block then states what
+  // it always stated, as text.
+  const latestRead = await readStoredReportForId(latest.id);
+  const record =
+    latestRead.outcome === "found"
+      ? buildFrontPageRecord(latest.id, latestRead.stored, await loadCommittedCorpusStats())
+      : null;
+  const siteName = displayHost(profile.domain);
+  const nameStep = siteNameStep(siteName);
+
   return (
-    <SiteChrome activePath="/directory/">
+    /* "da" opts this route into the direction A stylesheet (app/_design/). */
+    <SiteChrome activePath="/directory/" shellClassName="da">
       <div className="site-profile-page">
       <nav className="page-breadcrumbs" aria-label="Breadcrumb">
         <ol>
@@ -117,7 +145,9 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
       </nav>
       <header className="page-header">
         <p className="eyebrow">Curated public corpus · Site history</p>
-        <h1>{displayHost(profile.domain)}</h1>
+        <h1 className={nameStep === "full" ? undefined : `a-site-${nameStep}`}>
+          <SiteNameText name={siteName} />
+        </h1>
         <p className="lede">{latest.headline}</p>
         <p className="page-meta">
           {profile.entries.length} {profile.entries.length === 1 ? "report" : "reports"} retained. This timeline
@@ -137,11 +167,14 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
         </div>
       </header>
 
-      <section className={`site-profile-current tone-${latest.tone}`} aria-labelledby="current-title">
-        <div>
+      <section className={`site-profile-current${record ? " a-fpr" : ""}`} aria-labelledby="current-title">
+        <div className={record ? "a-fpr-text" : undefined}>
           <p className="eyebrow">Latest controlled visit</p>
-          <h2 id="current-title">{latest.headline}</h2>
-          <p>
+          <h2 id="current-title" className={record ? "a-fpr-find" : undefined}>
+            {record ? record.headline : latest.headline}
+          </h2>
+          {record && <RecordLimits record={record} />}
+          <p className="site-profile-visit">
             {reportKindLabel(latest)} · {formatDate(latest.scannedAt)} · {latest.device}
             {!latest.requestEvidenceComplete && (
               <> · <IncompleteEvidenceChip capped={latest.capped} failed={latest.runOutcome !== "complete"} /></>
@@ -167,6 +200,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
             <dd>{latest.cookieEvidenceComplete ? latest.thirdPartyCookies.toLocaleString() : "Not measured"}</dd>
           </div>
         </dl>
+        {record && <RequestFigure figure={record.figure} notMeasured={record.notMeasured} />}
       </section>
 
       {compatibleChanges.length > 0 && (
@@ -182,7 +216,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
             ))}
           </ul>
           {comparableEras.map((era) => (
-            <p className="site-profile-note" key={era}>
+            <p className="site-profile-note a-lim" key={era}>
               {siteProfileComparableVisitsNote(era)}
             </p>
           ))}
@@ -194,7 +228,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
         <h2 id="history-title">{profile.entries.length} {profile.entries.length === 1 ? "report" : "reports"}</h2>
         <HistorySparkline entries={sparklineEntries} />
         {sparklineOmittedCohortCount > 0 && (
-          <p className="muted">
+          <p className="muted a-lim">
             {sparklineRendered
               ? `The trend line covers this site's ${sparklineEntries.length} most recent reports from one measurement cohort. `
               : `No trend line: this site's newest measurement cohort holds ${
@@ -244,17 +278,19 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
                       </div>
                     )}
                   </th>
-                  <td>{reportKindLabel(entry)} · {entry.device}</td>
-                  <td className="num">
+                  {/* data-label repeats the column's heading, for the narrow
+                      layout where each visit is a block. */}
+                  <td data-label="Kind">{reportKindLabel(entry)} · {entry.device}</td>
+                  <td className="num" data-label="Third-party requests">
                     {!entry.requestEvidenceComplete && "at least "}{entry.thirdPartyRequests.toLocaleString()}
                   </td>
-                  <td className="num">
+                  <td className="num" data-label="Third-party tracking-service requests">
                     {!entry.requestEvidenceComplete && "at least "}{entry.trackerRequests.toLocaleString()}
                   </td>
-                  <td className="num">
+                  <td className="num" data-label="Third-party cookies">
                     {entry.cookieEvidenceComplete ? entry.thirdPartyCookies.toLocaleString() : "Not measured"}
                   </td>
-                  <td>schema {entry.schemaVersion}{entry.schemaRevision ? `.r${entry.schemaRevision}` : ""}</td>
+                  <td data-label="Schema">schema {entry.schemaVersion}{entry.schemaRevision ? `.r${entry.schemaRevision}` : ""}</td>
                 </tr>
               ))}
             </tbody>
@@ -331,7 +367,7 @@ function HistorySparkline({ entries }: { entries: DirectoryEntry[] }) {
           points={coords.map((point) => `${point.x},${point.y}`).join(" ")}
           fill="none"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="1.5"
           strokeLinejoin="round"
           strokeLinecap="round"
         />

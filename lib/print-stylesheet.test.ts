@@ -99,7 +99,6 @@ const FIXTURE_BODY = `<body>
       <p class="muted disclosure-lazy-note" id="lazynote">Open the request log to render its rows.</p>
       <button class="change-list-toggle" id="difftoggle" type="button">Show all 14</button>
       <section class="causal-graph">
-        <button class="attribution-focus-toggle" id="mapfocus" type="button">Focus map</button>
         <ul class="attribution-edge-list" id="mapedges"><li><button type="button">a.example to b.example</button></li></ul>
         <div class="attribution-selection" id="mapselection" role="status">a.example to b.example</div>
         <h3 class="visually-hidden print-text-equivalent" id="mapheading">Relationships shown in the attribution map</h3>
@@ -175,7 +174,6 @@ const PROBED_IDS = [
   "inspectlink",
   "lazynote",
   "difftoggle",
-  "mapfocus",
   "mapedges",
   "mapselection",
   "mapheading",
@@ -298,7 +296,6 @@ test("controls and screen-reader scaffolding stay off paper", () => {
   // The attribution map's interactive layer. Its relationship list, which is
   // marked print-text-equivalent, is what carries those relationships onto
   // paper, so hiding the controls loses no evidence.
-  assert.equal(visible.mapfocus, false, "the focus toggle is a control");
   assert.equal(visible.mapedges, false, "the edge buttons are controls");
   assert.equal(visible.mapselection, false, "the selection detail is a live region");
 

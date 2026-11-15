@@ -1,0 +1,163 @@
+/*
+ * Direction A, "document of record": design tokens.
+ *
+ * Every token is prefixed --a- and is declared only on a document that holds a
+ * .da root, so pages still on app/globals.css see none of this.
+ *
+ * Color rules that are part of the product:
+ *   - No color means good or bad. Prussian marks what stayed on the site,
+ *     Tracer marks contact with another site, and that is all color says.
+ *   - Tracer is used for third-party contact and for nothing else.
+ */
+:root:has(.da) {
+  color-scheme: light;
+
+  /* Surfaces and ink */
+  --a-paper: #fbfcfd;
+  --a-bench: #eef2f5;
+  --a-carbon: #101820;
+  --a-slate: #46535f;
+  --a-rule: #c8d1d9;
+  --a-edge: #6b7884;
+
+  /* The two data colors */
+  --a-prussian: #0b3a5b;
+  --a-tracer: #a3157a;
+  --a-on-prussian: #fbfcfd;
+  --a-link: var(--a-prussian);
+  --a-first: var(--a-prussian);
+  --a-third: var(--a-tracer);
+
+  /* Type families, all self-hosted (app/_design/fonts.css) */
+  --a-serif: "STIX Two Text", Georgia, "Times New Roman", serif;
+  --a-sans: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --a-mono: "Atkinson Hyperlegible Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  /* Serif weights. STIX Two Text is variable from 400 to 700. */
+  --a-w-find: 500;
+  --a-w-title: 600;
+
+  /* Type scale: size / line height pairs */
+  --a-t-site: 3.375rem; /* 54px, the site, the page's largest type */
+  --a-t-home: 2.5rem; /* 40px, the homepage's headline */
+  /* The homepage record's site, under the headline: the report page's steps
+     (54, 44, 36) scaled to start at 32px. */
+  --a-t-rec: 2rem; /* 32px */
+  --a-t-rec-long: 1.625rem; /* 26px, a name of 19 to 26 characters */
+  --a-t-rec-longer: 1.3125rem; /* 21px, a name of 27 or more */
+  --a-t-site-long: 2.75rem; /* 44px, a name of 19 to 26 characters */
+  --a-t-site-longer: 2.25rem; /* 36px, a name of 27 or more */
+  --a-t-stand: 1.75rem; /* 28px, the finding sentence on screen */
+  --a-t-find: 2.5625rem; /* 41px, the finding sentence on paper */
+  --a-t-h2: 1.875rem; /* 30px */
+  --a-t-h3: 1.4375rem; /* 23px */
+  --a-t-read: 1.1875rem; /* 19px, serif reading text */
+  --a-t-body: 1rem; /* 16px, interface text */
+  --a-t-limit: 0.96875rem; /* 15.5px */
+  --a-t-small: 0.90625rem; /* 14.5px */
+  --a-t-fine: 0.84375rem; /* 13.5px */
+
+  /* Spacing, a 4px base */
+  --a-s1: 4px;
+  --a-s2: 8px;
+  --a-s3: 12px;
+  --a-s4: 16px;
+  --a-s5: 24px;
+  --a-s6: 32px;
+  --a-s7: 44px;
+  --a-s8: 64px;
+
+  /* Page measure */
+  --a-page: 1120px;
+  --a-gut: 32px;
+  --a-read: 680px;
+  --a-col-gap: 72px;
+
+  /* Figure marks */
+  --a-cell: 8px;
+  --a-gap: 2px;
+
+  /* The ink of the hatching, the texture for "not measured" */
+  --a-hatch-ink: var(--a-edge);
+  /* The ink of the limit mark, the same texture as an edge: the text color */
+  --a-lim-ink: var(--a-carbon);
+
+  /* Focus: one ring everywhere, 3px, never removed */
+  --a-focus: var(--a-prussian);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:has(.da):not([data-theme="light"]) {
+    color-scheme: dark;
+    --a-paper: #071b2b;
+    --a-bench: #0e2a40;
+    --a-carbon: #e6edf3;
+    --a-slate: #9fb2c3;
+    --a-rule: #234560;
+    --a-edge: #6f8aa3;
+    --a-prussian: #8cc8f2;
+    --a-tracer: #ff7ccb;
+    --a-on-prussian: #071b2b;
+  }
+}
+
+:root[data-theme="dark"]:has(.da) {
+  color-scheme: dark;
+  --a-paper: #071b2b;
+  --a-bench: #0e2a40;
+  --a-carbon: #e6edf3;
+  --a-slate: #9fb2c3;
+  --a-rule: #234560;
+  --a-edge: #6f8aa3;
+  --a-prussian: #8cc8f2;
+  --a-tracer: #ff7ccb;
+  --a-on-prussian: #071b2b;
+}
+
+@media screen and (max-width: 900px) {
+  :root:has(.da) {
+    --a-gut: 20px;
+    --a-cell: 6px;
+    --a-t-site: 2.25rem; /* 36px */
+    --a-t-home: 1.875rem; /* 30px */
+    /* The phone's steps (36, 30, 26) scaled to start at 28px. */
+    --a-t-rec: 1.75rem; /* 28px */
+    --a-t-rec-long: 1.4375rem; /* 23px */
+    --a-t-rec-longer: 1.25rem; /* 20px */
+    --a-t-site-long: 1.875rem; /* 30px */
+    --a-t-site-longer: 1.625rem; /* 26px */
+    --a-t-stand: 1.4375rem; /* 23px */
+    --a-t-find: 1.8125rem; /* 29px */
+    --a-t-h2: 1.5625rem;
+    --a-t-h3: 1.3125rem;
+    --a-t-read: 1.125rem;
+  }
+}
+
+/* Forced colors removes backgrounds, and the hatching is one. The rules that
+   draw it opt out (forced-color-adjust: none), and its lines take the
+   reader's own text color so the texture follows their palette. */
+@media (forced-colors: active) {
+  :root:has(.da) {
+    --a-hatch-ink: CanvasText;
+    --a-lim-ink: CanvasText;
+  }
+}
+
+/* Paper is always light: ink on white, the two data colors kept. */
+@media print {
+  /* Repeated :root so paper wins over either dark rule above. */
+  :root:root:root:root:has(.da) {
+    color-scheme: light;
+    --a-paper: #fff;
+    --a-bench: #fff;
+    --a-carbon: #000;
+    --a-slate: #333;
+    --a-rule: #999;
+    --a-edge: #555;
+    --a-prussian: #0b3a5b;
+    --a-tracer: #a3157a;
+    --a-on-prussian: #fff;
+    --a-cell: 6px;
+  }
+}

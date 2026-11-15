@@ -32,6 +32,10 @@
     "runnerNodeRuntime": {
       "path": "investigation/runner/s4/node-runtime.json",
       "sha256": "8a61b54d23852182990943de704e70c926948e1776bd417dbbc2fcbd23c73470"
+    },
+    "designFonts": {
+      "path": "scripts/design-fonts-provenance.json",
+      "sha256": "5df5a747d9d8e2314f64569da8c414f83fc81452161cf435f786e0efb8f82806"
     }
   },
   "summary": {
@@ -68,6 +72,12 @@
       "total": 1,
       "declared": 1,
       "unknown": 0
+    },
+    "designFonts": {
+      "total": 9,
+      "declared": 9,
+      "unknown": 0,
+      "served": 5
     }
   },
   "npm": [
@@ -5682,5 +5692,200 @@
         }
       ]
     }
-  ]
+  ],
+  "designFonts": {
+    "builtBy": "scripts/build-design-fonts.mjs",
+    "subsetter": "hb-subset (HarfBuzz) 15.0.0",
+    "files": [
+      {
+        "path": "public/fonts/stix-two-text/STIXTwoText-wght.latin.woff2",
+        "bytes": 26532,
+        "sha256": "1af1f2dfec7a3c00fe38acc95f09864bea249cefa1d5dd5b0637804e618d3855",
+        "family": "stix-two-text",
+        "name": "STIX Two Text",
+        "usage": "served",
+        "served": true,
+        "redistributed": true,
+        "weight": null,
+        "sourceUrl": "https://github.com/stipub/stixfonts",
+        "sourceFile": "STIXTwoText.ttf",
+        "sourceVersion": "Version 2.13 b171",
+        "sourceSha256": "7962b8b7811e6a896c9a91a0bccbb5241047770eb24d4997c5cb5fe21d5c0df2",
+        "license": "OFL-1.1",
+        "licenseStatus": "declared-in-committed-license-file",
+        "licenseEvidence": {
+          "path": "public/fonts/stix-two-text/OFL.txt",
+          "sha256": "0c8825913b60d858aacdb33c4ca6660a7d64b0d6464702efbb19313f5765861a"
+        }
+      },
+      {
+        "path": "public/fonts/stix-two-text/STIXTwoText-Italic-wght.latin.woff2",
+        "bytes": 28860,
+        "sha256": "d0a44a48f1a4164260daafa718bb3d007e30833c76b7b235c5d6d55b1b38dc1f",
+        "family": "stix-two-text",
+        "name": "STIX Two Text",
+        "usage": "served",
+        "served": true,
+        "redistributed": true,
+        "weight": null,
+        "sourceUrl": "https://github.com/stipub/stixfonts",
+        "sourceFile": "STIXTwoText-Italic.ttf",
+        "sourceVersion": "Version 2.13 b171",
+        "sourceSha256": "88c0e2e316eaff56eddc9e51e4850317e2a1e490bbf758b2dec4793aedba9c74",
+        "license": "OFL-1.1",
+        "licenseStatus": "declared-in-committed-license-file",
+        "licenseEvidence": {
+          "path": "public/fonts/stix-two-text/OFL.txt",
+          "sha256": "0c8825913b60d858aacdb33c4ca6660a7d64b0d6464702efbb19313f5765861a"
+        }
+      },
+      {
+        "path": "public/fonts/atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-wght.latin.woff2",
+        "bytes": 33792,
+        "sha256": "5515159d65b4d25c0f1c45f86a3751f0ec4432ca091be427c4890e35c0e7de2a",
+        "family": "atkinson-hyperlegible-next",
+        "name": "Atkinson Hyperlegible Next",
+        "usage": "served",
+        "served": true,
+        "redistributed": true,
+        "weight": null,
+        "sourceUrl": "https://github.com/googlefonts/atkinson-hyperlegible-next",
+        "sourceFile": "AtkinsonHyperlegibleNext[wght].ttf",
+        "sourceVersion": "Version 2.001",
+        "sourceSha256": "5a455d1cfa099b601ab70751bb9673e8fe1854dc4500c80e1a220d0d75e31745",
+        "license": "OFL-1.1",
+        "licenseStatus": "declared-in-committed-license-file",
+        "licenseEvidence": {
+          "path": "public/fonts/atkinson-hyperlegible-next/OFL.txt",
+          "sha256": "aca6a428580965d2297d1b718042dd427c2a9443ece3b0d02d758e161e0c4030"
+        }
+      },
+      {
+        "path": "public/fonts/atkinson-hyperlegible-next/AtkinsonHyperlegibleNext-Italic-wght.latin.woff2",
+        "bytes": 37280,
+        "sha256": "022aedbc24ed3ff60d2c74ae00a19e120bc045999f2f29393278c26071e64397",
+        "family": "atkinson-hyperlegible-next",
+        "name": "Atkinson Hyperlegible Next",
+        "usage": "served",
+        "served": true,
+        "redistributed": true,
+        "weight": null,
+        "sourceUrl": "https://github.com/googlefonts/atkinson-hyperlegible-next",
+        "sourceFile": "AtkinsonHyperlegibleNext-Italic[wght].ttf",
+        "sourceVersion": "Version 2.001",
+        "sourceSha256": "ce9cffed32742ad2d9238c561a93220385e5934cdc02b8eb4097a50efa957dc6",
+        "license": "OFL-1.1",
+        "licenseStatus": "declared-in-committed-license-file",
+        "licenseEvidence": {
+          "path": "public/fonts/atkinson-hyperlegible-next/OFL.txt",
+          "sha256": "aca6a428580965d2297d1b718042dd427c2a9443ece3b0d02d758e161e0c4030"
+        }
+      },
+      {
+        "path": "public/fonts/atkinson-hyperlegible-mono/AtkinsonHyperlegibleMono-wght.latin.woff2",
+        "bytes": 18152,
+        "sha256": "7b562ea19dc40a8688bbe903c54d7dd2016cbf19805cabe9b9a96d6db1b31561",
+        "family": "atkinson-hyperlegible-mono",
+        "name": "Atkinson Hyperlegible Mono",
+        "usage": "served",
+        "served": true,
+        "redistributed": true,
+        "weight": null,
+        "sourceUrl": "https://github.com/googlefonts/atkinson-hyperlegible-next-mono",
+        "sourceFile": "AtkinsonHyperlegibleMono[wght].ttf",
+        "sourceVersion": "Version 2.001",
+        "sourceSha256": "5ce8b1698d1ded7dff2178c1a3ad159470085a58ea239e8b2cb88f4fb4a6f646",
+        "license": "OFL-1.1",
+        "licenseStatus": "declared-in-committed-license-file",
+        "licenseEvidence": {
+          "path": "public/fonts/atkinson-hyperlegible-mono/OFL.txt",
+          "sha256": "1ebb31cf7393164f20d10c1d48406cddb5314feff8465531cf1e4ba37e9dd740"
+        }
+      },
+      {
+        "path": "lib/og-fonts/STIXTwoText-500.latin.ttf",
+        "bytes": 31188,
+        "sha256": "c46cc8fb980f677a4e2ec77b2c2410d5fca49af56f1a6e41b0563d6cd6e10aa7",
+        "family": "stix-two-text",
+        "name": "STIX Two Text",
+        "usage": "share-card-build-and-container",
+        "served": false,
+        "redistributed": true,
+        "weight": 500,
+        "sourceUrl": "https://github.com/stipub/stixfonts",
+        "sourceFile": "STIXTwoText.ttf",
+        "sourceVersion": "Version 2.13 b171",
+        "sourceSha256": "7962b8b7811e6a896c9a91a0bccbb5241047770eb24d4997c5cb5fe21d5c0df2",
+        "license": "OFL-1.1",
+        "licenseStatus": "declared-in-committed-license-file",
+        "licenseEvidence": {
+          "path": "lib/og-fonts/STIXTwoText-OFL.txt",
+          "sha256": "0c8825913b60d858aacdb33c4ca6660a7d64b0d6464702efbb19313f5765861a"
+        }
+      },
+      {
+        "path": "lib/og-fonts/STIXTwoText-600.latin.ttf",
+        "bytes": 31196,
+        "sha256": "c01fd01b95174041dbb87028e153555b978275d8fc2b54bce6c4a928437009c4",
+        "family": "stix-two-text",
+        "name": "STIX Two Text",
+        "usage": "share-card-build-and-container",
+        "served": false,
+        "redistributed": true,
+        "weight": 600,
+        "sourceUrl": "https://github.com/stipub/stixfonts",
+        "sourceFile": "STIXTwoText.ttf",
+        "sourceVersion": "Version 2.13 b171",
+        "sourceSha256": "7962b8b7811e6a896c9a91a0bccbb5241047770eb24d4997c5cb5fe21d5c0df2",
+        "license": "OFL-1.1",
+        "licenseStatus": "declared-in-committed-license-file",
+        "licenseEvidence": {
+          "path": "lib/og-fonts/STIXTwoText-OFL.txt",
+          "sha256": "0c8825913b60d858aacdb33c4ca6660a7d64b0d6464702efbb19313f5765861a"
+        }
+      },
+      {
+        "path": "lib/og-fonts/AtkinsonHyperlegibleNext-400.latin.ttf",
+        "bytes": 30132,
+        "sha256": "0c85a6312c081fc4391eff1340062dbcc257cbea6a47437b0da996c8a9058fd8",
+        "family": "atkinson-hyperlegible-next",
+        "name": "Atkinson Hyperlegible Next",
+        "usage": "share-card-build-and-container",
+        "served": false,
+        "redistributed": true,
+        "weight": 400,
+        "sourceUrl": "https://github.com/googlefonts/atkinson-hyperlegible-next",
+        "sourceFile": "AtkinsonHyperlegibleNext[wght].ttf",
+        "sourceVersion": "Version 2.001",
+        "sourceSha256": "5a455d1cfa099b601ab70751bb9673e8fe1854dc4500c80e1a220d0d75e31745",
+        "license": "OFL-1.1",
+        "licenseStatus": "declared-in-committed-license-file",
+        "licenseEvidence": {
+          "path": "lib/og-fonts/AtkinsonHyperlegibleNext-OFL.txt",
+          "sha256": "aca6a428580965d2297d1b718042dd427c2a9443ece3b0d02d758e161e0c4030"
+        }
+      },
+      {
+        "path": "lib/og-fonts/AtkinsonHyperlegibleNext-600.latin.ttf",
+        "bytes": 30144,
+        "sha256": "818aea9f7ec40b0bca47049146cb5c1a5313cc4b4775085cf35e3f7f4f93a15f",
+        "family": "atkinson-hyperlegible-next",
+        "name": "Atkinson Hyperlegible Next",
+        "usage": "share-card-build-and-container",
+        "served": false,
+        "redistributed": true,
+        "weight": 600,
+        "sourceUrl": "https://github.com/googlefonts/atkinson-hyperlegible-next",
+        "sourceFile": "AtkinsonHyperlegibleNext[wght].ttf",
+        "sourceVersion": "Version 2.001",
+        "sourceSha256": "5a455d1cfa099b601ab70751bb9673e8fe1854dc4500c80e1a220d0d75e31745",
+        "license": "OFL-1.1",
+        "licenseStatus": "declared-in-committed-license-file",
+        "licenseEvidence": {
+          "path": "lib/og-fonts/AtkinsonHyperlegibleNext-OFL.txt",
+          "sha256": "aca6a428580965d2297d1b718042dd427c2a9443ece3b0d02d758e161e0c4030"
+        }
+      }
+    ]
+  }
 }

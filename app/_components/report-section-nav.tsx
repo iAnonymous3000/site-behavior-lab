@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export type ReportSection = { id: string; label: string };
+/** `count`: a count the section itself states, shown beside its name. */
+export type ReportSection = { id: string; label: string; count?: string };
 
 /**
  * Wayfinding for the evidence explorer.
@@ -74,11 +75,20 @@ export function ReportSectionNav({ sections }: { sections: ReportSection[] }) {
   }, [sections]);
 
   // Keep the marked link in view in the horizontally scrolling nav, so the
-  // reader can see where they are without dragging the strip.
+  // reader can see where they are without dragging the strip. Only the strip
+  // itself is scrolled, and only sideways: the list sits in a bar that stays
+  // under the top of the window, and scrollIntoView on a link in it scrolled
+  // the window too, which stopped a scroll to a section that was under way
+  // (a link to the request log arrived at the domain table).
   useEffect(() => {
-    if (!activeId || !navRef.current) return;
-    const link = navRef.current.querySelector<HTMLElement>(`[href="#${CSS.escape(activeId)}"]`);
-    link?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    const nav = navRef.current;
+    if (!activeId || !nav) return;
+    const link = nav.querySelector<HTMLElement>(`[href="#${CSS.escape(activeId)}"]`);
+    if (!link) return;
+    const strip = nav.getBoundingClientRect();
+    const box = link.getBoundingClientRect();
+    if (box.left < strip.left) nav.scrollLeft -= strip.left - box.left;
+    else if (box.right > strip.right) nav.scrollLeft += box.right - strip.right;
   }, [activeId]);
 
   if (present.length === 0) return null;
@@ -90,6 +100,7 @@ export function ReportSectionNav({ sections }: { sections: ReportSection[] }) {
           <li key={section.id}>
             <a aria-current={section.id === activeId ? "true" : undefined} href={`#${section.id}`}>
               {section.label}
+              {section.count !== undefined && <span className="report-section-count"> {section.count}</span>}
             </a>
           </li>
         ))}

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { cache, type ReactNode } from "react";
+import { cache } from "react";
 import corrections from "@/public/corrections.json";
 import { comparisonVisitOrderLine } from "@/lib/comparison-visit-order";
-import { buildReportHeadline, reportPageTitle, type ReportHeadline } from "@/lib/report-headline";
+import { buildReportHeadline, reportPageTitle } from "@/lib/report-headline";
 import { buildReportFacts } from "@/lib/report-facts";
-import { buildFindings, type Finding } from "@/lib/report-findings";
-import { renderedEvidenceArm, type EvidenceArm } from "@/lib/report-evidence-navigation";
+import { bottomLineBenchmarkScope, buildFindings } from "@/lib/report-findings";
+import { renderedEvidenceArm } from "@/lib/report-evidence-navigation";
 import { loadCommittedCorpusStats } from "@/lib/current-scan-cohort";
 import { parseCorrectionsLedger, reportCorrections } from "@/lib/corrections-ledger";
 import { serializeJsonLd } from "@/lib/jsonld-script";
@@ -18,14 +18,37 @@ import { readStoredReportForId } from "@/lib/report-source";
 import { buildReportVisitSummary } from "@/lib/report-visit-summary";
 import { scrollCheckEntry } from "@/lib/scroll-check-entry";
 import { requireFreshRuntimeReportRequest } from "@/lib/report-route-freshness";
+import { degradedRunNotice } from "@/lib/scan-report-censorship";
 import { correctionMetadataDescription, reportMetadataDescription, reportMetadataTitle } from "@/lib/seo-metadata";
 import { toReportView } from "@/lib/scan-report-views";
 import { siteBaseUrl, siteOrigin, sitePagesBasePath } from "@/lib/site-url";
-import { FindingsList } from "@/app/_components/findings-list";
+import { buildDomainEvidenceTable } from "@/lib/domain-evidence-table";
+import { notMeasuredPhrases } from "@/lib/homepage-figures";
+import { buildRequestFigure } from "@/lib/request-figure";
+import { EvidenceTable } from "@/app/_design/evidence-table";
+import {
+  RecordDateline,
+  ReportRecord,
+  ReportRecordLinks,
+  schemaNotePlacement
+} from "@/app/_design/record-block";
+import { RequestFigure } from "@/app/_design/request-figure";
+import { ReportPageSummary } from "@/app/_design/report-summary";
 import { PrintEvidenceFooter } from "@/app/_components/print-evidence-footer";
-import { ReportEvidenceReceipt, ReportPageContext } from "@/app/_components/report-page-context";
+import {
+  ReportEvidenceReceipt,
+  ReportPageContext
+} from "@/app/_components/report-page-context";
 import { ReportVisitSummaryBlock } from "@/app/_components/report-visit-summary-block";
 import { SavedReportClient } from "./saved-report-client";
+// Direction A: tokens, base, components, then this page's layout. Scoped to
+// the .da shell this route renders, so no other route is restyled.
+import "@/app/_design/fonts.css";
+import "@/app/_design/tokens.css";
+import "@/app/_design/base.css";
+import "@/app/_design/components.css";
+import "@/app/_design/report.css";
+import "@/app/_design/explorer.css";
 
 const STATIC_EXPORT = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1";
 const correctionsLedger = parseCorrectionsLedger(corrections);
@@ -161,6 +184,17 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
   const siteHistoryHref = STATIC_EXPORT
     ? await siteHistoryLookCloserHref({ id, view, committed: result.origin === "committed" })
     : null;
+  // The figure draws the visit the headline describes, and both visits only
+  // where the claim policy allows the pair to be compared. Its "not measured"
+  // row repeats the leads of the visit summary's limits, and the domain table
+  // excerpts the same visit, so the three cannot describe different visits.
+  const figure = buildRequestFigure(view, facts, evidenceArm);
+  const notMeasured = notMeasuredPhrases({ view, facts, findings, evidenceArm });
+  const tableFacts = evidenceArm && facts.arms ? facts.arms[evidenceArm] : facts.display;
+  const domainTable = buildDomainEvidenceTable(
+    tableFacts,
+    evidenceArm && view.comparison ? view.comparison.runLabels[evidenceArm] : null
+  );
   const correction = reportCorrections(correctionsLedger, id);
   const reportUrl = publicReportUrl(id);
   const jsonUrl = STATIC_EXPORT ? `${siteBaseUrl()}/reports/${id}.json` : `${siteOrigin()}/api/reports/${id}`;
@@ -171,6 +205,11 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
         url: reportUrl,
         jsonUrl
       });
+
+  // The record's three links, after the numbers.
+  const recordLinks = (
+    <ReportRecordLinks id={id} permanent={result.origin === "committed"} reportUrl={reportUrl} view={view} />
+  );
 
   return (
     <>
@@ -184,19 +223,22 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
         pdfExportQuery={reportPdfExportQuery(id, result.wireSha256)}
         siteHistoryHref={siteHistoryHref}
         freshResult={freshResult}
+        summaryBenchmarkScope={bottomLineBenchmarkScope(findings) ?? null}
         title={reportPageTitle(headline)}
         context={
           <ReportPageContext
             id={id}
             corrections={correction}
             permanent={result.origin === "committed"}
+            identity={<ReportRecord evidenceSha256={result.wireSha256} id={id} view={view} />}
+            omitIncompleteNotice
             reportUrl={reportUrl}
             view={view}
           />
         }
         receipt={
           <ReportEvidenceReceipt
-            benchmarkScope={findings.find((finding) => finding.id === "bottom-line")?.benchmarkScope}
+            benchmarkScope={bottomLineBenchmarkScope(findings)}
             evidenceSha256={result.wireSha256}
             id={id}
             jsonHref={jsonUrl}
@@ -209,7 +251,12 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
         }
         summary={
           <ReportPageSummary
+            basePath={sitePagesBasePath()}
             headline={headline}
+            dateline={<RecordDateline view={view} />}
+            incompleteNotice={degradedRunNotice(view)}
+            schemaLimit={schemaNotePlacement(view).limit}
+            recordLinks={recordLinks}
             findings={findings}
             evidenceArm={evidenceArm}
             automation={facts.display.run.conditions.automation}
@@ -222,6 +269,8 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
             newVisitTarget={newVisitTarget}
             newVisitFrom={newVisitFrom}
             visitSummary={visitSummary}
+            figure={<RequestFigure figure={figure} notMeasured={notMeasured} />}
+            domainTable={<EvidenceTable table={domainTable} />}
           />
         }
         visitSummary={visitSummary}
@@ -233,94 +282,6 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
         wireSha256={result.wireSha256}
       />
     </>
-  );
-}
-
-/**
- * Compact, crawlable report content. Raw evidence arrays stay server-side.
- *
- * The site, the requested URL, the run quality and the timestamp used to be
- * restated here as a second header. The site, the address and the timestamp
- * now live once, in the always-rendered `ReportPageContext` identity block,
- * and the run quality in the receipt, so opening the evidence explorer no
- * longer swaps one copy of those facts for another. The visit summary the
- * board renders after its bottom line is handed to the explorer too, for the
- * same reason.
- *
- * A comparison's visit-order line is the exception, on purpose. The comparison
- * panel states it in the explorer, the printable route and the PDF, and the
- * identity block and the receipt stay beside that panel once the explorer
- * opens and on the printable route, so either of them would state the line
- * twice. This summary is the one block the explorer replaces, so the line is
- * stated once in every state.
- */
-function ReportPageSummary({
-  headline,
-  findings,
-  evidenceArm,
-  automation,
-  visitOrder,
-  visitSummary,
-  siteHistoryHref,
-  newVisitTarget,
-  newVisitFrom
-}: {
-  headline: ReportHeadline;
-  findings: readonly Finding[];
-  evidenceArm: EvidenceArm | undefined;
-  automation: string;
-  /** The comparison's visit-order line; null for a single scan or a before/after pair. */
-  visitOrder: ReturnType<typeof comparisonVisitOrderLine>;
-  /** What was checked and what the visit could not see, after the bottom line. */
-  visitSummary: ReactNode;
-  /** The cookie card's history view target, the same value the explorer receives. */
-  siteHistoryHref: string | null;
-  /** The page a card's new visit would visit again, a runtime share's only. */
-  newVisitTarget: string | null;
-  /** The share report id a new visit's link names, a runtime share's own. */
-  newVisitFrom: string | null;
-}) {
-  return (
-    <div className="report-page-summary">
-      <section className={`headline-banner tone-${headline.tone}`} aria-label="Plain-language summary">
-        <p className="headline-kicker">{headline.kicker}</p>
-        <h2 className="headline-title">{headline.headline}</h2>
-        <p className="headline-subhead">{headline.subhead}</p>
-        {headline.stats.length > 0 && (
-          <div className="headline-stats">
-            {headline.stats.map((stat) => (
-              <div className={`headline-stat${stat.emphasis ? " is-emphasis" : ""}`} key={stat.label}>
-                <span className="headline-stat-value">{stat.value}</span>
-                <span className="headline-stat-label">{stat.label}</span>
-              </div>
-            ))}
-          </div>
-        )}
-        <div className="headline-footer">
-          <span className="headline-caveat">{headline.caveat}</span>
-          {/* Same text and link as the comparison panel's line, which
-              replaces this one when the explorer opens. */}
-          {visitOrder && (
-            <span className="headline-visit-order">
-              {visitOrder.text}
-              {visitOrder.seeMethodology && (
-                <>
-                  {" "}(see <a href={`${sitePagesBasePath()}/methodology/#comparisons`}>Methodology</a>)
-                </>
-              )}
-            </span>
-          )}
-        </div>
-      </section>
-      <FindingsList
-        findings={findings}
-        evidenceArm={evidenceArm}
-        automation={automation}
-        glossaryHref={`${sitePagesBasePath()}/glossary/`}
-        afterBottomLine={visitSummary}
-        lookCloser={{ siteHistoryHref, newVisitTarget, newVisitFrom, basePath: sitePagesBasePath() }}
-      />
-    </div>
   );
 }
 

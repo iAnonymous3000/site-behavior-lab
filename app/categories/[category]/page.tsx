@@ -11,6 +11,11 @@ import { formatEvidenceDate, siteEvidenceRow } from "@/lib/site-evidence-row";
 import { SiteEvidenceTable } from "../../_components/site-evidence-table";
 import styles from "./category.module.css";
 import { SiteChrome } from "../../_components/site-chrome";
+import "@/app/_design/fonts.css";
+import "@/app/_design/tokens.css";
+import "@/app/_design/base.css";
+import "@/app/_design/components.css";
+import "@/app/_design/pages.css";
 
 export const dynamic = "force-static";
 export const dynamicParams = false;
@@ -63,7 +68,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
   };
 
   return (
-    <SiteChrome activePath="/directory/">
+    /* "da" opts this route into the direction A stylesheet (app/_design/). */
+    <SiteChrome activePath="/directory/" shellClassName="da">
       <div className={styles.page}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(structuredData) }} />
       {/* Matches the /sites and /reports breadcrumbs: list semantics for the item count,
@@ -81,7 +87,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
       <header className={styles.header}>
         <p className="eyebrow">Controlled-visit evidence · {category.sites.length} canonical sites</p>
         <h1>What {category.label.toLowerCase()} sites loaded</h1>
-        <p>
+        {/* What these results are not: a limit line. */}
+        <p className="a-lim">
           Descriptive results from each site&apos;s newest eligible passive visit within this page&apos;s one
           measurement cohort, not a ranking, privacy grade, causal claim or representative sample of all{" "}
           {category.label.toLowerCase()} sites.
@@ -92,7 +99,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
             stay in one cohort so the medians share a denominator, and this
             says what that leaves out, as /status does for its aggregate. */}
         {category.newerEligibleOutsideCohort && (
-          <p className={styles.updated}>
+          <p className={`${styles.updated} a-lim`}>
             {newerOutsideCohortLead(category.newerEligibleOutsideCohort.siteCount, category.sites.length)}{" "}
             <time dateTime={category.newerEligibleOutsideCohort.newestScannedAt}>
               {formatEvidenceDate(category.newerEligibleOutsideCohort.newestScannedAt)}
@@ -107,7 +114,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
         <div className={styles.summaryIntro}>
           <p className="eyebrow">Observed medians</p>
           <h2 id="summary-title">Median across this curated sample.</h2>
-          <p>
+          <p className="a-lim">
             Medians summarize the included site-level observations. They do not describe every visit to these sites
             or the wider category.
           </p>

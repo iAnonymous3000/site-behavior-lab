@@ -115,9 +115,12 @@ test("Look closer views are built on the server or in the renderer chunk, never 
     "the permalink hands the history target to its explorer"
   );
   holds(page, /<ReportPageSummary[\s\S]*?siteHistoryHref=\{siteHistoryHref\}[\s\S]*?\/>/, "the permalink hands it to its summary");
+  // The summary is a component of its own, which a result on the homepage
+  // renders too: the page hands it the base path and it builds the views.
+  holds(page, /<ReportPageSummary\s+basePath=\{sitePagesBasePath\(\)\}/, "the permalink hands its summary the site's base path");
   holds(
-    page,
-    /lookCloser=\{\{ siteHistoryHref, newVisitTarget, newVisitFrom, basePath: sitePagesBasePath\(\) \}\}/,
+    read("app", "_design", "report-summary.tsx"),
+    /lookCloser=\{printed \? undefined : \{ siteHistoryHref, newVisitTarget, newVisitFrom, basePath \}\}/,
     "the summary board renders the views and the new visits"
   );
   const client = read("app", "reports", "[id]", "saved-report-client.tsx");
@@ -196,8 +199,8 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   holds(renderer, /scrollCheck = null/, "a renderer shows no check unless told");
   holds(
     renderer,
-    /\{scrollCheck && !printComplete && \(\s*<>\s*<ScrollCheckPanel evidence=\{scrollCheck\.evidence\} earlierResultHref=\{checkedFromHref\} \/>\s*<p className="scroll-check-report-note">\{scrollCheckReportNote\(scrollCheck\.evidence\)\}<\/p>\s*<\/>\s*\)\}\s*<ReportHeader/,
-    "the check's panel and its one sentence render from the handed-over check, ahead of the report, never on paper"
+    /\{scrollCheck && !printComplete && \(\s*<>\s*<ScrollCheckPanel evidence=\{scrollCheck\.evidence\} earlierResultHref=\{checkedFromHref\} \/>\s*<p className="scroll-check-report-note">\{scrollCheckReportNote\(scrollCheck\.evidence\)\}<\/p>\s*<\/>\s*\)\}\s*\{resultSummary\}\s*<ReportHeader/,
+    "the check's panel and its one sentence render from the handed-over check, ahead of the report (its summary, then its evidence head), never on paper"
   );
   holds(renderer, /exportsOffered=\{scrollCheck === null\}/, "a check's result offers no export");
   holds(renderer, /sharingOffered=\{scrollCheck === null\}/, "a check's result offers no headline to post or copy");

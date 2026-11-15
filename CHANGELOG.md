@@ -359,6 +359,25 @@ public API or a 1.0 release.
   stubbed, and hold the contract's carrier rules to their exact refusals
   (the binding added once, in the final carrier commit). No rule of the
   contract moves, and no scan, report or identity changes.
+- A findings card can carry its limit in two parts. `Finding.limit` holds one
+  sentence that says what the card's claim does not establish, and the rest of
+  the card's explanatory string as the text behind it
+  (`lib/finding-limits.ts`). 37 limits are one sentence taken whole from the
+  card's own string, so the two parts are exactly that string's sentences, in
+  order. One more taken whole carries counts, so its form is held: the
+  sentence that counts the third-party hosts no source identified, on the
+  services card that named no service. Where a string ends with the cut-short
+  sentence, that sentence is the limit of a card that claims an absence or
+  reports a check as not made. One limit, on the Tag Manager card, is a
+  sentence of the string with "Tag Manager" in place of "It", in front of
+  the rest of the string. Five limits
+  are sentences written for cards whose string restates the claim or states no
+  limit that bounds it: the ranked bottom line, no service matched with no
+  third-party host on record, no Google Analytics, Analytics with no
+  remarketing sync, and a policy read with no checked statement contradicted.
+  A card with no approved limit carries none and prints its full string.
+  `detail` is unchanged on every card and no page prints the new field yet.
+  No report, count or identity moves.
 
 ### Removed
 

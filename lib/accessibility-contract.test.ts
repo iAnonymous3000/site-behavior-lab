@@ -503,7 +503,19 @@ test("every className token rendered by app code has a matching CSS rule", () =>
     "app/globals.css",
     "app/catalog/catalog.module.css",
     "app/directory/directory.module.css",
-    "app/categories/[category]/category.module.css"
+    "app/categories/[category]/category.module.css",
+    // Direction A (the report page): its own tokens, base, components and layout.
+    "app/_design/tokens.css",
+    "app/_design/base.css",
+    "app/_design/components.css",
+    "app/_design/report.css",
+    "app/_design/home.css",
+    "app/_design/pages.css",
+    "app/_design/record.css",
+    "app/_design/site.css",
+    "app/_design/reading.css",
+    "app/_design/explorer.css",
+    "app/_design/print.css"
   ].map(source).join("\n");
 
   function collectTsxFiles(dir: string, found: string[] = []): string[] {
@@ -551,7 +563,18 @@ test("no CSS file reads a custom property that is never declared", () => {
     "app/globals.css",
     "app/catalog/catalog.module.css",
     "app/directory/directory.module.css",
-    "app/categories/[category]/category.module.css"
+    "app/categories/[category]/category.module.css",
+    "app/_design/tokens.css",
+    "app/_design/base.css",
+    "app/_design/components.css",
+    "app/_design/report.css",
+    "app/_design/home.css",
+    "app/_design/pages.css",
+    "app/_design/record.css",
+    "app/_design/site.css",
+    "app/_design/reading.css",
+    "app/_design/explorer.css",
+    "app/_design/print.css"
   ];
   const all = files.map(source).join("\n");
   const declared = new Set(Array.from(all.matchAll(/(--[a-z0-9-]+)\s*:/g), (match) => match[1]));

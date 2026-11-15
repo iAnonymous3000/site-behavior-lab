@@ -136,32 +136,12 @@ test("an applied attribution pair is stated and clearable even when rows survive
 });
 
 /**
- * Focus mode widens the map by collapsing the two-column report grid. Below the
- * width where that grid is ALREADY one column the toggle cannot move anything:
- * measured at 1024, the map is 976px both before and after pressing it. A
- * control that flips a class and changes nothing on screen is the same defect
- * class as the attribution pair that filtered invisibly, so it is hidden there.
- *
- * The guard is that the two rules share one breakpoint. Hiding the toggle at a
- * hand-copied width would work today and drift the first time the layout
- * breakpoint moves, leaving an inert control visible again at the widths in
- * between.
+ * The Focus map control is gone (the owner's approval of 2026-11-15, relayed
+ * by the design session): the map is laid out as blocks under the evidence's
+ * full width, so there is nothing for it to widen. Nothing may offer it, and
+ * no stylesheet keeps a rule for it.
  */
-test("the focus toggle is hidden at exactly the width that already collapses the grid", () => {
-  const collapses = [
-    ...css.matchAll(/@media \(max-width: (\d+)px\) \{([\s\S]*?)\n\}/g)
-  ].filter(([, , body]) => /\.report-grid[^{]*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/.test(body));
-
-  assert.equal(
-    collapses.length,
-    1,
-    "exactly one breakpoint may collapse the report grid; more than one means this guard is checking the wrong block"
-  );
-
-  const [, width, body] = collapses[0];
-  assert.match(
-    body,
-    /\.attribution-focus-toggle\s*\{[^}]*display:\s*none/,
-    `the report grid collapses at ${width}px, so the focus toggle must be hidden in that same block; a toggle that cannot widen anything must not be offered`
-  );
+test("no attribution focus control is offered or styled", () => {
+  assert.doesNotMatch(graph, /attribution-focus-toggle|is-focused|Focus map|Exit focus/);
+  assert.doesNotMatch(css, /attribution-focus-toggle|causal-graph-card\.is-focused/);
 });

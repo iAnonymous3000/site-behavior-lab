@@ -1,0 +1,398 @@
+/*
+ * Direction A: a site page (app/sites/[domain]/page.tsx).
+ *
+ * The site is the title, set as on a report page. The latest visit is a
+ * record (record.css). Then the differences across comparable visits, the
+ * trend line and the table of every retained visit, in the evidence table's
+ * style. The page keeps its markup and class names; step 1 returns its own
+ * blocks to the browser's defaults. The trend line's own shapes are left
+ * out of that: a reset would override the stroke its markup sets.
+ */
+.da.da.da :where(
+  .page-breadcrumbs, .page-breadcrumbs *,
+  .page-actions, .page-actions *,
+  .site-profile-current, .site-profile-current > div, .site-profile-current .eyebrow, #current-title,
+  .site-profile-visit, .site-profile-visit *,
+  .site-profile-metrics, .site-profile-metrics *,
+  .site-profile-section, .site-profile-section > .eyebrow, .site-profile-section > h2,
+  .site-change-list, .site-change-list *,
+  .site-profile-note, .site-profile-section > .muted,
+  .site-sparkline, .site-sparkline figcaption,
+  .site-history-table-wrap, .site-history-table, .site-history-table *
+) {
+  all: revert;
+  box-sizing: border-box;
+}
+
+.da.da.da .site-profile-page .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.da.da.da :where(.page-breadcrumbs a, .site-change-list a, .site-history-table a) {
+  color: var(--a-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+/* The page fills the shell's column; the shell sets the gutters. */
+.da.da.da .site-profile-page {
+  max-width: none;
+  margin: 0;
+  padding: 0 0 var(--a-s7);
+}
+
+/* ---- Breadcrumb, as on a report page ---- */
+.da.da.da .page-breadcrumbs {
+  padding: 22px 0 0;
+  font-size: 0.875rem;
+  color: var(--a-slate);
+}
+
+.da.da.da .page-breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.da.da.da .page-breadcrumbs a {
+  color: var(--a-slate);
+}
+
+/* ---- The site is the title ---- */
+.da.da.da .site-profile-page .page-header {
+  padding-top: 12px;
+}
+
+.da.da.da .site-profile-page .page-header h1 {
+  max-width: none;
+  font: 500 var(--a-t-site) / 1.05 var(--a-serif);
+  letter-spacing: -0.018em;
+}
+
+.da.da.da .site-profile-page .page-header h1.a-site-long {
+  font-size: var(--a-t-site-long);
+}
+
+.da.da.da .site-profile-page .page-header h1.a-site-longer {
+  font-size: var(--a-t-site-longer);
+}
+
+/* One solid button, the scan; the rest are links. */
+.da.da.da .page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 22px;
+  margin: 18px 0 0;
+}
+
+.da.da.da .page-actions .primary-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 20px;
+  /* The border is what forced colors keeps: it removes the fill. */
+  border: 1.5px solid var(--a-prussian);
+  border-radius: 2px;
+  background: var(--a-prussian);
+  color: var(--a-on-prussian);
+  font: 600 var(--a-t-body) / 1.2 var(--a-sans);
+  text-decoration: none;
+}
+
+.da.da.da .page-actions :is(.secondary-button, .topbar-link) {
+  color: var(--a-link);
+  font: 400 var(--a-t-body) / 1.4 var(--a-sans);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.da.da.da .page-actions a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.da.da.da .page-actions a:focus-visible {
+  outline: 3px solid var(--a-focus);
+  outline-offset: 2px;
+  border-radius: 1px;
+}
+
+/* ---- The latest visit: a record, or its plain statement ---- */
+.da.da.da .site-profile-current {
+  margin: var(--a-s7) 0 0;
+  padding: 18px 0 0;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da.da .site-profile-current .eyebrow,
+.da.da.da .site-profile-section > .eyebrow {
+  margin: 0;
+  font: 600 var(--a-t-fine) / 1.4 var(--a-sans);
+  color: var(--a-carbon);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.da.da.da #current-title {
+  margin: 8px 0 0;
+  font: 400 1.375rem / 1.3 var(--a-serif);
+  letter-spacing: -0.004em;
+  text-wrap: pretty;
+}
+
+.da.da.da .site-profile-visit {
+  margin: 14px 0 0;
+  font: 400 var(--a-t-small) / 1.45 var(--a-sans);
+  color: var(--a-slate);
+}
+
+/* A visit that did not finish says so in the text color, as words. */
+.da.da.da .site-profile-page .capped-chip {
+  all: unset;
+  color: var(--a-carbon);
+  font-weight: 600;
+}
+
+/* The three numbers, as a report page sets its numbers. */
+.da.da.da .site-profile-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 24px;
+  margin: 18px 0 0;
+}
+
+.da.da.da .site-profile-metrics > div {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+}
+
+.da.da.da .site-profile-metrics dd {
+  margin: 0;
+  font: 500 1.5rem / 1.15 var(--a-serif);
+}
+
+.da.da.da .site-profile-metrics dt {
+  font-size: var(--a-t-fine);
+  line-height: 1.35;
+  color: var(--a-slate);
+}
+
+/* In the record the three numbers are one row under the visit's line, in
+   the text's column: a size smaller, so "at least" and its number fit a
+   third of that column. */
+.da.da.da .site-profile-current.a-fpr > .site-profile-metrics {
+  gap: 12px 16px;
+}
+
+.da.da.da .site-profile-current.a-fpr > .site-profile-metrics dd {
+  font-size: 1.25rem;
+}
+
+@media screen and (min-width: 901px) {
+  /* The figure spans both rows; the second is the flexible one, so the
+     numbers follow the text and the spare height falls under them. */
+  .da.da.da .site-profile-current.a-fpr {
+    grid-template-rows: auto 1fr;
+  }
+
+  .da.da.da .site-profile-current.a-fpr > .site-profile-metrics {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .da.da.da .site-profile-current.a-fpr > .a-plate {
+    grid-row: 1 / span 2;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .da.da.da .site-profile-page .site-profile-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px 14px;
+  }
+}
+
+/* ---- Sections: differences, timeline ---- */
+.da.da.da .site-profile-section {
+  margin: var(--a-s7) 0 0;
+  padding: 14px 0 0;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da.da .site-profile-section > h2 {
+  margin: 4px 0 0;
+  font: var(--a-w-find) var(--a-t-h2) / 1.15 var(--a-serif);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.da.da.da .site-change-list {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  font: 400 var(--a-t-limit) / 1.45 var(--a-sans);
+}
+
+.da.da.da .site-change-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  padding: 8px 0;
+  border-top: 1px solid var(--a-rule);
+}
+
+/* A limit line inside a cleared block is dressed again. */
+.da.da.da .site-profile-section > .a-lim {
+  position: relative;
+  margin: 16px 0 0;
+  padding-left: 22px;
+  max-width: 68ch;
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+  color: var(--a-carbon);
+}
+
+/* Wide: the heading and the differences at the left, the paragraph that
+   limits them at the right. */
+@media screen and (min-width: 901px) {
+  .da.da.da .site-profile-section:has(> .site-change-list) {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    column-gap: 56px;
+    align-items: start;
+  }
+
+  .da.da.da .site-profile-section:has(> .site-change-list) > * {
+    grid-column: 1;
+  }
+
+  .da.da.da .site-profile-section:has(> .site-change-list) > .site-profile-note {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    margin-top: 4px;
+  }
+
+  .da.da.da .site-profile-section:has(> .site-change-list) > .site-profile-note + .site-profile-note {
+    grid-row: 4;
+    margin-top: 12px;
+  }
+}
+
+/* The trend line: third-party requests, so the tracer color; a line, no fill. */
+.da.da.da .site-sparkline {
+  margin: 18px 0 0;
+  color: var(--a-tracer);
+}
+
+.da.da.da .site-sparkline svg {
+  display: block;
+  overflow: visible;
+}
+
+.da.da.da .site-sparkline figcaption {
+  margin: 8px 0 0;
+  max-width: 68ch;
+  font: 400 var(--a-t-small) / 1.45 var(--a-sans);
+  color: var(--a-slate);
+}
+
+/* Every retained visit: the evidence table's style. */
+.da.da.da .site-history-table-wrap {
+  margin: 22px 0 0;
+  overflow-x: auto;
+}
+
+.da.da.da .site-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: 400 var(--a-t-small) / 1.45 var(--a-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+.da.da.da .site-history-table thead th {
+  padding: 0 14px 8px 0;
+  border-bottom: 1.5px solid var(--a-carbon);
+  font: 600 var(--a-t-fine) / 1.35 var(--a-sans);
+  text-align: left;
+  vertical-align: bottom;
+}
+
+.da.da.da .site-history-table :is(td, tbody th) {
+  padding: 10px 14px 10px 0;
+  border-bottom: 1px solid var(--a-rule);
+  font-weight: 400;
+  text-align: left;
+  vertical-align: top;
+}
+
+.da.da.da .site-history-table .num {
+  text-align: right;
+}
+
+.da.da.da .site-history-table :is(th, td):last-child {
+  padding-right: 0;
+}
+
+/* A visit's incomplete evidence, under its date: a limit line. */
+.da.da.da .site-history-table tbody th > div {
+  position: relative;
+  margin: 4px 0 0;
+  padding-left: 22px;
+}
+
+.da.da.da .site-history-table tbody th .capped-chip {
+  font-weight: 400;
+}
+
+/* A phone: each visit is a block with its column names. */
+@media screen and (max-width: 720px) {
+  .da.da.da .site-history-table,
+  .da.da.da .site-history-table tbody,
+  .da.da.da .site-history-table tr,
+  .da.da.da .site-history-table td,
+  .da.da.da .site-history-table tbody th {
+    display: block;
+  }
+
+  .da.da.da .site-history-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .da.da.da .site-history-table tbody tr {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--a-rule);
+  }
+
+  .da.da.da .site-history-table :is(td, tbody th) {
+    padding: 2px 0;
+    border: 0;
+    text-align: left;
+  }
+
+  /* Each cell names its column from the cell's own data-label. */
+  .da.da.da .site-history-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .da.da.da .site-history-table td::before {
+    content: attr(data-label);
+    color: var(--a-slate);
+    font-size: var(--a-t-fine);
+  }
+}

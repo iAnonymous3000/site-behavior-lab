@@ -1,4 +1,5 @@
 import { SiteChrome } from "@/app/_components/site-chrome";
+import "@/app/_design/reading-imports";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import Link from "next/link";
 
@@ -10,7 +11,7 @@ export const metadata = publicPageMetadata({
 });
 
 export default function AccuracyCorrectionPage() {
-  return <SiteChrome><div className="legal-page"><section className="legal-section">
+  return <SiteChrome shellClassName="da"><div className="legal-page"><section className="legal-section">
     <h1>Corrections to historical detector claims</h1>
     <p>The September 5, 2026 audit reproduced these interpretation and coverage problems. The original reports and provenance remain unchanged, except where a later privacy correction replaced a report with a redacted copy under a new ID. These clarifications apply to that copy too. The <Link href="/corrections/">public ledger</Link> identifies every affected report and names both IDs of each replacement.</p>
     <h2>Input-probe coverage</h2>

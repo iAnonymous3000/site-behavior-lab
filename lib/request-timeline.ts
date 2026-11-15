@@ -13,14 +13,21 @@ export type RequestTimelineModel = Readonly<{
   marks: readonly RequestTimelineMark[];
 }>;
 
+/**
+ * `spanMs`, when given, is the scale's end: the visit's own time scale
+ * (visitTimeScale in lib/domain-evidence-table.ts), so the timeline and the
+ * tables' time strips place one request at one position. Without it the
+ * scale ends at the last request.
+ */
 export function buildRequestTimelineModel(
   requests: readonly NetworkRequestRecord[],
-  markLimit = REQUEST_TIMELINE_MARK_LIMIT
+  markLimit = REQUEST_TIMELINE_MARK_LIMIT,
+  spanMs?: number
 ): RequestTimelineModel {
   if (!Number.isSafeInteger(markLimit) || markLimit <= 0) {
     throw new TypeError("timeline mark limit must be a positive integer");
   }
-  let maxTime = 1;
+  let maxTime = Math.max(1, spanMs ?? 1);
   for (const request of requests) maxTime = Math.max(maxTime, request.startedAtMs);
 
   if (requests.length <= markLimit) {

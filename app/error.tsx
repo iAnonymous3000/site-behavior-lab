@@ -5,7 +5,7 @@ import { staticAssetPath } from "./client-runtime";
 
 export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <main className="app-shell route-state-shell">
+    <main className="app-shell route-state-shell da">
       <section className="side-card route-state-card" role="alert" aria-labelledby="route-error-title">
         <div className="brand-mark" aria-hidden="true">
           <FlaskConical size={22} />

@@ -284,6 +284,7 @@ export const NOT_DEVELOPMENT_VISIT_RECORDS = Object.freeze({
   "public/corpus-stats.json": "aggregates over public/reports, which is read",
   "public/corrections.json": "names report ids, never a domain",
   "public/corrections.schema.json": "schema",
+  "public/fonts/": "this site's own type: font files and their licences",
   "public/metric-contract.v1.json": "metric definitions",
   "public/scan-report.schema.json": "schema",
   "public/service-role-taxonomy.v1.json": "third-party service roles, not visited sites",

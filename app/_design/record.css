@@ -1,0 +1,114 @@
+/*
+ * Direction A: the record, one visit of one report (front-page-record.tsx).
+ *
+ * On the homepage it is the latest report, between the first screen and the
+ * library. On a site page it is the site's latest visit. The text is first
+ * in the source and the figure follows; on a wide screen the figure stands
+ * at the left in the claim column and the text at the right. The limits stay
+ * with the sentence at every width.
+ */
+.da.da.da .a-fpr {
+  margin: var(--a-s7) 0 0;
+  padding: 18px 0 0;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da.da .a-fpr-open {
+  font: 600 var(--a-t-fine) / 1.4 var(--a-sans);
+}
+
+/* The record's site is a step below the page's headline, so the page has
+   one top. A long name steps down again by its length (lib/site-name-size.ts). */
+.da.da.da .a-fpr-text h2 {
+  margin: 6px 0 0;
+  font: 500 var(--a-t-rec) / 1.1 var(--a-serif);
+  letter-spacing: -0.015em;
+  overflow-wrap: anywhere;
+}
+
+.da.da.da .a-fpr-text h2.a-site-long {
+  font-size: var(--a-t-rec-long);
+}
+
+.da.da.da .a-fpr-text h2.a-site-longer {
+  font-size: var(--a-t-rec-longer);
+}
+
+.da.da.da .a-fpr-text > dl {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 8px;
+  margin: 8px 0 0;
+  font-size: var(--a-t-small);
+}
+
+.da.da.da .a-fpr-text > dl > dt {
+  font-size: var(--a-t-fine);
+  color: var(--a-slate);
+}
+
+.da.da.da .a-fpr-text > dl > dd {
+  margin: 0;
+}
+
+.da.da.da .a-fpr-find {
+  margin: 14px 0 0;
+  font: 400 1.375rem / 1.3 var(--a-serif);
+  letter-spacing: -0.004em;
+  text-wrap: pretty;
+}
+
+.da.da.da .a-fpr-limits {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 0;
+}
+
+.da.da.da .a-fpr-limits .a-lim strong {
+  font-weight: 600;
+}
+
+.da.da.da .a-fpr-order {
+  margin: 0 0 0 22px;
+  font-size: var(--a-t-small);
+  color: var(--a-slate);
+}
+
+.da.da.da .a-fpr > .a-plate {
+  margin-top: 22px;
+}
+
+@media screen and (min-width: 901px) {
+  .da.da.da .a-fpr {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    column-gap: 56px;
+    align-items: start;
+  }
+
+  .da.da.da .a-fpr-text {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .da.da.da .a-fpr > .a-plate {
+    grid-column: 1;
+    grid-row: 1;
+    margin-top: 0;
+  }
+
+  /* The figure in a column 0.6 of the page: its labels go above its marks. */
+  .da.da.da .a-fpr .a-dest,
+  .da.da.da .a-fpr .a-unm {
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 6px 20px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .da.da.da .a-fpr-find {
+    font-size: 1.25rem;
+  }
+}
+

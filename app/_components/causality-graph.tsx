@@ -1,5 +1,5 @@
 "use client";
-import { useEvidenceIds } from "./print-mode";
+import { useEvidenceIds, usePrintComplete } from "./print-mode";
 
 import { useId, useMemo, useState } from "react";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/lib/request-attribution-map";
 import type { EvidenceState } from "@/lib/report-facts";
 import type { RunView } from "@/lib/scan-report-views";
+import { figureMarks } from "@/lib/request-figure";
 import { plural } from "@/lib/text-format";
 
 /** The phrase the request log already prints for that field, so both surfaces read alike. */
@@ -66,7 +67,6 @@ function CausalityGraph({
    * otherwise.
    */
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [focused, setFocused] = useState(false);
   const model = useMemo(
     () =>
       buildRequestAttributionMap({
@@ -79,6 +79,7 @@ function CausalityGraph({
     [requestEvidenceState, run]
   );
   const evidenceId = useEvidenceIds();
+  const printComplete = usePrintComplete();
   const headingId = useId();
   const scrollDescriptionId = useId();
   if (!model) return null;
@@ -88,11 +89,14 @@ function CausalityGraph({
     return (
       <section className="data-section causal-graph-card" id={evidenceId("causal-map")} aria-labelledby={headingId}>
         <div className="section-heading">
-          <h2 id={headingId}>Request attribution map</h2>
+          <h2 id={headingId}>{printComplete ? "Request attribution map" : "Request attribution"}</h2>
           <span className="muted">Withheld because its retained rows do not reconcile with the report totals.</span>
         </div>
         <p className="attribution-map-empty">
-          This map was not drawn: {model.reason}. Counts that disagree with the rest of
+          {/* The owner approved the screen's wording for these three
+              sentences (the report page and the homepage result); paper keeps
+              its own, as it still draws the map. */}
+          {printComplete ? "This map was not drawn" : "These relationships are not shown"}: {model.reason}. Counts that disagree with the rest of
           the report cannot be published as a map, so the section is withheld rather
           than shown with a denominator the request log contradicts.
         </p>
@@ -128,19 +132,11 @@ function CausalityGraph({
 
   return (
     <section
-      className={`data-section causal-graph-card${focused ? " is-focused" : ""}`}
+      className="data-section causal-graph-card"
       id={evidenceId("causal-map")}
     >
       <div className="section-heading">
-        <h2 id={headingId}>Request attribution map</h2>
-        <button
-          type="button"
-          className="attribution-focus-toggle"
-          aria-pressed={focused}
-          onClick={() => setFocused((value) => !value)}
-        >
-          {focused ? "Exit focus" : "Focus map"}
-        </button>
+        <h2 id={headingId}>{printComplete ? "Request attribution map" : "Request attribution"}</h2>
         <span className="muted">
           {instrumented
             ? "Which recorded actor each third-party request is attributed to, from the supplied PageGraph provenance. Asterisks mark subdomain labels hidden for privacy."
@@ -169,13 +165,112 @@ function CausalityGraph({
             ? "That includes requests for which the browser reported no usable initiator, and repeated URLs seen with conflicting initiators."
             : "That includes requests for which the browser reported no usable initiator, repeated URLs seen with conflicting initiators, and URLs requested more times than the scan received an initiator for them, such as one a dedicated worker also requested."}{" "}
           This report does not distinguish those causes, so they are counted together
-          rather than drawn.
+          rather than {printComplete ? "drawn" : "listed"}.
         </p>
       )}
       <p className={`attribution-coverage-note${coverage.lowerBound ? " is-lower-bound" : ""}`}>
         {coverage.summary}
       </p>
-      {edges.length > 0 ? (
+      {edges.length > 0 && !printComplete ? (
+        /* On screen: one block per recorded actor, and beside it one line per
+           destination with one mark per request. Each line is the control
+           that selects that relationship; the selected detail and the way to
+           its rows open under the actor's block. Paper keeps the drawing. */
+        <>
+          <div className="attribution-groups">
+            {sources.map((source) => {
+              const own = edges.filter((edge) => edge.source === source.domain);
+              const selectedHere = selectedEdge !== null && selectedEdge.source === source.domain ? selectedEdge : null;
+              // The actor's own party, as the domain table marks it: the site
+              // itself, or another site.
+              const sameSite = run.evidence.domains.some((domain) => domain.domain === source.domain && !domain.thirdParty);
+              return (
+                <div className={`attribution-group${sameSite ? " is-site" : ""}`} key={source.domain}>
+                  <p className="attribution-actor">
+                    <span className="attribution-actor-name">{source.domain}</span>
+                    <span className="attribution-actor-detail">
+                      {actorRoleLabel(source.role)} · {plural(source.destinations, "destination")}
+                    </span>
+                  </p>
+                  <ul className="attribution-edge-list">
+                    {own.map((edge) => {
+                      const key = edgeKey(edge);
+                      const isSelected = key === selectedKey;
+                      const marks = figureMarks(edge.requests, coverage.lowerBound);
+                      return (
+                        <li key={`${edge.source}->${edge.dest}-control`}>
+                          <button
+                            type="button"
+                            className={`attribution-edge-control${isSelected ? " is-selected" : ""}`}
+                            aria-pressed={isSelected}
+                            onClick={() => setSelectedKey(isSelected ? null : key)}
+                          >
+                            <span className="attribution-edge-pair">
+                              <span className="visually-hidden">{truncateMiddle(edge.source, 26)} to </span>
+                              {truncateMiddle(edge.dest, 26)}
+                            </span>
+                            <span className="attribution-edge-meta">
+                              {edge.requestsPhrase}
+                              <span className="visually-hidden"> · {actorRoleLabel(edge.role)}</span>
+                            </span>
+                            {edge.tracker && (
+                              <span className="attribution-edge-service">
+                                <span className="visually-hidden"> · </span>catalogued service
+                              </span>
+                            )}
+                            <span className="a-marks" aria-hidden="true">
+                              {marks.run !== "" && <span className="a-run">{marks.run}</span>}
+                              {marks.held !== null && (
+                                <span className="a-tail">
+                                  {marks.held !== "" && <span className="a-run">{marks.held}</span>}
+                                  <b className="a-open" />
+                                </span>
+                              )}
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  {selectedHere && (
+                    <div className="attribution-selection-open">
+                      <p className="attribution-selection-detail">
+                        {selectedHere.source} to {selectedHere.dest} ·{" "}
+                        {selectedHere.requestsPhrase} · {actorRoleLabel(selectedHere.role)}
+                      </p>
+                      <a
+                        className="glossary-link"
+                        href={buildEvidenceHash({
+                          section: "requests",
+                          ...(arm ? { arm } : {}),
+                          pair: { actor: selectedHere.source, destination: selectedHere.dest }
+                        })}
+                      >
+                        Show these request rows
+                      </a>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {/* The one status region: it announces the selection, whose visible
+              detail is under its actor's block, and holds the prompt until
+              there is one. */}
+          <div className="attribution-selection" role="status" aria-live="polite">
+            {selectedEdge ? (
+              <p className="visually-hidden">
+                {selectedEdge.source} to {selectedEdge.dest} ·{" "}
+                {selectedEdge.requestsPhrase} · {actorRoleLabel(selectedEdge.role)}
+              </p>
+            ) : (
+              <p className="attribution-selection-detail muted">
+                Select a relationship to see its detail and open the rows behind it.
+              </p>
+            )}
+          </div>
+        </>
+      ) : edges.length > 0 ? (
         <>
           <p className="visually-hidden" id={scrollDescriptionId}>
             Horizontally scrollable visual map. A text list of every relationship drawn in it follows.
@@ -325,13 +420,18 @@ function CausalityGraph({
         </>
       ) : (
         <p className="attribution-map-empty">
-          No retained third-party request has one recorded actor to draw. This is not evidence that no actor was involved: the visit may have reported no actor or several actors for the same request.
+          {/* The owner approved the shorter heading and sentence for the
+              screen (the report page and the homepage result); paper keeps
+              its own wording. */}
+          {printComplete
+            ? "No retained third-party request has one recorded actor to draw."
+            : "No retained third-party request has one recorded actor."} This is not evidence that no actor was involved: the visit may have reported no actor or several actors for the same request.
         </p>
       )}
       {totalEdges > edges.length && (
         <p className="muted row-more">
           Showing the {edges.length} highest-volume attribution paths of {plural(totalEdges, "recorded path")}.
-          The per-domain counts above cover only the paths drawn here; open the report JSON for the full set.
+          The per-domain counts above cover only the paths {printComplete ? "drawn" : "listed"} here; open the report JSON for the full set.
         </p>
       )}
       {edges.length > 0 && (

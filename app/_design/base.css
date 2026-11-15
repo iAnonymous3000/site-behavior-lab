@@ -1,0 +1,468 @@
+/*
+ * Direction A: base styles. Applies inside a .da root only.
+ *
+ * The page shell (app/_components/site-chrome.tsx) still renders the markup
+ * every route shares, so its elements are restyled here by their existing
+ * class names rather than replaced. Selectors carry the .da.da prefix so they
+ * outrank app/globals.css without !important.
+ */
+body:has(.da) {
+  margin: 0;
+  background: var(--a-paper);
+  color: var(--a-carbon);
+  font: 400 var(--a-t-body) / 1.5 var(--a-sans);
+  font-variant-numeric: tabular-nums;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+.da.da {
+  all: unset;
+  display: block;
+  box-sizing: border-box;
+  max-width: var(--a-page);
+  margin: 0 auto;
+  padding: 0 var(--a-gut);
+  color: var(--a-carbon);
+  font: 400 var(--a-t-body) / 1.5 var(--a-sans);
+  /* Every weight used is in the variable files; a browser must not fake one. */
+  font-synthesis: none;
+}
+
+.da *,
+.da *::before,
+.da *::after {
+  box-sizing: border-box;
+}
+
+.da a {
+  color: var(--a-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.da a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* No shadow is cancelled here: a block still on the earlier stylesheet (the
+   evidence explorer's table scroller) shows its focus as a shadow, and
+   scripts/smoke-static-site.mjs reads it. Dressed blocks are cleared of the
+   earlier design, shadows included, by their own sheets. */
+.da :focus-visible,
+body:has(.da) .skip-link:focus-visible {
+  outline: 3px solid var(--a-focus);
+  outline-offset: 2px;
+  border-radius: 1px;
+}
+
+.da time {
+  white-space: nowrap;
+}
+
+.da ::selection {
+  background: var(--a-prussian);
+  color: var(--a-on-prussian);
+}
+
+.da code,
+.da .a-mono {
+  font-family: var(--a-mono);
+  font-size: 0.94em;
+  letter-spacing: -0.01em;
+  background: none;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  overflow-wrap: anywhere;
+}
+
+.da .a-vh,
+.da.da .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- Blocks still on the earlier stylesheet ----
+ * The evidence explorer, and any block of a page that has not had its turn,
+ * still render with app/globals.css. Their colors and faces are
+ * pointed at this design's tokens so they sit on the same paper, in the same
+ * type, with no verdict hues.
+ */
+.da.da {
+  --bg: var(--a-paper);
+  --bg-grid: transparent;
+  --surface: var(--a-paper);
+  --surface-2: var(--a-bench);
+  --surface-3: var(--a-bench);
+  --border: var(--a-rule);
+  --border-strong: var(--a-edge);
+  --text: var(--a-carbon);
+  --text-muted: var(--a-slate);
+  --text-subtle: var(--a-slate);
+  --accent: var(--a-prussian);
+  --accent-strong: var(--a-prussian);
+  --accent-contrast: var(--a-on-prussian);
+  --accent-soft: var(--a-bench);
+  --sig-quiet: var(--a-slate);
+  --sig-quiet-soft: var(--a-bench);
+  --sig-info: var(--a-carbon);
+  --sig-info-soft: var(--a-bench);
+  --sig-warn: var(--a-carbon);
+  --sig-warn-soft: var(--a-bench);
+  --sig-loud: var(--a-carbon);
+  --sig-loud-soft: var(--a-bench);
+  --sig-ok: var(--a-carbon);
+  --sig-ok-soft: var(--a-bench);
+  --font-sans: var(--a-sans);
+  --font-mono: var(--a-mono);
+}
+
+
+/* Skip link: outside the shell in the DOM, so addressed through body. */
+body:has(.da) .skip-link {
+  position: absolute;
+  left: var(--a-gut);
+  top: -80px;
+  z-index: 10;
+  padding: 10px 14px;
+  /* Outside the shell this link would read the earlier sheet's border and
+     shadow tokens: the border takes the focus token, and no shadow. */
+  border-color: var(--a-focus);
+  box-shadow: none;
+  border-radius: 2px;
+  background: var(--a-prussian);
+  color: var(--a-on-prussian);
+  font: 600 var(--a-t-small) / 1.2 var(--a-sans);
+  text-decoration: none;
+  transform: none;
+}
+
+body:has(.da) .skip-link:focus {
+  top: 8px;
+}
+
+/* Masthead */
+.da.da > .topbar {
+  all: unset;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px 24px;
+  flex-wrap: wrap;
+  padding: 18px 0 16px;
+  position: relative;
+}
+
+/* The rule runs the full width of the window; the content keeps the page measure. */
+.da.da > .topbar::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 100vw;
+  transform: translateX(-50%);
+  border-bottom: 1px solid var(--a-rule);
+}
+
+.da.da .brand {
+  all: unset;
+  cursor: pointer;
+  font: var(--a-w-title) 1.3125rem / 1 var(--a-serif);
+  letter-spacing: -0.005em;
+  color: var(--a-carbon);
+  white-space: nowrap;
+}
+
+.da.da .brand-mark {
+  display: none;
+}
+
+.da.da .brand-text,
+.da.da .brand-name {
+  all: unset;
+}
+
+.da.da .topbar-nav {
+  all: unset;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 26px;
+  margin-left: auto;
+  font-size: 0.9375rem;
+}
+
+.da.da .topbar-link {
+  all: unset;
+  cursor: pointer;
+  color: var(--a-carbon);
+  /* 24px of target height at the least, WCAG 2.5.8. */
+  padding: 4px 0;
+}
+
+.da.da .topbar-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.5em;
+}
+
+.da.da .topbar-link[aria-current="page"] {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.5em;
+}
+
+.da.da .topbar-actions {
+  all: unset;
+  display: flex;
+  align-items: center;
+  align-self: center;
+}
+
+.da.da .icon-button {
+  all: unset;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 2px;
+  color: var(--a-slate);
+}
+
+/* The shell's links are cleared with `all: unset`, which outweighs the one
+   ring above and took their focus ring with it. They get it back here. */
+.da.da :is(.brand, .topbar-link, .footer-link):focus-visible {
+  outline: 3px solid var(--a-focus);
+  outline-offset: 2px;
+  border-radius: 1px;
+}
+
+/* The scanner's status beside the theme control: words only. Its dot was a
+   color that meant ready or not; the words say it. */
+.da.da .status-pill {
+  all: unset;
+  font-size: var(--a-t-fine);
+  color: var(--a-slate);
+  white-space: nowrap;
+}
+
+.da.da .status-pill .status-dot {
+  display: none;
+}
+
+/* The one ring, drawn here as a shadow of the same size and offset, with a
+   paper gap inside it: scripts/smoke-static-site.mjs reads this control's
+   focus from its box shadow. The outline stays, transparent, because forced
+   colors removes shadows and shows outlines. */
+.da.da .icon-button:focus-visible {
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--a-paper), 0 0 0 5px var(--a-focus);
+}
+
+.da.da .icon-button:hover {
+  color: var(--a-carbon);
+  background: var(--a-bench);
+}
+
+.da.da > main {
+  all: unset;
+  display: block;
+}
+
+/* Footer */
+.da.da > .app-footer {
+  all: unset;
+  display: block;
+  margin-top: var(--a-s7);
+  padding: 20px 0 36px;
+  border-top: 1px solid var(--a-rule);
+  color: var(--a-slate);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.da.da .app-footer-links,
+.da.da .app-footer-caveat {
+  all: unset;
+  display: block;
+  max-width: 92ch;
+  margin: 0 0 6px;
+}
+
+.da.da .footer-link {
+  all: unset;
+  cursor: pointer;
+  color: var(--a-slate);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.da.da .footer-link:hover {
+  color: var(--a-carbon);
+}
+
+@media screen and (max-width: 900px) {
+  .da.da > .topbar {
+    padding: 14px 0 12px;
+  }
+
+  .da.da .brand {
+    font-size: 1.1875rem;
+  }
+
+  .da.da .topbar-nav {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+    gap: 4px 18px;
+    font-size: 0.90625rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .da *,
+  .da *::before,
+  .da *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  body:has(.da) {
+    font-size: 10.5pt;
+    background: #fff;
+  }
+
+  .da.da {
+    max-width: none;
+    padding: 0;
+  }
+
+  .da.da > .topbar {
+    padding: 0 0 3mm;
+    border: 0;
+  }
+
+  .da.da > .topbar::after {
+    border-bottom: 1.5pt solid #000;
+    width: 100%;
+  }
+
+  .da.da .topbar-nav,
+  .da.da .topbar-actions {
+    display: none;
+  }
+
+  .da a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+/* ---- The not-found and error pages ----
+ * One reading column: the statement as the title, the sentences under it,
+ * the ways out as a row of plain buttons. No card and no warning color; the
+ * decorative pictures are not drawn.
+ *
+ * These rules are here, and the root layout loads this stylesheet, so that
+ * neither page imports a stylesheet of its own. Each import cost script on
+ * every route: the not-found page's moved its script into a shared chunk,
+ * and the error page is a client component (app/layout.tsx has the figures).
+ */
+.da.da.da :where(.route-state-card, .route-state-card *) {
+  all: revert;
+  box-sizing: border-box;
+}
+
+.da.da.da.route-state-shell {
+  display: block;
+  min-height: 100vh;
+}
+
+.da.da.da .route-state-card {
+  display: block;
+  max-width: var(--a-read);
+  margin: 0;
+  padding: 34px 0 var(--a-s7);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--a-carbon);
+  font: 400 var(--a-t-read) / 1.5 var(--a-serif);
+  overflow-wrap: break-word;
+}
+
+.da.da.da .route-state-card > svg,
+.da.da.da .route-state-card > .brand-mark {
+  display: none;
+}
+
+.da.da.da .route-state-card .eyebrow {
+  margin: 0;
+  color: var(--a-carbon);
+  font: 600 var(--a-t-fine) / 1.4 var(--a-sans);
+}
+
+.da.da.da .route-state-card h1 {
+  margin: 4px 0 0;
+  font: 500 var(--a-t-home) / 1.1 var(--a-serif);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.da.da.da .route-state-card > p:not(.eyebrow) {
+  margin: 16px 0 0;
+}
+
+.da.da.da .route-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 28px 0 0;
+}
+
+.da.da.da .route-state-actions :is(a, button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1.5px solid var(--a-prussian);
+  border-radius: 2px;
+  background: none;
+  color: var(--a-prussian);
+  font: 600 var(--a-t-body) / 1.2 var(--a-sans);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.da.da.da .route-state-actions .primary-button {
+  background: var(--a-prussian);
+  color: var(--a-on-prussian);
+}
+
+.da.da.da .route-state-actions :is(a, button):hover {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.da.da.da .route-state-actions :is(a, button):focus-visible {
+  outline: 3px solid var(--a-focus);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .da.da.da .route-state-card {
+    padding-top: 22px;
+  }
+}

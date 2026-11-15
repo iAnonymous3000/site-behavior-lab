@@ -12,9 +12,10 @@ import {
   ShieldCheck
 } from "lucide-react";
 import { Fragment, type ReactNode } from "react";
+import { LimitLine } from "@/app/_design/limit-line";
 import { findingLookCloser, findingNewVisit, LOOK_CLOSER_NAME } from "@/lib/finding-look-closer";
 import type { Finding, FindingIconKey } from "@/lib/report-findings";
-import { REPORT_SEVERITY_LABELS } from "@/lib/report-facts";
+import { REPORT_SEVERITY_LABELS, type ReportSeverity } from "@/lib/report-facts";
 import {
   buildEvidenceHash,
   findingCardDomId,
@@ -54,13 +55,20 @@ export const FINDING_ICONS: Record<FindingIconKey, typeof Eye> = {
   "file-text": FileText
 };
 
+/** The order the index lists the filed labels in: heaviest first. */
+const INDEX_ORDER: readonly ReportSeverity[] = ["loud", "warn", "info", "quiet", "ok"];
+
 export function FindingsList({
   findings,
   evidenceArm,
   automation,
   glossaryHref,
   afterBottomLine,
-  lookCloser
+  lookCloser,
+  plainHeading,
+  shortLimits,
+  omitIcons,
+  index
 }: {
   findings: readonly Finding[];
   evidenceArm: EvidenceArm | undefined;
@@ -87,20 +95,75 @@ export function FindingsList({
     newVisitFrom: string | null;
     basePath: string;
   };
+  /**
+   * Render the heading as the title and the glossary link alone. The report
+   * permalink sets it: its record block states the scanner, so the heading
+   * need not, and the label above the title says nothing the title does not.
+   */
+  plainHeading?: boolean;
+  /**
+   * Print each card's limit as the evidence layer gives it: the one sentence
+   * beside the claim with the text behind it, the sentence alone when nothing
+   * is behind it, or the card's full string when the card carries no limit.
+   * Nothing is split, joined or chosen here (lib/finding-limits.ts does that).
+   * The report permalink sets it; the explorer and the printable route do
+   * not, and print the full string.
+   */
+  shortLimits?: boolean;
+  /**
+   * Leave each card's icon out of the markup. The report permalink sets it:
+   * its design shows no icon, and an icon hidden by a stylesheet is still
+   * stored in every committed report's page, several times over.
+   */
+  omitIcons?: boolean;
+  /**
+   * List every card's title under its filed label, as links to the cards,
+   * directly after the heading. The cards keep their stored order; the index
+   * is how a reader finds the heaviest first. It holds labels and titles the
+   * cards already print and nothing else: no heading and no name of its own,
+   * each list labelled by the visible label above it. The report permalink
+   * sets it, for a board of more than one card; the explorer's board and the
+   * printable route do not.
+   */
+  index?: boolean;
 }) {
   const hasBottomLine = findings.some((finding) => finding.id === "bottom-line");
+  const indexGroups =
+    index && findings.length > 1
+      ? INDEX_ORDER.map((level) => ({ level, cards: findings.filter((finding) => finding.level === level) })).filter(
+          (group) => group.cards.length > 0
+        )
+      : [];
   return (
     <section className="findings-board" id="findings">
       <div className="findings-heading">
         <div>
-          <p className="eyebrow">Plain-Language Findings</p>
+          {!plainHeading && <p className="eyebrow">Plain-Language Findings</p>}
           <h2>What this visit means</h2>
           <a className="glossary-link" href={glossaryHref}>
             Unfamiliar terms are defined in the glossary
           </a>
         </div>
-        <span>{automation}</span>
+        {!plainHeading && <span>{automation}</span>}
       </div>
+      {indexGroups.length > 0 && (
+        <div className="a-fx">
+          {indexGroups.map((group) => (
+            <div className={`tile-${group.level}`} key={group.level}>
+              <p id={`findings-index-${group.level}`}>{REPORT_SEVERITY_LABELS[group.level]}</p>
+              {/* Keyed by position: a key holding the title would put it in
+                  the page data a second time. */}
+              <ul aria-labelledby={`findings-index-${group.level}`}>
+                {group.cards.map((finding, position) => (
+                  <li key={position}>
+                    <a href={`#${findingCardDomId(finding.id)}`}>{finding.title}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="finding-list">
         {findings.map((finding) => {
           const Icon = FINDING_ICONS[finding.icon];
@@ -125,9 +188,11 @@ export function FindingsList({
           // could not see" links; the board renders once per document.
           const card = (
             <article className={`finding-card tile-${finding.level}`} id={findingCardDomId(finding.id)} key={finding.id}>
-              <div className="finding-icon">
-                <Icon size={18} aria-hidden="true" />
-              </div>
+              {!omitIcons && (
+                <div className="finding-icon">
+                  <Icon size={18} aria-hidden="true" />
+                </div>
+              )}
               <div>
                 {/* The card's rank had exactly one channel: a hue on the left
                     border and the icon tint. The icon itself is chosen per
@@ -138,7 +203,17 @@ export function FindingsList({
                 <p className="finding-level">{REPORT_SEVERITY_LABELS[finding.level]}</p>
                 <h3>{finding.title}</h3>
                 <p className="finding-lead">{finding.lead}</p>
-                <p>{finding.detail}</p>
+                {shortLimits ? (
+                  <div className="finding-limit">
+                    {finding.limit && finding.limit.behind.length > 0 ? (
+                      <LimitLine details={finding.limit.behind}>{finding.limit.sentence}</LimitLine>
+                    ) : (
+                      <LimitLine>{finding.limit ? finding.limit.sentence : finding.detail}</LimitLine>
+                    )}
+                  </div>
+                ) : (
+                  <p>{finding.detail}</p>
+                )}
                 <div className="finding-meta">
                   <span>{finding.evidence}</span>
                   {finding.benchmark && <span>{finding.benchmark}</span>}

@@ -241,9 +241,13 @@ export function SiteEvidenceTable({
                   {row.scannedLabel}
                   <span className={styles.siteMeta}>
                     {row.kindLabel} · {row.device}
-                    {!row.requestEvidenceComplete &&
-                      ` · ${row.capped ? "recording capped" : "request evidence incomplete"}`}
                   </span>
+                  {/* A limit on the row's counts, under the row's visit. */}
+                  {!row.requestEvidenceComplete && (
+                    <span className={`${styles.rowLimit} a-lim`}>
+                      {row.capped ? "recording capped" : "request evidence incomplete"}
+                    </span>
+                  )}
                 </td>
               </tr>
             ))}

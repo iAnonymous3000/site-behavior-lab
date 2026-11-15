@@ -3,6 +3,24 @@ import { serializeJsonLd } from "@/lib/jsonld-script";
 import { SITE_TITLE_SUFFIX } from "@/lib/seo-metadata";
 import { siteBaseUrl, siteUrl } from "@/lib/site-url";
 import "./globals.css";
+// The direction A base, for every route: each page imports these too, and the
+// not-found and error pages import nothing. With its own import the not-found
+// page's script moved into a shared chunk, and the homepage's initial script
+// measured 194,130 gzip bytes of its 194,560 (193,892 before the page was
+// dressed). Without the error page's import it measured 194,073; with both
+// gone and these four lines here, it is back under the earlier figure.
+import "./_design/fonts.css";
+import "./_design/tokens.css";
+import "./_design/base.css";
+import "./_design/components.css";
+// The report's and the explorer's sheets, for the same reason: the homepage
+// and the report page both import them, and a stylesheet two routes import
+// leaves an empty module in a script chunk they share, which made the bundler
+// mark every module of that chunk strict one by one. The homepage's initial
+// script measured 193,871 gzip bytes with explorer.css imported by the two
+// pages alone (193,846 before).
+import "./_design/report.css";
+import "./_design/explorer.css";
 
 const BRAND = "Site Behavior Lab";
 const HOME_TITLE = "Website privacy scanner and evidence library";

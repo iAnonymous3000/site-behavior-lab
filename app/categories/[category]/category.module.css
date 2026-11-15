@@ -235,3 +235,293 @@
   margin: 6px 0 0;
   overflow-wrap: anywhere;
 }
+
+/* ---- Direction A (app/_design/): the page under the .da root ----
+ * Head as the directory's, with the sentences that limit the results at the
+ * right as limit lines. The medians as label over number, no card. The
+ * blocking pairs as plain text under a hairline. Sections under a rule.
+ */
+:global(.da) .page {
+  max-width: none;
+  margin: 0;
+  padding: 0 0 var(--a-s7);
+}
+
+:global(.da) .breadcrumbs {
+  padding: 22px 0 0;
+  font: 400 0.875rem / 1.5 var(--a-sans);
+  color: var(--a-slate);
+}
+
+:global(.da) .breadcrumbs ol {
+  gap: 0 6px;
+}
+
+:global(.da) .breadcrumbs a,
+:global(.da) .methodLinks a {
+  color: var(--a-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+:global(.da) .breadcrumbs a {
+  color: var(--a-slate);
+}
+
+:global(.da) .header {
+  margin: 0;
+  padding: 12px 0 0;
+  border: 0;
+  background: none;
+}
+
+:global(.da) .page :global(.eyebrow) {
+  margin: 0;
+  font: 600 var(--a-t-fine) / 1.4 var(--a-sans);
+  color: var(--a-carbon);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+:global(.da) .header h1 {
+  margin: 6px 0 0;
+  max-width: 20em;
+  font: 500 var(--a-t-home) / 1.1 var(--a-serif);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+:global(.da) .header > p:not(:global(.eyebrow)) {
+  margin: 14px 0 0;
+  max-width: 68ch;
+}
+
+:global(.da) .updated {
+  color: var(--a-slate);
+  font: 400 var(--a-t-small) / 1.5 var(--a-sans);
+}
+
+/* A limit line in this page's blocks, at the limit size. */
+:global(.da) .page :global(.a-lim) {
+  color: var(--a-carbon);
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+:global(.da) .summary,
+:global(.da) .siteSection,
+:global(.da) .method {
+  margin: var(--a-s7) 0 0;
+  padding: 14px 0 0;
+  border: 0;
+  border-top: 2px solid var(--a-carbon);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+:global(.da) .summaryIntro h2,
+:global(.da) .sectionHeading h2,
+:global(.da) .method h2 {
+  margin: 4px 0 0;
+  font: var(--a-w-find) var(--a-t-h2) / 1.15 var(--a-serif);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+:global(.da) .summaryIntro > p:not(:global(.eyebrow)) {
+  margin: 14px 0 0;
+  max-width: 68ch;
+}
+
+/* The medians: label over number. */
+:global(.da) .metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 28px;
+  margin: 20px 0 0;
+}
+
+:global(.da) .metrics > div {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+:global(.da) .metrics dt {
+  color: var(--a-slate);
+  font: 400 var(--a-t-fine) / 1.35 var(--a-sans);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+:global(.da) .metrics dd {
+  margin: 2px 0 0;
+  color: var(--a-carbon);
+  font: 500 1.75rem / 1.15 var(--a-serif);
+}
+
+:global(.da) .metrics small {
+  display: block;
+  margin: 4px 0 0;
+  color: var(--a-slate);
+  font: 400 var(--a-t-fine) / 1.35 var(--a-sans);
+}
+
+/* The blocking pairs: plain text under a hairline. */
+:global(.da) .blockingEvidence {
+  display: grid;
+  gap: 2px;
+  margin: 20px 0 0;
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid var(--a-rule);
+  border-radius: 0;
+  background: none;
+  color: var(--a-carbon);
+  font: 400 var(--a-t-small) / 1.45 var(--a-sans);
+}
+
+:global(.da) .blockingEvidence strong {
+  font-weight: var(--weight-medium);
+}
+
+:global(.da) .blockingEvidence span {
+  color: var(--a-carbon);
+}
+
+:global(.da) .blockingEvidence small {
+  color: var(--a-slate);
+  font-size: var(--a-t-fine);
+}
+
+:global(.da) .sectionHeading {
+  margin: 0 0 18px;
+}
+
+:global(.da) .sectionHeading > p {
+  margin: 14px 0 0;
+  max-width: 68ch;
+  text-align: left;
+  color: var(--a-carbon);
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+/* How to read this page: prose at the reading measure. */
+:global(.da) .method ul {
+  margin: 16px 0 0;
+  padding-left: 20px;
+  max-width: var(--a-read);
+  color: var(--a-carbon);
+  font: 400 var(--a-t-limit) / 1.55 var(--a-sans);
+}
+
+:global(.da) .method li {
+  margin: 0 0 8px;
+}
+
+:global(.da) .methodLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  margin: 18px 0 0;
+  font: 400 var(--a-t-body) / 1.4 var(--a-sans);
+}
+
+:global(.da) .cohortDetails summary {
+  cursor: pointer;
+  width: fit-content;
+  color: var(--a-link);
+  font: 400 var(--a-t-small) / 1.4 var(--a-sans);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+:global(.da) .cohortDetails p {
+  color: var(--a-slate);
+  font: 400 var(--a-t-fine) / 1.45 var(--a-mono);
+  overflow-wrap: anywhere;
+}
+
+/* Wide: the claim column and the limit column. */
+@media screen and (min-width: 901px) {
+  :global(.da) .header,
+  :global(.da) .summary,
+  :global(.da) .sectionHeading {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    column-gap: 56px;
+    align-items: start;
+  }
+
+  :global(.da) .header > *,
+  :global(.da) .summary > * {
+    grid-column: 1;
+  }
+
+  /* Left: the label, the title directly under it, then the newest
+     observation, each in its own row at the top. The fourth row is the
+     flexible one, so a limit taller than those three adds space under them
+     and never between them. Right: the first limit beside all of it, the
+     second under whichever column ends lower. */
+  :global(.da) .header {
+    grid-template-rows: auto auto auto 1fr auto;
+  }
+
+  :global(.da) .header > :global(.eyebrow) {
+    grid-row: 1;
+  }
+
+  :global(.da) .header > h1 {
+    grid-row: 2;
+  }
+
+  :global(.da) .header > .updated:not(:global(.a-lim)) {
+    grid-row: 3;
+  }
+
+  :global(.da) .header > :global(.a-lim) {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    margin-top: 2px;
+  }
+
+  :global(.da) .header > .updated:global(.a-lim) {
+    grid-row: 5;
+    margin-top: 12px;
+  }
+
+  :global(.da) .summaryIntro {
+    display: contents;
+  }
+
+  /* The same for the medians: label, heading, numbers and blocking pairs in
+     rows at the top, a flexible fifth row, and the limit beside all of it. */
+  :global(.da) .summary {
+    grid-template-rows: auto auto auto auto 1fr;
+  }
+
+  :global(.da) .summaryIntro > :global(.a-lim) {
+    grid-column: 2;
+    grid-row: 1 / span 5;
+    margin-top: 4px;
+  }
+
+  :global(.da) .sectionHeading > p {
+    margin-top: 4px;
+  }
+}
+
+@media screen and (max-width: 720px) {
+  :global(.da) .page {
+    padding: 0 0 var(--a-s6);
+  }
+
+  :global(.da) .metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

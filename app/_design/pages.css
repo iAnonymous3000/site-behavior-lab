@@ -1,0 +1,151 @@
+/*
+ * Direction A: what the pages other than the homepage and a report share.
+ *
+ * These pages keep their markup and the class names app/globals.css gave
+ * them (the page header, a section heading, the category links), and are
+ * dressed here once a route opts into the direction A root. A route's own
+ * blocks are dressed in its module stylesheet, under :global(.da).
+ *
+ * Step 1 returns the shared blocks to the browser's defaults; its list sits
+ * in :where(), so every rule after it that starts .da.da.da wins.
+ */
+.da.da.da :where(
+  .page-header, .page-header *,
+  .page-section-heading, .page-section-heading *,
+  .category-chips, .category-chips *
+) {
+  all: revert;
+  box-sizing: border-box;
+}
+
+.da.da.da .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* A link inside a cleared block takes the design's link again. */
+.da.da.da :where(.page-header a, .page-section-heading a) {
+  color: var(--a-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+/* A limit line inside a cleared block is dressed again (components.css
+   draws its hatched edge). */
+.da.da.da :is(.page-header, .page-section-heading) .a-lim {
+  position: relative;
+  margin: 0;
+  padding-left: 22px;
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+  color: var(--a-carbon);
+}
+
+/* ---- Page head: label, title, lead ---- */
+.da.da.da .page-header {
+  padding: 34px 0 0;
+}
+
+.da.da.da :is(.page-header, .page-section-heading) .eyebrow {
+  margin: 0;
+  font: 600 var(--a-t-fine) / 1.4 var(--a-sans);
+  color: var(--a-carbon);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.da.da.da .page-header h1 {
+  margin: 6px 0 0;
+  max-width: 20em;
+  font: 500 var(--a-t-home) / 1.1 var(--a-serif);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.da.da.da .page-header .lede {
+  margin: 14px 0 0;
+  max-width: var(--a-read);
+  font: 400 var(--a-t-read) / 1.5 var(--a-serif);
+}
+
+.da.da.da .page-header .page-meta {
+  margin: 12px 0 0;
+  max-width: var(--a-read);
+  font: 400 var(--a-t-small) / 1.5 var(--a-sans);
+  color: var(--a-slate);
+}
+
+/* Category links with their counts: one wrapping line of links. Each keeps
+   a 34px target (scripts/smoke-static-site.mjs holds it on a narrow screen). */
+.da.da.da .category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 22px;
+  margin: 18px 0 0;
+}
+
+.da.da.da .category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 34px;
+  min-height: 34px;
+  color: var(--a-link);
+  font: 400 var(--a-t-small) / 1.3 var(--a-sans);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.da.da.da .category-chip:hover {
+  text-decoration-thickness: 2px;
+}
+
+.da.da.da .category-chip > span {
+  color: var(--a-slate);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- A section: label and heading at the left, its sentence at the right ---- */
+.da.da.da .page-section-heading {
+  margin: var(--a-s7) 0 0;
+  padding: 14px 0 0;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da.da .page-section-heading h2 {
+  margin: 4px 0 0;
+  font: var(--a-w-find) var(--a-t-h2) / 1.15 var(--a-serif);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.da.da.da .page-section-heading > p {
+  margin: 14px 0 0;
+  max-width: 68ch;
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+@media screen and (min-width: 901px) {
+  .da.da.da .page-section-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    column-gap: 56px;
+    align-items: start;
+  }
+
+  .da.da.da .page-section-heading > p {
+    margin-top: 4px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .da.da.da .page-header {
+    padding-top: 22px;
+  }
+}

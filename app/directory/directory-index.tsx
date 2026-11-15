@@ -11,6 +11,11 @@ import { formatEvidenceDate, siteEvidenceRow } from "@/lib/site-evidence-row";
 import { DirectoryControls } from "./directory-controls";
 import styles from "./directory.module.css";
 import { SiteChrome } from "../_components/site-chrome";
+import "@/app/_design/fonts.css";
+import "@/app/_design/tokens.css";
+import "@/app/_design/base.css";
+import "@/app/_design/components.css";
+import "@/app/_design/pages.css";
 
 export async function DirectoryIndex({ page }: { page: number }) {
   const { entries } = await loadCorpusOverview();
@@ -27,7 +32,8 @@ export async function DirectoryIndex({ page }: { page: number }) {
   const pagesBasePath = sitePagesBasePath();
 
   return (
-    <SiteChrome activePath="/directory/">
+    /* "da" opts this route into the direction A stylesheet (app/_design/). */
+    <SiteChrome activePath="/directory/" shellClassName="da">
       <div className={styles.page}>
       <header className="page-header">
         <p className="eyebrow">Scanned sites</p>
@@ -67,7 +73,8 @@ export async function DirectoryIndex({ page }: { page: number }) {
               <p className="eyebrow">Evidence by category</p>
               <h2 id="category-title">Observed behavior within each category</h2>
             </div>
-            <p>
+            {/* What the medians below do and do not let a reader compare: a limit line. */}
+            <p className="a-lim">
               Only categories with at least five eligible canonical sites receive an aggregate page. Each category
               publishes one methodology cohort, so its medians are comparable inside the category rather than against
               another category&apos;s.
@@ -109,7 +116,7 @@ export async function DirectoryIndex({ page }: { page: number }) {
         )}
       </section>
 
-      <aside>
+      <aside className={`${styles.caveat} a-lim`}>
         The newest published report is shown for navigation, including failed or incomplete visits when that is the
         latest observation. Category medians use a stricter sample: one successful, request-complete, uncapped passive
         visit per canonical site, the newest within the one measurement cohort each category page publishes.

@@ -1,0 +1,796 @@
+/*
+ * Direction A: components. Each block here has one component in app/_design/.
+ *
+ * Three textures carry the evidence state and are used the same way wherever
+ * they appear:
+ *   solid mark      a request row on record
+ *   open-ended box  the count is a lower bound; more may exist
+ *   hatching        not measured
+ */
+
+/* ---- Marks and textures (request-figure.tsx) ---- */
+/* A group's marks are one run of text, one "0" per retained request row, and
+   the run is drawn as squares:
+     - the pitch is the letter spacing. `1ch` is the advance of "0" in the font
+       actually used, so `calc(pitch - 1ch)` makes every character advance
+       exactly one pitch whether the mono face loaded or a fallback did. The
+       character must stay "0" and the spacing must stay `ch` based
+       (lib/request-figure.test.ts holds both);
+     - the square's size comes from the run's background, never from the
+       glyph: on each line the run paints one band, a cell tall and centered
+       on the line, striped a cell of its group's color and a gap of nothing.
+       It is one gradient the length of the line, not a tile and not a mask.
+       WebKit draws a tiled image or a mask on wrapped text with a seam at
+       the first repeat and at a fraction of a pixel off the line, because
+       the text's own box is as tall as the font says (7.8px for a 6px mark),
+       not as tall as the line. A band centered in that box lands on whole
+       pixels in every engine, at device scales 1, 2 and 3;
+     - the text itself is transparent, hidden from assistive technology by its
+       group, and cannot be selected or copied. */
+.da .a-marks {
+  --a-adv: calc(var(--a-cell) + var(--a-gap));
+  --a-mark: var(--a-third);
+  --a-mark-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Crect width='8' height='8' y='1'/%3E%3C/svg%3E");
+  display: block;
+  /* Every character carries its gap after it and every line its gap below.
+     The block overhangs its field by one gap at the right and the bottom, so
+     a line holds as many marks as fit without the last one's gap, and the
+     block is as tall as its squares. */
+  margin: 0 calc(-1 * var(--a-gap)) calc(-1 * var(--a-gap)) 0;
+  font: 400 var(--a-cell) / var(--a-adv) var(--a-mono);
+  letter-spacing: calc(var(--a-adv) - 1ch);
+  word-break: break-all;
+  color: var(--a-mark);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.da .a-marks.is-site {
+  --a-mark: var(--a-first);
+}
+
+.da .a-marks .a-run {
+  color: transparent;
+  background: repeating-linear-gradient(90deg, var(--a-mark) 0 var(--a-cell), transparent var(--a-cell) var(--a-adv)) 0 50% /
+    100% var(--a-cell) no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  forced-color-adjust: none;
+}
+
+/* The last mark and the open-ended box, one unit that cannot wrap apart:
+   one box to the line breaker, so a full row sends the mark down with its
+   box. `nowrap` alone is not enough: WebKit keeps the mark on a row it
+   exactly fills and lets the box stick out past it. */
+.da .a-marks .a-tail {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.da .a-marks .a-open {
+  display: inline-block;
+  vertical-align: middle;
+  width: calc(var(--a-cell) * 4 + var(--a-gap) * 3);
+  height: var(--a-cell);
+  letter-spacing: 0;
+  border: 1.5px solid var(--a-mark);
+  border-right: 0;
+  -webkit-mask-image: linear-gradient(90deg, #000 70%, transparent);
+  mask-image: linear-gradient(90deg, #000 70%, transparent);
+  forced-color-adjust: none;
+}
+
+/* The two blocks paper gets in place of the run (request-figure.tsx). */
+.da .a-pf,
+.da .a-pm {
+  display: none;
+}
+
+.da .a-hatch {
+  background: repeating-linear-gradient(135deg, var(--a-hatch-ink) 0 1.5px, transparent 1.5px 6px);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  forced-color-adjust: none;
+}
+
+/* ---- Request figure ---- */
+.da .a-plate {
+  background: var(--a-bench);
+  padding: 26px 28px 22px;
+  margin: 0;
+}
+
+.da .a-plate-h {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 16px;
+  flex-wrap: wrap;
+  margin: 0 0 20px;
+}
+
+.da .a-plate-t {
+  font: 600 0.9375rem / 1.3 var(--a-sans);
+  margin: 0;
+}
+
+.da .a-plate-s {
+  font-size: 0.875rem;
+  color: var(--a-slate);
+  margin: 0;
+}
+
+.da .a-visit {
+  display: block;
+}
+
+.da .a-visit-label {
+  font: 600 var(--a-t-small) / 1.3 var(--a-sans);
+  margin: 0 0 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--a-rule);
+}
+
+.da .a-visit-label:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.da .a-dest {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  gap: 6px 28px;
+  align-items: start;
+  padding: 0 0 18px;
+}
+
+.da .a-dest-l b {
+  display: block;
+  font: 600 0.9375rem / 1.3 var(--a-sans);
+  overflow-wrap: anywhere;
+}
+
+.da .a-dest-l .a-n {
+  display: block;
+  font: 400 0.9375rem / 1.3 var(--a-sans);
+}
+
+.da .a-dest-l small {
+  display: block;
+  font-size: var(--a-t-fine);
+  line-height: 1.4;
+  color: var(--a-slate);
+  margin-top: 3px;
+}
+
+.da .a-dest .a-marks {
+  padding-top: 5px;
+}
+
+.da .a-unm {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  gap: 6px 28px;
+  border-top: 1px solid var(--a-rule);
+  padding-top: 16px;
+}
+
+.da .a-unm ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 14px;
+}
+
+.da .a-unm li {
+  font-size: var(--a-t-fine);
+  line-height: 1.35;
+  margin: 0;
+  padding: 0;
+}
+
+/* Each item's hatching is drawn by the item, not by an element of its own. */
+.da .a-unm li::before {
+  content: "";
+  display: block;
+  height: 16px;
+  margin-bottom: 7px;
+  background: repeating-linear-gradient(135deg, var(--a-hatch-ink) 0 1.5px, transparent 1.5px 6px);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  forced-color-adjust: none;
+}
+
+.da .a-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 26px;
+  margin: 18px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--a-rule);
+  font-size: var(--a-t-fine);
+  color: var(--a-slate);
+  list-style: none;
+}
+
+.da .a-key li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.da .a-key .a-marks {
+  display: inline-flex;
+  margin: 0;
+}
+
+/* One fixed square each in the key. */
+.da .a-key .a-marks i {
+  width: 0;
+  height: 0;
+  border: calc(var(--a-cell) / 2) solid var(--a-mark);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  forced-color-adjust: none;
+}
+
+.da .a-key .a-hatch {
+  width: 26px;
+  height: 10px;
+  display: inline-block;
+}
+
+.da .a-plate-n {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0 0 16px;
+  max-width: 86ch;
+}
+
+/* ---- Limit line (limit-line.tsx) ---- */
+.da .a-lim {
+  position: relative;
+  padding-left: 22px;
+  margin: 0;
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+  color: var(--a-carbon);
+}
+
+/* The limit mark: a hatched edge down the side of everything that says what
+   the visits do not establish. Hatching is the page's texture for "not
+   measured"; here it is drawn in the text color, the height of the limit it
+   marks. One rule for every place a limit is marked: a limit line, the
+   explorer card's limit, the receipt's boundary sentences, the "could not
+   see" list, the scan form's disclosure, and on the homepage the sentences
+   that limit the library, the sites on record and what a visit records, the
+   scheduled-rescan panel's capability and retention notes, the keystroke
+   note under a running scan, a visit's incomplete evidence in a site
+   page's table, and in the evidence explorer why a pair is not compared,
+   what the counts are, each measurement limit, and the three limits on the
+   attribution map, and above a result opened from a file the sentence that
+   says the page did not check it. Printed exactly, and kept in forced colors as the figure's
+   hatching is (tokens.css). */
+.da .a-lim::before,
+.da.da .finding-card .finding-lead + p::before,
+.da.da .evidence-receipt-boundaries .evidence-receipt-note::before,
+.da.da .report-visit-summary li::before,
+.da.da .scan-disclosure p::before,
+.da.da .empty-state .page-section-heading > p::before,
+.da.da .corpus-hero-cat-note::before,
+.da.da .featured-heading > p:last-child::before,
+.da.da .featured-card .capped-chip::before,
+.da.da .method-note::before,
+.da.da .scheduled-rescan-status > .scheduled-rescan-private-note:not([role="alert"] + *)::before,
+.da.da .scheduled-rescan-runs > p::before,
+.da.da .loading-state > .scan-checks-note::before,
+.da.da .site-history-table tbody th > div::before,
+.da.da .report-grid .comparison-ineligible::before,
+.da.da .report-grid .numbers-heading > span::before,
+.da.da .report-grid .warnings li::before,
+.da.da .report-grid .causal-graph-card > .section-heading > .muted::before,
+.da.da .report-grid .causal-graph-card > .attribution-coverage-note::before,
+.da.da .report-grid > .report-main > .report-incomplete-notice::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.2em;
+  bottom: 0.2em;
+  width: 8px;
+  min-height: 1.1em;
+  background: repeating-linear-gradient(135deg, var(--a-lim-ink) 0 1.5px, transparent 1.5px 4.5px);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  forced-color-adjust: none;
+}
+
+.da details.a-lim > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.da details.a-lim > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* The control: the inner of the two spans that end a summary (limit-line.tsx). */
+.da details.a-lim > summary > span > span {
+  color: var(--a-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  white-space: nowrap;
+  margin-left: 0.25em;
+}
+
+/* No break between the last word and the control (limit-line.tsx). */
+.da details.a-lim > summary > span {
+  white-space: nowrap;
+}
+
+.da details.a-lim[open] > summary > span > span {
+  text-decoration-style: dotted;
+}
+
+.da details.a-lim > summary:hover > span > span {
+  text-decoration-thickness: 2px;
+}
+
+/* The text behind a limit: the element directly after the details. It shows
+   while the details is open, and always on paper (the print block below). */
+.da .a-lim-behind {
+  display: none;
+  padding-left: 22px;
+}
+
+.da details.a-lim[open] + .a-lim-behind {
+  display: block;
+}
+
+.da .a-lim-behind > p {
+  margin: 8px 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  max-width: 68ch;
+}
+
+/* ---- Evidence table (evidence-table.tsx) ---- */
+.da .a-tbl-h {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 18px;
+  margin: var(--a-s7) 0 4px;
+  padding-top: 14px;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da .a-tbl-h h2 {
+  font: var(--a-w-find) var(--a-t-h2) / 1.15 var(--a-serif);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.da .a-tbl-h span {
+  font-size: 0.9375rem;
+  color: var(--a-slate);
+}
+
+.da .a-tbl-l {
+  margin: 8px 0 14px;
+  max-width: 86ch;
+}
+
+.da .a-tbl-scroll {
+  overflow-x: auto;
+}
+
+.da table.a-ev {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  border: 0;
+  background: none;
+}
+
+.da table.a-ev caption {
+  text-align: left;
+}
+
+.da table.a-ev th {
+  font: 600 var(--a-t-fine) / 1.3 var(--a-sans);
+  color: var(--a-carbon);
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 8px 14px 8px 0;
+  border: 0;
+  border-bottom: 2px solid var(--a-carbon);
+  vertical-align: bottom;
+  white-space: nowrap;
+  background: var(--a-paper);
+}
+
+.da table.a-ev td {
+  padding: 6px 14px 6px 0;
+  border: 0;
+  border-bottom: 1px solid var(--a-rule);
+  vertical-align: top;
+  color: var(--a-carbon);
+  background: none;
+}
+
+.da table.a-ev .a-num {
+  text-align: right;
+  padding-right: 22px;
+}
+
+.da table.a-ev td.a-h {
+  font-family: var(--a-mono);
+  font-size: var(--a-t-fine);
+  white-space: nowrap;
+}
+
+.da table.a-ev td.a-h {
+  position: relative;
+  padding-left: 18px;
+}
+
+.da table.a-ev td.a-h::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.82em;
+  width: 8px;
+  height: 8px;
+  background: var(--a-third);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.da table.a-ev tr.is-site td.a-h::before {
+  background: var(--a-first);
+}
+
+.da table.a-ev .a-q {
+  color: var(--a-slate);
+}
+
+.da table.a-ev td.a-e {
+  white-space: nowrap;
+}
+
+.da table.a-ev td.a-t {
+  width: 170px;
+  padding-top: 5px;
+  padding-bottom: 0;
+}
+
+/* The time strip: one tick per retained request row, quarter marks behind. */
+.da .a-strip {
+  display: block;
+  width: 150px;
+  height: 18px;
+  color: var(--a-third);
+  background: linear-gradient(90deg, var(--a-rule) 1px, transparent 1px) 0 0 / 25% 100%;
+  border-right: 1px solid var(--a-rule);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.da tr.is-site .a-strip {
+  color: var(--a-first);
+}
+
+.da .a-strip path {
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-opacity: 0.7;
+  vector-effect: non-scaling-stroke;
+  fill: none;
+}
+
+.da table.a-ev tbody tr:hover td {
+  background: var(--a-bench);
+}
+
+.da .a-tbl-f {
+  font-size: 0.875rem;
+  color: var(--a-slate);
+  margin: 12px 0 0;
+  max-width: 92ch;
+}
+
+@media screen and (max-width: 900px) {
+  .da .a-plate {
+    padding: 20px 16px 18px;
+    margin-left: calc(var(--a-gut) * -1);
+    margin-right: calc(var(--a-gut) * -1);
+  }
+
+  .da .a-dest,
+  .da .a-unm {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .da .a-unm ul {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* The table becomes one block per host; every cell keeps its words. */
+  .da table.a-ev thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .da table.a-ev,
+  .da table.a-ev tbody {
+    display: block;
+  }
+
+  .da table.a-ev tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--a-rule);
+  }
+
+  .da table.a-ev td {
+    border: 0;
+    padding: 0;
+  }
+
+  .da table.a-ev td.a-h {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    padding-left: 18px;
+  }
+
+  .da table.a-ev td.a-h::before {
+    top: 0.42em;
+  }
+
+  .da table.a-ev td.a-num {
+    padding: 0;
+    font-weight: 600;
+  }
+
+  .da table.a-ev td.a-t,
+  .da table.a-ev td.a-c,
+  .da table.a-ev td.a-x {
+    grid-column: 1 / -1;
+    padding-left: 18px;
+    font-size: var(--a-t-fine);
+    width: auto;
+  }
+
+  .da table.a-ev td.a-t {
+    padding-top: 3px;
+    padding-bottom: 3px;
+  }
+
+  .da table.a-ev td.a-x {
+    color: var(--a-slate);
+  }
+
+  .da table.a-ev td[data-l]::before {
+    content: attr(data-l) ": ";
+    color: var(--a-slate);
+  }
+
+  .da .a-strip {
+    width: 100%;
+    max-width: 320px;
+  }
+}
+
+@media print {
+  /* Paper gets two blocks, not the run: a run of characters would sit in a
+     PDF's text layer and copy out as zeros. The field is 64 columns wide: 60
+     for marks and 4 kept free so the open-ended box always follows the last
+     square on that square's own row. One column is 1.5625% of the field.
+       .a-pf  --r full rows of 60 squares
+       .a-pm  --m squares, the last row
+     Each paints its group's color and is cut into squares by the run's tile;
+     the tile is square, so `auto` keeps one tile to one column. */
+  .da .a-dest .a-marks {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin: 0;
+    letter-spacing: 0;
+    line-height: 0;
+  }
+
+  .da .a-dest .a-marks .a-run {
+    display: none;
+  }
+
+  .da .a-dest .a-marks .a-tail {
+    display: contents;
+  }
+
+  .da .a-pf,
+  .da .a-pm {
+    display: block;
+    background: var(--a-mark);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    forced-color-adjust: none;
+  }
+
+  .da .a-pf {
+    /* The page sets the number on the element; one row if it ever did not. */
+    --r: 1;
+    width: 93.75%;
+    margin-right: 6.25%;
+    aspect-ratio: 60 / var(--r);
+    -webkit-mask: var(--a-mark-tile) 0 0 / 1.66667% auto;
+    mask: var(--a-mark-tile) 0 0 / 1.66667% auto;
+  }
+
+  /* Nothing in the last row: the box sits in the free columns beside the
+     last full row. */
+  .da .a-pf:has(+ .a-tail) {
+    margin-right: 0;
+  }
+
+  .da .a-pm {
+    --m: 1;
+    width: calc(1.5625% * var(--m));
+    aspect-ratio: var(--m) / 1;
+    -webkit-mask: var(--a-mark-tile) 0 0 / auto 100%;
+    mask: var(--a-mark-tile) 0 0 / auto 100%;
+  }
+
+  .da .a-dest .a-marks .a-open {
+    /* 3.8 columns wide, as on screen: four squares and the three gaps between. */
+    width: 5.9375%;
+    height: auto;
+    aspect-ratio: 4.75;
+    margin-bottom: 0.15625%;
+  }
+
+
+  /* A two-visit figure can be taller than what is left of a page: it may
+     break between rows, never inside one. */
+  .da .a-plate {
+    border: 0.75pt solid #000;
+    padding: 3mm 5mm;
+  }
+
+  .da .a-plate-h,
+  .da .a-visit-label {
+    break-after: avoid;
+  }
+
+  /* Tighter than the screen, so the figure of a full request log still ends
+     on the page it starts on. */
+  .da .a-plate-h {
+    margin-bottom: 3mm;
+  }
+
+  .da .a-visit-label {
+    margin-bottom: 2mm;
+    padding-top: 2mm;
+  }
+
+  .da .a-unm {
+    padding-top: 2.5mm;
+  }
+
+  .da .a-unm ul {
+    gap: 2mm 14px;
+  }
+
+  .da .a-unm li::before {
+    height: 12px;
+    margin-bottom: 4px;
+  }
+
+  .da .a-plate-n,
+  .da .a-key {
+    font-size: 8.5pt;
+  }
+
+  .da .a-key {
+    margin-top: 2mm;
+    padding-top: 1.5mm;
+  }
+
+  .da .a-dest-l small {
+    font-size: 8pt;
+  }
+
+  .da .a-dest,
+  .da .a-unm {
+    grid-template-columns: 44mm minmax(0, 1fr);
+  }
+
+  .da .a-dest {
+    padding-bottom: 2mm;
+    break-inside: avoid;
+  }
+
+  /* A two-visit figure breaks between its visits and nowhere inside one: each
+     visit's label and rows are one block. A single visit's rows may still
+     break between rows, since one visit can be taller than a page leaves. */
+  .da .a-visit.is-one-of-two {
+    break-inside: avoid;
+  }
+
+  /* What was not measured and the key stay together, on whichever page. */
+  .da .a-unm {
+    break-inside: avoid;
+    break-after: avoid;
+  }
+
+  .da .a-key {
+    break-inside: avoid;
+    break-before: avoid;
+  }
+
+  /* Paper cannot ask for more: every limit prints in full. */
+  .da details.a-lim > summary > span {
+    display: none;
+  }
+
+  /* Paper always carries the text behind a limit, whether the reader had the
+     line open or closed. A plain rule on the element itself: nothing here
+     depends on how a browser prints a closed details, and the site's older
+     print rule for closed details reaches only a details' own children, so it
+     can neither hide this nor print it twice. */
+  .da .a-lim-behind {
+    display: block;
+  }
+
+  .da .a-lim-behind > p {
+    margin: 1mm 0 0;
+    font-size: 9.5pt;
+    line-height: 1.45;
+  }
+
+  .da .a-tbl-h {
+    break-after: avoid;
+    margin-top: 6mm;
+  }
+
+  .da table.a-ev {
+    font-size: 8.5pt;
+    table-layout: auto;
+  }
+
+  .da table.a-ev th:first-child {
+    width: 30%;
+  }
+
+  .da table.a-ev tr {
+    break-inside: avoid;
+  }
+
+  .da table.a-ev td.a-h {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-size: 8pt;
+  }
+
+  .da table.a-ev td.a-t {
+    width: 32mm;
+  }
+
+  .da .a-strip {
+    width: 30mm;
+    height: 12px;
+  }
+}

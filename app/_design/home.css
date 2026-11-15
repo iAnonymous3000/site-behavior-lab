@@ -1,0 +1,1624 @@
+/*
+ * Direction A: the homepage (app/page.tsx, app/site-behavior-app.tsx).
+ *
+ * The page keeps its markup and its class names, which the scan form's
+ * script and scripts/smoke-static-site.mjs both read, and is dressed here.
+ * Order on the page: the first screen (headline, address field, run modes,
+ * with the sites to try and the scan disclosure beside them), the library,
+ * the sites on record, what one visit records.
+ *
+ * Step 1 returns each dressed block to the browser's defaults, so nothing
+ * from app/globals.css leaks in. Its list sits in :where(), so the rule
+ * weighs three classes whatever the list holds, and every rule after it that
+ * starts .da.da.da wins.
+ */
+
+/* ---- 1. Clear the earlier design from the blocks this page dresses ---- */
+.da.da.da :where(
+  .scan-workbench, .scan-workbench *,
+  .empty-state,
+  .empty-state *:not(.a-marks, .a-marks *, .a-key, .a-key *),
+  .method-card, .method-card *,
+  .error-banner, .error-banner *,
+  .loading-state, .loading-state *
+) {
+  all: revert;
+  box-sizing: border-box;
+}
+
+/* What the reset would otherwise undo. */
+.da.da.da .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The disclosure's first sentence has two forms; the form shows the check's
+   while a "Check after scrolling" arrival holds (scan-disclosure.tsx). */
+.da.da.da .scan-disclosure-check-visit,
+.da.da.da .scan-panel[data-scroll-check] .scan-disclosure-visit {
+  display: none;
+}
+
+.da.da.da .scan-panel[data-scroll-check] .scan-disclosure-check-visit {
+  display: inline;
+}
+
+/* A link inside a cleared block takes the design's link again. In :where(),
+   so every rule below that sets a link's own color still wins. */
+.da.da.da :where(.scan-workbench a, .empty-state a, .method-card a, .error-banner a, .loading-state a) {
+  color: var(--a-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+/* A limit line inside a cleared block is dressed again (components.css
+   draws its hatched edge). The scan disclosure's sentences are limit lines
+   by this rule, not by a class: lib/scan-disclosure.test.ts holds their
+   markup as it is. */
+.da.da.da :is(.scan-workbench, .empty-state, .method-card) .a-lim,
+.da.da.da .scan-disclosure p,
+.da.da.da .empty-state .page-section-heading > p,
+.da.da.da .corpus-hero-cat-note,
+.da.da.da .featured-heading > p:last-child,
+.da.da.da .featured-card .capped-chip,
+.da.da.da .method-note {
+  position: relative;
+  margin: 0;
+  padding-left: 22px;
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+  color: var(--a-carbon);
+}
+
+/* ---- 2. Controls shared by the page's blocks ---- */
+/* The main action: a filled block. */
+.da.da.da :is(.scan-workbench, .empty-state, .error-banner, .loading-state) :is(.primary-button, .secondary-button) {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1.5px solid var(--a-prussian);
+  border-radius: 2px;
+  background: var(--a-prussian);
+  color: var(--a-on-prussian);
+  font: 600 var(--a-t-body) / 1.2 var(--a-sans);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* The second action: the same box, open. */
+.da.da.da :is(.scan-workbench, .empty-state, .error-banner, .loading-state) .secondary-button {
+  background: none;
+  color: var(--a-prussian);
+}
+
+/* A minor action: a text link. */
+.da.da.da :is(.scan-workbench, .empty-state, .error-banner, .loading-state) .ghost-button {
+  all: unset;
+  cursor: pointer;
+  color: var(--a-link);
+  font: 400 var(--a-t-small) / 1.4 var(--a-sans);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.da.da.da :is(.scan-workbench, .empty-state, .error-banner, .loading-state) .ghost-button:hover {
+  text-decoration-thickness: 2px;
+}
+
+.da.da.da :is(.scan-workbench, .empty-state, .error-banner, .loading-state) :is(button, .primary-button, .secondary-button):disabled,
+.da.da.da :is(.scan-workbench, .empty-state, .error-banner, .loading-state) :is(.primary-button, .secondary-button)[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.da.da.da :is(.scan-workbench, .empty-state, .error-banner, .loading-state) :is(button, a, summary, input):focus-visible {
+  outline: 3px solid var(--a-focus);
+  outline-offset: 2px;
+  border-radius: 1px;
+}
+
+/* A file button's control is its hidden input, so the ring is the label's
+   while the input has focus. Drawn as a shadow of the ring's size and
+   offset, which scripts/smoke-static-site.mjs reads, with a transparent
+   outline for forced colors, where shadows are removed. */
+.da.da.da label.file-button:focus-within {
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--a-paper), 0 0 0 5px var(--a-focus);
+}
+
+/* Icons inside controls and labels are decoration the words already carry.
+   The spinner stays: it is the only sign a control is working. */
+.da.da.da :is(.scan-workbench, .empty-state, .error-banner, .loading-state) svg:not(.spin) {
+  display: none;
+}
+
+.da.da.da .spin {
+  flex: none;
+  animation: a-home-spin 0.9s linear infinite;
+}
+
+@keyframes a-home-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* A small label over a block, set as written. */
+.da.da.da :is(.scan-workbench, .empty-state, .method-card) .eyebrow,
+.da.da.da .url-label,
+.da.da.da .scan-workbench legend,
+.da.da.da .scan-examples > span {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font: 600 var(--a-t-fine) / 1.4 var(--a-sans);
+  color: var(--a-carbon);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* A note under a control. An error is not a verdict on a site and gets no
+   color: the text color at weight 600, with a solid rule at its left. The
+   hatched edge is for limits only. */
+.da.da.da .scanner-status-note,
+.da.da.da .mode-link-share-line,
+.da.da.da .run-mode-hint,
+.da.da.da .run-mode-checking,
+.da.da.da .run-mode-unavailable,
+.da.da.da .control-help {
+  margin: 8px 0 0;
+  font: 400 var(--a-t-small) / 1.45 var(--a-sans);
+  color: var(--a-slate);
+}
+
+.da.da.da .scanner-status-note:empty {
+  display: none;
+}
+
+.da.da.da .scanner-status-note-error,
+.da.da.da .error-banner,
+.da.da.da .loading-state [role="alert"] {
+  padding-left: 12px;
+  border-left: 3px solid var(--a-carbon);
+  color: var(--a-carbon);
+  font-weight: 600;
+}
+
+.da.da.da .scanner-status-note code {
+  font-family: var(--a-mono);
+  font-size: 0.94em;
+  overflow-wrap: anywhere;
+}
+
+/* ---- 3. First screen ---- */
+.da.da.da .scan-workbench {
+  padding: 34px 0 0;
+}
+
+.da.da.da .workbench-lede h1 {
+  margin: 0;
+  max-width: 16em;
+  font: 500 var(--a-t-home) / 1.1 var(--a-serif);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.da.da.da .workbench-lede p {
+  margin: 14px 0 0;
+  font: 400 var(--a-t-read) / 1.5 var(--a-serif);
+}
+
+.da.da.da .scan-panel {
+  margin: 28px 0 0;
+}
+
+.da.da.da .url-row {
+  display: flex;
+  align-items: stretch;
+  margin: 8px 0 0;
+  border: 1.5px solid var(--a-carbon);
+  border-radius: 2px;
+  background: var(--a-paper);
+}
+
+.da.da.da .url-row input {
+  all: unset;
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 14px 16px;
+  font: 400 1.0625rem / 1.3 var(--a-mono);
+  color: var(--a-carbon);
+}
+
+.da.da.da .url-row input::placeholder {
+  color: var(--a-slate);
+  opacity: 1;
+}
+
+/* The ring is the row's, so it wraps the field and its button together. */
+.da.da.da .url-row input:focus-visible {
+  outline: none;
+}
+
+.da.da.da .url-row:has(input:focus-visible) {
+  outline: 3px solid var(--a-focus);
+  outline-offset: 2px;
+}
+
+.da.da.da .url-row input[aria-invalid="true"] {
+  box-shadow: inset 3px 0 0 var(--a-carbon);
+}
+
+.da.da.da .url-row :is(.primary-button, .secondary-button) {
+  min-height: 0;
+  margin: -1.5px;
+  padding: 0 28px;
+  border-radius: 0 2px 2px 0;
+}
+
+.da.da.da .url-row .secondary-button {
+  background: var(--a-paper);
+  border-color: var(--a-carbon);
+  color: var(--a-carbon);
+}
+
+.da.da.da :is(.inspection-arrival, .scroll-check-arrival) p {
+  margin: 10px 0 0;
+  font: 400 var(--a-t-limit) / 1.45 var(--a-sans);
+}
+
+/* What a scan does to the page: the form's limits (scan-disclosure.tsx). */
+.da.da.da .scan-disclosure {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+/* A site the library already holds, typed: its report leads. */
+.da.da.da .known-evidence {
+  margin: 16px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--a-carbon);
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+.da.da.da .known-evidence p {
+  margin: 0;
+}
+
+.da.da.da .known-evidence p + p,
+.da.da.da .known-evidence-actions + p {
+  margin-top: 6px;
+  font-size: var(--a-t-small);
+  color: var(--a-slate);
+}
+
+.da.da.da .known-evidence-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  margin: 10px 0;
+}
+
+.da.da.da .known-evidence-actions :is(.primary-button, .secondary-button) {
+  white-space: normal;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* Sites to try: each a control that fills the field, with what it shows. */
+/* Top aligned: a button stretched to its row's height centers its words. */
+.da.da.da .scan-examples {
+  display: grid;
+  align-items: start;
+  gap: 7px;
+  margin: 20px 0 0;
+}
+
+/* The underline is the name's alone: the hint is an inline block, which an
+   underline does not cross, so it reads as text beside the name. */
+.da.da.da .scan-examples button {
+  all: unset;
+  cursor: pointer;
+  display: block;
+  font: 600 0.9375rem / 1.4 var(--a-mono);
+  color: var(--a-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.da.da.da .scan-examples button:hover {
+  text-decoration-thickness: 2px;
+}
+
+.da.da.da .scan-examples small {
+  display: inline-block;
+  margin-left: 10px;
+  font: 400 var(--a-t-fine) / 1.4 var(--a-sans);
+  color: var(--a-slate);
+  text-decoration: none;
+}
+
+/* Run modes: one row of choices, the chosen one underlined in ink. */
+.da.da.da .run-mode-row {
+  margin: 22px 0 0;
+}
+
+.da.da.da .scan-workbench fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.da.da.da .segmented-control {
+  display: inline-flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  margin: 8px 0 0;
+  border: 1px solid var(--a-carbon);
+  border-radius: 2px;
+}
+
+.da.da.da .segmented-control button {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  flex: 1 1 auto;
+  /* A 44px target at every width (scripts/smoke-static-site.mjs holds it). */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 16px 5px;
+  border-bottom: 3px solid transparent;
+  font: 400 var(--a-t-small) / 1.3 var(--a-sans);
+  color: var(--a-carbon);
+  text-align: center;
+}
+
+.da.da.da .segmented-control button + button {
+  border-left: 1px solid var(--a-rule);
+}
+
+.da.da.da .segmented-control button[aria-pressed="true"] {
+  border-bottom-color: var(--a-carbon);
+  font-weight: 600;
+}
+
+.da.da.da .scan-workbench .segmented-control button:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+  color: var(--a-slate);
+}
+
+.da.da.da .run-mode-descriptions:empty {
+  display: none;
+}
+
+.da.da.da .scanner-health-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+
+.da.da.da .scanner-health-row .scanner-status-note {
+  flex: 0 1 auto;
+}
+
+.da.da.da .turnstile-row {
+  margin: 14px 0 0;
+}
+
+/* More options: a disclosure whose summary is a link. */
+.da.da.da .options-disclosure {
+  margin: 16px 0 0;
+}
+
+.da.da.da .options-disclosure > summary {
+  cursor: pointer;
+  width: fit-content;
+  list-style: none;
+  color: var(--a-link);
+  font: 400 var(--a-t-small) / 1.4 var(--a-sans);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.da.da.da .options-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.da.da.da .options-disclosure[open] > summary {
+  text-decoration-style: dotted;
+}
+
+.da.da.da .controls-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 40px;
+  margin: 14px 0 0;
+}
+
+.da.da.da .switch-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  margin: 8px 0 0;
+  font: 400 var(--a-t-small) / 1.3 var(--a-sans);
+}
+
+.da.da.da .switch-row input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--a-prussian);
+  /* The browser's own default ink otherwise (#000): Carbon, like every control. */
+  color: var(--a-carbon);
+}
+
+.da.da.da .control-help {
+  max-width: 34ch;
+  margin-top: 0;
+}
+
+.da.da.da .readonly-control {
+  margin: 8px 0 0;
+  padding: 9px 0;
+  font: 600 var(--a-t-small) / 1.3 var(--a-sans);
+}
+
+.da.da.da .access-control input {
+  all: unset;
+  box-sizing: border-box;
+  display: block;
+  width: 220px;
+  max-width: 100%;
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border: 1px solid var(--a-carbon);
+  border-radius: 2px;
+  font: 400 var(--a-t-small) / 1.3 var(--a-mono);
+}
+
+/* Scheduled rescans (scheduled-rescans.tsx): offered under the form, and
+   shown to manage a schedule whose private link the reader holds. A block of
+   its own under a rule, in the form's type and controls. */
+.da.da.da .scheduled-rescan-panel {
+  margin: 28px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--a-carbon);
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+.da.da.da .scheduled-rescan-panel h2 {
+  margin: 2px 0 0;
+  font: var(--a-w-title) var(--a-t-h3) / 1.25 var(--a-serif);
+}
+
+.da.da.da .scheduled-rescan-panel h2:focus {
+  outline: none;
+}
+
+.da.da.da .scheduled-rescan-panel h3 {
+  margin: 14px 0 0;
+  font: 600 0.9375rem / 1.35 var(--a-sans);
+}
+
+.da.da.da .scheduled-rescan-panel p {
+  margin: 8px 0 0;
+  max-width: 68ch;
+}
+
+.da.da.da .scheduled-rescan-panel strong {
+  font-weight: 600;
+}
+
+/* Three sentences limit what the panel and a running scan show: the
+   capability note, the retention sentence and the keystroke note under the
+   running checklist. Each is a limit line, at the limit size in the text
+   color, with the hatched edge (components.css), and never quieter than the
+   site prints it today. The earlier stylesheet sets the capability note's
+   size with !important, which the reset above cannot clear, so these sizes
+   are !important too. The retention sentence is 16px there; it stays 16px.
+   The invalid-link note uses the capability note's class but explains, it
+   does not limit: it is set at the small size, with no edge. It is told
+   apart by the alert it follows. */
+.da.da.da .scheduled-rescan-status > .scheduled-rescan-private-note:not([role="alert"] + *),
+.da.da.da .scheduled-rescan-runs > p,
+.da.da.da .loading-state > .scan-checks-note {
+  position: relative;
+  margin: 12px 0 0;
+  padding-left: 22px;
+  max-width: 68ch;
+  font-size: var(--a-t-limit) !important;
+  line-height: 1.5;
+  color: var(--a-carbon);
+}
+
+.da.da.da .scheduled-rescan-runs > p {
+  font-size: 1rem !important;
+}
+
+.da.da.da .scheduled-rescan-status > [role="alert"] + .scheduled-rescan-private-note {
+  font-size: var(--a-t-small) !important;
+  color: var(--a-carbon);
+}
+
+/* An invalid link is a fault of the link, not a verdict: the error's dress. */
+.da.da.da .scheduled-rescan-status p[role="alert"] {
+  padding-left: 12px;
+  border-left: 3px solid var(--a-carbon);
+}
+
+.da.da.da .scheduled-rescan-status dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 40px;
+  margin: 12px 0 0;
+}
+
+.da.da.da .scheduled-rescan-status dt {
+  font-size: var(--a-t-fine);
+  color: var(--a-slate);
+}
+
+.da.da.da .scheduled-rescan-status dd {
+  margin: 0;
+}
+
+.da.da.da .scheduled-rescan-runs ol {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--a-t-small);
+}
+
+.da.da.da .scheduled-rescan-runs li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  padding: 6px 0;
+  border-top: 1px solid var(--a-rule);
+}
+
+.da.da.da .scheduled-rescan-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  margin: 14px 0 0;
+}
+
+.da.da.da .scheduled-rescan-actions .scanner-status-note {
+  margin: 0;
+}
+
+/* The hosted page without a scanner: what it offers, in place of the form. */
+.da.da.da .public-mode-panel h2 {
+  margin: 0;
+  font: var(--a-w-title) var(--a-t-h3) / 1.25 var(--a-serif);
+}
+
+.da.da.da .public-mode-panel p {
+  margin: 8px 0 0;
+  max-width: 62ch;
+}
+
+.da.da.da .public-mode-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin: 16px 0 0;
+}
+
+/* Wide screens: the claim column and the limit column, as on a report page.
+   The form lays its parts on the page's own tracks, so the disclosure sits
+   beside the field. Everything a reader can focus is in the left column in
+   source order (field, Scan, the sites to try, run modes, More options), so
+   focus only moves down. Only where the browser has subgrid; without it
+   everything stacks in source order.
+     row 1   headline and lead
+     row 2   label
+     row 3   field                   | disclosure (runs on down the column)
+     4 to 14 the form's other parts, each in its own row, in source order
+     row 15  flexible, so a tall disclosure adds space here, not between parts */
+@media screen and (min-width: 901px) {
+  @supports (grid-template-rows: subgrid) {
+    .da.da.da .scan-workbench {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+      grid-template-rows: repeat(14, auto) 1fr;
+      column-gap: 56px;
+      align-items: start;
+    }
+
+    .da.da.da .scan-workbench > * {
+      grid-column: 1 / -1;
+      min-width: 0;
+    }
+
+    /* Raised, so the form's empty first cell does not cover it. */
+    .da.da.da .workbench-lede {
+      grid-column: 1;
+      grid-row: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .da.da.da .scan-panel-stack {
+      grid-row: 1 / span 16;
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-template-rows: subgrid;
+      align-items: start;
+    }
+
+    .da.da.da .scan-panel-stack > * {
+      grid-column: 1 / -1;
+      grid-row: 16;
+      min-width: 0;
+    }
+
+    .da.da.da .scan-panel-stack > form.scan-panel {
+      grid-row: 1 / span 15;
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-template-rows: subgrid;
+      align-items: start;
+      margin: 0;
+    }
+
+    .da.da.da form.scan-panel > * {
+      grid-column: 1;
+      min-width: 0;
+    }
+
+    .da.da.da form.scan-panel > .url-label {
+      grid-row: 2;
+      margin-top: 28px;
+    }
+
+    .da.da.da form.scan-panel > .url-row {
+      grid-row: 3;
+    }
+
+    .da.da.da form.scan-panel > .scan-disclosure {
+      grid-column: 2;
+      grid-row: 3 / span 13;
+      margin-top: 8px;
+    }
+
+    /* Under the field and above "Run": three columns of two, each name
+       over what it shows. */
+    .da.da.da form.scan-panel > .scan-examples {
+      grid-row: 8;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px 20px;
+      margin-top: 18px;
+    }
+
+    .da.da.da form.scan-panel > .scan-examples > span {
+      grid-column: 1 / -1;
+    }
+
+    .da.da.da form.scan-panel > .scan-examples button {
+      overflow-wrap: anywhere;
+    }
+
+    .da.da.da form.scan-panel > .scan-examples small {
+      width: 100%;
+      margin-left: 0;
+    }
+
+    .da.da.da form.scan-panel > :is(#url-notice, #url-error) {
+      grid-row: 4;
+    }
+
+    .da.da.da form.scan-panel > .inspection-arrival {
+      grid-row: 5;
+    }
+
+    .da.da.da form.scan-panel > .scroll-check-arrival {
+      grid-row: 6;
+    }
+
+    .da.da.da form.scan-panel > .known-evidence {
+      grid-row: 7;
+    }
+
+    .da.da.da form.scan-panel > .mode-link-share-line {
+      grid-row: 7;
+    }
+
+    .da.da.da form.scan-panel > .run-mode-row {
+      grid-row: 9;
+    }
+
+    .da.da.da form.scan-panel > .scanner-health-row {
+      grid-row: 10;
+    }
+
+    .da.da.da form.scan-panel > .turnstile-row {
+      grid-row: 11;
+    }
+
+    .da.da.da form.scan-panel > p.scanner-status-note:not([id]) {
+      grid-row: 12;
+    }
+
+    .da.da.da form.scan-panel > #scan-check-note {
+      grid-row: 13;
+    }
+
+    .da.da.da form.scan-panel > .options-disclosure {
+      grid-row: 14;
+    }
+  }
+}
+
+@media screen and (max-width: 900px) {
+  /* A phone's first screen has to hold the field, the disclosure under it
+     and, for a site the library knows, the link to its report
+     (scripts/smoke-static-site.mjs). So the lead and the disclosure are set
+     a size smaller here, and the spaces between them are closer. */
+  .da.da.da .scan-workbench {
+    padding-top: 16px;
+  }
+
+  .da.da.da .workbench-lede p {
+    margin-top: 10px;
+    font-size: 1.0625rem;
+    line-height: 1.45;
+  }
+
+  .da.da.da .scan-panel {
+    margin-top: 14px;
+  }
+
+  .da.da.da .scan-disclosure {
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .da.da.da .scan-disclosure p {
+    font-size: var(--a-t-small);
+    line-height: 1.4;
+  }
+
+  .da.da.da .known-evidence {
+    margin-top: 12px;
+    padding-top: 10px;
+  }
+
+  .da.da.da .known-evidence-actions {
+    margin: 8px 0;
+  }
+
+  .da.da.da .url-row :is(.primary-button, .secondary-button) {
+    padding: 0 18px;
+  }
+
+  /* Two columns of sites to try, each name over what it shows. */
+  .da.da.da .scan-examples {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px 16px;
+  }
+
+  .da.da.da .scan-examples > span {
+    grid-column: 1 / -1;
+  }
+
+  .da.da.da .scan-examples button {
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+  }
+
+  /* Still an inline block, so the name's underline does not cross it; the
+     full width puts it on its own line. */
+  .da.da.da .scan-examples small {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .da.da.da .segmented-control {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .da.da.da .segmented-control button:nth-child(odd) {
+    border-left: 0;
+  }
+
+  .da.da.da .segmented-control button:nth-child(n + 3) {
+    border-top: 1px solid var(--a-rule);
+  }
+}
+
+/* ---- 4. A scan in progress, and what went wrong ---- */
+.da.da.da .error-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 28px 0 0;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  font: 600 var(--a-t-limit) / 1.45 var(--a-sans);
+}
+
+/* Both blocks take focus from the script so a reader lands on them; they are
+   not controls, so they show no ring. */
+.da.da.da :is(.error-banner, .loading-state):focus {
+  outline: none;
+}
+
+/* Progress and a finished action are routine: the same block at normal weight. */
+.da.da.da .error-banner-progress {
+  border-left-width: 1px;
+  font-weight: 400;
+}
+
+.da.da.da .error-banner-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.da.da.da .scan-recovery-controls {
+  margin: 8px 0 0;
+  font-weight: 400;
+}
+
+.da.da.da .scan-recovery-controls p {
+  margin: 0 0 8px;
+  font-size: var(--a-t-small);
+}
+
+.da.da.da .scan-recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+}
+
+.da.da.da .loading-state {
+  margin: var(--a-s7) 0 0;
+  padding: 16px 0 0;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da.da .loading-state h2 {
+  margin: 0;
+  font: var(--a-w-find) var(--a-t-h2) / 1.15 var(--a-serif);
+  letter-spacing: -0.01em;
+}
+
+.da.da.da .loading-state > p {
+  margin: 8px 0 0;
+  max-width: 68ch;
+  font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
+}
+
+.da.da.da .loading-state .pulse-dot {
+  display: none;
+}
+
+/* A bar that says work is under way, not how much of it is done. */
+.da.da.da .progress-track {
+  height: 4px;
+  margin: 16px 0;
+  overflow: hidden;
+  background: var(--a-rule);
+}
+
+.da.da.da .progress-fill {
+  width: 30%;
+  height: 100%;
+  background: var(--a-carbon);
+  animation: a-home-progress 1.6s ease-in-out infinite;
+}
+
+@keyframes a-home-progress {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(334%);
+  }
+}
+
+.da.da.da .loading-state .loading-elapsed {
+  font-size: var(--a-t-small);
+  color: var(--a-slate);
+}
+
+.da.da.da .loading-state > :is(.secondary-button, [role="alert"]) {
+  margin-top: 12px;
+}
+
+.da.da.da .scan-checks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 40px;
+  list-style: none;
+  margin: 22px 0 0;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--a-rule);
+  font: 400 var(--a-t-small) / 1.45 var(--a-sans);
+  color: var(--a-slate);
+}
+
+.da.da.da .scan-checks strong {
+  display: block;
+  font-weight: 600;
+  color: var(--a-carbon);
+}
+
+.da.da.da .loading-state > .scan-checks-note {
+  margin-top: 16px;
+  max-width: 86ch;
+}
+
+@media screen and (max-width: 900px) {
+  .da.da.da .scan-checks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Nothing here moves for a reader who asked for less motion (base.css stops
+   every animation). The bar goes too: standing still, its fill would read as
+   an amount done that nobody measured. The heading and the sentence under
+   it say a scan is under way, and the status region announces progress. */
+@media (prefers-reduced-motion: reduce) {
+  .da.da.da .spin,
+  .da.da.da .progress-fill {
+    animation: none;
+  }
+
+  .da.da.da .progress-track {
+    display: none;
+  }
+}
+
+/* ---- 5. Library ----
+ * The label, the heading and the four category medians at the left; at the
+ * right, as limit lines, the two sentences that limit them, and how they are
+ * counted. The medians share the left column in four equal parts: the hero's
+ * tracks are four of 1.55 and one of 4 with a 56px track between, which are
+ * the page's two columns and its gap.
+ */
+.da.da.da .empty-state {
+  margin: var(--a-s7) 0 0;
+  padding: 14px 0 0;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da.da :is(.empty-state, .method-card) h2,
+.da.da.da .featured-heading h3 {
+  margin: 4px 0 0;
+  font: var(--a-w-find) var(--a-t-h2) / 1.15 var(--a-serif);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.da.da.da .empty-state .page-section-heading > p {
+  margin-top: 14px;
+}
+
+.da.da.da .corpus-hero {
+  margin: 20px 0 0;
+}
+
+.da.da.da .corpus-hero-cats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 24px;
+}
+
+.da.da.da .corpus-hero-cat {
+  display: flex;
+  flex-direction: column;
+}
+
+.da.da.da .corpus-hero-cat-num {
+  font: 500 1.75rem / 1.15 var(--a-serif);
+}
+
+.da.da.da .corpus-hero-cat-label {
+  font-size: var(--a-t-fine);
+  line-height: 1.35;
+  color: var(--a-slate);
+}
+
+.da.da.da .corpus-hero-cat-note {
+  display: block;
+  grid-column: 1 / -1;
+}
+
+.da.da.da :is(.corpus-counting-disclosure, .homepage-tools-disclosure) {
+  margin: 14px 0 0;
+}
+
+.da.da.da :is(.corpus-counting-disclosure, .homepage-tools-disclosure) > summary {
+  cursor: pointer;
+  width: fit-content;
+  list-style: none;
+  color: var(--a-link);
+  font: 400 var(--a-t-small) / 1.4 var(--a-sans);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.da.da.da :is(.corpus-counting-disclosure, .homepage-tools-disclosure) > summary::-webkit-details-marker {
+  display: none;
+}
+
+.da.da.da :is(.corpus-counting-disclosure, .homepage-tools-disclosure)[open] > summary {
+  text-decoration-style: dotted;
+}
+
+.da.da.da .corpus-counting-disclosure p,
+.da.da.da .homepage-tools-note {
+  margin: 8px 0 0;
+  max-width: 76ch;
+  font: 400 var(--a-t-small) / 1.5 var(--a-sans);
+  color: var(--a-slate);
+}
+
+.da.da.da .empty-state code {
+  font-family: var(--a-mono);
+  font-size: 0.94em;
+}
+
+@media screen and (min-width: 901px) {
+  .da.da.da .empty-state {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    column-gap: 56px;
+    align-items: start;
+  }
+
+  .da.da.da .empty-state > * {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  /* A plain wrapper: its heading and its sentence take a column each. */
+  .da.da.da .empty-state .page-section-heading {
+    display: contents;
+  }
+
+  .da.da.da .empty-state .page-section-heading > div {
+    grid-column: 1;
+  }
+
+  .da.da.da .empty-state .page-section-heading > p {
+    grid-column: 2;
+    margin-top: 4px;
+  }
+
+  .da.da.da .corpus-hero-cats {
+    grid-template-columns: repeat(4, minmax(0, 1.55fr)) 56px minmax(0, 4fr);
+    gap: 0;
+  }
+
+  .da.da.da .corpus-hero-cat-note {
+    grid-column: 6;
+    grid-row: 1;
+  }
+
+  /* Under the note, in the limit column. */
+  .da.da.da .corpus-counting-disclosure {
+    margin-left: calc((100% - 56px) * 1.55 / 2.55 + 56px);
+  }
+}
+
+/* ---- 6. Sites on record: one row a site ----
+ * The name is the link, with its category under the first row of each
+ * category; then the lead finding as worded, with a limit line where the
+ * request evidence is incomplete; then the two count sentences. No tone, no
+ * dot and no warning sign: beside a site they read as a verdict on it.
+ */
+.da.da.da .featured-gallery {
+  margin: var(--a-s7) 0 0;
+  padding: 14px 0 0;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da.da .featured-heading > p:last-child {
+  margin-top: 12px;
+}
+
+.da.da.da .homepage-featured-groups {
+  margin: 22px 0 0;
+}
+
+.da.da.da .featured-group {
+  position: relative;
+}
+
+/* The category, under the first site's name. */
+.da.da.da .featured-group h4 {
+  position: absolute;
+  left: 0;
+  top: 46px;
+  margin: 0;
+  font: 400 var(--a-t-fine) / 1.4 var(--a-sans);
+  color: var(--a-slate);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.da.da.da .featured-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px 40px;
+  padding: 16px 0 18px;
+  border-top: 1px solid var(--a-carbon);
+}
+
+.da.da.da .featured-card-site {
+  width: fit-content;
+  font: var(--a-w-title) 1.25rem / 1.3 var(--a-serif);
+  color: var(--a-carbon);
+  overflow-wrap: anywhere;
+}
+
+.da.da.da .featured-card:first-child .featured-card-site {
+  margin-bottom: 22px;
+}
+
+.da.da.da .featured-card-headline {
+  font: 400 1.0625rem / 1.5 var(--a-serif);
+}
+
+.da.da.da .featured-card .capped-chip {
+  display: block;
+  font-size: var(--a-t-small);
+}
+
+.da.da.da .featured-card-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font: 400 var(--a-t-small) / 1.45 var(--a-sans);
+  color: var(--a-slate);
+}
+
+.da.da.da .featured-card-stat b {
+  font-weight: 400;
+}
+
+/* The two links under the rows are links. */
+.da.da.da .homepage-discovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  margin: 22px 0 0;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--a-carbon);
+}
+
+.da.da.da .homepage-discovery-actions :is(.primary-button, .secondary-button) {
+  all: unset;
+  cursor: pointer;
+  color: var(--a-link);
+  font: 400 var(--a-t-body) / 1.4 var(--a-sans);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.da.da.da .homepage-discovery-actions :is(.primary-button, .secondary-button):hover {
+  text-decoration-thickness: 2px;
+}
+
+.da.da.da .static-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin: 14px 0 0;
+}
+
+.da.da.da label.file-button input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+@media screen and (min-width: 901px) {
+  .da.da.da .featured-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    column-gap: 56px;
+    align-items: start;
+  }
+
+  .da.da.da .featured-heading > * {
+    grid-column: 1;
+  }
+
+  .da.da.da .featured-heading > p:last-child {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin-top: 4px;
+  }
+
+  .da.da.da .featured-card {
+    grid-template-columns: 180px minmax(0, 1fr) 280px;
+    align-items: start;
+  }
+
+  .da.da.da .featured-card > :is(.featured-card-headline, .capped-chip) {
+    grid-column: 2;
+  }
+
+  .da.da.da .featured-card-site {
+    grid-row: 1 / span 2;
+  }
+
+  .da.da.da .featured-card-stats {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    padding-top: 3px;
+  }
+}
+
+/* ---- 7. What one visit records ---- */
+.da.da.da .method-card {
+  margin: var(--a-s7) 0 0;
+  padding: 14px 0 0;
+  border-top: 2px solid var(--a-carbon);
+}
+
+.da.da.da .method-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px 40px;
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0;
+}
+
+.da.da.da .method-list strong {
+  display: block;
+  font: 600 0.9375rem / 1.35 var(--a-sans);
+}
+
+.da.da.da .method-list span {
+  display: block;
+  margin-top: 2px;
+  font: 400 var(--a-t-small) / 1.45 var(--a-sans);
+  color: var(--a-slate);
+}
+
+.da.da.da .method-note {
+  margin-top: 20px;
+}
+
+@media screen and (min-width: 901px) {
+  .da.da.da .method-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    column-gap: 56px;
+    align-items: start;
+  }
+
+  .da.da.da .method-card > * {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  .da.da.da .method-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .da.da.da .method-card > .method-note {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    margin-top: 4px;
+  }
+}
+
+/* ---- 8. The record ---- (app/_design/record.css, shared with a site page) */
+
+/* ---- 9. Marks in the site rows ----
+ * One mark per retained request row of the visit a row's report describes:
+ * same-site, then cross-site, then the open-ended box on a lower bound. The
+ * figure's text runs, at a 3px cell on a 4px pitch.
+ * 300px wide beside the finding on a wide screen, the row's width on a phone.
+ */
+.da.da.da .a-rowmarks {
+  --a-cell: 3px;
+  --a-gap: 1px;
+  display: block;
+  margin-bottom: 7px;
+}
+
+.da .a-marks .a-run.is-site,
+.da .a-marks .a-open.is-site {
+  --a-mark: var(--a-first);
+}
+
+.da.da.da .a-rowmarks .a-open {
+  border-width: 1px;
+}
+
+.da.da.da .a-rowkey {
+  margin: 14px 0 0;
+}
+
+@media screen and (min-width: 901px) {
+  /* Rows of a site's row: the finding, its limit, a flexible row. The name
+     and the marks with their sentences span all three, so when the marks are
+     taller than the finding the space goes under the limit, not above it. */
+  .da.da.da .featured-card {
+    grid-template-columns: 180px minmax(0, 1fr) 300px;
+    grid-template-rows: auto auto 1fr;
+    row-gap: 0;
+  }
+
+  .da.da.da .featured-card-site,
+  .da.da.da .featured-card > .featured-card-stats {
+    grid-row: 1 / span 3;
+  }
+
+  .da.da.da .featured-card > .capped-chip {
+    margin-top: 6px;
+  }
+
+  .da.da.da .featured-card-stats:has(> .a-rowmarks) {
+    padding-top: 7px;
+  }
+}
+
+/* ---- 10. The saved-report tools (static-gallery.tsx) ----
+ * Inside the tools disclosure, loaded on request: the archive's heading,
+ * its search and three filters, the compare panel, the list of reports and
+ * "Show more". The system's controls and type; nothing is a verdict, so
+ * nothing takes a color. An error keeps the error's dress and its role.
+ */
+.da.da.da .homepage-tools-disclosure > div {
+  margin: 12px 0 0;
+}
+
+.da.da.da .static-gallery {
+  margin: 22px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--a-carbon);
+  font: 400 var(--a-t-small) / 1.45 var(--a-sans);
+}
+
+.da.da.da .static-gallery h3 {
+  margin: 0;
+  font: var(--a-w-title) var(--a-t-h3) / 1.25 var(--a-serif);
+}
+
+.da.da.da .static-gallery-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px 24px;
+}
+
+.da.da.da .static-gallery-heading p,
+.da.da.da .static-gallery-count,
+.da.da.da .static-compare-heading p {
+  margin: 4px 0 0;
+  color: var(--a-slate);
+}
+
+.da.da.da .static-gallery-heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 18px;
+}
+
+/* Search and filters: the field's border, the system's ring. */
+.da.da.da .static-gallery-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  margin: 16px 0 0;
+}
+
+.da.da.da .static-gallery-controls label,
+.da.da.da .static-compare-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.da.da.da .static-gallery-search {
+  flex: 1 1 240px;
+}
+
+.da.da.da :is(.static-gallery-controls, .static-compare-controls) :is(input, select) {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--a-carbon);
+  border-radius: 2px;
+  background: var(--a-paper);
+  color: var(--a-carbon);
+  font: 400 var(--a-t-small) / 1.3 var(--a-sans);
+}
+
+.da.da.da .static-gallery-search input {
+  width: 100%;
+}
+
+.da.da.da :is(.static-gallery-controls, .static-compare-controls) :is(input, select):focus-visible {
+  outline: 3px solid var(--a-focus);
+  outline-offset: 2px;
+}
+
+.da.da.da .static-compare-controls label > span {
+  font: 600 var(--a-t-fine) / 1.4 var(--a-sans);
+}
+
+/* Compare reports: a block under a rule. */
+.da.da.da .static-compare-panel {
+  margin: 22px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--a-rule);
+}
+
+.da.da.da .static-compare-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px 24px;
+}
+
+.da.da.da .static-compare-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  margin: 14px 0 0;
+}
+
+.da.da.da .static-compare-controls select {
+  width: 100%;
+}
+
+.da.da.da .static-compare-controls label {
+  flex: 1 1 200px;
+}
+
+.da.da.da .static-compare-note {
+  margin: 10px 0 0;
+  max-width: 76ch;
+  color: var(--a-slate);
+}
+
+.da.da.da .static-compare-upload {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin: 14px 0 0;
+}
+
+.da.da.da .static-compare-error {
+  margin: 12px 0 0;
+  padding-left: 12px;
+  border-left: 3px solid var(--a-carbon);
+  color: var(--a-carbon);
+  font-weight: 600;
+}
+
+/* A file button: the second action's box, its input hidden in it. */
+.da.da.da label.file-button {
+  position: relative;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.da.da.da .compare-upload-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The reports: one row each, the name and its visit at the left, the
+   counts at the right. The whole row is the link. */
+.da.da.da .static-report-list {
+  margin: 18px 0 0;
+}
+
+.da.da.da .static-report-card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 24px;
+  padding: 12px 0;
+  border-top: 1px solid var(--a-rule);
+  color: var(--a-carbon);
+  text-decoration: none;
+}
+
+.da.da.da .static-report-card:hover strong {
+  text-decoration-thickness: 2px;
+}
+
+.da.da.da .static-report-main,
+.da.da.da .static-report-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.da.da.da .static-report-main {
+  flex: 1 1 320px;
+}
+
+.da.da.da .static-report-main strong {
+  color: var(--a-link);
+  font: 600 var(--a-t-limit) / 1.35 var(--a-sans);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  overflow-wrap: anywhere;
+}
+
+.da.da.da .static-report-main em {
+  font: 400 var(--a-t-fine) / 1.4 var(--a-mono);
+  font-style: normal;
+  color: var(--a-slate);
+  overflow-wrap: anywhere;
+}
+
+.da.da.da .static-report-card small {
+  font-size: var(--a-t-fine);
+  color: var(--a-slate);
+}
+
+.da.da.da .static-report-meta {
+  flex: 0 1 260px;
+}
+
+.da.da.da .static-report-meta b {
+  font-weight: 600;
+}
+
+.da.da.da .static-gallery-more {
+  margin: 14px 0 0;
+}
+
+.da.da.da .static-gallery-empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin: 14px 0 0;
+}
+
+.da.da.da .homepage-tools-disclosure .muted {
+  margin: 14px 0 0;
+  color: var(--a-slate);
+}
