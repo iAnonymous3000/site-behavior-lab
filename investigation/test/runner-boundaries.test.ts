@@ -92,6 +92,22 @@ const HOST = /\b(?:[a-z0-9-]+\.)+(?:com|net|org|io|co|gov|edu|dev|app|ai|tv|me|u
 const IP = /\b\d{1,3}(?:\.\d{1,3}){3}\b/g;
 /** Loopback and the three documentation ranges (RFC 5737), which route nowhere. */
 const harmlessIp = (ip: string) => /^127\./.test(ip) || /^192\.0\.2\./.test(ip) || /^198\.51\.100\./.test(ip) || /^203\.0\.113\./.test(ip);
+/**
+ * The three second-level names RFC 2606 reserves for examples, and every name under them: the S3
+ * fixture hosts and the scan URL the S5c fixture runs visit, which the scanner's own proxy hands to
+ * the fixture origin inside a container with no network. A name that only ends like one of them is
+ * not one of them.
+ */
+const RESERVED_NAMES = [dotted("example", "com"), dotted("example", "org"), dotted("example", "net")];
+const reservedName = (host: string) => RESERVED_NAMES.some((name) => host === name || host.endsWith(`.${name}`));
+/**
+ * The one address outside those ranges the folder may name, and the one file that may name it: the S5c
+ * stub resolver's answer. The scanner's guard refuses a target whose address it does not read as
+ * public before it connects, so the stub must answer with one that does; the container has no network,
+ * so it is never contacted. lib/investigation-seam-setting.test.ts gives the same answer.
+ */
+const STUB_FILE = `${RUNNER}/s5/fixture/stub-resolver.mjs`;
+const STUB_ADDRESS = dotted("93", "184", "216", "34");
 
 const NO_SITE = "the runner folder names no real site: its lockfiles resolve only from the registry, and every other file names only listed hosts, reserved names and harmless addresses";
 const checkRunnerHosts = (readFile: Read = read, list: List = runnerFiles) => {
@@ -109,8 +125,8 @@ const checkRunnerHosts = (readFile: Read = read, list: List = runnerFiles) => {
     // In code, a host can only be said in a string, a template or a comment; a chain of property reads
     // is code, not a host. Pages, the Dockerfile and the command list are read whole.
     const said = file.endsWith(".mjs") ? [...text.matchAll(/"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`[^`]*`|\/\/[^\n]*|\/\*[\s\S]*?\*\//g)].map(([part]) => part).join("\n") : text;
-    for (const [host] of said.matchAll(HOST)) holds(NO_SITE, ALLOWED_HOSTS.has(host.toLowerCase()), () => ({ file, host }));
-    for (const [ip] of text.matchAll(IP)) holds(NO_SITE, harmlessIp(ip), () => ({ file, ip }));
+    for (const [host] of said.matchAll(HOST)) holds(NO_SITE, ALLOWED_HOSTS.has(host.toLowerCase()) || reservedName(host.toLowerCase()), () => ({ file, host }));
+    for (const [ip] of text.matchAll(IP)) holds(NO_SITE, harmlessIp(ip) || (ip === STUB_ADDRESS && file === STUB_FILE), () => ({ file, ip }));
   }
 };
 
@@ -123,6 +139,16 @@ test("the runner folder names no real site, by its lockfiles' sources and by the
   const lock = `${RUNNER}/s4/package-lock-6.8.0.json`;
   const moved: Read = (file) => (file === lock ? read(file).replace(REGISTRY, `https://${dotted("mirror", "lamplighter", "net")}/`) : read(file));
   await assertCaughtBy("a lockfile entry resolved from another host", NO_SITE, () => checkRunnerHosts(moved));
+  // The reserved names and the stub's address (the Q-1 ruling), each admitted narrowly.
+  const page = `${RUNNER}/s5/fixture/pages/planted.html`;
+  const withFile = (file: string, text: string): [Read, List] => [(name) => (name === file ? text : read(name)), () => [...runnerFiles(), file]];
+  const stubText = `export const STUB_ADDRESS = "${STUB_ADDRESS}";\n`;
+  checkRunnerHosts(...withFile(STUB_FILE, stubText));
+  checkRunnerHosts(...withFile(page, `<img src="http://static.${RESERVED_NAMES[0]}/x.png"><script src="http://cdn.${RESERVED_NAMES[1]}/a.js"></script>`));
+  await assertCaughtBy("a real host in an s5 file", NO_SITE, () => checkRunnerHosts(...withFile(page, `<script src="https://${dotted("cdn", "lamplighter", "net")}/a.js"></script>`)));
+  await assertCaughtBy("a routable address other than the stub's in the stub's file", NO_SITE, () => checkRunnerHosts(...withFile(STUB_FILE, `${stubText}export const OTHER = "8.8.4.4";\n`)));
+  await assertCaughtBy("the stub's address in a fixture page", NO_SITE, () => checkRunnerHosts(...withFile(page, `<img src="http://${STUB_ADDRESS}/x.png">`)));
+  await assertCaughtBy("a name that only ends like a reserved one", NO_SITE, () => checkRunnerHosts(...withFile(page, `<img src="http://www.not${RESERVED_NAMES[0]}/x.png">`)));
 });
 
 const OWN_GUARD = "the fixture guard lets through only the driver's loopback origins, and is not the scanner's guard";
