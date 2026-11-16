@@ -68,7 +68,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY package.json package-lock.json ./
 RUN npm ci && npx playwright install chromium
 
-FROM deps AS build
+FROM deps AS source
 
 ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT
 ARG SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF
@@ -111,11 +111,26 @@ ARG NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN="https://sitebehavior.org"
 ENV NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN=${NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN}
 
 COPY . .
+
+# Every build of the default target runs the whole check here, the unit
+# suite included. The stage boundary above adds no instruction: it names the
+# exact source tree, so hosted CI can test that image and build from it.
+FROM source AS build
+
 # .next/cache is the build's SWC and webpack cache, not runtime state: Next
 # recreates what it needs. Left in place it crosses the stage boundary with the
 # wholesale .next copy below and ships in the runtime image, where it is by far
 # the largest thing present and is never read.
 RUN npm run check && rm -rf .next/cache && npm prune --omit=dev
+
+# Hosted CI only. CI runs test:unit in separate jobs on the source image
+# above, hands this stage that same image by digest (a named build context),
+# then hands the default target this stage in place of build, also by digest.
+# It runs every other part of check, and the HSTS test, so a revision whose
+# browser lost its preload list fails here too. No stage of the default
+# target depends on it, so no plain build builds it.
+FROM source AS compiled
+RUN npm run check:without-unit && rm -rf .next/cache && npm prune --omit=dev
 
 FROM playwright-base AS runner
 
