@@ -236,6 +236,15 @@ jobs:
     runs-on: ubuntu-24.04
     # A deadlocked unit test must fail this job fast, never consume the 6-hour default budget.
     timeout-minutes: 60
+    # The unit suite runs as legs on separate machines, each cut from
+    # package.json's test:unit by scripts/unit-test-plan.mjs, whose LEGS this
+    # list must equal. Every leg runs every gate before the suite. app reads
+    # needs.tests.result, the result of all the legs together, and passes
+    # only on success; fail-fast stays off so every leg reports.
+    strategy:
+      fail-fast: false
+      matrix:
+        leg: [parallel, serial-1, serial-2, serial-3, serial-4, tail]
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -354,7 +363,7 @@ jobs:
         run: npm run cf:typecheck
 
       - name: Unit tests
-        run: npm run test:unit
+        run: npm run test:unit:leg -- ${{ matrix.leg }}
 
   formal-verification:
     name: Formal Verification Execution Report
