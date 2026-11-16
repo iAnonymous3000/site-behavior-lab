@@ -19,6 +19,12 @@
 // The former single pass reported every failing lib file at once; now serial
 // files are not reached until the parallel phase passes. The gate is the same.
 //
+// That is the run with no selector, which test:unit and the image build's
+// npm run check make. Hosted CI runs the phases on separate machines with
+// --only (see parseLaneArguments): there a serial file still runs alone on
+// its machine, but not after the parallel phase, and not in one sequence
+// with every other serial file.
+//
 // Every node --test this runner starts carries TEST_BOUND_FLAGS: a per-test
 // timeout and --test-force-exit. Node's own default timeout is Infinity, so a
 // test awaiting a promise that never settles, a server that never closes or a
@@ -271,13 +277,48 @@ export function partitionCompiledTests(files, serialLane) {
   };
 }
 
+const LANES_USAGE =
+  'Usage: unit-test-lanes.mjs [--only parallel | --only serial --shard <k>/<n>] --alongside "npm run <script>" <compiled lib tests...>';
+
+// With no selector the runner runs both phases, as test:unit and the image
+// build's npm run check always have. Hosted CI splits the same run across
+// machines (scripts/unit-test-plan.mjs): `--only parallel` runs the parallel
+// lane beside the alongside command with the dist/ check, and `--only serial
+// --shard k/n` runs one shard of the serial lane, its files one at a time as
+// ever. Every serial file belongs to exactly one shard (serialShardOf), so
+// the n shard runs together with the parallel run cover the same files.
 export function parseLaneArguments(argv) {
-  const [flag, alongside, ...files] = argv;
-  const script = flag === "--alongside" ? ALONGSIDE.exec(alongside ?? "")?.[1] : undefined;
-  if (!script) {
-    throw new Error('Usage: unit-test-lanes.mjs --alongside "npm run <script>" <compiled lib tests...>');
+  let rest = argv;
+  let only = "all";
+  let shard;
+  if (rest[0] === "--only") {
+    only = rest[1];
+    rest = rest.slice(2);
+    if (only === "serial") {
+      const match = rest[0] === "--shard" ? /^([1-9][0-9]*)\/([1-9][0-9]*)$/.exec(rest[1] ?? "") : null;
+      if (!match || Number(match[1]) > Number(match[2])) throw new Error(LANES_USAGE);
+      shard = { index: Number(match[1]), count: Number(match[2]) };
+      rest = rest.slice(2);
+    } else if (only !== "parallel") {
+      throw new Error(LANES_USAGE);
+    }
   }
-  return { alongsideScript: script, files };
+  const [flag, alongside, ...files] = rest;
+  const script = flag === "--alongside" ? ALONGSIDE.exec(alongside ?? "")?.[1] : undefined;
+  if (!script) throw new Error(LANES_USAGE);
+  return shard ? { only, shard, alongsideScript: script, files } : { only, alongsideScript: script, files };
+}
+
+// Shard k of n (1-based) holds the serial-lane entries whose position in the
+// lane's names, sorted by their UTF-8 bytes, is k - 1 modulo n. The rule is
+// total: every position names one shard, so a name added to the lane later
+// lands in some shard without any list to update.
+export function serialShardOf(serialLane, { index, count }) {
+  if (!Number.isInteger(count) || count < 1 || !Number.isInteger(index) || index < 1 || index > count) {
+    throw new Error(`Refusing serial shard ${index}/${count}`);
+  }
+  const names = Object.keys(serialLane).sort((a, b) => Buffer.compare(Buffer.from(a), Buffer.from(b)));
+  return new Set(names.filter((_, position) => position % count === index - 1).map(compiledPathOf));
 }
 
 // Every path under dist/ with its type, size and nanosecond mtime. An absent
@@ -380,15 +421,34 @@ export function stopLanesOnSignal() {
 }
 
 async function main() {
-  const { alongsideScript, files } = parseLaneArguments(process.argv.slice(2));
-  const { parallel, serial } = partitionCompiledTests(files, readSerialLane());
+  const { only, shard, alongsideScript, files } = parseLaneArguments(process.argv.slice(2));
+  const serialLane = readSerialLane();
+  const { parallel, serial } = partitionCompiledTests(files, serialLane);
 
   stopLanesOnSignal();
+
+  if (only === "serial") {
+    const members = serialShardOf(serialLane, shard);
+    const files = serial.filter((file) => members.has(file));
+    const label = `Serial lib lane shard ${shard.index}/${shard.count} (${files.length} of ${serial.length} files)`;
+    // runLane passes an empty lane as skipped. A shard with no file would be
+    // a split that runs less than the whole lane, so it fails by name.
+    if (files.length === 0) {
+      console.error(`${label} holds no file; a shard count above the lane's size leaves a shard empty.`);
+      return 1;
+    }
+    console.log(`Unit test lanes: ${label} one at a time.`);
+    const shardResult = await runLane(files, 1);
+    console.log(describeLane(label, shardResult));
+    return shardResult.ok ? 0 : 1;
+  }
 
   const alongsideLabel = `npm run ${alongsideScript}`;
   console.log(
     `Unit test lanes: ${parallel.length} lib test files ${PARALLEL_FILES} at a time beside \`${alongsideLabel}\`, ` +
-      `then ${serial.length} serial lib test files one at a time.`
+      (only === "parallel"
+        ? `and no serial file: its ${serial.length} run in their shards elsewhere.`
+        : `then ${serial.length} serial lib test files one at a time.`)
   );
   const distBefore = distFingerprint();
   const [parallelResult, alongsideResult] = await Promise.all([
@@ -418,6 +478,7 @@ async function main() {
     console.error("Unit test lanes stopped before the serial lane: the parallel phase above did not pass.");
     return 1;
   }
+  if (only === "parallel") return 0;
 
   const serialResult = await runLane(serial, 1);
   console.log(describeLane(`Serial lib lane (${serial.length} files)`, serialResult));
