@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -11,6 +11,7 @@ type Layout = { ociDigest: string; imageId: string; diffIds: string[] };
 type SplitImage = {
   SPLIT_BUILD_SCHEMA: string;
   readLayout(layout: string): Layout;
+  dockerSaveManifest(layout: string): unknown;
   sourceIsPrefix(source: Layout, compiled: Layout): boolean;
   splitBuildRecord(source: Layout, compiled: Layout, runnerImageId: string, commit: string): Record<string, string>;
 };
@@ -27,7 +28,10 @@ const COMMIT = "0123456789abcdef0123456789abcdef01234567";
 // Writes an OCI layout as BuildKit does: index.json naming one image, whose
 // manifest (or, with `nested`, an index of one platform) names the config
 // that lists the layers. Blobs are stored under their real sha256.
-function writeLayout(dir: string, diffIds: string[], { nested = false, images = 1 } = {}): string {
+// The image manifest lists layer blobs by digest; their bytes are not needed
+// here. By default they are listed in an order that is not sorted.
+const LAYER_BLOBS = [layer(103), layer(101), layer(102), layer(100)];
+function writeLayout(dir: string, diffIds: string[], { nested = false, images = 1, layers = LAYER_BLOBS.slice(0, diffIds.length) } = {}): string {
   mkdirSync(path.join(dir, "blobs", "sha256"), { recursive: true });
   const put = (value: unknown): string => {
     const bytes = Buffer.from(JSON.stringify(value));
@@ -36,7 +40,7 @@ function writeLayout(dir: string, diffIds: string[], { nested = false, images = 
     return digest;
   };
   const config = put({ architecture: "amd64", os: "linux", rootfs: { type: "layers", diff_ids: diffIds } });
-  let top = put({ schemaVersion: 2, mediaType: "application/vnd.oci.image.manifest.v1+json", config: { digest: config }, layers: [] });
+  let top = put({ schemaVersion: 2, mediaType: "application/vnd.oci.image.manifest.v1+json", config: { digest: config }, layers: layers.map((digest) => ({ mediaType: "application/vnd.oci.image.layer.v1.tar+gzip", digest })) });
   if (nested) top = put({ schemaVersion: 2, mediaType: "application/vnd.oci.image.index.v1+json", manifests: [{ digest: top }] });
   writeFileSync(path.join(dir, "index.json"), JSON.stringify({ schemaVersion: 2, manifests: Array.from({ length: images }, () => ({ digest: top })) }));
   writeFileSync(path.join(dir, "oci-layout"), JSON.stringify({ imageLayoutVersion: "1.0.0" }));
@@ -120,4 +124,49 @@ test("the split image commands print what CI reads and fail on a broken chain", 
   assert.equal(run("record", source, compiled, layer(30), COMMIT, output).status, 0);
   assert.notEqual(run("record", source, unrelated, layer(30), COMMIT, path.join(dir, "no.json")).status, 0);
   assert.notEqual(run("digests").status, 0);
+});
+
+test("the docker load manifest names the config and layers of the one image, in the image manifest's order", async (t) => {
+  const { dockerSaveManifest, readLayout } = await load();
+  const dir = mkdtempSync(path.join(os.tmpdir(), "split-image-docker-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const blobPath = (digest: string) => `blobs/sha256/${digest.slice(7)}`;
+  const order = LAYER_BLOBS.slice(0, 3);
+  // The order checked is not the sorted one, so a sort would show.
+  assert.notDeepEqual([...order].sort(), order);
+  const flat = writeLayout(path.join(dir, "flat"), [layer(1), layer(2), layer(3)]);
+  const expected = [{ Config: blobPath(readLayout(flat).imageId), RepoTags: null, Layers: order.map(blobPath) }];
+  assert.deepEqual(dockerSaveManifest(flat), expected);
+  // An index of one platform gives the same manifest.
+  assert.deepEqual(dockerSaveManifest(writeLayout(path.join(dir, "nested"), [layer(1), layer(2), layer(3)], { nested: true })), expected);
+  assert.throws(() => dockerSaveManifest(writeLayout(path.join(dir, "two"), [layer(1)], { images: 2 })), /exactly one image, not 2/);
+  assert.throws(() => dockerSaveManifest(writeLayout(path.join(dir, "none"), [layer(1)], { images: 0 })), /exactly one image, not 0/);
+  assert.throws(() => dockerSaveManifest(writeLayout(path.join(dir, "empty"), [layer(1)], { layers: [] })), /lists no layer/);
+});
+
+test("the docker-manifest command writes manifest.json beside an unchanged index.json, once, into a directory only", (t) => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), "split-image-docker-cli-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const layout = writeLayout(path.join(dir, "layout"), [layer(1), layer(2)]);
+  const run = (...args: string[]) => spawnSyncBounded(process.execPath, [script, ...args], { encoding: "utf8" });
+  const indexBefore = readFileSync(path.join(layout, "index.json"));
+  const written = run("docker-manifest", layout);
+  assert.equal(written.status, 0, written.stderr);
+  const manifestBytes = readFileSync(path.join(layout, "manifest.json"), "utf8");
+  const manifest = JSON.parse(manifestBytes) as { Config: string; RepoTags: null; Layers: string[] }[];
+  assert.equal(manifest.length, 1);
+  assert.equal(manifest[0].RepoTags, null);
+  assert.deepEqual(manifest[0].Layers, LAYER_BLOBS.slice(0, 2).map((digest) => `blobs/sha256/${digest.slice(7)}`));
+  assert.match(manifest[0].Config, /^blobs\/sha256\/[0-9a-f]{64}$/);
+  assert.equal(manifestBytes, JSON.stringify(manifest));
+  assert.deepEqual(readFileSync(path.join(layout, "index.json")), indexBefore, "index.json must not change");
+  // A second run refuses rather than replace it.
+  assert.notEqual(run("docker-manifest", layout).status, 0);
+  assert.equal(readFileSync(path.join(layout, "manifest.json"), "utf8"), manifestBytes);
+  // A tar is not a layout directory to write into.
+  const tar = path.join(dir, "layout.oci.tar");
+  writeFileSync(tar, "");
+  const refused = run("docker-manifest", tar);
+  assert.notEqual(refused.status, 0);
+  assert.match(refused.stderr, /needs a layout directory/);
 });

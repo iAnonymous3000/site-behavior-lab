@@ -11,6 +11,7 @@
 //   split-image.mjs digests <layout>                prints oci_digest= and image_id= lines
 //   split-image.mjs prefix <source> <compiled>       fails unless source's layers start compiled's
 //   split-image.mjs record <source> <compiled> <runner image id> <commit> <output>
+//   split-image.mjs docker-manifest <layout directory>  writes manifest.json beside index.json
 
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -32,9 +33,8 @@ const blobName = (digest) => {
   return `blobs/sha256/${digest.slice("sha256:".length)}`;
 };
 
-// The layout's one image: its index digest names it for a build context, its
-// config digest is the image ID docker gives it, its diff ids are its layers.
-export function readLayout(layout) {
+// The layout's one image manifest, read through the index that names it.
+function imageManifest(layout) {
   const read = reader(layout);
   // Each blob read here must hash to the digest that names it.
   const blob = (digest) => {
@@ -52,6 +52,13 @@ export function readLayout(layout) {
     if (manifest.manifests.length !== 1) throw new Error(`${layout} must hold one platform, not ${manifest.manifests.length}`);
     manifest = blob(manifest.manifests[0].digest);
   }
+  return { blob, ociDigest, manifest };
+}
+
+// The layout's one image: its index digest names it for a build context, its
+// config digest is the image ID docker gives it, its diff ids are its layers.
+export function readLayout(layout) {
+  const { blob, ociDigest, manifest } = imageManifest(layout);
   const imageId = manifest.config?.digest;
   const config = blob(imageId);
   const diffIds = config.rootfs?.diff_ids;
@@ -59,6 +66,18 @@ export function readLayout(layout) {
     throw new Error(`${layout} has no layer list`);
   }
   return { ociDigest, imageId, diffIds };
+}
+
+// A docker load on Docker's classic image store, which hosted runners use,
+// reads a docker-save manifest.json and, without one, takes the archive for
+// the legacy format and fails. This is that manifest for the layout's one
+// image: its config and its layers, in the image manifest's order, by their
+// paths in the layout. index.json, and so the OCI digest, is not touched.
+export function dockerSaveManifest(layout) {
+  const { manifest } = imageManifest(layout);
+  const layers = manifest.layers;
+  if (!Array.isArray(layers) || layers.length === 0) throw new Error(`${layout}: the image manifest lists no layer`);
+  return [{ Config: blobName(manifest.config?.digest), RepoTags: null, Layers: layers.map((layer) => blobName(layer?.digest)) }];
 }
 
 // The compiled stage is FROM the source image, so the source image's layers
@@ -103,7 +122,13 @@ function main(argv) {
     writeFileSync(args[4], `${JSON.stringify(splitBuildRecord(source, compiled, args[2], args[3]), null, 2)}\n`);
     return 0;
   }
-  throw new Error("Usage: split-image.mjs digests <layout> | prefix <source> <compiled> | record <source> <compiled> <runner image id> <commit> <output>");
+  if (command === "docker-manifest" && args.length === 1) {
+    if (!existsSync(args[0]) || !statSync(args[0]).isDirectory()) throw new Error(`docker-manifest needs a layout directory, not ${args[0]}`);
+    // wx: a manifest.json already there is refused, never replaced.
+    writeFileSync(path.join(args[0], "manifest.json"), JSON.stringify(dockerSaveManifest(args[0])), { flag: "wx" });
+    return 0;
+  }
+  throw new Error("Usage: split-image.mjs digests <layout> | prefix <source> <compiled> | record <source> <compiled> <runner image id> <commit> <output> | docker-manifest <layout directory>");
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

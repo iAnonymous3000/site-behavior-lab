@@ -158,7 +158,11 @@ test("the release image is built from the exact source image the image-Node legs
   assert.match(source, /outputs: type=oci,dest=\$\{\{ runner\.temp \}\}\/source-oci,tar=false\n/);
   // The archive the legs and the docker job read is packed with exact member
   // names, and its identity is read from that archive, after packing.
-  assert.match(step(sourceJob, "Pack the exact source image"), /run: tar -C "\$RUNNER_TEMP\/source-oci" -cf "\$RUNNER_TEMP\/source-image\.oci\.tar" index\.json oci-layout blobs\n/);
+  assert.match(step(sourceJob, "Pack the exact source image"), /run: tar -C "\$RUNNER_TEMP\/source-oci" -cf "\$RUNNER_TEMP\/source-image\.oci\.tar" index\.json manifest\.json oci-layout blobs\n/);
+  // The runners' docker load needs a docker-save manifest.json, written before the pack.
+  assert.match(step(sourceJob, "Write the docker load manifest of the exact source image"), /run: node scripts\/split-image\.mjs docker-manifest "\$RUNNER_TEMP\/source-oci"\n/);
+  assert.ok(sourceJob.indexOf("- name: Build the exact source image") < sourceJob.indexOf("- name: Write the docker load manifest of the exact source image"));
+  assert.ok(sourceJob.indexOf("- name: Write the docker load manifest of the exact source image") < sourceJob.indexOf("- name: Pack the exact source image"));
   assert.match(step(sourceJob, "Record the exact source image's identity"), /node scripts\/split-image\.mjs digests "\$RUNNER_TEMP\/source-image\.oci\.tar"/);
   assert.ok(sourceJob.indexOf("- name: Pack the exact source image") < sourceJob.indexOf("- name: Record the exact source image's identity"));
   assert.doesNotMatch(source, /cache-to:|load: true|push: true|build-contexts:/);
