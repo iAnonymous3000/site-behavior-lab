@@ -55,7 +55,7 @@ test("provenance attestation is isolated, immutable, and limited to exact eviden
   assert.ok(dockerStart < attestStart && attestStart < promoteStart);
   assert.match(
     attestJob,
-    /needs:\n\s+- supply-chain\n\s+- app\n\s+- docker\n\s+- smoke/
+    /needs:\n\s+- supply-chain\n\s+- app\n\s+- docker\n\s+- smoke\n\s+- image-tests\n\s+if:/
   );
   assert.match(
     attestJob,
@@ -71,7 +71,7 @@ test("provenance attestation is isolated, immutable, and limited to exact eviden
   assert.equal(
     (attestJob.match(/actions\/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8\.0\.2/g) ?? [])
       .length,
-    4
+    5
   );
   assert.match(attestJob, /name: exact-sha-static-evidence-\$\{\{ github\.sha \}\}/);
   assert.match(attestJob, /name: exact-sha-container-evidence-\$\{\{ github\.sha \}\}/);
@@ -85,7 +85,7 @@ test("provenance attestation is isolated, immutable, and limited to exact eviden
 
   assert.equal(
     (attestJob.match(/actions\/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4\.2\.2/g) ?? []).length,
-    5
+    6
   );
   assert.match(
     attestJob,
