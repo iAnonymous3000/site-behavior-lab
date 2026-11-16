@@ -95,9 +95,14 @@ const ROUTE_TABLE = [
   "POST /cases/:case/cancel"
 ];
 
-/** Addresses no route may answer: what writes a runner's event or a control, purges, approves, publishes, exports or downloads, and malformed ids. The owner's commands have routes of their own, held by case-commands.test.ts. */
+/** Addresses no route may answer: what writes a runner's event or a control, purges, approves, publishes, exports or downloads, and malformed ids. The owner's commands have routes of their own, held by case-commands.test.ts. A runner's calls reach a case only through the handler its container's start registers, never through a route. */
 const NOT_ROUTES = [
   "/",
+  "/runner",
+  "/runner-object",
+  `${CASE}/runner`,
+  `${CASE}/runner-token`,
+  `${CASE}/runner-object`,
   "/cases/",
   "/case",
   `${CASE}/`,
