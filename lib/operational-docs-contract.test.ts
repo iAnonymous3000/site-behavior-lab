@@ -105,7 +105,12 @@ test("current operator docs record the fresh WAF and seven-day log receipts", ()
     assert.doesNotMatch(document, /recovery-route WAF[\s\S]{0,40}(?:missing|pending|required)/i);
   }
 
-  for (const document of [readme, operations, goLive, evidenceSurvey]) {
+  // The README states none of this since 2026-11-16: it points to
+  // docs/operations.md, which is pinned here. It may still never call the
+  // previews public.
+  assert.doesNotMatch(readme, /preview deployments are (?:currently )?enabled and\s+public/i);
+  assert.doesNotMatch(readme, /Pages\s+automatic\s+preview\s+deployments\s+are enabled/i);
+  for (const document of [operations, goLive, evidenceSurvey]) {
     assert.match(document, /scanner non-production[\s\S]{0,40}(?:builds are )?disabled/i);
     assert.match(document, /Access-(?:protected|restricted)/i);
     assert.doesNotMatch(document, /preview deployments are (?:currently )?enabled and\s+public/i);
@@ -113,7 +118,7 @@ test("current operator docs record the fresh WAF and seven-day log receipts", ()
   // The September dashboard recheck found automatic previews disabled. Keep
   // the current operating contract separate from the dated July receipt:
   // existing deployments still require Access even when new builds are off.
-  for (const document of [readme, operations, goLive]) {
+  for (const document of [operations, goLive]) {
     assert.match(document, /Pages\s+automatic\s+preview\s+deployments\s+are disabled/i);
     assert.match(document, /existing preview deployments[\s\S]{0,60}Access-protected/i);
     assert.doesNotMatch(document, /Pages\s+automatic\s+preview\s+deployments\s+are enabled/i);
