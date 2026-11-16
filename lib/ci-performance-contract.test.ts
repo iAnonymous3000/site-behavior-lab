@@ -16,21 +16,26 @@ function job(name: string): string {
 test("the existing required check fails for every unsuccessful parallel dependency", () => {
   const gate = job("app");
   assert.match(gate, /name: Typecheck, Unit Tests, Build\n/);
-  assert.match(gate, /needs:\n\s+- tests\n\s+- pages\n\s+- formal-verification\n/);
+  assert.match(gate, /needs:\n\s+- tests\n\s+- pages\n\s+- formal-verification\n\s+- image-tests\n/);
   assert.match(gate, /if: \$\{\{ always\(\) \}\}/);
   assert.match(gate, /TEST_RESULT: \$\{\{ needs\.tests\.result \}\}/);
   assert.match(gate, /BUILD_RESULT: \$\{\{ needs\.pages\.result \}\}/);
   assert.match(gate, /FORMAL_VERIFICATION_RESULT: \$\{\{ needs\.formal-verification\.result \}\}/);
+  assert.match(gate, /IMAGE_TEST_RESULT: \$\{\{ needs\.image-tests\.result \}\}/);
   assert.doesNotMatch(gate, /continue-on-error/);
   const script = gate.split("        run: |\n")[1]?.replace(/^ {10}/gm, "").trim();
   assert.ok(script);
-  for (const tests of ["success", "failure", "cancelled", "skipped", ""]) {
-    for (const builds of ["success", "failure", "cancelled", "skipped", ""]) {
-      for (const report of ["success", "failure", "cancelled", "skipped", ""]) {
-        const result = spawnSyncBounded("bash", ["-c", script], {
-          env: { ...process.env, TEST_RESULT: tests, BUILD_RESULT: builds, FORMAL_VERIFICATION_RESULT: report }, encoding: "utf8"
-        });
-        assert.equal(result.status === 0, tests === "success" && builds === "success" && report === "success", `${tests}/${builds}/${report}: ${result.stderr}`);
+  const results = ["success", "failure", "cancelled", "skipped", ""];
+  for (const tests of results) {
+    for (const builds of results) {
+      for (const report of results) {
+        for (const image of results) {
+          const result = spawnSyncBounded("bash", ["-c", script], {
+            env: { ...process.env, TEST_RESULT: tests, BUILD_RESULT: builds, FORMAL_VERIFICATION_RESULT: report, IMAGE_TEST_RESULT: image }, encoding: "utf8"
+          });
+          const pass = tests === "success" && builds === "success" && report === "success" && image === "success";
+          assert.equal(result.status === 0, pass, `${tests}/${builds}/${report}/${image}: ${result.stderr}`);
+        }
       }
     }
   }
@@ -114,8 +119,13 @@ test("Docker cache reuse still builds and exercises the exact checkout before re
   // exact image never exports cache; only the deps stage refresh below does.
   assert.doesNotMatch(buildStep, /cache-to:|target:/);
   assert.doesNotMatch(buildStep, /continue-on-error|\n\s+if:/);
-  const refresh = docker.slice(docker.indexOf("- name: Refresh the dependency-layer cache"), build);
-  assert.ok(docker.indexOf("- name: Refresh the dependency-layer cache") > 0, "the deps cache refresh must precede the exact build");
+  // The deps cache is refreshed where the source image is built, before it,
+  // and no build in the docker job exports cache.
+  const sourceJob = job("image-source");
+  const sourceBuild = sourceJob.indexOf("- name: Build the exact source image");
+  const refresh = sourceJob.slice(sourceJob.indexOf("- name: Refresh the dependency-layer cache"), sourceBuild);
+  assert.ok(sourceJob.indexOf("- name: Refresh the dependency-layer cache") > 0 && sourceBuild > 0, "the deps cache refresh must precede the source image build");
+  assert.doesNotMatch(docker, /cache-to:|Refresh the dependency-layer cache/);
   assert.match(refresh, /target: deps\n/);
   assert.match(refresh, /push: false\n/);
   assert.doesNotMatch(refresh, /load: true|build-args:|tags:/);
@@ -133,6 +143,46 @@ test("Docker cache reuse still builds and exercises the exact checkout before re
   assert.match(smokeStep, /DOCKER_SMOKE_SKIP_BUILD: "1"/);
   assert.match(smokeStep, /DOCKER_SMOKE_PUBLIC_R2: "1"/);
   assert.doesNotMatch(smokeStep, /continue-on-error|\n\s+if:/);
+});
+
+test("the release image is built from the exact source image the image-Node legs test, by digest, in that order", () => {
+  const step = (text: string, name: string) => {
+    const start = text.indexOf(`      - name: ${name}\n`);
+    assert.ok(start >= 0, name);
+    const next = text.indexOf("\n      - name: ", start + 1);
+    return text.slice(start, next < 0 ? undefined : next);
+  };
+  const sourceJob = job("image-source");
+  const source = step(sourceJob, "Build the exact source image");
+  assert.match(source, /target: source\n/);
+  assert.match(source, /outputs: type=oci,dest=\$\{\{ runner\.temp \}\}\/source-image\.oci\.tar\n/);
+  assert.doesNotMatch(source, /cache-to:|load: true|push: true|build-contexts:/);
+  assert.match(sourceJob, /oci-digest: \$\{\{ steps\.source_image\.outputs\.oci_digest \}\}\n/);
+  assert.match(sourceJob, /image-id: \$\{\{ steps\.source_image\.outputs\.image_id \}\}\n/);
+  assert.match(step(sourceJob, "Preserve the exact source image for this run"), /retention-days: 1\n/);
+
+  const docker = job("docker");
+  assert.match(docker, /needs:\n\s+- image-source\n/);
+  assert.match(docker, /\n {4}if: \$\{\{ always\(\) \}\}\n/);
+  const gate = step(docker, "Require the exact source image");
+  assert.ok(docker.indexOf("      - name: Require the exact source image\n") < docker.indexOf("      - name: Checkout\n"), "the join runs first");
+  const script = gate.split("        run: |\n")[1]?.replace(/^ {10}/gm, "").trim();
+  assert.ok(script);
+  for (const result of ["success", "failure", "cancelled", "skipped", ""]) {
+    const ran = spawnSyncBounded("bash", ["-c", script], { env: { ...process.env, SOURCE_IMAGE_RESULT: result }, encoding: "utf8" });
+    assert.equal(ran.status === 0, result === "success", `${result}: ${ran.stderr}`);
+  }
+  const order = ["Unpack the exact source image", "Build the compiled stage from the exact source image", "Check the compiled image sits on the exact source image", "Build exact deployable Docker image", "Smoke deployable Docker image"].map((name) => docker.indexOf(`      - name: ${name}\n`));
+  assert.ok(order.every((at, index) => at > 0 && (index === 0 || at > order[index - 1])), `split build steps out of order: ${order.join(", ")}`);
+  assert.match(step(docker, "Unpack the exact source image"), /test "\$\(read_digest "\$RUNNER_TEMP\/source-oci"\)" = "\$SOURCE_OCI_DIGEST"/);
+  const compiled = step(docker, "Build the compiled stage from the exact source image");
+  assert.match(compiled, /target: compiled\n/);
+  assert.match(compiled, /build-contexts: \|\n\s+source=oci-layout:\/\/\$\{\{ runner\.temp \}\}\/source-oci@\$\{\{ needs\.image-source\.outputs\.oci-digest \}\}\n/);
+  assert.doesNotMatch(compiled, /cache-to:|cache-from:|load: true|build-args:/);
+  const deployable = step(docker, "Build exact deployable Docker image");
+  assert.match(deployable, /build-contexts: \|\n\s+build=oci-layout:\/\/\$\{\{ runner\.temp \}\}\/compiled-oci@\$\{\{ steps\.compiled_image\.outputs\.oci_digest \}\}\n/);
+  // Each context names exactly one stage, so nothing else of the Dockerfile is replaced.
+  assert.equal((docker.match(/=oci-layout:\/\//g) ?? []).length, 2);
 });
 
 /**
@@ -257,23 +307,41 @@ function checkoutProblems(file: string, name: string, job: WorkflowJob): string[
   return problems;
 }
 
+/**
+ * A suite step that runs inside the exact source image, never on the job's own checkout. That tree
+ * has no .git (.dockerignore keeps it out of every image), as the image build's never had, so the
+ * checkout depth does not apply to it; the tests that read history behave there as they did in the
+ * image build. A job counts as running the suite in the image only if every line of it that names
+ * the suite is such a step.
+ */
+const IN_IMAGE_SUITE = /^docker run --rm "\$SOURCE_IMAGE_ID" npm run test:unit:leg -- "\$LEG"$/;
+
 /** Every way a workflow's unit-suite job can fail the history rule, as `file job: problem`. */
-function historyProblems(workflows: ReadonlyMap<string, string>): string[] {
+function historyProblems(workflows: ReadonlyMap<string, string>, dockerignore = readFileSync(path.join(root, ".dockerignore"), "utf8")): string[] {
   const problems: string[] = [];
   const running: string[] = [];
+  const inImage: string[] = [];
   for (const [file, text] of workflows) {
     for (const [name, job] of workflowJobs(text)) {
       if (!job.text.some((line) => RUNS_THE_SUITE.test(line))) continue;
-      if (job.steps.some((step) => RUNS_THE_SUITE.test(step.run))) running.push(`${file} ${name}`);
-      problems.push(...checkoutProblems(file, name, job));
-      if (file === "ci.yml" && name === "tests") {
-        for (const step of job.steps) if (RUNS_THE_SUITE.test(step.run) && step.condition !== null) problems.push(`${file} ${name}: step ${step.index} runs the unit suite under a condition`);
+      const suiteSteps = job.steps.filter((step) => RUNS_THE_SUITE.test(step.run));
+      const suiteLines = job.text.filter((line) => RUNS_THE_SUITE.test(line)).length;
+      if (file === "ci.yml" && (name === "tests" || name === "image-tests")) {
+        for (const step of suiteSteps) if (step.condition !== null) problems.push(`${file} ${name}: step ${step.index} runs the unit suite under a condition`);
       }
+      if (job.unread.length === 0 && suiteSteps.length > 0 && suiteLines === suiteSteps.length && suiteSteps.every((step) => IN_IMAGE_SUITE.test(step.run))) {
+        inImage.push(`${file} ${name}`);
+        continue;
+      }
+      if (suiteSteps.length > 0) running.push(`${file} ${name}`);
+      problems.push(...checkoutProblems(file, name, job));
     }
   }
   for (const expected of ["ci.yml tests", "update-brave-lists.yml refresh-lists"]) {
     if (!running.includes(expected)) problems.push(`${expected}: no longer runs the unit suite`);
   }
+  if (!inImage.includes("ci.yml image-tests")) problems.push("ci.yml image-tests: no longer runs the unit suite in the source image");
+  if (inImage.length > 0 && !dockerignore.split("\n").includes(".git")) problems.push(".dockerignore: no longer keeps .git out of the source image");
   return problems;
 }
 
@@ -310,6 +378,7 @@ function editedInJob(file: string, job: string, find: string, replace: string): 
 const REFRESH_CHECKOUT_DEPTH = "        with:\n          fetch-depth: 0\n\n      - name: Set up Node\n";
 const SECOND_CHECKOUT = "      - name: Checkout beside it\n        uses: actions/checkout@v7\n        with:\n          path: beside\n          fetch-depth: 0\n\n";
 const SHALLOW_SECOND_CHECKOUT = "      - name: Checkout beside it\n        uses: actions/checkout@v7\n        with:\n          path: beside\n\n";
+const IMAGE_UNIT_RUN = "        run: docker run --rm \"$SOURCE_IMAGE_ID\" npm run test:unit:leg -- \"$LEG\"\n";
 const CI_UNIT_STEP = "      - name: Unit tests\n        run: npm run test:unit:leg -- ${{ matrix.leg }}\n";
 const withWorkflow = (name: string, text: string): Map<string, string> => new Map([...WORKFLOWS, [name, text]]);
 const refreshSuiteRun = (run: string) => refreshDepth("fetch-depth: 1", editedWorkflows("update-brave-lists.yml", "        run: npm run test:unit\n", `        run: ${run}\n`));
@@ -317,6 +386,8 @@ const refreshDepth = (value: string, base?: ReadonlyMap<string, string>) => edit
 
 test("every job that runs the unit suite checks out the whole history, unfiltered", () => {
   assert.deepEqual(historyProblems(WORKFLOWS), []);
+  const dockerignore = readFileSync(path.join(root, ".dockerignore"), "utf8");
+  assert.deepEqual(historyProblems(WORKFLOWS, dockerignore.replace(/^\.git\n/m, "")), [".dockerignore: no longer keeps .git out of the source image"]);
 });
 
 for (const [name, workflows, problems] of [
@@ -355,7 +426,7 @@ for (const [name, workflows, problems] of [
   ["a top-level key after the jobs, naming the suite", () => withWorkflow("after.yml", "on: push\njobs:\n  lint:\n    runs-on: ubuntu-24.04\n    steps:\n      - run: echo lint\nenv:\n  SUITE: test:unit\n"), []],
   ["a step list indented four spaces", () => editedInJob("update-brave-lists.yml", "refresh-lists", "      - name: Set up Node\n", "    - name: Set up Node\n"), ["update-brave-lists.yml refresh-lists: line 82 is not read"]],
   ["the refresh job's depth indented nine spaces", () => editedWorkflows("update-brave-lists.yml", REFRESH_CHECKOUT_DEPTH, REFRESH_CHECKOUT_DEPTH.replace("          fetch-depth: 0", "         fetch-depth: 0")), ["update-brave-lists.yml refresh-lists: line 80 is not read", "update-brave-lists.yml refresh-lists: checkout step 1 is not fetch-depth: 0"]],
-  ["a with block holding a line that is no key", () => editedInJob("ci.yml", "tests", "          fetch-depth: 0\n", "          fetch-depth: 0\n          - beside\n"), ["ci.yml tests: line 253 is not read"]],
+  ["a with block holding a line that is no key", () => editedInJob("ci.yml", "tests", "          fetch-depth: 0\n", "          fetch-depth: 0\n          - beside\n"), ["ci.yml tests: line 255 is not read"]],
   ["a line led by a tab inside a job", () => editedWorkflows("update-brave-lists.yml", "\n  refresh-lists:\n", "\n  refresh-lists:\n\tname: stray\n"), ["update-brave-lists.yml refresh-lists: line 59 is not read"]],
   ["a stray line at a job header's indentation, before its steps", () => editedWorkflows("update-brave-lists.yml", "\n  refresh-lists:\n", "\n  refresh-lists:\n  - stray\n"), ["update-brave-lists.yml refresh-lists: line 59 is not read"]],
   [
@@ -372,7 +443,22 @@ for (const [name, workflows, problems] of [
   ["the refresh job's depth single-quoted, with a comment", () => refreshDepth("fetch-depth: '0' # all of it"), []],
   ["the refresh job's header with a trailing comment", () => editedWorkflows("update-brave-lists.yml", "\n  refresh-lists:\n", "\n  refresh-lists: # the weekly refresh\n"), []],
   ["the refresh job's checkout under a quoted key", () => editedInJob("update-brave-lists.yml", "refresh-lists", "        uses: actions/checkout@", '        "uses": actions/checkout@'), []],
-  ["CI's unit suite run with a flag before its name", () => editedWorkflows("ci.yml", CI_UNIT_STEP, "      - name: Unit tests\n        run: npm run --silent test:unit:leg -- ${{ matrix.leg }}\n"), []]
+  ["CI's unit suite run with a flag before its name", () => editedWorkflows("ci.yml", CI_UNIT_STEP, "      - name: Unit tests\n        run: npm run --silent test:unit:leg -- ${{ matrix.leg }}\n"), []],
+  [
+    "the image legs' suite run on the job's own tree, with no checkout",
+    () => editedWorkflows("ci.yml", IMAGE_UNIT_RUN, "        run: npm run test:unit:leg -- \"$LEG\"\n"),
+    ["ci.yml image-tests: has no checkout", "ci.yml image-tests: no longer runs the unit suite in the source image"]
+  ],
+  [
+    "the image legs' suite run in the image and again on the job's own tree",
+    () => editedWorkflows("ci.yml", IMAGE_UNIT_RUN, `${IMAGE_UNIT_RUN}\n      - name: Again on the runner\n        run: npm run test:unit\n`),
+    ["ci.yml image-tests: has no checkout", "ci.yml image-tests: no longer runs the unit suite in the source image"]
+  ],
+  [
+    "the image legs' suite step made conditional",
+    () => editedWorkflows("ci.yml", IMAGE_UNIT_RUN, `        if: matrix.leg != 'tail'\n${IMAGE_UNIT_RUN}`),
+    ["ci.yml image-tests: step 3 runs the unit suite under a condition"]
+  ]
 ] as const) {
   test(`the history rule reads ${name}`, () => {
     assert.deepEqual(historyProblems(workflows()), problems);
@@ -382,5 +468,5 @@ for (const [name, workflows, problems] of [
 test("the pages job checks out the whole history, unfiltered, through the same parser", () => {
   assert.deepEqual(pagesProblems(WORKFLOWS), []);
   assert.deepEqual(pagesProblems(editedInJob("ci.yml", "pages", "          fetch-depth: 0\n", "          # fetch-depth: 0\n")), ["ci.yml pages: checkout step 1 is not fetch-depth: 0"]);
-  assert.deepEqual(pagesProblems(editedInJob("ci.yml", "pages", "          fetch-depth: 0\n", "          fetch-depth: 0\n         stray: x\n")), ["ci.yml pages: line 437 is not read"]);
+  assert.deepEqual(pagesProblems(editedInJob("ci.yml", "pages", "          fetch-depth: 0\n", "          fetch-depth: 0\n         stray: x\n")), ["ci.yml pages: line 439 is not read"]);
 });
