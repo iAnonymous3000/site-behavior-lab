@@ -18,10 +18,17 @@
 // object takes verifies the Access assertion again, inside the object, except a runner's two
 // calls, which carry the attempt's token instead and which no route here sends. A case's alarm
 // holds no assertion, and writes nothing to a case's log: it flags a deadline that came due and
-// records the runner's stop, which revokes that attempt's token. No container exists yet, so
-// nothing more is stopped.
+// records the runner's stop, which revokes that attempt's token and destroys its container.
+//
+// A case object hands case-host.ts the container the platform gives it, if any, and the binding of
+// the handler below for each start, with that start's props. wrangler.investigation.jsonc binds no
+// container yet, so the platform gives none, nothing is started and a stop records the stop only.
+// The handler is reached only through the address a case object registers on its container; no
+// route here sends to it, and nothing here but the case object builds its binding.
 import { AccessKeySet } from "../investigation/core/access-token";
 import { caseIndexObject, caseObject, hostedCasesFrom, type CaseHostObject, type HostEnv, type HostObject } from "../investigation/core/case-host";
+import type { HandlerProps } from "../investigation/core/case-container";
+import { runnerHandler } from "../investigation/core/runner-handler";
 import { viewerRoutes } from "../investigation/core/viewer-routes";
 import { handleWorkspaceRequest } from "../investigation/core/workspace-gate";
 
@@ -41,7 +48,16 @@ export class InvestigationCase {
   private readonly answer: CaseHostObject;
 
   constructor(state: DurableObjectState, env: HostEnv) {
-    this.answer = caseObject({ name: state.id.name, storage: state.storage, env, keySetFor, now: Date.now });
+    const handler = (state.exports as unknown as Record<string, ((options: { props: HandlerProps }) => unknown) | undefined>).InvestigationRunnerHandler;
+    this.answer = caseObject({
+      name: state.id.name,
+      storage: state.storage,
+      env,
+      keySetFor,
+      now: Date.now,
+      container: state.container,
+      handlerFor: handler === undefined ? undefined : (props) => handler({ props })
+    });
   }
 
   fetch(request: Request): Promise<Response> {
@@ -66,6 +82,13 @@ export class InvestigationCaseIndex {
     return this.answer(request);
   }
 }
+
+/** The handler a case object registers for each start of its container, with that start's props. It acts for those props only. */
+export const InvestigationRunnerHandler = {
+  fetch(request: Request, env: HostEnv, ctx: ExecutionContext): Promise<Response> {
+    return runnerHandler(request, env, ctx.props);
+  }
+};
 
 export default {
   fetch(request: Request, env: HostEnv): Promise<Response> {

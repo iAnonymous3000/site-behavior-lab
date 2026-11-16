@@ -54,20 +54,30 @@
 // case's head and nothing else of the case: the runner needs the head to write, and nothing the
 // owner wrote. The runner's actor is derived inside the object and never leaves it.
 //
-// Stopping a runner is recorded here, as that attempt's stop record, before the seam a later stage
-// fills with the container's destroy is asked. So a stop revokes the attempt's token even when that
-// seam fails, and a second stop finds the record there and is done. The destroy record is the other
-// record case-runner.ts keeps, which only that later stage writes.
+// Stopping a runner is recorded here, as that attempt's stop record, before its container is
+// destroyed. So a stop revokes the attempt's token even when the destroy fails, and a second stop
+// finds the record there and is done. The destroy record is the other record case-runner.ts keeps,
+// set by case-container.ts only when a destroy has resolved.
+//
+// A case object with a container starts its runner's after the owner's attempt-started has been
+// written, and never for a start the case refused: case-container.ts says how. It stops one when
+// the attempt's deadline alarm comes due, when the token is asked for twice, when the container
+// reports its exit, when the runner's own cleanup event is written, and when the owner's command
+// ends the attempt or the case. The owner's environment-destroyed is refused until the slot has a
+// destroy record (ruling D-5): a slot whose container was never started has none. A runner may
+// also store an object, its bytes the call's body, bounded per attempt by case-runner.ts.
 //
 // There is no call here that purges or deletes, and none that writes a control or a changed
 // configuration.
 
 import { sha256Hex } from "./canonical-json";
 import { configurationKey, isConfigurationIdentity, MAX_TEXT_CHARS, type ConfigurationIdentity } from "./case-events";
-import { MAX_HEAD_CHARS, putEvidence, type LogEvent } from "./case-log";
+import { MAX_EVIDENCE_BYTES, MAX_HEAD_CHARS, putEvidence, type LogEvent } from "./case-log";
 import { caseCommandsOver, caseRunnerOver, caseServiceOver, ownerFromAssertion, type AccessAnswer, type AccessWorld, type CaseRefusal, type CaseService, type CaseView, type ClaimAnswer, type CommandAnswer, type EvidenceAnswer, type OpenAnswer, type RunnerAnswer } from "./case-service";
 import { DEFAULT_DEADLINES, isAlarmStorage, supervisionOver, type Deadlines, type DueMark } from "./case-supervision";
-import { runnerCredentialsOver, type HandOut, type RunnerFlag } from "./case-runner";
+import { runnerCredentialsOver, runnerObjectsOver, tokenRefusalFor, type HandOut, type RunnerFlag } from "./case-runner";
+import { isContainerSeam, runnerRunsOver, type HandlerProps } from "./case-container";
+import { readBounded, RUNNER_CALL_CAPS, RUNNER_CALL_HEADER, RUNNER_CASE_HEADER, RUNNER_DIGEST_HEADER, RUNNER_TOKEN_HEADER } from "./runner-handler";
 import { createCase, mintedSlots, openCase } from "./case-store";
 import { hostedStores, isHostBucket, isHostStorage } from "./case-host-stores";
 import { mintAttemptId, mintCaseId } from "./ids";
@@ -124,8 +134,12 @@ export type HostObjectWorld = Readonly<{
   now: () => number;
   /** How long each deadline runs. The defaults of case-supervision.ts unless a test sets its own. */
   deadlines?: Deadlines;
-  /** Stops the runner of one slot's attempt. No container exists yet, so the production entry gives none: the object records the stop and revokes the token, and nothing more is stopped. */
+  /** A test's own seam, asked after a runner's stop is recorded and its container destroyed. The production entry gives none. */
   stopRunner?: (slot: SlotName) => Promise<void>;
+  /** The object's container, read by its shape. Absent when the platform gives the object none: then nothing is started, and a stop records the stop only. */
+  container?: unknown;
+  /** The handler's binding for one start, with that start's props. */
+  handlerFor?: (props: HandlerProps) => unknown;
 }>;
 
 export type HostObject = (request: Request) => Promise<Response>;
@@ -141,12 +155,15 @@ export type CaseHostObject = HostObject & Readonly<{ alarm: () => Promise<void> 
  */
 export type HostedOpenAnswer = OpenAnswer | Readonly<{ ok: true; case: CaseView; due: readonly DueMark[]; runnerFlags: readonly RunnerFlag[] }>;
 
+/** A command's answers on a hosted case: the case service's, and environment-destroyed refused for a slot with no destroy record. */
+export type HostedCommandAnswer = CommandAnswer | Readonly<{ ok: false; refusal: "environment-not-destroyed"; at: string; case: CaseView }>;
+
 /** What planning or freezing answers: a command's answers, or the field of the plan that is wrong. */
-export type PlanAnswer = CommandAnswer | Readonly<{ ok: false; refusal: string; at: string | null }>;
+export type PlanAnswer = HostedCommandAnswer | Readonly<{ ok: false; refusal: string; at: string | null }>;
 
 /** The seam for the owner's commands on a hosted case. */
 export type HostedCommands = Readonly<{
-  command(assertion: string, caseId: string, viewedHead: string, event: LogEvent): Promise<CommandAnswer>;
+  command(assertion: string, caseId: string, viewedHead: string, event: LogEvent): Promise<HostedCommandAnswer>;
   /** Plan a case whose log holds no plan. The ids are minted where the plan is written. */
   plan(assertion: string, caseId: string, viewedHead: string, plan: NewCasePlan): Promise<PlanAnswer>;
   /** Freeze the plan as this text, stored as an object the plan then names. */
@@ -205,6 +222,9 @@ async function checkedPlan(plan: unknown): Promise<Readonly<{ ok: true; slots: r
 }
 
 type CaseCreateAnswer = Readonly<{ ok: true; case: CaseView }> | AccessAnswer | Readonly<{ ok: false; refusal: string; at: string | null; logStarted: boolean }>;
+
+/** The owner's commands that end an attempt or the case. After one is written, the live run of each attempt no longer running is stopped. */
+const ENDING_COMMANDS: readonly string[] = ["attempt-deadline", "reconcile", "case-cancelled", "case-deadline"];
 
 /** The events the generic command call writes. A plan and a freeze are built here, by their own calls, and never taken ready made. */
 const BUILT_HERE: readonly string[] = ["case-planned", "plan-frozen"];
@@ -274,11 +294,30 @@ export function caseObject(world: HostObjectWorld): CaseHostObject {
   const service = caseServiceOver(serviceWorld);
   const commands = caseCommandsOver(serviceWorld);
   const credentials = runnerCredentialsOver(own, world.now);
+  const objects = runnerObjectsOver(own, world.now);
   const runner = caseRunnerOver({ ...serviceWorld, holderOf: credentials.holderOf });
   const stopRunner = async (slot: SlotName): Promise<void> => {
-    // Recorded first, so the token is revoked whatever the seam after it does.
+    // Recorded first, so the token is revoked whatever the destroy after it does.
     credentials.recordStop(slot);
+    await runs.destroy(slot);
     await (world.stopRunner ?? (async () => {}))(slot);
+  };
+  const runs = runnerRunsOver({
+    storage: own,
+    now: world.now,
+    container: isContainerSeam(world.container) ? world.container : null,
+    handlerFor: world.handlerFor ?? null,
+    recordDestroyed: (slot) => credentials.recordDestroyed(slot),
+    recordStop: (slot) => credentials.recordStop(slot),
+    onExit: stopRunner
+  });
+  /** A stop asked for after a write has committed. A failed destroy leaves the stop recorded; the write stands. */
+  const stopQuietly = async (slot: SlotName): Promise<void> => {
+    try {
+      await stopRunner(slot);
+    } catch {
+      // The next start destroys a live earlier run before it launches.
+    }
   };
   const supervision = supervisionOver({ storage, now: world.now, deadlines: world.deadlines ?? DEFAULT_DEADLINES, stopRunner });
 
@@ -316,19 +355,46 @@ export function caseObject(world: HostObjectWorld): CaseHostObject {
     if (!answer.ok) return answer;
     const machine = answer.case.state?.machine ?? null;
     // A flag is shown while its attempt still reads as running, which is while a reconcile is due for it.
-    const runnerFlags = credentials.flags().filter(({ slot }) => machine?.attempts.some((attempt) => attempt.slot === slot && isRunningPhase(attempt.phase)) === true);
+    const runnerFlags = [...credentials.flags(), ...runs.flags()].filter(({ slot }) => machine?.attempts.some((attempt) => attempt.slot === slot && isRunningPhase(attempt.phase)) === true);
     return { ...answer, due: supervision.flagged(machine), runnerFlags };
   }
 
-  /** One of the owner's commands, with an attempt's marks written ahead of the command that starts it. */
-  async function command(assertion: string, caseId: string, viewedHead: string, event: LogEvent): Promise<CommandAnswer> {
+  /**
+   * One of the owner's commands, with an attempt's marks written ahead of the command that starts it,
+   * its container started only once that command is written, environment-destroyed refused for a slot
+   * with no destroy record, and the live run of each attempt an ending command ends stopped after it.
+   */
+  async function command(assertion: string, caseId: string, viewedHead: string, event: LogEvent): Promise<HostedCommandAnswer> {
+    const type = (event as { type?: unknown } | null)?.type;
     const slot = (event as { data?: { slot?: unknown } } | null)?.data?.slot;
-    if ((event as { type?: unknown } | null)?.type === "attempt-started" && caseId === name && (SLOT_NAMES as readonly unknown[]).includes(slot)) {
+    const named = caseId === name && (SLOT_NAMES as readonly unknown[]).includes(slot);
+    if (type === "attempt-started" && named) {
       const owner = await ownerFromAssertion(access, assertion);
       if ("ok" in owner) return owner;
       await supervision.prepareStart(slot as SlotName);
     }
-    return synced(await commands.command(assertion, caseId, viewedHead, event));
+    if (type === "environment-destroyed" && named) {
+      const owner = await ownerFromAssertion(access, assertion);
+      if ("ok" in owner) return owner;
+      if (!credentials.isDestroyed(slot as SlotName)) {
+        const opened = await synced(await service.open(assertion, caseId));
+        return opened.ok ? { ok: false, refusal: "environment-not-destroyed", at: slot as SlotName, case: opened.case } : opened;
+      }
+    }
+    const answer = await synced(await commands.command(assertion, caseId, viewedHead, event));
+    if (!answer.ok) return answer;
+    const machine = answer.case.state?.machine ?? null;
+    if (type === "attempt-started" && named && machine !== null) {
+      // Only a start the case has written launches anything, and only for the attempt it wrote.
+      const attempt = machine.attempts.find((candidate) => candidate.slot === slot && candidate.phase === "starting");
+      if (attempt !== undefined) await runs.launch({ caseId: name as string, slot: attempt.slot, attemptId: attempt.attemptId });
+    }
+    if (typeof type === "string" && ENDING_COMMANDS.includes(type) && machine !== null) {
+      for (const live of runs.liveSlots()) {
+        if (!machine.attempts.some((attempt) => attempt.slot === live && isRunningPhase(attempt.phase))) await stopQuietly(live);
+      }
+    }
+    return answer;
   }
 
   async function plan(assertion: string, caseId: string, viewedHead: string, given: unknown): Promise<PlanAnswer> {
@@ -376,9 +442,74 @@ export function caseObject(world: HostObjectWorld): CaseHostObject {
     return { ok: false, refusal: created.refusal, at: created.at, logStarted: await logStarted() };
   }
 
+  /**
+   * Store one object a runner sends, its bytes the body. Its declared length is read before anything
+   * else and the body no further than that; the token is held to the rule of a row (D-7); the key is
+   * the digest worked out here from the bytes, a digest the call gives only compared with it (F-2);
+   * and the attempt's objects are counted against their bound before the bytes are stored (F-3).
+   */
+  async function storeObject(request: Request): Promise<Response> {
+    const refuse = async (status: number, refusal: string): Promise<Response> => {
+      try {
+        await request.body?.cancel();
+      } catch {
+        // Nothing more is read either way.
+      }
+      return jsonResponse(status, { ok: false, refusal });
+    };
+    const declared = Number(request.headers.get("content-length") ?? Number.NaN);
+    if (!request.headers.has("content-length") || !Number.isSafeInteger(declared) || declared < 0) return refuse(411, "length-required");
+    if (declared > MAX_EVIDENCE_BYTES) return refuse(413, "body-too-large");
+    const given = request.headers.get(RUNNER_DIGEST_HEADER);
+    if (given !== null && !/^[0-9a-f]{64}$/.test(given)) return refuse(400, "malformed-call");
+    if (request.headers.get(RUNNER_CASE_HEADER) !== name) return refuse(200, "token-refused");
+    const holder = await credentials.holderOf(request.headers.get(RUNNER_TOKEN_HEADER));
+    if (holder === null) return refuse(200, "token-refused");
+    const opened = await openCase(stores, named);
+    if (!opened.ok || opened.case.state === null) return refuse(200, "token-refused");
+    const attempt = opened.case.state.machine.attempts.find(({ slot }) => slot === holder.slot);
+    if (attempt === undefined || attempt.attemptId !== holder.attemptId) return refuse(200, "token-refused");
+    // An object is evidence a row will name, so the token stores one only while it could write a row.
+    const ended = tokenRefusalFor(holder, opened.case.state.machine, attempt, "evidence-recorded");
+    if (ended !== null) return refuse(200, ended);
+    const bytes = await readBounded(request, RUNNER_CALL_CAPS["runner-object"], true);
+    if (bytes === "too-large") return jsonResponse(413, { ok: false, refusal: "body-too-large" });
+    if (bytes === "length-required") return jsonResponse(411, { ok: false, refusal: "length-required" });
+    if (bytes === "length-mismatch") return jsonResponse(400, { ok: false, refusal: "body-length-mismatch" });
+    const digest = await sha256Hex(bytes);
+    if (given !== null && given !== digest) return jsonResponse(200, { ok: false, refusal: "digest-mismatch" });
+    const admission = objects.admit(holder.slot, digest, bytes.byteLength);
+    if (admission === "object-bound") return jsonResponse(200, { ok: false, refusal: "object-bound" });
+    const put = await putEvidence(stores, bytes);
+    if (!put.ok) return jsonResponse(200, { ok: false, refusal: put.refusal });
+    objects.count(holder.slot, put.digest, bytes.byteLength);
+    return jsonResponse(200, { ok: true, digest: put.digest });
+  }
+
+  /** A runner's call as the handler sends it: its name in a header, its body read no further than that call's cap. */
+  async function runnerCallOf(request: Request, callName: string): Promise<Call | "too-large" | null> {
+    const cap = Object.hasOwn(RUNNER_CALL_CAPS, callName) ? RUNNER_CALL_CAPS[callName] : null;
+    if (cap === null) return null;
+    const bytes = await readBounded(request, cap, false);
+    if (bytes === "too-large") return "too-large";
+    if (typeof bytes === "string") return null;
+    try {
+      const body: unknown = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+      return typeof body === "object" && body !== null && !Array.isArray(body) && (body as Call).call === callName ? (body as Call) : null;
+    } catch {
+      return null;
+    }
+  }
+
   const answer: HostObject = async (request) => {
-    const call = await callOf(request);
+    const runnerCall = request.headers.get(RUNNER_CALL_HEADER);
+    if (runnerCall === "runner-object") return storeObject(request);
+    // A runner's call arrives with its name in a header, which no owner's call carries, so its body is bounded before it is read.
+    const call = runnerCall === null ? await callOf(request) : await runnerCallOf(request, runnerCall);
+    if (call === "too-large") return jsonResponse(413, { ok: false, refusal: "body-too-large" });
     if (call === null) return jsonResponse(400, MALFORMED_CALL);
+    // A runner's call without its header would be read unbounded, so it is refused.
+    if (runnerCall === null && (call.call === "runner-token" || call.call === "runner")) return jsonResponse(400, MALFORMED_CALL);
     const assertion = call.assertion as string;
     const caseId = call.caseId as string;
     const viewedHead = call.viewedHead as string;
@@ -404,9 +535,14 @@ export function caseObject(world: HostObjectWorld): CaseHostObject {
       case "runner-token":
         if (!hasRunnerFields(call)) return jsonResponse(400, MALFORMED_CALL);
         return jsonResponse(200, await handOut(caseId, call.attemptId));
-      case "runner":
+      case "runner": {
         if (!hasRunnerFields(call)) return jsonResponse(400, MALFORMED_CALL);
-        return jsonResponse(200, runnerWire(await synced(await runner.write(call.token as string, caseId, viewedHead, call.event as LogEvent))));
+        const written = await synced(await runner.write(call.token as string, caseId, viewedHead, call.event as LogEvent));
+        // The runner's own cleanup event says its browser is closed: its container's work is over.
+        const event = call.event as { type?: unknown; data?: { slot?: unknown } };
+        if (written.ok && (event.type === "cleanup-confirmed" || event.type === "cleanup-unconfirmed") && (SLOT_NAMES as readonly unknown[]).includes(event.data?.slot)) await stopQuietly(event.data?.slot as SlotName);
+        return jsonResponse(200, runnerWire(written));
+      }
       default:
         return jsonResponse(400, MALFORMED_CALL);
     }
@@ -520,7 +656,7 @@ export function hostedCasesFrom(env: HostEnv, mint: () => string = mintCaseId): 
       claim: (assertion, caseId, viewedHead, event) => toCase<ClaimAnswer>(caseId, { call: "claim", assertion, caseId, viewedHead, event })
     },
     commands: {
-      command: (assertion, caseId, viewedHead, event) => toCase<CommandAnswer>(caseId, { call: "command", assertion, caseId, viewedHead, event }),
+      command: (assertion, caseId, viewedHead, event) => toCase<HostedCommandAnswer>(caseId, { call: "command", assertion, caseId, viewedHead, event }),
       async plan(assertion, caseId, viewedHead, plan) {
         const answer = await toCase<PlanAnswer>(caseId, { call: "plan", assertion, caseId, viewedHead, plan });
         // The create that reserved this id never marked it created. If this fails the list still shows it as not finished.

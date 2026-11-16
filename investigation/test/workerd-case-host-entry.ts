@@ -7,6 +7,7 @@ import type { SlotName } from "../core/case-machine";
 import { bucketObjectStore, sqlHeadStore, type HostBucket, type HostStorage } from "../core/case-host-stores";
 import { viewerRoutes } from "../core/viewer-routes";
 import { handleWorkspaceRequest } from "../core/workspace-gate";
+import { RUNNER_CALL_HEADER, runnerHandler } from "../core/runner-handler";
 
 /**
  * The production entry's wiring, bundled by the case host's fault and cost suites, with three
@@ -30,6 +31,14 @@ import { handleWorkspaceRequest } from "../core/workspace-gate";
  * slot's destroy record, which only a later stage's container destroy writes in production; and
  * one hands back every row of every table in the object's storage, so a suite can look for a token
  * in all of it.
+ *
+ * For the container suite, when the suite binds TEST_CONTAINER, the object is given a stand-in
+ * container that records every call made of it, in order, with what it was given; it starts nothing.
+ * Faults the suite sets make its start throw, its registration reject or its destroy fail, and a
+ * test call reports the exit of the run it is watching. The handler's binding for each start is the
+ * real loopback binding of this entry's handler, with that start's props, and a test call sends a
+ * request through the binding the latest start registered, as the runner, or a page, in that
+ * container would. Without TEST_CONTAINER the object has no container, as in production today.
  */
 
 const FAULT_KEY = "test-fault/entry-put";
@@ -37,8 +46,67 @@ const SLOW_KEY = "test-fault/slow-entry-put";
 const STOP_FAILS_KEY = "test-fault/stop-fails";
 const SLOW_EVIDENCE_KEY = "test-fault/slow-evidence-put";
 
-type ObjectState = Readonly<{ id: Readonly<{ name?: string }>; storage: HostStorage & { getAlarm(): Promise<number | null> } }>;
-type TestEnv = HostEnv & { TEST_DEADLINES?: string };
+type ObjectState = Readonly<{ id: Readonly<{ name?: string }>; storage: HostStorage & { getAlarm(): Promise<number | null> }; exports?: unknown }>;
+type TestEnv = HostEnv & { TEST_DEADLINES?: string; TEST_CONTAINER?: string };
+type Fetching = { fetch(input: string, init?: RequestInit): Promise<Response> };
+type HandlerExport = ((options: { props: unknown }) => Fetching) & Fetching;
+
+/** A container that starts nothing and records every call made of it, in this object's storage. */
+class StandInContainer {
+  running = false;
+  /** The binding the latest start registered, kept in memory as the platform keeps it. */
+  binding: Fetching | null = null;
+  /** One per run watched, in the order the runs were started. */
+  private readonly exits: (() => void)[] = [];
+
+  constructor(private readonly sql: HostStorage["sql"]) {
+    sql.exec("CREATE TABLE IF NOT EXISTS test_container_calls (seq INTEGER PRIMARY KEY AUTOINCREMENT, call TEXT NOT NULL, detail TEXT NOT NULL)").toArray();
+    sql.exec("CREATE TABLE IF NOT EXISTS test_container_faults (name TEXT PRIMARY KEY)").toArray();
+  }
+
+  log(call: string, detail: unknown): void {
+    this.sql.exec("INSERT INTO test_container_calls (call, detail) VALUES (?, ?)", call, JSON.stringify(detail ?? null)).toArray();
+  }
+
+  private faulty(name: string): boolean {
+    return this.sql.exec("SELECT name FROM test_container_faults WHERE name = ?", name).toArray().length > 0;
+  }
+
+  async interceptOutboundHttp(address: string, binding: unknown): Promise<void> {
+    this.log("intercept", { address });
+    if (this.faulty("intercept-rejects")) throw new Error("The test's planted registration failure");
+    this.binding = binding as Fetching;
+  }
+
+  start(options: Readonly<{ env: Readonly<Record<string, string>>; enableInternet: boolean }>): void {
+    this.log("start", options);
+    if (this.faulty("start-throws")) throw new Error("The test's planted start failure");
+    this.running = true;
+  }
+
+  monitor(): Promise<void> {
+    this.log("monitor", null);
+    const index = this.exits.length;
+    return new Promise((resolve) => {
+      this.exits[index] = () => {
+        // Only the run the container holds now stops running when it exits.
+        if (index === this.exits.length - 1) this.running = false;
+        resolve();
+      };
+    });
+  }
+
+  async destroy(): Promise<void> {
+    this.log("destroy", { running: this.running });
+    if (this.faulty("destroy-fails")) throw new Error("The test's planted destroy failure");
+    this.running = false;
+  }
+
+  /** A watched run ends, as a runner's exit would end it: the latest, or the first. */
+  exited(which: "latest" | "first"): void {
+    this.exits[which === "first" ? 0 : this.exits.length - 1]?.();
+  }
+}
 
 const keySets = new Map<string, AccessKeySet>();
 
@@ -117,13 +185,27 @@ export class InvestigationCase {
   private readonly answer: CaseHostObject;
   private readonly storage: ObjectState["storage"];
   private readonly bucket: HostBucket;
+  private readonly container: StandInContainer | null;
+  private readonly handler: HandlerExport | null;
 
   constructor(state: ObjectState, env: TestEnv) {
     this.storage = state.storage;
     this.bucket = env.INVESTIGATION_OBJECTS as HostBucket;
     const { sql } = this.storage;
     sql.exec("CREATE TABLE IF NOT EXISTS test_stops (slot TEXT NOT NULL, at_ms INTEGER NOT NULL, stopped INTEGER NOT NULL)").toArray();
+    this.container = env.TEST_CONTAINER === "1" ? new StandInContainer(sql) : null;
+    this.handler = ((state.exports as Record<string, unknown> | undefined)?.InvestigationRunnerHandler as HandlerExport | undefined) ?? null;
+    const container = this.container;
+    const handler = this.handler;
     this.answer = caseObject({
+      container: container ?? undefined,
+      handlerFor:
+        container === null || handler === null
+          ? undefined
+          : (props) => {
+              container.log("handler-for", props);
+              return handler({ props });
+            },
       name: state.id.name,
       storage: state.storage,
       env: { ...env, INVESTIGATION_OBJECTS: plantable(this.bucket, { gets: 0 }) },
@@ -140,6 +222,8 @@ export class InvestigationCase {
   }
 
   async fetch(request: Request): Promise<Response> {
+    // A runner's call goes to the object as it came, unread here: an object's bytes are no JSON, and its body is read once, bounded, by the object.
+    if (request.headers.has(RUNNER_CALL_HEADER)) return this.answer(request);
     const call = (await request.clone().json()) as { call?: string; head?: string };
     const { sql } = this.storage;
     if (call.call === "test-probe-stores") return Response.json(await probeStores(this.storage, this.bucket));
@@ -172,6 +256,32 @@ export class InvestigationCase {
       const tables = sql.exec("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name").toArray();
       return Response.json(Object.fromEntries(tables.map(({ name }) => [String(name), sql.exec(`SELECT * FROM "${String(name)}"`).toArray()])));
     }
+    if (call.call === "test-container-calls") {
+      return Response.json(sql.exec("SELECT call, detail FROM test_container_calls ORDER BY seq").toArray().map((row) => ({ call: row.call, detail: JSON.parse(String(row.detail)) })));
+    }
+    if (call.call === "test-container-fault") {
+      const { name, on } = call as { name?: string; on?: boolean };
+      if (on === true) sql.exec("INSERT INTO test_container_faults (name) VALUES (?) ON CONFLICT (name) DO NOTHING", String(name)).toArray();
+      else sql.exec("DELETE FROM test_container_faults WHERE name = ?", String(name)).toArray();
+      return Response.json({ ok: true });
+    }
+    if (call.call === "test-container-exit") {
+      this.container?.exited((call as { which?: "latest" | "first" }).which === "first" ? "first" : "latest");
+      // The exit's own work runs after this answer; the suite reads the outcome with its next call.
+      return Response.json({ ok: true });
+    }
+    if (call.call === "test-container-running") return Response.json({ running: this.container?.running ?? null });
+    if (call.call === "test-through-handler" || call.call === "test-handler-unregistered") {
+      // A request as something in the container sends it: through the binding the latest start registered, or through the handler's export with props the suite names, or none.
+      const { headers = {}, body = "", fill, stream, props } = call as { headers?: Record<string, string>; body?: string; fill?: { length: number; byte: number }; stream?: boolean; props?: unknown };
+      const target = call.call === "test-through-handler" ? this.container?.binding : props === undefined ? this.handler : this.handler?.({ props });
+      if (target === null || target === undefined) return Response.json({ status: 0, answer: null });
+      const bytes = fill === undefined ? new TextEncoder().encode(body) : new Uint8Array(fill.length).fill(fill.byte);
+      // A stream declares no length; a byte array does.
+      const sent = stream === true ? new ReadableStream<Uint8Array>({ start: (controller) => (controller.enqueue(bytes), controller.close()) }) : bytes;
+      const response = await target.fetch("http://case-handler.internal/", { method: "POST", headers, body: sent });
+      return Response.json({ status: response.status, answer: await response.json() });
+    }
     if (call.call === "test-clear-marks") {
       sql.exec("DELETE FROM due_marks").toArray();
       return Response.json({ ok: true });
@@ -195,6 +305,13 @@ export class InvestigationCaseIndex {
     return this.answer(request);
   }
 }
+
+/** The production entry's handler, as this entry's own export, so a start's binding reaches it. */
+export const InvestigationRunnerHandler = {
+  fetch(request: Request, env: HostEnv, ctx: { props?: unknown }): Promise<Response> {
+    return runnerHandler(request, env, ctx.props);
+  }
+};
 
 export default {
   fetch(request: Request, env: HostEnv): Promise<Response> {

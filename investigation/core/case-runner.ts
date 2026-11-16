@@ -12,16 +12,17 @@
 // has. Until then the log still reads the attempt as running.
 //
 // Two more records end a token (A-2): the stop, which the alarm asks for when an attempt's deadline
-// comes due, and the destroy record, which a later stage writes when the attempt's container is
-// destroyed and which this stage only lets a test write. They are separate because the owner's
-// environment-destroyed rests on the second (D-5). A second stop, or a second destroy record, of the
+// comes due, and the destroy record, which case-container.ts writes once a destroy of the attempt's
+// container has resolved. They are separate because the owner's environment-destroyed rests on the
+// second (D-5). A second stop, or a second destroy record, of the
 // same attempt finds the first and is done, as case-supervision.ts asks of whatever fills its seam.
 //
 // The token itself is never stored, logged or put in an answer but the one that hands it over. A
 // presented token is hashed and its digest compared with every digest the table holds, in full,
 // without stopping at the first difference or the first match. NOT CLAIMED: that the first caller
-// is the runner. That rests on the runner asking before it starts the browser, and on the handler
-// that forwards its calls, neither of which exists yet.
+// is the runner. That rests on the runner asking before it starts the browser. The handler that
+// forwards its calls (runner-handler.ts) reaches this object only for the attempt it was registered
+// for, and cannot tell a runner from anything else in the same container.
 
 import { isAttemptId } from "./actor";
 import { sha256Hex } from "./canonical-json";
@@ -54,8 +55,8 @@ const TOKEN = /^[0-9a-f]{64}$/;
 /** Whom a token speaks for, and which of the records that end it this attempt has. */
 export type TokenHolder = Readonly<{ slot: SlotName; attemptId: string; stopped: boolean; destroyed: boolean; requestedTwice: boolean }>;
 
-/** Why the runner of a slot can no longer write, as the owner's status answer shows it. Never the token. */
-export type RunnerFlag = Readonly<{ slot: SlotName; reason: "token-requested-twice" }>;
+/** Why the runner of a slot can no longer write, or never started, as the owner's status answer shows it. Never the token. */
+export type RunnerFlag = Readonly<{ slot: SlotName; reason: "token-requested-twice" | "container-start-failed" | "container-destroy-failed" }>;
 
 export type HandOut = Readonly<{ ok: true; token: string }> | Readonly<{ ok: false; refusal: "token-already-handed" | "token-revoked" }>;
 
@@ -88,6 +89,8 @@ export type RunnerCredentials = Readonly<{
   recordStop(slot: SlotName): void;
   /** Record that this slot's environment was destroyed. A second record finds the first and is done. */
   recordDestroyed(slot: SlotName): void;
+  /** Whether this slot's environment has a destroy record. The owner's environment-destroyed rests on it (D-5). */
+  isDestroyed(slot: SlotName): boolean;
   /** The attempts flagged for a second request, for the owner's status answer. */
   flags(): readonly RunnerFlag[];
 }>;
@@ -158,11 +161,54 @@ export function runnerCredentialsOver(storage: HostStorage, now: () => number): 
       record(slot, "destroyed_at_ms", now());
     },
 
+    isDestroyed(slot) {
+      return recordsOf(slot).destroyed;
+    },
+
     flags() {
       return sql
         .exec("SELECT slot FROM runner_records WHERE requested_twice_at_ms IS NOT NULL ORDER BY slot")
         .toArray()
         .flatMap(({ slot }) => (isSlot(slot) ? [{ slot, reason: "token-requested-twice" as const }] : []));
+    }
+  };
+}
+
+/**
+ * The most objects one attempt's runner may store, and their bytes in all, counted by the object from
+ * its own storage (F-3). A runner can store an object no row ever names, so rows alone do not bound
+ * what an attempt costs the bucket. Defaults, not rulings, like the row bound (L-a): the row bound
+ * and a small slack, and four objects at the size cap.
+ */
+export const MAX_RUNNER_OBJECTS_PER_ATTEMPT = MAX_RUNNER_ROWS_PER_ATTEMPT + 8;
+export const MAX_RUNNER_OBJECT_BYTES_PER_ATTEMPT = 128 * 1024 * 1024;
+
+export type ObjectAdmission = "new" | "again" | "object-bound";
+
+export type RunnerObjects = Readonly<{
+  /** Whether this slot may store one more object of this digest and size: again for a digest it stored before, which counts once. */
+  admit(slot: SlotName, digest: string, bytes: number): ObjectAdmission;
+  /** Count a stored object for this slot. A digest already counted is not counted twice. */
+  count(slot: SlotName, digest: string, bytes: number): void;
+}>;
+
+/**
+ * Each object a runner stored, by slot. An object stored and never named by a row stays in the
+ * bucket, named by nothing, as an abandoned create's do; this table lists it so a later purge can
+ * find it. Nothing here removes one.
+ */
+export function runnerObjectsOver(storage: HostStorage, now: () => number): RunnerObjects {
+  const { sql } = storage;
+  sql.exec("CREATE TABLE IF NOT EXISTS runner_objects (slot TEXT NOT NULL, digest TEXT NOT NULL, bytes INTEGER NOT NULL, at_ms INTEGER NOT NULL, PRIMARY KEY (slot, digest))").toArray();
+  return {
+    admit(slot, digest, bytes) {
+      if (sql.exec("SELECT digest FROM runner_objects WHERE slot = ? AND digest = ?", slot, digest).toArray().length > 0) return "again";
+      const [{ held, total }] = sql.exec("SELECT count(*) AS held, coalesce(sum(bytes), 0) AS total FROM runner_objects WHERE slot = ?", slot).toArray();
+      if (Number(held) >= MAX_RUNNER_OBJECTS_PER_ATTEMPT || Number(total) + bytes > MAX_RUNNER_OBJECT_BYTES_PER_ATTEMPT) return "object-bound";
+      return "new";
+    },
+    count(slot, digest, bytes) {
+      sql.exec("INSERT INTO runner_objects (slot, digest, bytes, at_ms) VALUES (?, ?, ?, ?) ON CONFLICT (slot, digest) DO NOTHING", slot, digest, bytes, now()).toArray();
     }
   };
 }

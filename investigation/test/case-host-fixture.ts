@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { Log, LogLevel, Miniflare } from "miniflare";
 import { ACCESS_TOKEN_HEADER } from "../core/access-token";
+import { RUNNER_CALL_HEADER } from "../core/runner-handler";
 import { IDENTITY_ALDER, RAW_OBJECTS } from "./case-fixture";
 import { VIEWER_ORIGIN } from "./memory-case-world";
 import { generateSigningKey, ownerClaims, serviceClaims, signToken, type SigningKey } from "./token-fixture";
@@ -70,8 +71,10 @@ export type HostWorld = Readonly<{
   /** Tokens an object must refuse, by what is wrong with each. */
   refusedTokens: Readonly<Record<string, string | null>>;
   send: (pathname: string, init?: Readonly<{ method?: string; token?: string | null; origin?: string | null; fields?: readonly (readonly [string, string])[] }>) => Promise<Answer>;
-  /** One call to an object's own stub, past the front Worker and its gate. */
+  /** One call to an object's own stub, past the front Worker and its gate. A runner's call carries its name in a header, as the handler sends it. */
   direct: (binding: string, name: string, call: Readonly<Record<string, unknown>>) => Promise<Readonly<{ status: number; answer: Record<string, unknown> }>>;
+  /** One request to an object's own stub with these headers and this body, exactly, for what direct always shapes. */
+  directRaw: (binding: string, name: string, init: Readonly<{ headers: Record<string, string>; body: string | Uint8Array }>) => Promise<Readonly<{ status: number; answer: Record<string, unknown> }>>;
   /** Every key the bucket holds under a prefix. */
   keys: (prefix: string) => Promise<string[]>;
   /** The ids the list page shows, created first and then those whose create did not finish. */
@@ -148,7 +151,14 @@ export async function hostWorld(entry: string | null, bundleName: string, option
     send,
     direct: async (binding, name, call) => {
       const namespace = await miniflare.getDurableObjectNamespace(binding);
-      const response = await namespace.get(namespace.idFromName(name)).fetch(CALL_URL, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(call) });
+      const headers: Record<string, string> = { "content-type": "application/json" };
+      if (call.call === "runner-token" || call.call === "runner") headers[RUNNER_CALL_HEADER] = call.call;
+      const response = await namespace.get(namespace.idFromName(name)).fetch(CALL_URL, { method: "POST", headers, body: JSON.stringify(call) });
+      return { status: response.status, answer: (await response.json()) as Record<string, unknown> };
+    },
+    directRaw: async (binding, name, init) => {
+      const namespace = await miniflare.getDurableObjectNamespace(binding);
+      const response = await namespace.get(namespace.idFromName(name)).fetch(CALL_URL, { method: "POST", headers: init.headers, body: init.body });
       return { status: response.status, answer: (await response.json()) as Record<string, unknown> };
     },
     keys: async (prefix) => {
