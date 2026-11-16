@@ -655,10 +655,14 @@ test("the README names the methodology version the scanner actually records", ()
 });
 
 test("the README does not describe Access-protected Pages previews as public", () => {
+  // The preview state moved from the README into docs/operations.md on
+  // 2026-11-16; the positive statement is held there.
   const readme = source("README.md");
+  const operations = source("docs/operations.md");
   assert.doesNotMatch(readme, /preview deployments are (?:currently )?enabled and public/i);
   assert.doesNotMatch(readme, /public by default/i);
-  assert.match(readme, /preview deployments[\s\S]{0,60}Access-protected/i);
+  assert.match(readme, /records the rest of the operating\s+state: preview and non-production builds/);
+  assert.match(operations, /preview deployments[\s\S]{0,60}Access-protected/i);
 });
 
 test("calibration docs never assert a corpus size the corpus contradicts", () => {
