@@ -155,7 +155,12 @@ test("the release image is built from the exact source image the image-Node legs
   const sourceJob = job("image-source");
   const source = step(sourceJob, "Build the exact source image");
   assert.match(source, /target: source\n/);
-  assert.match(source, /outputs: type=oci,dest=\$\{\{ runner\.temp \}\}\/source-image\.oci\.tar\n/);
+  assert.match(source, /outputs: type=oci,dest=\$\{\{ runner\.temp \}\}\/source-oci,tar=false\n/);
+  // The archive the legs and the docker job read is packed with exact member
+  // names, and its identity is read from that archive, after packing.
+  assert.match(step(sourceJob, "Pack the exact source image"), /run: tar -C "\$RUNNER_TEMP\/source-oci" -cf "\$RUNNER_TEMP\/source-image\.oci\.tar" index\.json oci-layout blobs\n/);
+  assert.match(step(sourceJob, "Record the exact source image's identity"), /node scripts\/split-image\.mjs digests "\$RUNNER_TEMP\/source-image\.oci\.tar"/);
+  assert.ok(sourceJob.indexOf("- name: Pack the exact source image") < sourceJob.indexOf("- name: Record the exact source image's identity"));
   assert.doesNotMatch(source, /cache-to:|load: true|push: true|build-contexts:/);
   assert.match(sourceJob, /oci-digest: \$\{\{ steps\.source_image\.outputs\.oci_digest \}\}\n/);
   assert.match(sourceJob, /image-id: \$\{\{ steps\.source_image\.outputs\.image_id \}\}\n/);

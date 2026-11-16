@@ -56,9 +56,10 @@ test("a split build's layouts are read by digest, from a directory or a tar, and
   const nested = readLayout(writeLayout(path.join(dir, "nested"), [layer(1), layer(2)], { nested: true }));
   assert.equal(nested.imageId, flat.imageId);
   assert.notEqual(nested.ociDigest, flat.ociDigest);
-  // The same layout as a tar, the form the artifact carries.
+  // The same layout as a tar, packed as image-source packs the artifact: with
+  // exact member names, since GNU tar finds index.json only under that name.
   const tar = path.join(dir, "flat.oci.tar");
-  const packed = spawnSyncBounded("tar", ["-cf", tar, "-C", path.join(dir, "flat"), "."], { encoding: "utf8" });
+  const packed = spawnSyncBounded("tar", ["-C", path.join(dir, "flat"), "-cf", tar, "index.json", "oci-layout", "blobs"], { encoding: "utf8" });
   assert.equal(packed.status, 0, packed.stderr);
   assert.deepEqual(readLayout(tar), flat);
   assert.throws(() => readLayout(writeLayout(path.join(dir, "two"), [layer(1)], { images: 2 })), /exactly one image/);
