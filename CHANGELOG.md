@@ -9,6 +9,27 @@ public API or a 1.0 release.
 
 ### Added
 
+- The investigation workspace has a runner for a one-attempt container, in
+  fixture mode only (`investigation/runner/s5`). It asks the case service
+  for its token once, runs one scanner visit through the private
+  connection point, attaches the recorder (REA 6.8.0, its observe and
+  inspect commands only) to the scanner's own browser, and sends what it
+  saw to a stand-in handler: each recorder output byte for byte, the scan
+  result and a capture record, one evidence row for each. Script ownership
+  is not taken at the recorder's word: a script with an address is marked
+  inside or outside the visited site, and a script with none is the
+  scanner's only when its text equals one of the scanner's injected
+  scripts or holds one with at most 1,024 characters beyond it; otherwise
+  its origin is not identified. A page that crashes, or that ends the
+  observation, leaves a failed attempt with no rows. Limits: test pages in
+  a local arm64 image with no network; no real site, no hosted handler and
+  no logger; CI runs the tests that need no container and none that do; the
+  stand-in reads each event but does not run the case machine; on a fast
+  page the recorder is ready only after the scanner has finished measuring
+  (0.5 to 2.0 s after navigation start on test pages), so it reads the page
+  afterwards, and each capture records which it was. No scanner code, scan
+  or report changes.
+
 - A case in the owner-only investigation workspace can take events from a
   runner, beside the owner's commands (`investigation/core/case-runner.ts`).
   A runner proves which attempt it speaks for with a token the case object
