@@ -463,6 +463,20 @@ public API or a 1.0 release.
 
 ### Changed
 
+- A first-glance pass over the new design. A report's actions sit under
+  its finding sentence, above the figure: "View site history" is a filled
+  button, a new visit an open one, and a link named "What this visit
+  means" lands on the findings board. The homepage's "One controlled visit
+  records" block is on its first screen, as server markup, with its text
+  unchanged; the list under a running scan no longer carries icons. The
+  site has a mark, the request figure in small, in the header, the tab icon
+  and both share cards, and the homepage's share card and the
+  missing-report card are set in direction A. No sentence is new or
+  reworded. Costs: on a wide screen the action row moves a report's figure
+  down about 50px, and on a phone the second button's label wraps. Nothing
+  in the scanner, a scan or a report's evidence changes; every committed
+  report's share card is drawn again with the mark.
+
 - The whole site, the printed report and the share card are rebuilt in one
   design layer (`app/_design`), called direction A. It has its own tokens
   for light, dark and paper, and three self-hosted typefaces (STIX Two Text,
