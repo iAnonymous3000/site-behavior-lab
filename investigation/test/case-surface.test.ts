@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { before, test } from "node:test";
@@ -482,7 +483,7 @@ function textOf(file: string, source: string): string {
   return said.join("\n");
 }
 
-const checkSiteStrings = (read: Read, list: List = listProject) => {
+const checkSiteStrings = (read: Read, list: List = listProject, excused: Excused = EXCUSED_RECORDED) => {
   const files = list();
   holds(SITE_STRINGS, files.length > 0, () => "no file was listed");
   for (const file of files) {
@@ -490,12 +491,50 @@ const checkSiteStrings = (read: Read, list: List = listProject) => {
     const said = withoutPredicates(textOf(file, read(file))).toLowerCase();
     for (const banned of BANNED) holds(SITE_STRINGS, !source.toLowerCase().includes(banned) && !said.includes(banned), () => ({ file, banned }));
     const hosts = [...source.toLowerCase().matchAll(REAL_HOST), ...said.matchAll(ANY_REAL_HOST)].map(([host]) => host);
-    for (const host of hosts) holds(SITE_STRINGS, isReserved(host) || Object.hasOwn(ALLOWED, host), () => ({ file, host }));
+    const excuse = excusedIn(file, read(file), excused);
+    for (const host of hosts) holds(SITE_STRINGS, isReserved(host) || Object.hasOwn(ALLOWED, host) || Object.hasOwn(excuse, host), () => ({ file, host }));
   }
 };
 
 /** A host's labels joined at run time, so this file's own text holds none of the hosts it plants. */
 const dotted = (...labels: readonly string[]) => labels.join(".");
+
+type Excused = Readonly<Record<string, Readonly<{ sha256: string; tokens: Readonly<Record<string, string>> }>>>;
+
+/**
+ * Recorded files that hold the scanner's own injected script text byte for byte, as S5c's runner stored
+ * it, and the exact tokens that text spells, each with its reason (the ruling of 2026-11-16T04:41:17Z).
+ * The tokens are public source on main, not a site the workspace visited. A file is excused only while
+ * its bytes equal its pin, and only for the tokens named for it: any other host in it is still refused,
+ * and the same tokens in any other file are refused. Each token is spelled by its labels, so this file
+ * holds none of them.
+ */
+const BOUNDED_COLLECTOR_TOKENS: Readonly<Record<string, string>> = {
+  [dotted("cdn", "segment", "com")]: "an analytics host lib/bounded-page-collector.ts names in its injected init script",
+  [dotted("google-analytics", "com")]: "an analytics host lib/bounded-page-collector.ts names in its injected init script",
+  [dotted("rect", "top")]: "a property read in lib/bounded-page-collector.ts's injected init script, which the .top suffix matches"
+};
+const FINGERPRINT_OBSERVER_TOKENS: Readonly<Record<string, string>> = {
+  [dotted("window", "top")]: "a property read in the fingerprint observer's injected init script, which the .top suffix matches",
+  [dotted("observerwindow", "top")]: "a property read in the fingerprint observer's injected init script, which the .top suffix matches"
+};
+const STORED_OBSERVE_TOKENS = { ...BOUNDED_COLLECTOR_TOKENS, ...FINGERPRINT_OBSERVER_TOKENS };
+const EXCUSED_RECORDED: Excused = {
+  [`${TEST}/recorded/s5c-pass5/ref-default/rea-observe.json`]: { sha256: "22c593979437bc96a726dc72b2994f24ddaca48d3ce1033dee147a49662013ec", tokens: STORED_OBSERVE_TOKENS },
+  [`${TEST}/recorded/s5c-pass5/ref-gpc/rea-observe.json`]: { sha256: "9840d76e9ab8414b093443b6b86e8b143c802873920706ecd6c4a560a604570c", tokens: STORED_OBSERVE_TOKENS },
+  [`${TEST}/recorded/s5c-pass5/ref-consent/rea-observe.json`]: { sha256: "e467aeb3f81c102cb14c907673b0c73e3598e4185d75eaa5e570f234d89b8f87", tokens: STORED_OBSERVE_TOKENS },
+  [`${TEST}/recorded/s5c-reference-set/reference-set.json`]: {
+    sha256: "3c7bce32a1ab5a6201acc0857c3ad192b3dae87da1a2a39da812b948da80995f",
+    tokens: { ...STORED_OBSERVE_TOKENS, [dotted("arg", "top")]: "a property read in an evaluate call of lib/bounded-page-collector.ts, which the .top suffix matches" }
+  }
+};
+
+/** The tokens a file is excused for: none unless it is listed and its bytes equal its pin. */
+const excusedIn = (file: string, source: string, excused: Excused): Readonly<Record<string, string>> => {
+  const entry = Object.hasOwn(excused, file) ? excused[file] : undefined;
+  if (entry === undefined) return {};
+  return createHash("sha256").update(source, "utf8").digest("hex") === entry.sha256 ? entry.tokens : {};
+};
 
 test("every file in the workspace's folders names no real site, by a list and by the shape of a hostname", async () => {
   checkSiteStrings(readProject);
@@ -528,6 +567,21 @@ test("every file in the workspace's folders names no real site, by a list and by
   );
   await assertCaughtBy("a host that only ends like an allowed one", SITE_STRINGS, () => checkSiteStrings(plant(`${CORE}/sufficiency.ts`, `const HOST = "${dotted("cdn", "lamplighter", "workers", "dev")}";`)));
   await assertCaughtBy("no file listed at all", SITE_STRINGS, () => checkSiteStrings(readProject, () => []));
+  // The recorded files' excuse is per file and per token, and holds only while a file's bytes equal its pin (2026-11-16T04:41:17Z).
+  const excusedFile = `${TEST}/recorded/s5c-pass5/ref-default/rea-observe.json`;
+  assert.ok(Object.keys(EXCUSED_RECORDED).length > 0 && Object.hasOwn(EXCUSED_RECORDED, excusedFile));
+  /** A planted excused file, re-pinned to its planted bytes, so only the token rule can refuse it. */
+  const repinned = (text: string): Excused => ({ ...EXCUSED_RECORDED, [excusedFile]: { ...EXCUSED_RECORDED[excusedFile], sha256: createHash("sha256").update(text, "utf8").digest("hex") } });
+  const withText = (target: string, text: string): Read => (file) => (file === target ? text : readProject(file));
+  const newHost = `${readProject(excusedFile)}\n"${dotted("cdn", "lamplighter", "net")}"`;
+  await assertCaughtBy("a new real host in an excused file", SITE_STRINGS, () => checkSiteStrings(withText(excusedFile, newHost), listProject, repinned(newHost)));
+  const secondTop = `${readProject(excusedFile)}\n"${dotted("frame", "top")}"`;
+  await assertCaughtBy("a second .top token not on the file's list", SITE_STRINGS, () => checkSiteStrings(withText(excusedFile, secondTop), listProject, repinned(secondTop)));
+  const onePlace = readProject(excusedFile);
+  const changed = onePlace.replace("observe_web_execution", "observe_web_executioN");
+  assert.notEqual(changed, onePlace);
+  await assertCaughtBy("an excused file with one byte changed", SITE_STRINGS, () => checkSiteStrings(withText(excusedFile, changed)));
+  await assertCaughtBy("an excused token in a file not on the list", SITE_STRINGS, () => checkSiteStrings(plant(`${TEST}/recorded/rea-6.8.0/observe-control.json`, `"${dotted("cdn", "segment", "com")}"`)));
 });
 
 const ALLOWED_NAMED = "every host on the allow-list is named by a file the scan reads, other than this one";
