@@ -279,14 +279,19 @@ and launches Chromium with an explicit environment allow-list. It removes
 npm, npx, Corepack and Yarn from the runtime image. The system's apt and dpkg
 remain; they need root, which the container's user does not have.
 
-Build a tagged release from source only during the life of its browser. The
-image build runs the unit suite, and one test in it
+Build a tagged release from source only during the life of its browser. A
+plain image build runs the unit suite, and one test in it
 (`lib/scan-browser-hsts-preload.test.ts`) fails once the pinned Chromium stops
 applying its HSTS preload list, 70 days after that Chromium was built. After
-that, build the current release; no build argument or setting skips the
-check. To see the estimated date for your checkout, run `npm ci` and then
-`node scripts/chromium-hsts-preload-cutoff.mjs`. `RELEASE.md` ("What a release
-tag claims") states the rule.
+that, build the current release; the `Dockerfile` has no override: no build
+argument or setting skips the check. Any Docker build can replace a stage from
+outside the `Dockerfile`; hosted CI does so in one way only. It runs the same
+suite in separate jobs on the image's Node, from the exact source image, and
+builds the release image from that source image without running the suite a
+second time; that build still runs the HSTS test, and the image is attested
+only if every one of those jobs passed. To see the estimated date for your
+checkout, run `npm ci` and then `node scripts/chromium-hsts-preload-cutoff.mjs`.
+`RELEASE.md` ("What a release tag claims") states the rule.
 
 | Variable | Default | What it decides |
 |---|---|---|
