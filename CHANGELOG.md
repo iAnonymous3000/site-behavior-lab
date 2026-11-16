@@ -421,6 +421,18 @@ public API or a 1.0 release.
 
 ### Removed
 
+- Fourteen pieces of code that nothing used, found by a read-only audit and
+  each checked again before removal: three npm aliases nothing runs
+  (`cf:container:verify`, `cf:r2-delete-canary:deploy`,
+  `calibration:v4-pilot-commitment-build`; the scripts and the workflow that
+  runs the last stay), two launcher scripts folded into
+  `scripts/run-schema-cli.mjs` under their unchanged npm names, six unused
+  type aliases and three unused exports, one local copy of `isRecord`, three
+  CSS selectors no page emits, and comments that narrated removed code. A
+  static export before and after differs only by those selectors and by the
+  build's own variation between two runs. No scanner code, scan or report
+  changes.
+
 - The recorder's 6.7.0 fallback package files in the runner folder,
   `investigation/runner/s4/package-6.7.0.json` and its lock. The owner chose
   6.8.0, so the folder now holds the 6.8.0 lock only and can no longer build
