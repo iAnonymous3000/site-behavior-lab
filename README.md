@@ -18,9 +18,10 @@ describes one measured visit, not a privacy score or a legal verdict.
 
 [![A wikipedia.org report page, with its reviewed clarification, plain-language headline, and the visit that ran first](docs/images/report-overview.jpg)](https://sitebehavior.org/reports/20260814-31e105d7971825fbd0f3fffa099188fe/)
 
-*The live report page, captured November 14, 2026. This historical GPC
-comparison records August 14 visits and carries a reviewed clarification; it
-does not describe Wikipedia's current behavior.*
+*The report page as built from the released commit `73c71cc6`, captured
+November 16, 2026. This historical GPC comparison records August 14 visits
+and carries a reviewed clarification; it does not describe Wikipedia's
+current behavior.*
 
 ## What a report proves, and what it does not
 
