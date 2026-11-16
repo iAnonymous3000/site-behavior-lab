@@ -7,6 +7,7 @@ import { connect } from "node:net";
 import path from "node:path";
 import { after, before, test } from "node:test";
 import type { Page } from "playwright";
+import { canonicalJson } from "./canonical-json";
 import { createGpcComparisonReport } from "./compare-reports";
 import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
 import {
@@ -275,16 +276,6 @@ function comparable(result: Record<string, unknown>, measurement: Record<string,
     check,
     requestRanks: { result: resultRequests?.ranks ?? null, evidence: evidenceRequests?.ranks ?? null }
   };
-}
-
-/** JSON with every object's keys in sorted order, so equal content gives equal text. */
-function canonicalJson(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
-  if (value && typeof value === "object") {
-    const entries = Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson((value as Record<string, unknown>)[key])}`);
-    return `{${entries.join(",")}}`;
-  }
-  return JSON.stringify(value);
 }
 
 /** A request list as a multiset: rows sorted by content without `id`, and the ids as a sorted list. Anything not a list is left alone. */
