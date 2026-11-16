@@ -679,11 +679,15 @@ jobs:
           rm "$tar"
           test "$(docker image inspect --format '{{.Id}}' "$SOURCE_IMAGE_ID")" = "$SOURCE_IMAGE_ID"
 
+      # --init puts a reaper at PID 1, as a build RUN has one: without it an
+      # orphaned child is never reaped, stays a zombie, and a test that waits
+      # for a process to be gone (the investigation stage's signal test) waits
+      # out its bound.
       - name: Unit tests on the image's Node
         env:
           SOURCE_IMAGE_ID: ${{ needs.image-source.outputs.image-id }}
           LEG: ${{ matrix.leg }}
-        run: docker run --rm "$SOURCE_IMAGE_ID" npm run test:unit:leg -- "$LEG"
+        run: docker run --rm --init "$SOURCE_IMAGE_ID" npm run test:unit:leg -- "$LEG"
 
       - name: Record this leg's verdict
         env:

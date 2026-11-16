@@ -937,7 +937,7 @@ test("CI's tests job, image-Node legs and attest each hold exactly the planner's
   };
   for (const [name, run] of [
     ["tests", "        run: npm run test:unit:leg -- ${{ matrix.leg }}\n"],
-    ["image-tests", '        run: docker run --rm "$SOURCE_IMAGE_ID" npm run test:unit:leg -- "$LEG"\n']
+    ["image-tests", '        run: docker run --rm --init "$SOURCE_IMAGE_ID" npm run test:unit:leg -- "$LEG"\n']
   ]) {
     const job = jobText(name);
     const legs = /\n {6}matrix:\n {8}leg: \[([^\]\n]*)\]\n/.exec(job)?.[1]?.split(",").map((leg) => leg.trim());
