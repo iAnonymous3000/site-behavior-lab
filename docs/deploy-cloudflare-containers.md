@@ -15,7 +15,8 @@ The prebuilt deployment path replaces the second container build in Workers
 Builds. Trusted main CI still builds the Dockerfile, runs its complete checks,
 exercises filesystem and R2 modes, and enforces fresh vulnerability and package
 review gates. It then pushes that same local image to Cloudflare's existing
-registry. No image tarball is stored as a GitHub Actions artifact.
+registry. The source image is stored as a GitHub Actions artifact for one day,
+so the test jobs and the release build read the same bytes.
 
 The original release evidence and package inventory remain unchanged. A second
 receipt uses the existing release-evidence schema and adds the registry digest;

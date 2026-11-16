@@ -77,15 +77,21 @@ It does not claim API stability, support commitments, or that any externally
 operated control was activated. The ScanReport schema contracts (v1 frozen,
 v2/r1, v2/r2) version independently of this line; a release never moves them.
 
-A tag does not claim that its revision can be built from source for ever. The
-image build runs the unit suite (`npm run check` in the `Dockerfile`), and
+A tag does not claim that its revision can be built from source for ever. A
+plain image build runs the unit suite (`npm run check` in the `Dockerfile`), and
 `lib/scan-browser-hsts-preload.test.ts` in that suite fails once the Chromium
 the revision pins stops applying its built-in HSTS preload list, which
 Chromium does 70 days after its own build. So a tagged release builds from
 source for the life of its browser; after that, build the current release.
-There is no override, by the owner's decision: no build argument or setting
-skips the check. The estimated cutoff is not written here, because it moves
-with every toolchain epoch (`docs/toolchain-epoch.md`).
+The `Dockerfile` has no override, by the owner's decision: no build argument or
+setting skips the check. A build can still replace a stage from outside the
+`Dockerfile`, as any Docker build can. Hosted CI does that in one way only: it
+runs the same suite on the image's Node in separate jobs, from the exact source
+image, and builds the release image from that source image, named by its
+digest, without running the suite a second time. That build still runs the
+HSTS test, and the image is attested, and so deployable, only if every one of
+those jobs passed on that source image. The estimated cutoff is not written
+here, because it moves with every toolchain epoch (`docs/toolchain-epoch.md`).
 `scripts/chromium-build-times.json` records the commit time of each browser's
 version tag, which is taken as its build time on an assumption one lapse has
 confirmed so far, and `node scripts/chromium-hsts-preload-cutoff.mjs`, run in
