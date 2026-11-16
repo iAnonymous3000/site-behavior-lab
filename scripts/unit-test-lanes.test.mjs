@@ -19,6 +19,7 @@ import fileSummaries, {
   readSerialLane,
   serialShardOf
 } from "./unit-test-lanes.mjs";
+import { LANES_COMMAND, LEGS, SERIAL_SHARDS, planLeg, testUnitParts } from "./unit-test-plan.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const runner = path.join(root, "scripts", "unit-test-lanes.mjs");
@@ -758,14 +759,57 @@ test("a signal to the investigation stage reaches node --test, and the stage exi
   await until(() => !alive(started.runner), "node --test outlived the stage");
 });
 
+// Hosted CI runs test:unit as legs on separate machines (scripts/unit-test-plan.mjs).
+// The legs together must run exactly what test:unit runs: each step of it
+// once, apart from the compile every leg needs first, and every lib test
+// file once, in exactly one leg.
+test("the legs of test:unit together run each of its steps once, apart from the compile every leg repeats", () => {
+  const parts = testUnitParts(packageJson.scripts);
+  const lanesAt = parts.findIndex((part) => part.startsWith(LANES_COMMAND));
+  assert.ok(lanesAt > 0, "test:unit must compile, then run its lanes step");
+  const compile = parts.slice(0, lanesAt);
+  const tail = parts.slice(lanesAt + 1);
+  assert.ok(compile.length > 0 && tail.length > 0);
+  assert.equal(LEGS.length, SERIAL_SHARDS + 2);
+  assert.equal(new Set(LEGS).size, LEGS.length);
+  const ran = new Map(parts.map((part) => [part, 0]));
+  const selectors = [];
+  for (const leg of LEGS) {
+    const steps = planLeg(leg, packageJson.scripts);
+    assert.deepEqual(steps.slice(0, compile.length), compile, `${leg} must start with test:unit's compile`);
+    for (const step of steps.slice(compile.length)) {
+      if (step.startsWith(LANES_COMMAND)) {
+        // The lanes step, with one selector put in front of its own arguments.
+        const rest = step.slice(LANES_COMMAND.length);
+        const selector = /^(--only parallel|--only serial --shard \d+\/\d+) /.exec(rest)?.[1];
+        assert.ok(selector, `${leg} runs the lanes step with no selector: ${step}`);
+        assert.equal(`${LANES_COMMAND}${rest.slice(selector.length + 1)}`, parts[lanesAt], `${leg} changed the lanes step`);
+        selectors.push(`${leg}: ${selector}`);
+      } else {
+        assert.ok(ran.has(step), `${leg} runs a step test:unit does not: ${step}`);
+        ran.set(step, ran.get(step) + 1);
+      }
+    }
+  }
+  for (const step of tail) assert.equal(ran.get(step), 1, `${step} must run in exactly one leg`);
+  assert.deepEqual(planLeg("tail", packageJson.scripts).slice(compile.length), tail, "the tail runs every later step, in order");
+  assert.deepEqual(selectors, [
+    "parallel: --only parallel",
+    ...Array.from({ length: SERIAL_SHARDS }, (_, index) => `serial-${index + 1}: --only serial --shard ${index + 1}/${SERIAL_SHARDS}`)
+  ]);
+  assert.throws(() => planLeg("serial-0", packageJson.scripts), /Usage: unit-test-plan\.mjs/);
+  assert.throws(() => planLeg(`serial-${SERIAL_SHARDS + 1}`, packageJson.scripts), /Usage: unit-test-plan\.mjs/);
+  assert.throws(() => planLeg("everything", packageJson.scripts), /Usage: unit-test-plan\.mjs/);
+});
+
 test("the serial shards together hold every serial-lane file once, and none is empty", () => {
   const lane = readSerialLane(root);
   const compiled = Object.keys(lane).map((name) => `.unit-test-dist/${name.replace(/\.ts$/, ".js")}`);
-  assert.ok(compiled.length >= 4, "the serial lane must have a file for every shard");
+  assert.ok(compiled.length >= SERIAL_SHARDS, "the serial lane must have a file for every shard");
   const seen = new Map();
-  for (let index = 1; index <= 4; index += 1) {
-    const shard = serialShardOf(lane, { index, count: 4 });
-    assert.ok(shard.size > 0, `shard ${index}/${4} is empty`);
+  for (let index = 1; index <= SERIAL_SHARDS; index += 1) {
+    const shard = serialShardOf(lane, { index, count: SERIAL_SHARDS });
+    assert.ok(shard.size > 0, `shard ${index}/${SERIAL_SHARDS} is empty`);
     for (const file of shard) {
       assert.ok(!seen.has(file), `${file} is in shards ${seen.get(file)} and ${index}`);
       seen.set(file, index);
@@ -776,14 +820,14 @@ test("the serial shards together hold every serial-lane file once, and none is e
   // without any list to update.
   const grown = { ...lane, "lib/zz-added-later.test.ts": "fixture" };
   const placed = [];
-  for (let index = 1; index <= 4; index += 1) {
-    if (serialShardOf(grown, { index, count: 4 }).has(".unit-test-dist/lib/zz-added-later.test.js")) placed.push(index);
+  for (let index = 1; index <= SERIAL_SHARDS; index += 1) {
+    if (serialShardOf(grown, { index, count: SERIAL_SHARDS }).has(".unit-test-dist/lib/zz-added-later.test.js")) placed.push(index);
   }
   assert.equal(placed.length, 1, `a new serial name must land in exactly one shard, not ${placed.length}`);
   // Positions follow the names' byte order, never the lane file's key order.
   const reversed = Object.fromEntries(Object.entries(lane).reverse());
-  for (let index = 1; index <= 4; index += 1) {
-    assert.deepEqual(serialShardOf(reversed, { index, count: 4 }), serialShardOf(lane, { index, count: 4 }));
+  for (let index = 1; index <= SERIAL_SHARDS; index += 1) {
+    assert.deepEqual(serialShardOf(reversed, { index, count: SERIAL_SHARDS }), serialShardOf(lane, { index, count: SERIAL_SHARDS }));
   }
   for (const bad of [{ index: 0, count: 4 }, { index: 5, count: 4 }, { index: 1, count: 0 }, { index: 1.5, count: 4 }]) {
     assert.throws(() => serialShardOf(lane, bad), /Refusing serial shard/);
@@ -855,4 +899,27 @@ test("a serial shard fails on a failing file, on results that stop short, and wh
   assert.notEqual(empty.status, 0, empty.output);
   assert.match(empty.output, /Serial lib lane shard 3\/3 \(0 of 2 files\) holds no file/);
   assert.deepEqual(empty.finished, [], "an empty shard must run nothing");
+});
+
+test("a test:unit leg runs its steps in order and stops at the first that fails, naming it", async (t) => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), "unit-test-plan-"));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const log = path.join(dir, "steps.log");
+  const step = (name, code = 0) => `node -e "require('node:fs').appendFileSync('${log}', '${name}\\\\n'); process.exit(${code})"`;
+  const scripts = {
+    "test:unit": [step("compile"), `${LANES_COMMAND}--alongside 'npm run side' x.test.js`, step("tail-1"), step("tail-2", 7), step("tail-3")].join(" && ")
+  };
+  await writeFile(path.join(dir, "package.json"), JSON.stringify({ private: true, scripts }));
+  const env = Object.fromEntries(Object.entries(process.env).filter(([name]) => name !== "NODE_TEST_CONTEXT"));
+  const run = (...args) => spawnSync(process.execPath, [path.join(root, "scripts", "unit-test-plan.mjs"), ...args], { cwd: dir, encoding: "utf8", timeout: FIXTURE_TIMEOUT_MS, env });
+  const tail = run("tail");
+  assert.equal(tail.error, undefined);
+  assert.equal(tail.status, 1, `${tail.stdout}${tail.stderr}`);
+  assert.deepEqual((await readFile(log, "utf8")).split("\n").filter(Boolean), ["compile", "tail-1", "tail-2"]);
+  assert.match(tail.stderr, /test:unit leg tail: step 3 of 4 failed with exit code 7/);
+  for (const args of [[], ["serial-9"], ["tail", "extra"]]) {
+    const refused = run(...args);
+    assert.notEqual(refused.status, 0, args.join(" "));
+    assert.match(refused.stderr, /Usage: unit-test-plan\.mjs/, args.join(" "));
+  }
 });
