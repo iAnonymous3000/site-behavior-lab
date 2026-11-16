@@ -491,6 +491,25 @@ public API or a 1.0 release.
 
 ### Changed
 
+- The README is shorter and reordered: what a report proves and does not
+  prove comes before the start instructions, its operating state (the
+  hourly synthetic, the R2 delete canary, disabled previews and
+  non-production builds, the Brave list refresh, the disabled featured
+  rescan) moves word for word into `docs/operations.md`, and its picture is
+  retaken from the released design. It also says that the image's Turnstile
+  site key defaults to the project's own key and names two causes of a 503
+  the API list lacked. The tests that pinned the moved sentences in the
+  README now pin them where they are.
+
+- Three guards for rules that were stated in two places. The fast-forward
+  step that moves production is held equal in `ci.yml` and in the fallback
+  `promote-production.yml`, with one concurrency group and the pause test in
+  both. The Worker's public body limit is held equal to the container's.
+  The durable-soak collector validates a listed artifact with the ledger
+  verifier's own function and no longer keeps copies of five of its
+  helpers, so an artifact the verifier would refuse is refused before its
+  download is spent, where it was refused after. No workflow changes.
+
 - A first-glance pass over the new design. A report's actions sit under
   its finding sentence, above the figure: "View site history" is a filled
   button, a new visit an open one, and a link named "What this visit
