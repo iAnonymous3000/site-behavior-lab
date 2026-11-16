@@ -17,7 +17,8 @@ import fileSummaries, {
   parseLaneArguments,
   partitionCompiledTests,
   readSerialLane,
-  serialShardOf
+  serialShardOf,
+  shardFilesFromOutput
 } from "./unit-test-lanes.mjs";
 import { LANES_COMMAND, LEGS, SERIAL_SHARDS, planLeg, testUnitParts } from "./unit-test-plan.mjs";
 import { HSTS_TEST, checkWithoutUnit } from "./check-without-unit.mjs";
@@ -1007,4 +1008,34 @@ test("check without test:unit runs every other part of check in order, and the H
   const empty = await run("// nothing here\n");
   assert.notEqual(empty.status, 0, empty.output);
   assert.deepEqual(empty.steps, ["before", "compile"]);
+});
+
+test("each serial shard prints the files it runs, so a split run's logs name every serial file once", async (t) => {
+  // Three serial files, so shard 1/2 holds two (p1 and s2) and run order shows.
+  const lane = { "lib/p1.test.ts": "fixture serial test", "lib/s1.test.ts": "fixture serial test", "lib/s2.test.ts": "fixture serial test" };
+  const printed = [];
+  for (const shard of ["1/2", "2/2"]) {
+    const { status, output, finished } = await runFixture(t, { serialLane: lane, laneArgs: ["--only", "serial", "--shard", shard] });
+    assert.equal(status, 0, output);
+    const files = shardFilesFromOutput(output);
+    assert.ok(files.length > 0, `shard ${shard} printed no file`);
+    assert.ok(files.every(([label]) => label === shard), `shard ${shard} printed another shard's label`);
+    // Printed in run order: the order the files' tests reported in.
+    assert.deepEqual(files.map(([, file]) => path.basename(file, ".test.js")), finished);
+    printed.push(...files.map(([, file]) => file));
+  }
+  const expected = Object.keys(lane).map((name) => `.unit-test-dist/${name.replace(/\.ts$/, ".js")}`);
+  assert.equal(new Set(printed).size, printed.length, `a serial file was printed twice: ${printed.join(", ")}`);
+  assert.deepEqual([...printed].sort(), [...expected].sort());
+  assert.deepEqual(printed, [".unit-test-dist/lib/p1.test.js", ".unit-test-dist/lib/s2.test.js", ".unit-test-dist/lib/s1.test.js"]);
+  // The full run and the parallel phase print no shard line.
+  for (const laneArgs of [[], ["--only", "parallel"]]) {
+    const { status, output } = await runFixture(t, { laneArgs });
+    assert.equal(status, 0, output);
+    assert.deepEqual(shardFilesFromOutput(output), [], `"${laneArgs.join(" ")}" printed shard files`);
+  }
+  assert.deepEqual(shardFilesFromOutput("Serial shard file: 3/4 .unit-test-dist/lib/a.test.js\nother\nSerial shard file: 3/4 .unit-test-dist/lib/b.test.js\n"), [
+    ["3/4", ".unit-test-dist/lib/a.test.js"],
+    ["3/4", ".unit-test-dist/lib/b.test.js"]
+  ]);
 });

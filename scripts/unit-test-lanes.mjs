@@ -309,6 +309,19 @@ export function parseLaneArguments(argv) {
   return shard ? { only, shard, alongsideScript: script, files } : { only, alongsideScript: script, files };
 }
 
+// A serial shard prints each file it runs on a line of its own, in run order,
+// before running them, so the files of all n shards can be read back from the
+// logs of a split run and checked against the lane. The full two-phase run
+// prints no such line.
+export const SHARD_FILE_PREFIX = "Serial shard file: ";
+
+/** The files one or more shard logs name, as [shard label, file] pairs, in order. */
+export function shardFilesFromOutput(text) {
+  const files = [];
+  for (const match of text.matchAll(/^Serial shard file: (\d+\/\d+) (\S+)$/gm)) files.push([match[1], match[2]]);
+  return files;
+}
+
 // Shard k of n (1-based) holds the serial-lane entries whose position in the
 // lane's names, sorted by their UTF-8 bytes, is k - 1 modulo n. The rule is
 // total: every position names one shard, so a name added to the lane later
@@ -438,6 +451,7 @@ async function main() {
       return 1;
     }
     console.log(`Unit test lanes: ${label} one at a time.`);
+    for (const file of files) console.log(`${SHARD_FILE_PREFIX}${shard.index}/${shard.count} ${file}`);
     const shardResult = await runLane(files, 1);
     console.log(describeLane(label, shardResult));
     return shardResult.ok ? 0 : 1;
