@@ -581,7 +581,6 @@ const DEDICATED_ONLY_TERMS: readonly string[] = ["ownerReplaced", "ownerUnknown"
 const TERM_NOWHERE = 1;
 const TERM_UNATTACHED = 2;
 const TERM_CODES = ["", "nowhere", "unattached", ...WORKER_TERMS];
-export const termOfCode = (code: number): string => TERM_CODES[code];
 
 /** The properties, one verdict bit each. */
 export const PROPERTIES = [

@@ -39,8 +39,6 @@ export type EncryptedWatchPayload = EncryptedWatchPayloadV1;
 
 export type EncryptedWatchesFlagState = "disabled" | "enabled" | "misconfigured";
 
-export type EncryptedWatchOperation = "create" | "claim-due" | "read-metadata" | "read-target" | "delete";
-
 /** Feature flags are exact wire contracts; whitespace and truthy aliases fail closed. */
 export function encryptedWatchesFlagState(value: string | undefined): EncryptedWatchesFlagState {
   if (value === undefined || value === "" || value === "0") return "disabled";

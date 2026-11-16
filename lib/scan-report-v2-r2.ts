@@ -5,8 +5,7 @@
  *
  * The r1 types and schema are FROZEN (executable hash gate in
  * scripts/build-schema.mjs); this module never modifies them, it composes them
- * via Omit/intersection per RFC 15.2. The explicit *R1 aliases at the bottom
- * give r2-aware code an unambiguous name for the unchanged r1 shapes.
+ * via Omit/intersection per RFC 15.2.
  */
 import type {
   ArmVerification,
@@ -196,17 +195,3 @@ export type EphemeralSingleReportR2 = PublicSingleReportV2R2 & {
 export type EphemeralComparisonReportR2 = PublicComparisonReportV2R2 & {
   ephemeral: { baselineScreenshot: string | null; variantScreenshot: string | null };
 };
-
-// ---------------------------------------------------------------------------
-// Explicit unchanged v2/r1 aliases (implementation slice 1, review item 1).
-// Naming only: the shapes are the frozen r1 types, proven unchanged by the
-// pinned schema hash. r2-aware code uses these names when it must say "r1"
-// unambiguously next to the *R2 types above.
-// ---------------------------------------------------------------------------
-
-export type ScanRunV2R1 = ScanRunV2;
-export type RunEvidenceR1 = RunEvidence;
-export type ConsentEvidenceR1 = ConsentEvidence;
-export type ConsentVerificationObservationR1 = ConsentVerificationObservation;
-export type PublicSingleReportV2R1 = PublicSingleReportV2;
-export type PublicComparisonReportV2R1 = PublicComparisonReportV2;

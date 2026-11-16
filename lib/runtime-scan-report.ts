@@ -5,7 +5,6 @@ import { resolveScannerEgressRegion } from "./scanner-egress";
 import type { EphemeralComparisonReportR2, EphemeralSingleReportR2 } from "./scan-report-v2-r2";
 import type {
   ScanError,
-  ScanJobSubmissionResponse,
   ScanJobStatusResponse,
   ScanReport
 } from "./types";
@@ -17,7 +16,6 @@ import type {
 export type EphemeralScanReportR2 = EphemeralSingleReportR2 | EphemeralComparisonReportR2;
 export type RuntimeScanReport = ScanReport | EphemeralScanReportR2;
 export type RuntimeReportSaver = <T extends RuntimeScanReport>(report: T) => Promise<T>;
-export type RuntimeScanApiResponse = RuntimeScanReport | ScanJobSubmissionResponse | ScanError;
 export type RuntimeScanJobStatusResponse = Omit<ScanJobStatusResponse, "report"> & {
   report?: RuntimeScanReport;
 };
