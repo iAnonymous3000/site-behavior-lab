@@ -16,7 +16,8 @@ import fileSummaries, {
   filesWithoutSummary,
   parseLaneArguments,
   partitionCompiledTests,
-  readSerialLane
+  readSerialLane,
+  serialShardOf
 } from "./unit-test-lanes.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -296,6 +297,7 @@ test("the partition keeps glob order, refuses stale or foreign entries, and neve
   assert.throws(() => partitionCompiledTests([], {}), /matched nothing/);
   assert.throws(() => parseLaneArguments(["--alongside", "rm -rf /", files[0]]), /Usage/);
   assert.deepEqual(parseLaneArguments(["--alongside", "npm run side", files[0]]), {
+    only: "all",
     alongsideScript: "side",
     files: [files[0]]
   });
@@ -396,7 +398,7 @@ test("a test file's process says so on stderr when its stdout cannot be made blo
 // fail; `writeDist` names a parallel test that also writes into dist/; `leak`
 // names tests that pass but leave a server listening; `cut` names test files
 // whose process exits 0 in a second test, before writing the summary that ends
-// its results; `serialLane` replaces the lane.
+// its results; `serialLane` replaces the lane; `laneArgs` go before --alongside.
 async function runFixture(
   t,
   {
@@ -404,7 +406,8 @@ async function runFixture(
     writeDist = "none",
     leak = [],
     cut = [],
-    serialLane = { "lib/s1.test.ts": "fixture serial test", "lib/s2.test.ts": "fixture serial test" }
+    serialLane = { "lib/s1.test.ts": "fixture serial test", "lib/s2.test.ts": "fixture serial test" },
+    laneArgs = []
   } = {}
 ) {
   const dir = await mkdtemp(path.join(os.tmpdir(), "unit-test-lanes-"));
@@ -449,7 +452,7 @@ async function runFixture(
   await writeFile(path.join(dir, "package.json"), JSON.stringify({ private: true, scripts: { side: "node side.js" } }));
   await writeFile(path.join(dir, SERIAL_LANE_FILE), JSON.stringify(serialLane));
   const files = names.map((name) => `.unit-test-dist/lib/${name}.test.js`);
-  const result = spawnSync(process.execPath, [runner, "--alongside", "npm run side", ...files], {
+  const result = spawnSync(process.execPath, [runner, ...laneArgs, "--alongside", "npm run side", ...files], {
     cwd: dir,
     encoding: "utf8",
     timeout: FIXTURE_TIMEOUT_MS,
@@ -753,4 +756,103 @@ test("a signal to the investigation stage reaches node --test, and the stage exi
   stage.kill("SIGTERM");
   assert.deepEqual(await exited, { code: 143, signal: null });
   await until(() => !alive(started.runner), "node --test outlived the stage");
+});
+
+test("the serial shards together hold every serial-lane file once, and none is empty", () => {
+  const lane = readSerialLane(root);
+  const compiled = Object.keys(lane).map((name) => `.unit-test-dist/${name.replace(/\.ts$/, ".js")}`);
+  assert.ok(compiled.length >= 4, "the serial lane must have a file for every shard");
+  const seen = new Map();
+  for (let index = 1; index <= 4; index += 1) {
+    const shard = serialShardOf(lane, { index, count: 4 });
+    assert.ok(shard.size > 0, `shard ${index}/${4} is empty`);
+    for (const file of shard) {
+      assert.ok(!seen.has(file), `${file} is in shards ${seen.get(file)} and ${index}`);
+      seen.set(file, index);
+    }
+  }
+  assert.deepEqual([...seen.keys()].sort(), [...compiled].sort());
+  // The rule is a position modulo the count, so a name added later is placed
+  // without any list to update.
+  const grown = { ...lane, "lib/zz-added-later.test.ts": "fixture" };
+  const placed = [];
+  for (let index = 1; index <= 4; index += 1) {
+    if (serialShardOf(grown, { index, count: 4 }).has(".unit-test-dist/lib/zz-added-later.test.js")) placed.push(index);
+  }
+  assert.equal(placed.length, 1, `a new serial name must land in exactly one shard, not ${placed.length}`);
+  // Positions follow the names' byte order, never the lane file's key order.
+  const reversed = Object.fromEntries(Object.entries(lane).reverse());
+  for (let index = 1; index <= 4; index += 1) {
+    assert.deepEqual(serialShardOf(reversed, { index, count: 4 }), serialShardOf(lane, { index, count: 4 }));
+  }
+  for (const bad of [{ index: 0, count: 4 }, { index: 5, count: 4 }, { index: 1, count: 0 }, { index: 1.5, count: 4 }]) {
+    assert.throws(() => serialShardOf(lane, bad), /Refusing serial shard/);
+  }
+});
+
+test("the lanes runner reads a selector only in front of --alongside, and refuses a malformed one", () => {
+  const files = [".unit-test-dist/lib/a.test.js"];
+  assert.deepEqual(parseLaneArguments(["--alongside", "npm run side", ...files]), { only: "all", alongsideScript: "side", files });
+  assert.deepEqual(parseLaneArguments(["--only", "parallel", "--alongside", "npm run side", ...files]), {
+    only: "parallel",
+    alongsideScript: "side",
+    files
+  });
+  assert.deepEqual(parseLaneArguments(["--only", "serial", "--shard", "2/4", "--alongside", "npm run side", ...files]), {
+    only: "serial",
+    shard: { index: 2, count: 4 },
+    alongsideScript: "side",
+    files
+  });
+  for (const bad of [
+    ["--only", "serial", "--alongside", "npm run side", ...files],
+    ["--only", "serial", "--shard", "5/4", "--alongside", "npm run side", ...files],
+    ["--only", "serial", "--shard", "0/4", "--alongside", "npm run side", ...files],
+    ["--only", "serial", "--shard", "1/4/2", "--alongside", "npm run side", ...files],
+    ["--only", "tail", "--alongside", "npm run side", ...files],
+    ["--shard", "1/4", "--alongside", "npm run side", ...files]
+  ]) {
+    assert.throws(() => parseLaneArguments(bad), /Usage: unit-test-lanes\.mjs/, bad.join(" "));
+  }
+});
+
+test("the parallel selector runs the parallel lane and the alongside command, and no serial file", async (t) => {
+  const { status, output, finished } = await runFixture(t, { laneArgs: ["--only", "parallel"] });
+  assert.equal(status, 0, output);
+  assert.deepEqual([...finished].sort(), ["p1", "p2", "p3", "side"]);
+  assert.match(output, /and no serial file: its 2 run in their shards elsewhere/);
+});
+
+test("the parallel selector still fails on a dist/ rewrite and on a failing alongside command", async (t) => {
+  const rewrite = await runFixture(t, { laneArgs: ["--only", "parallel"], writeDist: "p3" });
+  assert.notEqual(rewrite.status, 0, rewrite.output);
+  assert.match(rewrite.output, /changed dist\/ while other tests could read it: dist\/schema/);
+  const side = await runFixture(t, { laneArgs: ["--only", "parallel"], fail: "side" });
+  assert.notEqual(side.status, 0, side.output);
+});
+
+test("each serial shard runs only its own serial files, with no parallel file and no alongside command", async (t) => {
+  const lane = { "lib/s1.test.ts": "fixture serial test", "lib/s2.test.ts": "fixture serial test" };
+  const ranBy = [];
+  for (const shard of ["1/2", "2/2"]) {
+    const { status, output, finished } = await runFixture(t, { laneArgs: ["--only", "serial", "--shard", shard] });
+    assert.equal(status, 0, output);
+    assert.match(output, new RegExp(`Serial lib lane shard ${shard} \\(1 of 2 files\\) passed`));
+    ranBy.push(...finished);
+  }
+  assert.deepEqual(ranBy, ["s1", "s2"], `the two shards must run s1 and s2 once each: ${ranBy.join(", ")}`);
+  assert.deepEqual([...serialShardOf(lane, { index: 1, count: 2 })], [".unit-test-dist/lib/s1.test.js"]);
+});
+
+test("a serial shard fails on a failing file, on results that stop short, and when it holds no file", async (t) => {
+  const failing = await runFixture(t, { laneArgs: ["--only", "serial", "--shard", "2/2"], fail: "s2" });
+  assert.notEqual(failing.status, 0, failing.output);
+  assert.ok(failing.finished.includes("s2"));
+  const cut = await runFixture(t, { laneArgs: ["--only", "serial", "--shard", "1/2"], cut: ["s1"] });
+  assert.notEqual(cut.status, 0, cut.output);
+  assert.match(cut.output, /One of its files ended without the summary .*s1\.test\.js/);
+  const empty = await runFixture(t, { laneArgs: ["--only", "serial", "--shard", "3/3"] });
+  assert.notEqual(empty.status, 0, empty.output);
+  assert.match(empty.output, /Serial lib lane shard 3\/3 \(0 of 2 files\) holds no file/);
+  assert.deepEqual(empty.finished, [], "an empty shard must run nothing");
 });
