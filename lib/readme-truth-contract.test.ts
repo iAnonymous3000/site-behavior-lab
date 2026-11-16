@@ -509,6 +509,18 @@ test("the README and RELEASE.md say a tagged release builds from source for the 
       `${file} must point at the command that prints the estimate`
     );
   }
+  // RELEASE.md says what hosted CI does instead of running the suite in the
+  // image build, and that the deployable image still waits for that suite.
+  for (const claim of [
+    "A plain image build runs the unit suite",
+    "The `Dockerfile` has no override, by the owner's decision",
+    "Hosted CI does that in one way only",
+    "named by its digest, without running the suite a second time",
+    "That build still runs the HSTS test",
+    "only if every one of those jobs passed on that source image"
+  ]) {
+    assert.ok(inRelease.includes(claim), `RELEASE.md must say: ${claim}`);
+  }
   // The cutoff is pointed at, never written: it moves with every toolchain
   // epoch. The two dates allowed are history: the day the test file arrived,
   // then expecting the list not applied, and the day its expectation became
