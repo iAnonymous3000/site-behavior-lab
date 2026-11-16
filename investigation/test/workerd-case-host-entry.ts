@@ -181,6 +181,46 @@ async function probeStores(storage: HostStorage, bucket: HostBucket): Promise<Re
   return { absent, first, second, stale, afterRefused, swap, swapAgain, now, bounded, long, created, again, held: shown(held), exact: shown(exact), tooLarge, getsForTooLarge, missing, notADigest, emptyCreated, empty: shown(empty), offDigest };
 }
 
+/**
+ * A body built here and counted as it is pulled, so a test can see how much of it the object read.
+ * Nothing is pulled before a reader asks: its queue holds nothing ahead.
+ * Its first part is offered at once; the rest only when `release` is called, so a test can hold it
+ * open. `declared` is the length its request names, which need not be what it holds.
+ */
+function countedBody(parts: Readonly<{ first: number; rest: number; byte: number }>) {
+  const counted = { pulled: 0 };
+  let release: () => void = () => undefined;
+  const released = new Promise<void>((resolve) => (release = resolve));
+  let offered = 0;
+  const stream = new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      if (offered === 0 && parts.first > 0) {
+        offered = 1;
+        counted.pulled += parts.first;
+        controller.enqueue(new Uint8Array(parts.first).fill(parts.byte));
+        return;
+      }
+      await released;
+      if (parts.rest > 0) {
+        counted.pulled += parts.rest;
+        controller.enqueue(new Uint8Array(parts.rest).fill(parts.byte));
+      }
+      controller.close();
+    }
+  }, { highWaterMark: 0 });
+  return { stream, counted, release };
+}
+
+type StraightObject = Readonly<{ headers: Record<string, string>; declared: number; first: number; rest: number; byte: number; hold?: boolean }>;
+
+/** An object's request built here, as the handler sends one: its call header, its declared length, and a counted body. */
+function straightObject(object: StraightObject) {
+  const body = countedBody(object);
+  if (object.hold !== true) body.release();
+  const request = new Request("http://case-object.internal/", { method: "POST", headers: { ...object.headers, "content-length": String(object.declared) }, body: body.stream });
+  return { request, body };
+}
+
 export class InvestigationCase {
   private readonly answer: CaseHostObject;
   private readonly storage: ObjectState["storage"];
@@ -281,6 +321,12 @@ export class InvestigationCase {
       const sent = stream === true ? new ReadableStream<Uint8Array>({ start: (controller) => (controller.enqueue(bytes), controller.close()) }) : bytes;
       const response = await target.fetch("http://case-handler.internal/", { method: "POST", headers, body: sent });
       return Response.json({ status: response.status, answer: await response.json() });
+    }
+    if (call.call === "test-straight-to-object") {
+      // An object sent to the object itself, not through the handler: what the object alone refuses, and how much it read first.
+      const { request, body } = straightObject((call as unknown as { object: StraightObject }).object);
+      const response = await this.answer(request);
+      return Response.json({ status: response.status, answer: await response.json(), pulled: body.counted.pulled });
     }
     if (call.call === "test-clear-marks") {
       sql.exec("DELETE FROM due_marks").toArray();

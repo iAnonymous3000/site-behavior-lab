@@ -114,6 +114,18 @@ async function storeObject(caseId: string, token: string, fill: { length: number
   return through(caseId, { headers, fill, stream: more.stream });
 }
 
+/** An object's request as the handler sends one, built inside the object and given to it directly, its body counted as it is pulled. */
+type Straight = Readonly<{ headers: Record<string, string>; declared: number; first: number; rest: number; byte: number }>;
+type StraightAnswer = { status: number; answer: Answer; pulled: number };
+const objectHeaders = (caseId: string, token: string): Record<string, string> => ({ [RUNNER_CALL_HEADER]: "runner-object", [RUNNER_CASE_HEADER]: caseId, [RUNNER_TOKEN_HEADER]: token, "content-type": "application/octet-stream" });
+const whole = (caseId: string, token: string, length: number, byte: number): Straight => ({ headers: objectHeaders(caseId, token), declared: length, first: length, rest: 0, byte });
+
+async function straight(caseId: string, object: Straight): Promise<StraightAnswer> {
+  const { answer } = await world.direct(CASES_BINDING, caseId, { call: "test-straight-to-object", object });
+  answers.push(answer);
+  return answer as unknown as StraightAnswer;
+}
+
 const recordsOf = async (caseId: string, slot = "B1") => ({
   runner: (await storageOf(caseId)).runner_records?.find((row) => row.slot === slot) ?? null,
   run: (await storageOf(caseId)).runner_runs?.find((row) => row.slot === slot) ?? null
@@ -459,3 +471,15 @@ test("17. a canary token is absent from every answer, error, key, object, entry,
   // A check that would find it: the one answer that hands the token over holds it, and only that one.
   assert.equal(answers.filter((answer) => JSON.stringify(answer).includes(token)).length, 1);
 });
+
+test("18. the object holds an object to its declared length before its token: past the cap, a forged token is answered 413 and nothing is read", { timeout: 180_000 }, async () => {
+  const { caseId, token } = await withToken();
+  const forged = "0".repeat(64);
+  for (const sent of [forged, token]) {
+    assert.deepEqual(await straight(caseId, { ...whole(caseId, sent, 16, 0x65), declared: MAX_EVIDENCE_BYTES + 1 }), { status: 413, answer: { ok: false, refusal: "body-too-large" }, pulled: 0 }, sent === token ? "its token" : "a forged token");
+  }
+  // Within the cap the forged token is what is refused, still unread; with its token the object is read whole and stored.
+  assert.deepEqual(await straight(caseId, whole(caseId, forged, 16, 0x65)), { status: 200, answer: { ok: false, refusal: "token-refused" }, pulled: 0 });
+  assert.deepEqual(await straight(caseId, whole(caseId, token, 16, 0x65)), { status: 200, answer: { ok: true, digest: sha256(new Uint8Array(16).fill(0x65)) }, pulled: 16 });
+});
+
