@@ -924,3 +924,21 @@ test("a test:unit leg runs its steps in order and stops at the first that fails,
     assert.match(refused.stderr, /Usage: unit-test-plan\.mjs/, args.join(" "));
   }
 });
+
+test("CI's tests job runs exactly the planner's legs, each once", () => {
+  const ci = readFileSync(path.join(root, ".github", "workflows", "ci.yml"), "utf8");
+  const testsJob = ci.slice(ci.indexOf("\n  tests:"), ci.indexOf("\n  pages:"));
+  const legs = /\n {6}matrix:\n {8}leg: \[([^\]\n]*)\]\n/.exec(testsJob)?.[1]?.split(",").map((leg) => leg.trim());
+  assert.ok(legs && legs.length > 0, "the tests job must list its legs in one matrix.leg line");
+  assert.deepEqual(legs, [...LEGS], "ci.yml's legs must equal scripts/unit-test-plan.mjs's LEGS, in order");
+  assert.match(testsJob, /\n {6}fail-fast: false\n/, "one failing leg must not cancel the others");
+  // Each leg runs the suite through the planner alone, so ci.yml restates nothing of test:unit.
+  assert.equal(testsJob.split("npm run test:unit").length - 1, 1);
+  for (const restated of [".unit-test-dist", "unit-test-lanes.mjs", "--only", "--shard"]) {
+    assert.ok(!testsJob.includes(restated), `the tests job restates ${restated}`);
+  }
+  // No other job runs a leg, and no matrix leg may become a required job.
+  assert.equal(ci.split("npm run test:unit:leg").length - 1, 1);
+  const required = JSON.parse(readFileSync(path.join(root, ".github", "required-ci-jobs.json"), "utf8")).jobs;
+  assert.ok(!required.some((name) => name.startsWith("Typecheck and Unit Tests")), "a matrix leg cannot be a required job");
+});
