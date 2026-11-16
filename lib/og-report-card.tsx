@@ -23,17 +23,69 @@ export const OG_REPORT_SUBHEAD_MAX_CHARACTERS = 300;
 /** The bands the card keeps free of text, defined beside its text width (lib/og-card-layout.ts). */
 export { OG_REPORT_CARD_PADDING };
 
-const BG = "#0b1110";
-const TEXT = "#eef3ef";
-const MUTED = "#9bb0a6";
-const SUBTLE = "#7a9085";
-const HOME_ACCENT = "#2dd4bf";
-
 /** Direction A's paper and inks, as in app/_design/tokens.css. */
 const PAPER = "#fbfcfd";
 const CARBON = "#101820";
 const SLATE = "#46535f";
 const RULE = "#c8d1d9";
+const PRUSSIAN = "#0b3a5b";
+const TRACER = "#a3157a";
+const EDGE = "#6b7884";
+
+/**
+ * The site's mark at the wordmark's full height (30px, the STIX line), as in
+ * the header (app/_design/site-mark.tsx): three same-site marks; two
+ * cross-site marks and the open box; the hatched Not measured band. Set at
+ * the wordmark's left in its own space, so the wordmark's text and its
+ * baseline do not move.
+ */
+const CARD_MARK_SIZE = 30;
+/**
+ * The branded card's title column. At 64px STIX the homepage's title breaks
+ * after "does," as the homepage's own heading does; the string is unchanged.
+ */
+const BRANDED_TITLE_WIDTH = 620;
+const CARD_MARK_GAP = 14;
+/** The head both cards share: the mark and the wordmark, on the card's left edge. */
+function CardWordmark() {
+  return (
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        flexShrink: 0,
+        paddingLeft: CARD_MARK_SIZE + CARD_MARK_GAP,
+        fontFamily: "STIX Two Text",
+        fontWeight: 600,
+        fontSize: 30
+      }}
+    >
+      <CardMark />
+      Site Behavior Lab
+    </div>
+  );
+}
+
+function CardMark() {
+  return (
+    <svg
+      width={CARD_MARK_SIZE}
+      height={CARD_MARK_SIZE}
+      viewBox="0 0 14 14"
+      style={{ position: "absolute", left: 0, top: 0 }}
+    >
+      <defs>
+        <pattern id="m" patternUnits="userSpaceOnUse" width="1.6" height="1.6" patternTransform="rotate(45)">
+          <rect width="0.5" height="1.6" fill={EDGE} />
+        </pattern>
+      </defs>
+      <path fill={PRUSSIAN} d="M0 0h4v4H0zM5 0h4v4H5zM10 0h4v4h-4z" />
+      <path fill={TRACER} d="M0 5h4v4H0zM5 5h4v4H5z" />
+      <path fill="none" stroke={PRUSSIAN} strokeWidth="0.47" d="M10.235 5.235h3.53v3.53h-3.53z" />
+      <path fill="url(#m)" d="M0 10h14v4H0z" />
+    </svg>
+  );
+}
 
 /** The card's fonts, as next/og takes them: static TrueType instances (lib/og-card-layout.ts). */
 function cardFonts() {
@@ -91,9 +143,7 @@ export function renderReportCard(view: ReportView): ImageResponse {
         }}
       >
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", flexShrink: 0, fontFamily: "STIX Two Text", fontWeight: 600, fontSize: 30 }}>
-            Site Behavior Lab
-          </div>
+          <CardWordmark />
           <div style={{ display: "flex", marginLeft: 40, fontSize: 22, lineHeight: "30px", textAlign: "right", justifyContent: "flex-end" }}>
             {card.attribution}
           </div>
@@ -237,48 +287,55 @@ export function renderHomeCard(): ImageResponse {
   );
 }
 
+/**
+ * The homepage's card and the missing-report card, in the report card's
+ * frame: paper, the same padding, the same head (the mark and the wordmark),
+ * everything on one left edge. The title starts where a report card's
+ * sentence starts, so the cards read as one family; the subtitle is under
+ * it in Slate; the foot line sits under the report card's hairline rule. No
+ * figure and no number: nothing a report could not back.
+ */
 function renderBrandedCard(title: string, subtitle: string): ImageResponse {
   return new ImageResponse(
     (
       <div
         style={{
-          position: "relative",
           display: "flex",
           flexDirection: "column",
           width: "100%",
           height: "100%",
-          padding: "64px",
-          backgroundColor: BG,
-          backgroundImage: `radial-gradient(900px 460px at 85% -10%, ${HOME_ACCENT}26, transparent 60%)`,
-          color: TEXT,
-          fontFamily: "sans-serif"
+          padding: `${OG_REPORT_CARD_TOP}px ${OG_REPORT_CARD_SIDE}px ${OG_REPORT_CARD_FOOT}px`,
+          backgroundColor: PAPER,
+          color: CARBON,
+          fontFamily: "Atkinson Hyperlegible Next"
         }}
       >
-        <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: 12, backgroundColor: HOME_ACCENT }} />
-
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 16,
-              backgroundColor: `${HOME_ACCENT}22`,
-              border: `2px solid ${HOME_ACCENT}`,
-              marginRight: 18
-            }}
-          />
-          <div style={{ display: "flex", fontSize: 28, fontWeight: 700, letterSpacing: 1 }}>SITE BEHAVIOR LAB</div>
+        <div style={{ display: "flex", alignItems: "baseline" }}>
+          <CardWordmark />
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", marginTop: "auto", marginBottom: "auto" }}>
-          <div style={{ display: "flex", fontSize: 64, fontWeight: 800, lineHeight: 1.08, maxWidth: 1010 }}>{title}</div>
-          <div style={{ display: "flex", fontSize: 28, color: MUTED, marginTop: 22, maxWidth: 980, lineHeight: 1.4 }}>{subtitle}</div>
+        <div
+          style={{
+            display: "flex",
+            marginTop: 34,
+            maxWidth: BRANDED_TITLE_WIDTH,
+            fontFamily: "STIX Two Text",
+            fontWeight: 500,
+            fontSize: 64,
+            lineHeight: "72px"
+          }}
+        >
+          {title}
         </div>
 
-        <div style={{ display: "flex", fontSize: 20, color: SUBTLE }}>open source · reproducible · evidence, not a verdict</div>
+        <div style={{ display: "flex", marginTop: 20, fontSize: 26, lineHeight: "36px", color: SLATE }}>{subtitle}</div>
+
+        <div style={{ display: "flex", marginTop: "auto", paddingTop: 24, borderTop: `1px solid ${RULE}`, fontSize: 20, lineHeight: "26px", color: SLATE }}>
+          open source · reproducible · evidence, not a verdict
+        </div>
       </div>
     ),
-    { ...OG_SIZE }
+    { ...OG_SIZE, fonts: cardFonts() }
   );
 }
 

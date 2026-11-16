@@ -1,6 +1,6 @@
-import { FlaskConical } from "lucide-react";
 import { Fragment, type ReactNode } from "react";
 import { SITE_PRIMARY_NAV, SITE_SCOPE_CAVEAT, SITE_TRUST_LINKS, SOURCE_REPOSITORY_URL } from "@/lib/site-navigation";
+import { SiteMark } from "../_design/site-mark";
 import { staticAssetPath } from "../client-runtime";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -62,9 +62,8 @@ export function SiteChrome({
       <div className={`app-shell${shellClassName ? ` ${shellClassName}` : ""}`}>
         <header className="topbar">
           <a className="brand" href={staticAssetPath("/")}>
-            <span className="brand-mark">
-              <FlaskConical size={20} aria-hidden="true" />
-            </span>
+            {/* The mark, decoration beside the wordmark (app/_design/site-mark.tsx). */}
+            <SiteMark />
             {/* The wordmark alone. The thesis sentence that used to sit under it
                 on every route is the homepage's <h1>, and everywhere else it
                 competed with the page's own heading for the same line. */}

@@ -1,14 +1,10 @@
-<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="sbl" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0f766e"/>
-      <stop offset="1" stop-color="#0b5d56"/>
-    </linearGradient>
-  </defs>
-  <rect width="32" height="32" rx="7" fill="url(#sbl)"/>
-  <g transform="translate(4 4)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/>
-    <path d="M6.453 15h11.094"/>
-    <path d="M8.5 2h7"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <!-- The site's mark, pixel-fitted at 16 (app/_design/site-mark.tsx): three
+       same-site marks; two cross-site marks and the open box; the hatched
+       Not measured band. 1px margins and gaps, 4px cells, on opaque paper. -->
+  <rect width="16" height="16" fill="#fbfcfd"/>
+  <path fill="#0b3a5b" d="M1 1h4v4H1zM6 1h4v4H6zM11 1h4v4h-4z"/>
+  <path fill="#a3157a" d="M1 6h4v4H1zM6 6h4v4H6z"/>
+  <path fill="#0b3a5b" d="M11 6h4v1h-4zM11 9h4v1h-4zM11 7h1v2h-1zM14 7h1v2h-1z"/>
+  <path fill="#6b7884" d="M3 11h1v1h-1zM6 11h1v1h-1zM9 11h1v1h-1zM12 11h1v1h-1zM2 12h1v1h-1zM5 12h1v1h-1zM8 12h1v1h-1zM11 12h1v1h-1zM14 12h1v1h-1zM1 13h1v1h-1zM4 13h1v1h-1zM7 13h1v1h-1zM10 13h1v1h-1zM13 13h1v1h-1zM3 14h1v1h-1zM6 14h1v1h-1zM9 14h1v1h-1zM12 14h1v1h-1z"/>
 </svg>

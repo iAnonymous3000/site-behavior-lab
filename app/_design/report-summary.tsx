@@ -69,7 +69,7 @@ export function ReportPageSummary({
   incompleteNotice: string | null;
   /** The older-format note, a limit on the whole report, or null (record-block.tsx). */
   schemaLimit: string | null;
-  /** The record's three links, after the numbers and before the findings. */
+  /** The record's actions, after the finding sentence and its limits, before the figure. */
   recordLinks: ReactNode;
   findings: readonly Finding[];
   evidenceArm: EvidenceArm | undefined;
@@ -133,6 +133,9 @@ export function ReportPageSummary({
           )}
         </div>
       </section>
+      {/* The record's actions: under the sentence on a wide screen, after
+          its limits on a narrow one, and above the figure at every width. */}
+      {recordLinks}
       {figure}
       {/* After the figure, at every width: the opening paragraph, with the
           numbers at its right on a wide screen (app/_design/report.css). */}
@@ -150,7 +153,6 @@ export function ReportPageSummary({
           ))}
         </div>
       )}
-      {recordLinks}
       <FindingsList
         findings={findings}
         evidenceArm={evidenceArm}

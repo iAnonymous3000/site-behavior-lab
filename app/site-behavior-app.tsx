@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  Cookie,
-  ExternalLink,
-  Eye,
-  FileJson,
-  Fingerprint,
-  Keyboard,
-  Loader2,
-  Network,
-  Radar
-} from "lucide-react";
+import { ExternalLink, FileJson, Loader2 } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   PageGraphR2UploadButton,
@@ -32,8 +22,7 @@ import {
 import { corpusCohortDifferences } from "@/lib/corpus-cohort-differences";
 import type { CorpusCohortIdentity } from "@/lib/corpus-cohort";
 import { committedReportLocation } from "@/lib/report-locator";
-import { HEADLINE_PLATFORMS } from "@/lib/headline-platforms";
-import { humanList } from "@/lib/text-format";
+import { SCAN_CHECKS } from "@/lib/scan-checks";
 import { scanJobProgressCopy } from "@/lib/scan-job-progress";
 import {
   LatestClientOperation,
@@ -93,6 +82,8 @@ type SiteBehaviorAppProps = {
   homepageDiscovery?: HomepageDiscovery | null;
   /** What a scan does to the page, rendered by the server page (app/page.tsx). */
   scanDisclosure?: ReactNode;
+  /** What one controlled visit records, rendered by the server page, for the first screen. */
+  visitRecords?: ReactNode;
   /** The latest report as a record, rendered by the server page, or null. */
   frontRecord?: ReactNode;
   /** Each featured report's marks by report id, rendered by the server page. */
@@ -105,6 +96,7 @@ export function SiteBehaviorApp({
   corpusHighlights = null,
   homepageDiscovery = null,
   scanDisclosure = null,
+  visitRecords = null,
   frontRecord = null,
   rowMarks = {},
   rowKey = null
@@ -351,6 +343,10 @@ export function SiteBehaviorApp({
   const scanForm = (
     <div className="scan-panel-stack">
       {scanControls}
+      {/* After the form in the source, so a phone reads it after More
+          options; a wide screen lays it in the limit column under the scan
+          disclosure (app/_design/home.css). */}
+      {visitRecords}
       <ScheduledRescans
         enabled={scheduledRescansEnabled}
         form={form}
@@ -395,7 +391,10 @@ export function SiteBehaviorApp({
             {LIVE_SCAN_ENABLED ? (
               scanForm
             ) : (
-              <StaticPublicPanel onUploadReport={loadReportFile} onUploadError={surfaceReportOperationError} />
+              <>
+                <StaticPublicPanel onUploadReport={loadReportFile} onUploadError={surfaceReportOperationError} />
+                {visitRecords}
+              </>
             )}
 
           </section>
@@ -471,26 +470,6 @@ export function SiteBehaviorApp({
                 earlierResultId={earlierResultId} inspection={inspection} scrollCheck={scrollCheck} />
             </Suspense>
           )}
-          </section>
-
-          {/* What one controlled visit records: the checks behind every
-              report. It closes the page, after the library and the sites on
-              record, and stays under a scan's result. */}
-          <section className="method-card" aria-labelledby="method-card-title">
-            <p className="eyebrow">One controlled visit records</p>
-            <h2 id="method-card-title">Evidence, then interpretation</h2>
-            <ul className="method-list">
-              {SCAN_CHECKS.map((check) => (
-                <li key={check.label}>
-                  <strong>{check.label}</strong>
-                  <span>{check.question}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="method-note">
-              Every report records its own conditions and which evidence families were captured, censored or
-              unsupported. Signals describe one visit, not a verdict about the site.
-            </p>
           </section>
     </SiteChrome>
   );
@@ -799,26 +778,6 @@ function HomepageFeaturedGallery({
   );
 }
 
-const SCAN_CHECKS: { icon: typeof Eye; label: string; question: string }[] = [
-  { icon: Radar, label: "Catalog matches", question: "Which request rows matched the reviewed service catalog, and what roles does that catalog assign?" },
-  { icon: Cookie, label: "Third-party cookie records", question: "Which cookie records crossed the site's registrable-domain boundary?" },
-  {
-    icon: Network,
-    label: "Named platforms",
-    // Derived, not restated: this sentence was a hand-written copy that named
-    // four platforms and went stale when Microsoft, LinkedIn, and Pinterest
-    // joined the shared constant, so the homepage advertised less than the
-    // report actually checks.
-    question: `Were requests dispatched to catalogued ${humanList(
-      HEADLINE_PLATFORMS,
-      HEADLINE_PLATFORMS.length
-    )} domains?`
-  },
-  { icon: Radar, label: "Google Analytics remarketing", question: "Did the scan see the Analytics-to-DoubleClick request marker?" },
-  { icon: Fingerprint, label: "Fingerprint-like API calls", question: "Did canvas, WebGL, or audio behavior cross a documented heuristic threshold?" },
-  { icon: Eye, label: "Session-replay signals", question: "Did a catalogued service appear or broad interaction listeners register?" },
-  { icon: Keyboard, label: "Synthetic input check", question: "Did the test value appear in a cross-site request before form submission?" }
-];
 
 function LoadingState({
   mode,
@@ -894,18 +853,14 @@ function LoadingState({
       )}
       {cancellationError && <p role="alert">{cancellationError} The scan is still running.</p>}
       <ul className="scan-checks">
-        {SCAN_CHECKS.map((check) => {
-          const Icon = check.icon;
-          return (
-            <li key={check.label}>
-              <Icon size={16} aria-hidden="true" />
-              <span>
-                <strong>{check.label}</strong>
-                {check.question}
-              </span>
-            </li>
-          );
-        })}
+        {SCAN_CHECKS.map((check) => (
+          <li key={check.label}>
+            <span>
+              <strong>{check.label}</strong>
+              {check.question}
+            </span>
+          </li>
+        ))}
       </ul>
       <p className="scan-checks-note">
         Keystroke capture is tested by typing a synthetic value into the page&rsquo;s form fields (never submitting) and

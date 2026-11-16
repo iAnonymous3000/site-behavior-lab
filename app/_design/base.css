@@ -179,8 +179,56 @@ body:has(.da) .skip-link:focus {
   white-space: nowrap;
 }
 
-.da.da .brand-mark {
-  display: none;
+/* The mark (site-mark.tsx): the wordmark's full line, ascender to descender,
+   set on the descender line so it is centred on the wordmark, 10px before
+   it. The colours are the figure's; the open box is a 1px line. */
+.da.da .a-mark {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: 10px;
+  vertical-align: -0.24em;
+  overflow: visible;
+}
+
+.da.da :is(.a-mark-same, .a-mark-open) {
+  shape-rendering: crispEdges;
+}
+
+.da.da .a-mark-same {
+  fill: var(--a-prussian);
+}
+
+.da.da .a-mark-cross {
+  fill: var(--a-tracer);
+  shape-rendering: crispEdges;
+}
+
+.da.da .a-mark-open {
+  fill: none;
+  stroke: var(--a-prussian);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.da.da #a-mark-hatch rect {
+  fill: var(--a-hatch-ink);
+}
+
+/* Forced colors: every sign in the reader's text colour, so the mark stays
+   visible; the cells still differ by place and by kind. */
+@media (forced-colors: active) {
+  .da.da .a-mark {
+    forced-color-adjust: none;
+  }
+
+  .da.da :is(.a-mark-same, .a-mark-cross) {
+    fill: CanvasText;
+  }
+
+  .da.da .a-mark-open {
+    stroke: CanvasText;
+  }
 }
 
 .da.da .brand-text,

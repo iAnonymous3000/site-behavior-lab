@@ -68,9 +68,13 @@ test("the one shell exposes banner, main, and contentinfo as sibling landmarks",
     assert.doesNotMatch(contents, /<main[ >]/, `${file} renders its own <main>, bypassing the shell`);
   }
 
+  // What one visit records is a section, rendered once, by the server page.
   const home = source("app/site-behavior-app.tsx");
-  assert.doesNotMatch(home, /<aside className="method-card">/);
-  assert.match(home, /<section className="method-card" aria-labelledby="method-card-title">/);
+  const block = source("app/_design/visit-records.tsx");
+  assert.doesNotMatch(block, /<aside className="method-card">/);
+  assert.match(block, /<section className="method-card" aria-labelledby="method-card-title">/);
+  assert.doesNotMatch(home, /method-card/);
+  assert.match(source("app/page.tsx"), /visitRecords=\{<VisitRecords \/>\}/);
 });
 
 test("directory input filters in place and never navigates on change", () => {
@@ -677,13 +681,16 @@ test("the homepage checklist describes the checks the report actually runs", () 
   // constant: the homepage advertised less than the report checks, while the
   // report's own absence copy printed all seven. Derived now, and pinned here
   // so a future hand-written copy fails instead of drifting silently.
-  const home = source("app/site-behavior-app.tsx");
+  // The checks live in lib/scan-checks.ts, which the first screen's block
+  // and the list under a running scan both read.
+  const home = source("lib/scan-checks.ts");
   assert.doesNotMatch(
     home,
     /catalogued Google, Meta, TikTok, or X domains/,
     "the platform list must be derived from HEADLINE_PLATFORMS, not restated"
   );
   assert.match(home, /humanList\(\s*HEADLINE_PLATFORMS,\s*HEADLINE_PLATFORMS\.length\s*\)/);
+  assert.doesNotMatch(source("app/site-behavior-app.tsx"), /question: |HEADLINE_PLATFORMS/);
 
   // And the constant it derives from is the one the report reads. It lives in
   // its own module so importing it does not pull the whole report-insights

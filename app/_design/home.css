@@ -4,8 +4,8 @@
  * The page keeps its markup and its class names, which the scan form's
  * script and scripts/smoke-static-site.mjs both read, and is dressed here.
  * Order on the page: the first screen (headline, address field, run modes,
- * with the sites to try and the scan disclosure beside them), the library,
- * the sites on record, what one visit records.
+ * with the sites to try, and beside them the scan disclosure and what one
+ * visit records), the library, the sites on record.
  *
  * Step 1 returns each dressed block to the browser's defaults, so nothing
  * from app/globals.css leaks in. Its list sits in :where(), so the rule
@@ -700,8 +700,16 @@
 
     .da.da.da form.scan-panel > .scan-disclosure {
       grid-column: 2;
-      grid-row: 3 / span 13;
+      grid-row: 3 / span 6;
       margin-top: 8px;
+    }
+
+    /* What one visit records, in the limit column under the disclosure,
+       from the run modes' row down. Its span ends in the flexible row, so a
+       block taller than the form beside it adds space there. */
+    .da.da.da .scan-panel-stack > .method-card {
+      grid-column: 2;
+      grid-row: 9 / span 7;
     }
 
     /* Under the field and above "Run": three columns of two, each name
@@ -1281,59 +1289,59 @@
   }
 }
 
-/* ---- 7. What one visit records ---- */
+/* ---- 7. What one visit records (visit-records.tsx) ----
+ * On the first screen: in the limit column under the disclosure on a wide
+ * screen, after the form on a phone. No card and no fill: a hairline above,
+ * the titles semibold, the questions in slate, and the closing sentence, the
+ * block's limit, with its hatched edge. */
 .da.da.da .method-card {
-  margin: var(--a-s7) 0 0;
-  padding: 14px 0 0;
-  border-top: 2px solid var(--a-carbon);
+  margin: 18px 0 0;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--a-rule);
+}
+
+.da.da.da .method-card h2 {
+  margin: 0;
+  font: 600 0.9375rem / 1.3 var(--a-sans);
+  letter-spacing: 0;
 }
 
 .da.da.da .method-list {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 14px 40px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 18px;
   list-style: none;
-  margin: 20px 0 0;
+  margin: 8px 0 0;
   padding: 0;
 }
 
 .da.da.da .method-list strong {
   display: block;
-  font: 600 0.9375rem / 1.35 var(--a-sans);
+  font: 600 var(--a-t-fine) / 1.3 var(--a-sans);
+  color: var(--a-carbon);
 }
 
 .da.da.da .method-list span {
   display: block;
-  margin-top: 2px;
-  font: 400 var(--a-t-small) / 1.45 var(--a-sans);
+  margin-top: 1px;
+  font: 400 0.8125rem / 1.3 var(--a-sans);
   color: var(--a-slate);
 }
 
-.da.da.da .method-note {
-  margin-top: 20px;
+.da.da.da .method-card > .method-note {
+  margin-top: 10px;
+  font-size: var(--a-t-fine);
+  line-height: 1.4;
 }
 
-@media screen and (min-width: 901px) {
+@media screen and (max-width: 900px) {
   .da.da.da .method-card {
-    display: grid;
-    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-    column-gap: 56px;
-    align-items: start;
-  }
-
-  .da.da.da .method-card > * {
-    grid-column: 1;
-    min-width: 0;
+    margin-top: 20px;
   }
 
   .da.da.da .method-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .da.da.da .method-card > .method-note {
-    grid-column: 2;
-    grid-row: 1 / span 3;
-    margin-top: 4px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
   }
 }
 

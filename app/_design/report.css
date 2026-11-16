@@ -93,14 +93,15 @@
  *           correction notice
  *           site, visit, address | the limits on the whole report
  *           finding sentence     | (the limits run on beside it)
+ *           the record's actions |
  *           figure
  *           opening paragraph    | the numbers, two by two
- *           the record's three links
  *   narrow  one column in source order
  *   paper   one column: dateline, finding and limits, figure, paragraph,
  *           numbers, then the whole record
  * Source order is reading order: site, visit, address, sentence, limits,
- * figure. A limit on the whole report is above the figure at every width.
+ * actions, figure. A limit on the whole report is above the figure at every
+ * width.
  */
 /* On the root as well: WebKit still scrolls sideways when only the body clips. */
 :root:has(.da),
@@ -112,10 +113,11 @@ body:has(.da) {
 .da.da.da .result-page {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-  /* Rows: breadcrumb, notice, record, finding sentence. The limits span the
-     last two; the sentence's row is the flexible one, so limits taller than
-     the text beside them add space under the sentence, not above it. */
-  grid-template-rows: auto auto auto 1fr;
+  /* Rows: breadcrumb, notice, record, finding sentence, the record's
+     actions. The limits span the last three; the actions' row is the
+     flexible one, so limits taller than the text beside them add space under
+     the actions, not between the sentence and its actions. */
+  grid-template-rows: auto auto auto auto 1fr;
   column-gap: 56px;
   align-items: start;
 }
@@ -162,9 +164,10 @@ body:has(.da) {
   order: 3;
 }
 
-/* The record's three links follow the numbers, in the source and on screen. */
+/* The record's actions follow the sentence and its limits, in the source
+   and on screen, and come before the figure. */
 .da.da.da .report-identity-actions {
-  order: 4;
+  order: 1;
 }
 
 @media screen {
@@ -190,7 +193,7 @@ body:has(.da) {
     }
 
     .da.da.da .report-page-summary > .headline-banner {
-      grid-row: 3 / span 2;
+      grid-row: 3 / span 3;
       display: grid;
       grid-template-columns: subgrid;
       grid-template-rows: subgrid;
@@ -204,7 +207,16 @@ body:has(.da) {
 
     .da.da.da .report-page-summary .headline-footer {
       grid-column: 2;
-      grid-row: 1 / span 2;
+      grid-row: 1 / span 3;
+    }
+
+    /* Under the sentence, in the claim column; raised, as the record is, so
+       the banner's empty cell does not cover it. */
+    .da.da.da .report-page-summary > .report-identity-actions {
+      grid-column: 1;
+      grid-row: 5;
+      position: relative;
+      z-index: 1;
     }
   }
 
@@ -507,9 +519,72 @@ body:has(.da) {
     grid-area: 5 / 1 / auto / -1;
   }
 
+  /* The history is the filled button and a new visit the open one, in the
+     site page's own button (site.css); the rest are links. */
   .da.da.da .report-identity-actions {
-    margin: 22px 0 0;
-    font-size: 0.875rem;
+    align-items: center;
+    gap: 10px 16px;
+    margin: 18px 0 0;
+    font: 400 0.875rem / 1.4 var(--a-sans);
+  }
+
+  /* Each link is a 24px target, so the two stacked links are each one
+     (WCAG 2.5.8; the static smoke runs axe on this page). */
+  .da.da.da .a-actions-links {
+    display: grid;
+    justify-items: start;
+    gap: 0;
+  }
+
+  .da.da.da .a-actions-links > a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+  }
+
+  .da.da.da .report-identity-actions a:is(.primary-button, .secondary-button) {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 16px;
+    /* The border is what forced colors keeps: it removes the fill. */
+    border: 1.5px solid var(--a-prussian);
+    border-radius: 2px;
+    background: var(--a-prussian);
+    color: var(--a-on-prussian);
+    font: 600 var(--a-t-body) / 1.2 var(--a-sans);
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .da.da.da .report-identity-actions a.secondary-button {
+    background: none;
+    color: var(--a-prussian);
+  }
+
+  .da.da.da .report-identity-actions a:is(.primary-button, .secondary-button):hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+
+  .da.da.da .report-identity-actions a.a-findings-link {
+    color: var(--a-link);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+
+  .da.da.da .report-identity-actions a.a-findings-link:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .da.da.da .report-identity-actions a:focus-visible {
+    outline: 3px solid var(--a-focus);
+    outline-offset: 2px;
+    border-radius: 1px;
   }
 }
 
@@ -546,6 +621,9 @@ body:has(.da) {
 /* ---- 7. Findings board ---- */
 .da.da .findings-board {
   margin: var(--a-s7) 0 0;
+  /* The record's findings link lands the board's rule 16px below the top of
+     the window, as a finding card lands (record-block.tsx). */
+  scroll-margin-top: 16px;
 }
 
 /* One row: the title at the left, the glossary link at the right. */
@@ -1142,7 +1220,7 @@ body:has(.da) {
   }
 }
 
-/* A phone: label beside value, the links after the numbers. */
+/* A phone: label beside value, the actions after the limits. */
 @media screen and (max-width: 900px) {
   .da.da .finding-card.tile-loud h3 {
     font-size: 1.5rem;
@@ -1201,8 +1279,25 @@ body:has(.da) {
     padding: 16px 0 0;
   }
 
+  /* A phone: the two buttons share a row, each half of it, the links in
+     the row under them. A label too long for its half wraps inside its
+     button, which grows. */
   .da.da.da .report-identity-actions {
-    gap: 4px 16px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 12px 10px;
+  }
+
+  .da.da.da .report-identity-actions a:is(.primary-button, .secondary-button) {
+    padding: 6px 10px;
+    font-size: 0.9375rem;
+  }
+
+  .da.da.da .a-actions-links {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 }
 

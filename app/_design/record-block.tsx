@@ -125,13 +125,18 @@ export function ReportRecord({
 }
 
 /**
- * The record's three links: the site's history, a new visit of the same
- * route or site, and the evidence-problem form.
+ * The record's actions: the site's history, a new visit of the same route or
+ * site, the way down to the findings, and the evidence-problem form.
  *
- * They follow the four numbers, in the source and on screen at every width,
- * so focus reaches them where they are seen. Once the explorer has replaced
- * the summary they follow the record instead (saved-report-client.tsx). The
- * same links, from the same function, as the shared header's.
+ * They follow the finding sentence and its limits in the source, and on a
+ * wide screen they sit directly under the sentence, above the figure
+ * (app/_design/report.css), so focus reaches them where they are seen. The
+ * history is the one filled button, a new visit the open one; the rest are
+ * links. The same labels, from the same function, as the shared header's.
+ *
+ * The findings link names the board by its own heading and lands it 16px
+ * below the top of the window (the board's scroll margin), as a #history link
+ * lands a site page's history.
  */
 export function ReportRecordLinks({
   id,
@@ -148,16 +153,21 @@ export function ReportRecordLinks({
   const profileHref = activation.profilePath ? `${sitePagesBasePath()}${activation.profilePath}/` : null;
   return (
     <div className="report-identity-actions">
-      {profileHref && <a href={profileHref}>View site history</a>}
+      {profileHref && <a className="primary-button" href={profileHref}>View site history</a>}
       {activation.exactRescanHref ? (
-        <Link href={activation.exactRescanHref}>Scan this exact route again</Link>
+        <Link className="secondary-button" href={activation.exactRescanHref}>Scan this exact route again</Link>
       ) : (
-        activation.siteRescanHref && <Link href={activation.siteRescanHref}>Scan this site again</Link>
+        activation.siteRescanHref && <Link className="secondary-button" href={activation.siteRescanHref}>Scan this site again</Link>
       )}
-      <a href={activation.evidenceIssueUrl} target="_blank" rel="noreferrer">
-        Report an evidence problem
-        <span className="a-vh"> (opens in a new tab)</span>
-      </a>
+      {/* The two links, one over the other beside the buttons, so the row
+          is one button high on a wide screen. */}
+      <span className="a-actions-links">
+        <a className="a-findings-link" href="#findings">What this visit means</a>
+        <a className="topbar-link" href={activation.evidenceIssueUrl} target="_blank" rel="noreferrer">
+          Report an evidence problem
+          <span className="a-vh"> (opens in a new tab)</span>
+        </a>
+      </span>
     </div>
   );
 }

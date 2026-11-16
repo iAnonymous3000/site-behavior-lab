@@ -11,6 +11,7 @@ import { isFeaturedSiteConfig } from "@/lib/featured-sites";
 import { buildHomepageDiscovery, type HomepageReportSource } from "@/lib/homepage-discovery";
 import featuredSiteConfigJson from "@/public/featured-sites.json";
 import { ScanDisclosure } from "./_components/scan-disclosure";
+import { VisitRecords } from "./_design/visit-records";
 import { SiteBehaviorApp } from "./site-behavior-app";
 import "@/app/_design/fonts.css";
 import "@/app/_design/tokens.css";
@@ -98,13 +99,14 @@ export default async function Home() {
   }
 
   // Rendered here, on the server, and handed to the client page as markup, so
-  // the disclosure, the record and the marks cost HTML rather than homepage
-  // JavaScript.
+  // the disclosure, what a visit records, the record and the marks cost HTML
+  // rather than homepage JavaScript.
   return (
     <SiteBehaviorApp
       corpusHighlights={corpusHighlights}
       homepageDiscovery={homepageDiscovery}
       scanDisclosure={<ScanDisclosure />}
+      visitRecords={<VisitRecords />}
       frontRecord={
         record && (
           <FrontPageRecordBlock

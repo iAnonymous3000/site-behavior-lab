@@ -536,13 +536,16 @@ test("the two-column top applies only where the browser has subgrid, and stacks 
   assert.doesNotMatch(outside, /subgrid;/);
   assert.doesNotMatch(outside, /\.headline-(?:title|footer) \{[^}]*grid-row:/);
   assert.doesNotMatch(outside, /\.headline-banner \{[^}]*grid-row: 3/);
+  assert.doesNotMatch(outside, /\.report-identity-actions \{[^}]*grid-row:/);
   const inside = sheet.slice(from, to);
-  assert.match(inside, /\.headline-banner \{[^}]*grid-template-columns: subgrid;[^}]*grid-template-rows: subgrid;/);
+  assert.match(inside, /\.headline-banner \{\s*grid-row: 3 \/ span 3;[^}]*grid-template-columns: subgrid;[^}]*grid-template-rows: subgrid;/);
   assert.match(inside, /\.headline-title \{\s*grid-column: 1;\s*grid-row: 2;/);
-  assert.match(inside, /\.headline-footer \{\s*grid-column: 2;\s*grid-row: 1 \/ span 2;/);
+  // The limits span the sentence's row and the actions' row under it.
+  assert.match(inside, /\.headline-footer \{\s*grid-column: 2;\s*grid-row: 1 \/ span 3;/);
+  assert.match(inside, /\.report-page-summary > \.report-identity-actions \{\s*grid-column: 1;\s*grid-row: 5;/);
 });
 
-test("the record's three links follow the numbers in the source, outside the identity header", () => {
+test("the record's actions follow the finding sentence and its limits in the source, before the figure, outside the identity header", () => {
   const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
   const record = read("app/_design/record-block.tsx");
   // The header holds the record alone.
@@ -551,16 +554,25 @@ test("the record's three links follow the numbers in the source, outside the ide
   // The links are their own component, with the class the static smoke reads.
   const links = record.slice(record.indexOf("export function ReportRecordLinks("), record.indexOf("export function RecordDateline("));
   assert.match(links, /<div className="report-identity-actions">/);
-  // After the numbers and before the findings, in the summary.
+  // The history is the filled button, a new visit the open one, and the
+  // findings link names the board by its own heading and its id.
+  assert.match(links, /<a className="primary-button" href=\{profileHref\}>View site history<\/a>/);
+  assert.match(links, /<Link className="secondary-button" href=\{activation\.exactRescanHref\}>Scan this exact route again<\/Link>/);
+  assert.match(links, /<a className="a-findings-link" href="#findings">What this visit means<\/a>/);
+  const board = read("app/_components/findings-list.tsx");
+  assert.match(board, /<section className="findings-board" id="findings">\s*<div className="findings-heading">\s*<div>[\s\S]{0,120}<h2>What this visit means<\/h2>/);
+  // After the banner (the sentence and its limits) and before the figure, in the summary.
   const page = reportPageSources(read);
   const summary = page.slice(page.indexOf("function ReportPageSummary("));
   const at = summary.indexOf("\n      {recordLinks}\n");
   assert.ok(at > 0, "the summary no longer renders the record's links");
-  assert.ok(summary.indexOf('className="headline-stats"') < at && at < summary.indexOf("<FindingsList"));
+  assert.ok(summary.lastIndexOf("</section>", at) > summary.indexOf('<section className={`headline-banner'), "the actions are not after the banner");
+  assert.ok(at < summary.indexOf("\n      {figure}\n"), "the actions are not before the figure");
   // One element, in the summary. The summary stays when the explorer opens,
   // so the client holds no second copy to show in its place.
   assert.equal([...page.matchAll(/<ReportRecordLinks /g)].length, 1);
   assert.equal([...page.matchAll(/recordLinks=\{recordLinks\}/g)].length, 1);
+  assert.equal([...summary.matchAll(/\{recordLinks\}/g)].length, 1);
   const client = read("app/reports/[id]/saved-report-client.tsx");
   assert.match(client, /\{context\}\s*(?:\{\/\*[\s\S]*?\*\/\}\s*)?\{summary\}/);
   assert.doesNotMatch(client, /recordLinks|!loaded && summary/);
@@ -570,6 +582,8 @@ test("the record's three links follow the numbers in the source, outside the ide
     if (/\.report-identity\s*$/.test(rule[1].trim())) assert.doesNotMatch(rule[2], /display: contents/);
   }
   assert.doesNotMatch(sheet, /\.report-identity > \*/);
+  // The board lands 16px below the top of the window.
+  assert.match(sheet, /\.da\.da \.findings-board \{[^}]*scroll-margin-top: 16px;/);
 });
 
 test("the requested address breaks between its parts, and has the whole line on a phone", () => {

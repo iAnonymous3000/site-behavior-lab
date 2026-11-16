@@ -7,7 +7,9 @@
  * Color rules that are part of the product:
  *   - No color means good or bad. Prussian marks what stayed on the site,
  *     Tracer marks contact with another site, and that is all color says.
- *   - Tracer is used for third-party contact and for nothing else.
+ *   - Tracer is used for third-party contact and for nothing else. The site's
+ *     mark (site-mark.tsx) draws the figure in small, and its Tracer cells
+ *     are the figure's cross-site sign.
  */
 :root:has(.da) {
   color-scheme: light;
