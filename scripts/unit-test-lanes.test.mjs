@@ -267,12 +267,13 @@ test("the guarded stage fails when one named suite is missing or stops early, th
 test("TEST_TIMEOUT_MS lets two stuck tests fail by name inside CI's budget for the tests job", () => {
   const ci = readFileSync(path.join(root, ".github", "workflows", "ci.yml"), "utf8");
   const testsJob = ci.slice(ci.indexOf("\n  tests:"), ci.indexOf("\n  pages:"));
-  assert.match(testsJob, /\n\s+run: npm run test:unit\n/, "the tests job no longer runs test:unit");
+  assert.match(testsJob, /\n\s+run: npm run test:unit:leg -- \$\{\{ matrix\.leg \}\}\n/, "the tests job no longer runs a leg of test:unit");
   const budget = Number(/\n {4}timeout-minutes: (\d+)\n/.exec(testsJob)?.[1]) * 60_000;
   assert.ok(budget > 0, "the tests job pins no timeout-minutes");
   assert.ok(Number.isInteger(TEST_TIMEOUT_MS) && TEST_TIMEOUT_MS > 0);
   // Two stuck tests in a row must still print node's "test timed out" before
-  // Actions cancels the job, and the job's other work is not free. On
+  // Actions cancels the job, and the job's other work is not free. Each leg
+  // now does a part of that work, so the figure below is an upper bound. On
   // 2026-11-10 that work took about 30 minutes on a CI runner, and the formal
   // verification report step adds about 5. The figure is measured, not
   // derived, so this bound is only as current as the figure.
