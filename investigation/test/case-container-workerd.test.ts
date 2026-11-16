@@ -126,6 +126,13 @@ async function straight(caseId: string, object: Straight): Promise<StraightAnswe
   return answer as unknown as StraightAnswer;
 }
 
+/** A first object held open after its first part, each of `during` sent while it is, then the first let finish. */
+async function inFlight(caseId: string, first: Straight, during: readonly Straight[]): Promise<{ startedReading: number; during: StraightAnswer[]; first: StraightAnswer }> {
+  const { answer } = await world.direct(CASES_BINDING, caseId, { call: "test-objects-in-flight", first, during });
+  answers.push(answer);
+  return answer as unknown as { startedReading: number; during: StraightAnswer[]; first: StraightAnswer };
+}
+
 const recordsOf = async (caseId: string, slot = "B1") => ({
   runner: (await storageOf(caseId)).runner_records?.find((row) => row.slot === slot) ?? null,
   run: (await storageOf(caseId)).runner_runs?.find((row) => row.slot === slot) ?? null
@@ -483,3 +490,21 @@ test("18. the object holds an object to its declared length before its token: pa
   assert.deepEqual(await straight(caseId, whole(caseId, token, 16, 0x65)), { status: 200, answer: { ok: true, digest: sha256(new Uint8Array(16).fill(0x65)) }, pulled: 16 });
 });
 
+test("19. one object at a time: while one is read, another is refused object-in-flight unread after its token is checked, and the hold is freed however the first ends", { timeout: 180_000 }, async () => {
+  const { caseId, token } = await withToken();
+  const forged = "0".repeat(64);
+  const held = await inFlight(caseId, { headers: objectHeaders(caseId, token), declared: 4096, first: 1024, rest: 3072, byte: 0x66 }, [whole(caseId, forged, 64, 0x67), whole(caseId, token, 64, 0x67)]);
+  assert.equal(held.startedReading, 1024);
+  assert.deepEqual(held.during, [
+    { status: 200, answer: { ok: false, refusal: "token-refused" }, pulled: 0 },
+    { status: 200, answer: { ok: false, refusal: "object-in-flight" }, pulled: 0 }
+  ]);
+  assert.deepEqual(held.first, { status: 200, answer: { ok: true, digest: sha256(new Uint8Array(4096).fill(0x66)) }, pulled: 4096 });
+  // Once the first is stored the one refused is taken.
+  assert.deepEqual(await straight(caseId, whole(caseId, token, 64, 0x67)), { status: 200, answer: { ok: true, digest: sha256(new Uint8Array(64).fill(0x67)) }, pulled: 64 });
+  // A first that ends refused, its body shorter than it declares, frees the hold as well.
+  const cut = await inFlight(caseId, { headers: objectHeaders(caseId, token), declared: 4096, first: 1024, rest: 0, byte: 0x68 }, [whole(caseId, token, 64, 0x69)]);
+  assert.deepEqual([cut.during[0].answer, cut.first.status, cut.first.answer], [{ ok: false, refusal: "object-in-flight" }, 400, { ok: false, refusal: "body-length-mismatch" }]);
+  assert.deepEqual(await straight(caseId, whole(caseId, token, 64, 0x69)), { status: 200, answer: { ok: true, digest: sha256(new Uint8Array(64).fill(0x69)) }, pulled: 64 });
+  assert.equal((await storageOf(caseId)).runner_objects.length, 3);
+});

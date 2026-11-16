@@ -447,6 +447,9 @@ export function caseObject(world: HostObjectWorld): CaseHostObject {
    * else and the body no further than that; the token is held to the rule of a row (D-7); the key is
    * the digest worked out here from the bytes, a digest the call gives only compared with it (F-2);
    * and the attempt's objects are counted against their bound before the bytes are stored (F-3).
+   * One object is read and stored at a time: a second sent while one is in flight is refused unread,
+   * after its token is checked and before anything is held for its bytes, so the object's memory for
+   * objects is one buffer of a declared length and its stored copy, never two.
    */
   async function storeObject(request: Request): Promise<Response> {
     const refuse = async (status: number, refusal: string): Promise<Response> => {
@@ -472,19 +475,29 @@ export function caseObject(world: HostObjectWorld): CaseHostObject {
     // An object is evidence a row will name, so the token stores one only while it could write a row.
     const ended = tokenRefusalFor(holder, opened.case.state.machine, attempt, "evidence-recorded");
     if (ended !== null) return refuse(200, ended);
-    const bytes = await readBounded(request, RUNNER_CALL_CAPS["runner-object"], true);
-    if (bytes === "too-large") return jsonResponse(413, { ok: false, refusal: "body-too-large" });
-    if (bytes === "length-required") return jsonResponse(411, { ok: false, refusal: "length-required" });
-    if (bytes === "length-mismatch") return jsonResponse(400, { ok: false, refusal: "body-length-mismatch" });
-    const digest = await sha256Hex(bytes);
-    if (given !== null && given !== digest) return jsonResponse(200, { ok: false, refusal: "digest-mismatch" });
-    const admission = objects.admit(holder.slot, digest, bytes.byteLength);
-    if (admission === "object-bound") return jsonResponse(200, { ok: false, refusal: "object-bound" });
-    const put = await putEvidence(stores, bytes);
-    if (!put.ok) return jsonResponse(200, { ok: false, refusal: put.refusal });
-    objects.count(holder.slot, put.digest, bytes.byteLength);
-    return jsonResponse(200, { ok: true, digest: put.digest });
+    // Checked and taken with no wait between, so two requests cannot both pass; freed however this one ends.
+    if (objectInFlight) return refuse(200, "object-in-flight");
+    objectInFlight = true;
+    try {
+      const bytes = await readBounded(request, RUNNER_CALL_CAPS["runner-object"], true);
+      if (bytes === "too-large") return jsonResponse(413, { ok: false, refusal: "body-too-large" });
+      if (bytes === "length-required") return jsonResponse(411, { ok: false, refusal: "length-required" });
+      if (bytes === "length-mismatch") return jsonResponse(400, { ok: false, refusal: "body-length-mismatch" });
+      const digest = await sha256Hex(bytes);
+      if (given !== null && given !== digest) return jsonResponse(200, { ok: false, refusal: "digest-mismatch" });
+      const admission = objects.admit(holder.slot, digest, bytes.byteLength);
+      if (admission === "object-bound") return jsonResponse(200, { ok: false, refusal: "object-bound" });
+      const put = await putEvidence(stores, bytes);
+      if (!put.ok) return jsonResponse(200, { ok: false, refusal: put.refusal });
+      objects.count(holder.slot, put.digest, bytes.byteLength);
+      return jsonResponse(200, { ok: true, digest: put.digest });
+    } finally {
+      objectInFlight = false;
+    }
   }
+
+  /** Whether an object is being read or stored now. Held in memory only: a restart ends any read in flight with it. */
+  let objectInFlight = false;
 
   /** A runner's call as the handler sends it: its name in a header, its body read no further than that call's cap. */
   async function runnerCallOf(request: Request, callName: string): Promise<Call | "too-large" | null> {

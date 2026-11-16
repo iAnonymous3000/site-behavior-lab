@@ -328,6 +328,23 @@ export class InvestigationCase {
       const response = await this.answer(request);
       return Response.json({ status: response.status, answer: await response.json(), pulled: body.counted.pulled });
     }
+    if (call.call === "test-objects-in-flight") {
+      // A first object whose body is held open after its first part, then each of the others sent while it is, then the first let finish.
+      const { first, during } = call as unknown as { first: StraightObject; during: StraightObject[] };
+      const held = straightObject({ ...first, hold: true });
+      const pending = this.answer(held.request);
+      for (let turns = 0; held.body.counted.pulled === 0 && turns < 1000; turns += 1) await new Promise((resolve) => setTimeout(resolve, 1));
+      const startedReading = held.body.counted.pulled;
+      const answers: unknown[] = [];
+      for (const object of during) {
+        const sent = straightObject(object);
+        const response = await this.answer(sent.request);
+        answers.push({ status: response.status, answer: await response.json(), pulled: sent.body.counted.pulled });
+      }
+      held.body.release();
+      const response = await pending;
+      return Response.json({ startedReading, during: answers, first: { status: response.status, answer: await response.json(), pulled: held.body.counted.pulled } });
+    }
     if (call.call === "test-clear-marks") {
       sql.exec("DELETE FROM due_marks").toArray();
       return Response.json({ ok: true });
