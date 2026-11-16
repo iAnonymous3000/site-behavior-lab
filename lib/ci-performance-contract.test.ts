@@ -161,6 +161,18 @@ test("the release image is built from the exact source image the image-Node legs
   assert.match(sourceJob, /image-id: \$\{\{ steps\.source_image\.outputs\.image_id \}\}\n/);
   assert.match(step(sourceJob, "Preserve the exact source image for this run"), /retention-days: 1\n/);
 
+  // Each image-Node leg loads the archive and runs only after the loaded
+  // image is the one image-source recorded, by digest and by ID.
+  const legs = job("image-tests");
+  const loadStep = step(legs, "Load the exact source image and check its identity");
+  assert.match(loadStep, /test "\$\(tar -xOf "\$tar" index\.json \| jq -r '\.manifests \| length'\)" = "1"/);
+  assert.match(loadStep, /test "\$\(tar -xOf "\$tar" index\.json \| jq -r '\.manifests\[0\]\.digest'\)" = "\$SOURCE_OCI_DIGEST"/);
+  assert.match(loadStep, /test "\$\(docker image inspect --format '\{\{\.Id\}\}' "\$SOURCE_IMAGE_ID"\)" = "\$SOURCE_IMAGE_ID"/);
+  assert.match(loadStep, /SOURCE_IMAGE_ID: \$\{\{ needs\.image-source\.outputs\.image-id \}\}/);
+  assert.ok(legs.indexOf("      - name: Load the exact source image and check its identity\n") < legs.indexOf("      - name: Unit tests on the image's Node\n"));
+  assert.doesNotMatch(legs, /continue-on-error|\n\s+if:/);
+  assert.match(legs, /needs:\n\s+- image-source\n/);
+
   const docker = job("docker");
   assert.match(docker, /needs:\n\s+- image-source\n/);
   assert.match(docker, /\n {4}if: \$\{\{ always\(\) \}\}\n/);
