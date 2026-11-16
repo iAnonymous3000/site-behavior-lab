@@ -509,6 +509,18 @@ test("the README and RELEASE.md say a tagged release builds from source for the 
       `${file} must point at the command that prints the estimate`
     );
   }
+  // The README's short form says the same, and leaves out nothing that makes
+  // the rest of it true.
+  for (const claim of [
+    "A plain image build runs the unit suite",
+    "the `Dockerfile` has no override",
+    "Any Docker build can replace a stage from outside the `Dockerfile`; hosted CI does so in one way only.",
+    "without running the suite a second time",
+    "that build still runs the HSTS test",
+    "the image is attested only if every one of those jobs passed"
+  ]) {
+    assert.ok(inReadme.includes(claim), `README.md must say: ${claim}`);
+  }
   // RELEASE.md says what hosted CI does instead of running the suite in the
   // image build, and that the deployable image still waits for that suite.
   for (const claim of [
