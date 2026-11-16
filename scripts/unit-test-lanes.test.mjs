@@ -926,7 +926,7 @@ test("a test:unit leg runs its steps in order and stops at the first that fails,
   }
 });
 
-test("CI's tests job and image-Node legs each run exactly the planner's legs, each once", () => {
+test("CI's tests job, image-Node legs and attest each hold exactly the planner's legs, each once", () => {
   const ci = readFileSync(path.join(root, ".github", "workflows", "ci.yml"), "utf8");
   const jobText = (name) => {
     const start = ci.indexOf(`\n  ${name}:\n`);
@@ -950,6 +950,12 @@ test("CI's tests job and image-Node legs each run exactly the planner's legs, ea
       assert.ok(!job.includes(restated), `${name} restates ${restated}`);
     }
   }
+  // attest expects one verdict per leg and cannot read the planner, so it
+  // names the legs itself; that list must be the planner's too.
+  const attestLegs = /\n {10}EXPECTED_LEGS: ([^\n]+)\n/.exec(jobText("attest"))?.[1]?.split(" ");
+  assert.ok(attestLegs && attestLegs.length > 0 && attestLegs.every((leg) => leg.length > 0), "attest must name the legs it expects");
+  assert.deepEqual(attestLegs, [...LEGS], "attest's expected legs must equal scripts/unit-test-plan.mjs's LEGS, in order");
+  assert.equal(ci.split("EXPECTED_LEGS:").length - 1, 1);
   // No other job runs a leg, and no matrix leg may become a required job.
   assert.equal(ci.split("npm run test:unit:leg").length - 1, 2);
   const required = JSON.parse(readFileSync(path.join(root, ".github", "required-ci-jobs.json"), "utf8")).jobs;
