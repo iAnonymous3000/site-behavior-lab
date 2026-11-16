@@ -20,6 +20,7 @@ import fileSummaries, {
   serialShardOf
 } from "./unit-test-lanes.mjs";
 import { LANES_COMMAND, LEGS, SERIAL_SHARDS, planLeg, testUnitParts } from "./unit-test-plan.mjs";
+import { HSTS_TEST, checkWithoutUnit } from "./check-without-unit.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const runner = path.join(root, "scripts", "unit-test-lanes.mjs");
@@ -941,4 +942,49 @@ test("CI's tests job runs exactly the planner's legs, each once", () => {
   assert.equal(ci.split("npm run test:unit:leg").length - 1, 1);
   const required = JSON.parse(readFileSync(path.join(root, ".github", "required-ci-jobs.json"), "utf8")).jobs;
   assert.ok(!required.some((name) => name.startsWith("Typecheck and Unit Tests")), "a matrix leg cannot be a required job");
+});
+
+// The Dockerfile's compiled stage, which only hosted CI builds, runs check
+// without test:unit (CI runs that in its legs) and the HSTS test in its place.
+test("check without test:unit runs every other part of check in order, and the HSTS test in test:unit's place", async (t) => {
+  const { parts, compile } = checkWithoutUnit(packageJson.scripts);
+  assert.deepEqual(parts, packageJson.scripts.check.split(" && "));
+  assert.equal(parts.filter((part) => part === "npm run test:unit").length, 1);
+  const unitParts = testUnitParts(packageJson.scripts);
+  assert.ok(compile.length > 0);
+  assert.deepEqual(compile, unitParts.slice(0, unitParts.findIndex((part) => part.startsWith(LANES_COMMAND))));
+  assert.equal(HSTS_TEST, ".unit-test-dist/lib/scan-browser-hsts-preload.test.js");
+  assert.ok(existsSync(path.join(root, "lib", "scan-browser-hsts-preload.test.ts")), "the HSTS test must exist");
+  for (const check of ["npm run typecheck && npm run build", "npm run test:unit && npm run test:unit"]) {
+    assert.throws(() => checkWithoutUnit({ ...packageJson.scripts, check }), /exactly once/, check);
+  }
+
+  const dir = await mkdtemp(path.join(os.tmpdir(), "check-without-unit-"));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const log = path.join(dir, "steps.log");
+  const step = (name) => `node -e "require('node:fs').appendFileSync('${log}', '${name}\\n')"`;
+  await mkdir(path.join(dir, ".unit-test-dist", "lib"), { recursive: true });
+  const scripts = {
+    check: [step("before"), "npm run test:unit", step("after")].join(" && "),
+    "test:unit": [step("compile"), `${LANES_COMMAND}--alongside 'npm run side' x.test.js`, step("unit-tail")].join(" && ")
+  };
+  await writeFile(path.join(dir, "package.json"), JSON.stringify({ private: true, scripts }));
+  const env = Object.fromEntries(Object.entries(process.env).filter(([name]) => name !== "NODE_TEST_CONTEXT"));
+  const run = async (hsts) => {
+    await writeFile(path.join(dir, HSTS_TEST), hsts);
+    await rm(log, { force: true });
+    const result = spawnSync(process.execPath, [path.join(root, "scripts", "check-without-unit.mjs")], { cwd: dir, encoding: "utf8", timeout: FIXTURE_TIMEOUT_MS, env });
+    assert.equal(result.error, undefined);
+    return { status: result.status, output: `${result.stdout}${result.stderr}`, steps: (await readFile(log, "utf8").catch(() => "")).split("\n").filter(Boolean) };
+  };
+  const passing = await run(`require("node:test")("hsts", () => require("node:fs").appendFileSync(${JSON.stringify(log)}, "hsts\\n"));\n`);
+  assert.equal(passing.status, 0, passing.output);
+  assert.deepEqual(passing.steps, ["before", "compile", "hsts", "after"]);
+  const failing = await run(`require("node:test")("hsts", () => { require("node:fs").appendFileSync(${JSON.stringify(log)}, "hsts\\n"); throw new Error("list not applied"); });\n`);
+  assert.notEqual(failing.status, 0, failing.output);
+  assert.deepEqual(failing.steps, ["before", "compile", "hsts"], "nothing after a failed HSTS test may run");
+  // A file with no real test leaves no summary, so the stage refuses it.
+  const empty = await run("// nothing here\n");
+  assert.notEqual(empty.status, 0, empty.output);
+  assert.deepEqual(empty.steps, ["before", "compile"]);
 });

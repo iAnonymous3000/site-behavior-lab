@@ -93,6 +93,7 @@
     "test:featured-taxonomy": "node scripts/guarded-test-stage.mjs featured-taxonomy scripts/run-featured-scans-taxonomy.test.mjs",
     "test:investigation-runner": "node scripts/guarded-test-stage.mjs investigation-runner scripts/investigation-runner-controls.test.mjs scripts/investigation-runner-driver-core.test.mjs",
     "check": "npm run typecheck && npm run cf:typecheck && npm run test:unit && npm run build",
+    "check:without-unit": "node scripts/check-without-unit.mjs",
     "corpus:pagegraph": "tsc -p tsconfig.test.json && node .unit-test-dist/lib/pagegraph-corpus-cli.js",
     "corpus:audit-neutrality": "node scripts/run-schema-cli.mjs corpus-neutrality",
     "corpus:stats": "node scripts/build-corpus-stats.mjs",
