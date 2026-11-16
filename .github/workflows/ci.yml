@@ -1318,6 +1318,9 @@ jobs:
           const files = readdirSync(env.VERDICT_DIR).sort();
           const expected = legs.map((leg) => `image-test-verdict-${leg}.json`).sort();
           if (JSON.stringify(files) !== JSON.stringify(expected)) throw new Error(`Image-Node verdicts are ${files.join(", ") || "none"}, expected ${expected.join(", ")}`);
+          // Unset or malformed, Number() gives NaN, and no attempt is greater
+          // than NaN, so the bound below would hold for any verdict.
+          if (!/^[1-9][0-9]*$/.test(env.GITHUB_RUN_ATTEMPT ?? "")) throw new Error("GITHUB_RUN_ATTEMPT must be a positive integer");
           const attempt = Number(env.GITHUB_RUN_ATTEMPT);
           const verdicts = legs.map((leg) => {
             const verdict = JSON.parse(readFileSync(path.join(env.VERDICT_DIR, `image-test-verdict-${leg}.json`), "utf8"));

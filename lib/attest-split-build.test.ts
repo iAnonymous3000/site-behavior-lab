@@ -39,7 +39,8 @@ type Fixture = {
   receiptImageId?: string;
   verdicts?: Record<string, Record<string, unknown> | null>;
   extraVerdict?: string;
-  attempt?: number;
+  /** null leaves GITHUB_RUN_ATTEMPT unset; a string is passed as written. */
+  attempt?: number | string | null;
 };
 
 function goodRecord(): Record<string, unknown> {
@@ -81,7 +82,7 @@ function run(t: { after(fn: () => void): void }, fixture: Fixture = {}) {
       PATH: process.env.PATH,
       GITHUB_SHA: COMMIT,
       GITHUB_RUN_ID: String(RUN_ID),
-      GITHUB_RUN_ATTEMPT: String(fixture.attempt ?? 1),
+      ...(fixture.attempt === null ? {} : { GITHUB_RUN_ATTEMPT: String(fixture.attempt ?? 1) }),
       EXPECTED_LEGS: legs,
       SPLIT_BUILD_PATH: path.join(dir, "split-build.json"),
       CONTAINER_EVIDENCE_PATH: path.join(dir, "receipt.json"),
@@ -144,6 +145,14 @@ test("attest's split build check refuses a verdict that tested another source im
   const partial = goodVerdict(leg);
   delete partial.exitCode;
   refuses(run(t, { verdicts: { [leg]: partial } }), /does not hold exactly/);
+});
+
+test("attest's split build check refuses a run attempt that is not a positive integer", (t) => {
+  // Number() of any of these is NaN or below 1, so a verdict of any attempt
+  // would pass the attempt bound unless the attempt itself is checked first.
+  for (const attempt of [null, "", "0", "-1", "1.5", "two", " 1"]) {
+    refuses(run(t, { attempt }), /GITHUB_RUN_ATTEMPT must be a positive integer/);
+  }
 });
 
 test("attest's split build check requires exactly one verdict per expected leg", (t) => {
