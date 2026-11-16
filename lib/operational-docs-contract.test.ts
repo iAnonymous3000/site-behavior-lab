@@ -11,17 +11,22 @@ function source(file: string): string {
 }
 
 test("operations docs distinguish the active synthetic from the active required delete canary", () => {
+  // The README's operating-state paragraphs moved into docs/operations.md on
+  // 2026-11-16; the README now points there, so the state is pinned where it
+  // is stated.
   const readme = source("README.md");
+  const operations = source("docs/operations.md");
   const containerRunbook = source("docs/deploy-cloudflare-containers.md");
   const goLive = source("docs/go-live-public-scanner.md");
   const envExample = source(".env.example");
 
-  assert.match(readme, /hourly production synthetic is active/i);
+  assert.match(readme, /\[`docs\/operations\.md`\]\(docs\/operations\.md\) records the rest of the operating/);
+  assert.match(operations, /hourly production synthetic is active/i);
   assert.doesNotMatch(readme, /activation of the hourly scan\/write\/read synthetic/i);
   assert.match(containerRunbook, /Production synthetic \(active\)/);
   assert.match(containerRunbook, /synthetic never[\s\S]*does not replace the separately authenticated delete\s+canary/i);
   assert.match(goLive, /hourly production synthetic is active/i);
-  assert.match(readme, /R2 delete canary is also active and required/i);
+  assert.match(operations, /R2 delete canary is also active and required/i);
   assert.match(
     containerRunbook,
     /reference deployment's R2 delete canary is active and required as of\s+2026-07-29/i
@@ -30,7 +35,7 @@ test("operations docs distinguish the active synthetic from the active required 
   assert.match(goLive, /R2 delete canary is now active and required/i);
   assert.match(envExample, /SITE_BEHAVIOR_LAB_R2_DELETE_CANARY_TOKEN=/);
 
-  for (const document of [readme, containerRunbook, goLive]) {
+  for (const document of [operations, containerRunbook, goLive]) {
     assert.match(document, /WAF[\s-]*(?:ceiling|rate)/i);
     assert.match(
       document,
