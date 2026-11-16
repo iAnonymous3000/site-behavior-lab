@@ -7,7 +7,7 @@
 
 Site Behavior Lab visits a public website in headless Chromium and records its
 requests, cookies, storage keys, browser signals, and consent behavior. Each
-report ties plain-language findings to that evidence and keeps scan
+report ties plain-language findings to that evidence. It keeps the scan
 conditions, missing coverage, and later corrections visible. A report
 describes one measured visit, not a privacy score or a legal verdict.
 
@@ -22,6 +22,59 @@ describes one measured visit, not a privacy score or a legal verdict.
 comparison records August 14 visits and carries a reviewed clarification; it
 does not describe Wikipedia's current behavior.*
 
+## What a report proves, and what it does not
+
+- **One visit, not the site.** A report is what one automated Chromium visit
+  from the configured scanner saw. Sites vary by region, browser, IP
+  reputation, login and consent state, bot detection, and time.
+- **Counts describe the instrumented visit.** Request counts can be lower
+  bounds when capture is incomplete. Cookie and storage snapshots can change
+  either way. None estimates an ordinary browser visit.
+- **Some traffic and storage is not recorded.** Service Workers are blocked by
+  design. A SharedWorker's traffic beyond its entry script and all WebSocket
+  traffic go unrecorded. Storage keys are read from local and session storage
+  in the top frame only; IndexedDB and Cache Storage are not read. The input
+  probe does not scroll to offscreen fields. The service catalog is a curated,
+  US-biased list, not an inventory.
+- **A report's visit never scrolls.** An on-demand check after scrolling,
+  opened from a fresh result, is a separate visit. It shows the third-party
+  hosts its page first contacted after scrolling began, and the GA4 and Adobe
+  Analytics events it saw sent, in its immediate result only, never in a
+  report. It knows those events by their collection paths, so a renamed
+  collection endpoint and Adobe's newer Web SDK go unread. It counts only
+  requests that got an answer. Its list matches are computed while the page
+  loads normally; they are not measured blocks.
+- **A failed or challenged load is not a clean result.** Sites that refuse
+  undisguised automated browsers are reported as refusals, never evaded.
+- **No detector accuracy is published.** No claim-bearing detector has an
+  eligible calibration study yet, so there are no precision or recall
+  figures. Findings are observations to verify.
+- **Investigative evidence, not a verdict.** Findings require independent
+  corroboration. Standalone legal determinations and use as a sole court
+  exhibit are excluded, as recorded in `RELEASE_READINESS.json`.
+- **Attribution is not causation.** The script-to-request map records the
+  initiator Chromium reported. That initiator may itself have been told what
+  to fetch, may be a fetch or XHR wrapper credited with another script's
+  request, and may be a name the script gave itself. A request made by a
+  dedicated worker is recorded, but its initiator is not observed, so a URL a
+  worker requests carries no attribution on any row.
+  A fresh result's request log can open an on-demand inspection visit. It
+  shows the call-stack hosts of its own requests to one address, in its
+  immediate result only, never in a report. A request it shows with no stack
+  is not shown to have been started without a script.
+- **Consent evidence spans the click.** Even a verified reject-all visit
+  records traffic from before and after the choice. So a tracker seen there
+  may be pre-choice, strictly necessary, or claimed under legitimate interest.
+- **Percentiles need a cohort.** Corpus-relative severity applies only when
+  the report's exact measurement cohort and the metric both hold at least 50
+  sites. Otherwise fixed thresholds apply, and the report says so.
+
+The per-detector coverage boundary is on the
+[catalog page](https://sitebehavior.org/catalog/); each entry states
+whether a test enforces it against the scanner source or it rests on review.
+
+## Start here
+
 | Start here | |
 |---|---|
 | **Understand a visit** | Follow findings into the request log, browser signals, and coverage details. Export JSON, an evidence bundle with CSV, or a printable PDF. |
@@ -29,14 +82,14 @@ does not describe Wikipedia's current behavior.*
 | **Run your own instance** | [Local setup](#run-it-locally) · [Self-hosting](#self-host) |
 | **Check or contribute** | [Verify a report](#verify-a-report) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) |
 
-**Version:** `0.6.0` is the current release, tagged
+**Version.** `0.6.0` is the current release, tagged
 [`v0.6.0`](https://github.com/iAnonymous3000/site-behavior-lab/tree/v0.6.0).
-This README describes `main`, which the public instance follows and which is
+This README describes `main`, which the public instance follows. `main` is
 ahead of that tag: the after-scrolling check, the connection inspection, and
 the measurement identity named below are on `main` and not in `v0.6.0`. For
-the tag, read the README at the tag.
-Product versions are independent of the report contracts: v1 is frozen, and
-v2/r1 and v2/r2 are byte-immutable. See the [changelog](CHANGELOG.md) and
+the tag, read the README at the tag. Product versions are independent of the
+report contracts: v1 is frozen, and v2/r1 and v2/r2 are byte-immutable. See
+the [changelog](CHANGELOG.md) and
 [release status](RELEASE.md#current-release-state).
 
 ## What it does
@@ -56,7 +109,7 @@ One scan is one automated visit from one place at one time. The scanner:
 - types a synthetic, non-personal sentinel into up to eight supported fields
   in the viewport and watches whether it leaves the site, in plain, base64,
   hex, or hashed form. Submission is blocked, though focus, input, and blur
-  callbacks can still send requests; unsupported, offscreen, and failed fields
+  callbacks can still send requests. Unsupported, offscreen, and failed fields
   count as omitted coverage, and teardown-only sends are not measured. A visit
   where at least one field accepted the value discloses how many fields were
   typed into; a visit where no field accepted it carries no such statement;
@@ -75,79 +128,18 @@ One scan is one automated visit from one place at one time. The scanner:
   plain visit and a Brave Shields block simulation (Brave's ad-block engine
   over a pinned snapshot of its default lists, not a live Brave browser), or
   accept-all and reject-all consent;
-- can, from a fresh result, check a page after scrolling: one single visit
-  whose own result is built first, after which the page settles, is watched
-  for about 10 seconds with no input and is scrolled by script, up to 8
-  screens. Its immediate result lists the third-party hosts the page first
-  contacted after scrolling began, with call-stack hosts for the hosts it
-  first contacted while scrolling (which requested scripts were on the call
-  stack of their requests), and the GA4 and Adobe Analytics events it saw
-  the page send in each window, those sent to the site's own collection
-  addresses included. It counts only requests that got an answer, and can
-  show, for each host it lists and each analytics destination, whether the
-  requests it counted matched the default filter lists of Brave Shields in
-  that same visit. Nothing from that visit is saved, shared, exported or
-  printed.
+- can, from a fresh result, check a page after scrolling in a separate
+  visit. Nothing from that visit is saved, shared, exported or printed. Its
+  limits are stated above; the [API](#api) section describes its result.
 
 Each report has a page (a plain-language headline over severity-ranked
 findings), its JSON, a request CSV bundled with the source report and its
-correction context, and a printable PDF. The public instance keeps reports for a
-bounded window. A curated corpus of committed reports under `public/reports/`
-drives the directory, per-site history, category pages, and the corpus
-percentiles a report is ranked against. Each publication is appended to a
-transparency log whose head is anchored with OpenTimestamps through a weekly
-proposal that a maintainer merges.
-
-## What a report proves, and what it does not
-
-- **One visit, not the site.** A report is what one automated Chromium visit
-  from the configured scanner saw. Sites vary by region, browser, IP
-  reputation, login and consent state, bot detection, and time.
-- **Counts describe the instrumented visit.** Request counts can be lower
-  bounds when capture is incomplete; cookie and storage snapshots can change
-  either way. None estimates an ordinary browser visit. Service Workers are blocked by design, a SharedWorker's traffic
-  beyond its entry script and all WebSocket traffic go unrecorded, storage keys
-  are read from local and session storage in the top frame only (IndexedDB and
-  Cache Storage are not read), the input probe does not scroll to offscreen
-  fields, and the service catalog is a curated, US-biased list, not an
-  inventory. A report's visit never scrolls; an on-demand check after
-  scrolling, opened from a fresh result, is a separate visit that shows the
-  third-party hosts its page first contacted after scrolling began, and the
-  GA4 and Adobe Analytics events it saw sent, in its immediate result only,
-  never in a report. It knows those events by their collection paths, so a
-  renamed collection endpoint and Adobe's newer Web SDK go unread. It counts
-  only requests that got an answer, and its list matches are computed while
-  the page loads normally, not measured blocks.
-- **A failed or challenged load is not a clean result.** Sites that refuse
-  undisguised automated browsers are reported as refusals, never evaded.
-- **No detector accuracy is published.** No claim-bearing detector has an
-  eligible calibration study yet, so there are no precision or recall
-  figures. Findings are observations to verify.
-- **Investigative evidence, not a verdict.** Findings require independent
-  corroboration; standalone legal determinations and use as a sole court
-  exhibit are excluded, as recorded in `RELEASE_READINESS.json`.
-- **Attribution is not causation.** The script-to-request map records the
-  initiator Chromium reported, which may itself have been told what to fetch,
-  may be a fetch or XHR wrapper credited with another script's request, and
-  may be a name the script gave itself. A request made by a dedicated worker is
-  recorded, but its initiator is not observed, so a URL a worker requests
-  carries no attribution on any row.
-  A fresh result's request log can open an on-demand inspection visit, which
-  shows the call-stack hosts of its own requests to one address in its
-  immediate result only, never in a report; a request it shows with no stack
-  is not shown to have been started without a script. A check after
-  scrolling can show call-stack hosts the same way for the hosts it first
-  contacted while scrolling, in its immediate result only.
-- **Consent evidence spans the click.** Even a verified reject-all visit
-  records traffic from before and after the choice, so a tracker seen there
-  may be pre-choice, strictly necessary, or claimed under legitimate interest.
-- **Percentiles need a cohort.** Corpus-relative severity applies only when
-  the report's exact measurement cohort and the metric both hold at least 50
-  sites; otherwise fixed thresholds apply and the report says so.
-
-The per-detector coverage boundary is on the
-[catalog page](https://sitebehavior.org/catalog/); each entry states
-whether a test enforces it against the scanner source or it rests on review.
+correction context, and a printable PDF. The public instance keeps reports
+for a bounded window. A curated corpus of committed reports under
+`public/reports/` drives the directory, per-site history, category pages, and
+the corpus percentiles a report is ranked against. Each publication is
+appended to a transparency log. The log's head is anchored with
+OpenTimestamps through a weekly proposal that a maintainer merges.
 
 ## Limits you should know before depending on it
 
@@ -169,7 +161,7 @@ Hard bounds in the Node scanner (`lib/scanner.ts`, `lib/scan-runtime.ts`,
 | Public instance, per client (edge quota) | 6 scan tokens per minute, 120 per day; a comparison or an after-scrolling check costs two |
 
 "Per client" in the Node scanner means one bucket shared by every caller
-unless `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1`: without that setting the
+unless `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1`. Without that setting, the
 20 scan tokens, 120 reads, and 10 renders a minute are totals for all callers
 together.
 
@@ -181,22 +173,22 @@ be re-run.
 **Road to 1.0.** The [investigative-v1 qualification contract](docs/v1-release-qualification.md)
 requires a release candidate bound to its source, with signed build and
 formal verification evidence, plus release-authority evidence.
-`npm run release:readiness` evaluates it; a green build or healthy deployment
+`npm run release:readiness` evaluates it. A green build or healthy deployment
 is not qualification. No person has reviewed scan outcomes against
 independent references, and 1.0 does not require it. There is no stable
 public API and no npm package.
 
 **Retention.** The public instance keeps saved reports for seven days or 500
-reports, whichever prunes first; operators may allow up to 936 reports, never
-more than seven days. The committed corpus under `public/reports/` is the currently retained research corpus, with its own rules, and
-reports cited by the corrections ledger are retention-pinned. Published reports
-are never rewritten in place; corrections go through the append-only
-`docs/corrections-ledger.md`, and a cited report is removed only when a privacy
+reports, whichever prunes first. Operators may allow up to 936 reports, never
+more than seven days. The committed corpus under `public/reports/` is the
+currently retained research corpus, with its own rules, and reports cited by the corrections ledger are retention-pinned. Published reports are never
+rewritten in place. Corrections go through the append-only
+`docs/corrections-ledger.md`. A cited report is removed only when a privacy
 replacement publishes a redacted copy under a new report ID.
 
 **Network boundary.** The scanner refuses loopback, private, link-local,
-carrier-grade NAT, multicast, and reserved addresses in both IP families,
-allows standard ports only, and re-checks every address at connect time. On
+carrier-grade NAT, multicast, and reserved addresses in both IP families. It
+allows standard ports only and re-checks every address at connect time. On
 the reference deployment that proxy is the only egress control. No
 platform-level backstop exists and no release gate asks for one (see
 `SECURITY.md`).
@@ -205,64 +197,86 @@ platform-level backstop exists and no release gate asks for one (see
 query values, and screenshots never enter a saved report. Query keys outside a
 reviewed allow-list, path segments, subdomain labels, cookie names, storage
 keys, and a hosting tenant name under a shared provider suffix (such as
-`akamaihd.net`) shaped like an address, timestamp, or token are generalized. Policy quotes are a documented exception, capped in length, with
-emails, handles, URLs, `www.` hosts, hosts with a path, and phone-shaped
-numbers replaced by `[redacted]`; such a quote is marked incomplete and never
-checked. The public-string policy in each r2 report's normalization identity
-names these rules (currently `public-string-policy-v4`). A saved r2 report
-holding a string a later rule removes is no longer served, and a committed
-report is replaced for privacy; git history and earlier release archives keep the
-original bytes.
+`akamaihd.net`) shaped like an address, timestamp, or token are generalized.
+Policy quotes are a documented exception, capped in length. In a quote, emails, handles, URLs, `www.` hosts, hosts with a path,
+and phone-shaped numbers are replaced by `[redacted]`; such a quote is marked
+incomplete and never checked. The public-string policy in each r2 report's
+normalization identity names these rules (currently
+`public-string-policy-v4`). A saved r2 report holding a string a later rule
+removes is no longer served, and a committed report is replaced for privacy.
+Git history and earlier release archives keep the original bytes.
 
 ## Run it locally
 
-Use Node.js 24.14.1 with npm 11.11.0 (`.nvmrc`, `package.json`, and CI pin the
-same versions).
+1. Use Node.js 24.14.1 and npm 11.11.0. `.nvmrc`, `package.json`, and CI pin
+   these versions.
+2. Install the dependencies:
 
-```bash
-npm ci
-npx playwright install chromium
-npm run dev
-```
+   ```bash
+   npm ci
+   ```
 
-Open `http://127.0.0.1:3000`. Development needs no environment variables. A
-local scan uses the production scanner, proxy, and limits, and by default
-produces the legacy v1 report format; the public r2 format is a fail-closed
-opt-in (below).
+3. Install the browser:
 
-Anything that runs `next build` needs the public origin and refuses to guess
-one:
+   ```bash
+   npx playwright install chromium
+   ```
+
+4. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+5. Open `http://127.0.0.1:3000`. Development needs no environment variables.
+
+A local scan uses the production scanner, proxy, and limits. By default it
+produces the legacy v1 report format. The public r2 format is a fail-closed
+opt-in (see `SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS` in `docs/configuration.md`).
+
+To run anything that runs `next build`, set the public origin. The build
+refuses to guess one:
 
 ```bash
 NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://example.org npm run check
 ```
 
-`npm run check` runs the TypeScript and Cloudflare type checks, the unit suite,
-and the production build. `npm run test:unit` recreates `.unit-test-dist/` on
-every run, so never run two at once in one checkout. The static export and its
-smoke test are `npm run build:pages` then `npm run test:smoke:static`.
+- `npm run check` runs the TypeScript and Cloudflare type checks, the unit
+  suite, and the production build.
+- `npm run test:unit` recreates `.unit-test-dist/` on every run. Do not run
+  two at once in one checkout.
+- To build the static export and run its smoke test, run
+  `npm run build:pages`, then `npm run test:smoke:static`.
 
 ## Self-host
 
 The supported scanner is the Node/Playwright container built from the
-`Dockerfile`; the legacy Browser Run worker was deleted rather than gated
+`Dockerfile`. The legacy Browser Run worker was deleted rather than gated,
 because its DNS preflight could not pin the browser's eventual connection.
 
-```bash
-docker build \
-  --build-arg SITE_BEHAVIOR_LAB_BUILD_COMMIT="$(git rev-parse HEAD)" \
-  --build-arg NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://scan.example.org \
-  --build-arg NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN=https://example.org \
-  -t site-behavior-lab .
-```
+1. Build the image:
 
-These build arguments are baked into the client bundle: the exact commit the
-container reports in `/api/health`, the scanner's origin, and the origin of its
-static site. Leave the last two out and the image keeps this project's own
-origins, which the `Dockerfile` defaults them to. The container runs as a
-non-root user, launches Chromium with an explicit environment allow-list, and
-removes npm, npx, Corepack and Yarn from the runtime image. The system's apt
-and dpkg remain; they need root, which the container's user does not have.
+   ```bash
+   docker build \
+     --build-arg SITE_BEHAVIOR_LAB_BUILD_COMMIT="$(git rev-parse HEAD)" \
+     --build-arg NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://scan.example.org \
+     --build-arg NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN=https://example.org \
+     -t site-behavior-lab .
+   ```
+
+2. Set the access token (see the table below).
+3. Read the runbook for your platform (listed after the table).
+
+The build arguments are baked into the client bundle: the exact commit the
+container reports in `/api/health`, the scanner's origin, and the origin of
+its static site. If you leave out the last two, the image keeps this
+project's own origins, which the `Dockerfile` defaults them to. The image
+also defaults the public Turnstile site key
+(`NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY`) to this project's own
+key. On another domain, set your own. The container runs as a non-root user
+and launches Chromium with an explicit environment allow-list. It removes
+npm, npx, Corepack and Yarn from the runtime image. The system's apt and dpkg
+remain; they need root, which the container's user does not have.
 
 Build a tagged release from source only during the life of its browser. The
 image build runs the unit suite, and one test in it
@@ -276,116 +290,114 @@ tag claims") states the rule.
 | Variable | Default | What it decides |
 |---|---|---|
 | `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | unset | When set, `/api/scan` requires it as `Authorization: Bearer`, `x-site-behavior-lab-access-token`, or the legacy `x-sbl-scan-token`. Leave it unset only for trusted local use or a deliberately open deployment with other abuse controls. Unset, with the default allowed origin below, any web page open in a browser that can reach the scanner can start scans from the scanner's address and read their results (see `SECURITY.md`). |
-| `SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS` | unset | `1` returns and persists the public ScanReport v2/r2 format. It needs `SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION=1`, a full 40-character `SITE_BEHAVIOR_LAB_BUILD_COMMIT`, and a report store, and refuses scans rather than fall back to v1. Unset, the scanner emits v1. |
-| `SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION` | unset | `1` reads back the registered consent state after a banner click (TCF and OneTrust) and attempts one disclosed post-choice reload. Required by r2. |
-| `SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND` | `filesystem` | `filesystem` needs a persistent volume. `r2` needs `SITE_BEHAVIOR_LAB_R2_BUCKET`, `_ENDPOINT`, `_ACCESS_KEY_ID`, and `_SECRET_ACCESS_KEY`, and suits a public or multi-node deployment. |
-| `SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS` / `_MAX_COUNT` | `7` / `500` | Retention for saved shares (see Retention). |
-| `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS` | unset | `1` only behind a proxy that appends the caller's address to `X-Forwarded-For` and blocks direct origin access. Rate limits then key on the rightmost `X-Forwarded-For` entry and ignore `X-Real-IP`. Unset, every caller shares one rate-limit bucket. |
-| `SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN` | `*` | CORS allow-list for the `/api` routes: `*` or one origin. Pinning it to your own UI origin stops other pages from reading results; it does not replace an access token. |
-| `SITE_BEHAVIOR_LAB_ASYNC_SCANS` | unset | `1` makes `/api/scan` answer `202` with a job to poll at `/api/scans/:id`; single process, in memory. |
-| `SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX` | unset | `1` enables Chromium's sandbox, as production does; needs unprivileged user namespaces on the host. |
-| `SITE_BEHAVIOR_LAB_SCANNER_EGRESS` / `_EGRESS_REGION` | `this scanner instance` / unset | The egress label and region recorded in reports. Declare a region only when it is true; without one, r2 comparison deltas are refused. |
 
-The reference for every variable the application code reads, including the
-Cloudflare-only quota, Turnstile, durable-job, sharding, and watch settings,
-is `docs/configuration.md`, with `.env.example` as a starting point. It does
-not list the variables only the scripts and workflows read. Runbooks:
-`docs/deploy-cloudflare-containers.md` (Cloudflare Containers),
-`docs/deploy-node-container.md` (a generic single node), and
-`docs/deployment-topology.md` (the topology decision).
+`docs/configuration.md` is the reference for every variable the application
+code reads. It covers the public r2 format and its consent verification, the
+report store and retention, proxy trust, the allowed origin, and async scans.
+It also covers the Chromium sandbox, the egress label and region, and the
+Cloudflare-only quota, Turnstile, durable-job, sharding, and watch settings. `.env.example` is a starting point. The
+reference does not list the variables only the scripts and workflows read.
+Runbooks:
+
+- `docs/deploy-cloudflare-containers.md`: Cloudflare Containers.
+- `docs/deploy-node-container.md`: a generic single node.
+- `docs/deployment-topology.md`: the topology decision.
 
 ## The public deployment
 
 [sitebehavior.org](https://sitebehavior.org) is a static Cloudflare Pages
 export of this repository. [scan.sitebehavior.org](https://scan.sitebehavior.org)
-runs the container scanner on Cloudflare Containers behind a front Worker that
-enforces Turnstile and an atomic per-client quota, stores reports in R2, and
-emits public r2. Both track the `production` branch, which CI fast-forwards to
+runs the container scanner on Cloudflare Containers behind a front Worker
+that enforces Turnstile and an atomic per-client quota, stores reports in R2,
+and emits public r2. Both track the `production` branch, which CI fast-forwards to
 the exact SHA it tested only after five gates pass: supply-chain security,
 typecheck and unit tests and build, Chromium smoke, Docker runtime and public
 R2 smoke, and exact-SHA evidence attestation. The production workflows deploy
-the artifacts main CI built after verifying their exact-source attestations,
-and each surface publishes the revision it serves at
+the artifacts main CI built after verifying their exact-source attestations.
+Each surface publishes the revision it serves at
 [`/api/health`](https://scan.sitebehavior.org/api/health) and
 [`/deployment.json`](https://sitebehavior.org/deployment.json).
-Scanner non-production builds are disabled.
-Pages automatic preview deployments are disabled, and existing preview deployments remain Access-protected.
 
-Production health checks are scheduled four times an hour. The hourly production synthetic is active (a neutral scan, a public r2 result, a persisted
-read-back, and a rendered report page), and the separate authenticated R2 delete canary is also active and required.
-The WAF ceiling rests on a point-in-time operator receipt recorded in the
-runbook, not committed evidence. Release 1.0 does not read it back: the
-`waf-ceilings` release gate was removed on 2026-11-11. Release 1.0 does not verify an independent egress backstop and
-does not re-verify log retention: the application's own egress guard and the
-configured log-retention window are what exist. Neither is a 1.0 release
-gate: both gates were removed on 2026-11-11 because neither could pass as
-written (see
-[`docs/v1-release-qualification.md`](docs/v1-release-qualification.md)).
-
-No scheduled workflow pushes to `main`. Featured-site rescans are scheduled
-weekly in two legs (the gallery and the de-bias seed catalogs), each opening a
-pull request a human must merge. That workflow is disabled as of 2026-11-14, so
-the committed corpus is not being refreshed, and the
-[status page](https://sitebehavior.org/status/) dates its newest evidence. The
-weekly transparency-log anchor extends one standing anchor proposal a human
-must merge; Dependabot proposals get their derived manifests regenerated and
-still need a human.
-
-The weekly Brave Shields list refresh fetches and validates the lists, then
-force-updates the proposal branch `automation/brave-list-refresh` and its pull
-request. When upstream rules have moved, the snapshot is a new measurement
-identity only a human can declare, by freezing the outgoing identity as a
-closed producer row and adopting the `NODE_R2_CURRENT_ADBLOCK_IDENTITY`
-literal that `npm run lists:adoption` prints; until then the proposal stays
-open. Setting the `SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE` repository variable to
-`1` quiesces the refresh. A separate job in the same workflow compares the
-pinned adblock crate, Playwright, tldts, bundled Chromium, and the pdf.js and
-undici versions the privacy-policy detector reads policy PDFs with against
-their upstream stable releases and keeps the measurement-toolchain drift issue
-open while an actionable upgrade is available.
+No scheduled workflow pushes to `main`.
+[`docs/operations.md`](docs/operations.md) records the rest of the operating
+state: preview and non-production builds, the production health checks, the
+synthetic and the R2 delete canary, the WAF receipt, the release gates
+removed on 2026-11-11, the scheduled workflows, and the Brave list refresh.
 
 ## API
 
-`POST /api/scan` takes a JSON body of `url`, `device` (`desktop` or `mobile`),
-`gpcEnabled`, and at most one of `compareGpc`, `compareShields`,
-`compareConsent`. A single scan may also name `inspect`, a request row's
-published address without its query; its immediate result then carries what
-that visit recorded about the call stacks of its requests to the address in
-`ephemeral.inspection`, which is never saved. A single scan may instead name
-`check: "scroll"`, the after-scrolling check, which costs two rate-limit
-tokens as a comparison does; its immediate result carries the check's
-evidence in `ephemeral.scrollCheck`, call-stack hosts for the hosts it first
-contacted while scrolling, the GA4 and Adobe Analytics events it saw sent,
-its count of requests that got no answer and its same-visit list matches
-included, and nothing from that visit is saved, so it has no share. A synchronous deployment answers with the report; an async
-one answers `202` with `jobId` and `statusPath`, and `DELETE /api/scans/:id`
-cancels cooperatively until publication begins. Refusals are `400` for an
-invalid or non-public target, `401` for a missing token, `413` for an oversize
-body, `429` for the per-client limit, and `503` when the scanner is busy (or
-already running an after-scrolling check), a producer is misconfigured or
-cannot carry what was asked for, or public-host verification could not
-complete. A visit that started and failed answers `422` when the address is
-a file to download, `502` when the page could not be loaded, `504` when it
-ran out of time, and `503` when the page's browser process crashed; none of
-these makes a report.
-`GET /api/reports/:id` returns the stored wire byte for byte, and
-`GET /api/reports/:id/pdf` renders it. `GET /api/health` reports readiness,
-the build commit, and the effective state of every producer flag.
+Send a scan:
+
+- `POST /api/scan` with a JSON body of `url`, `device` (`desktop` or
+  `mobile`), `gpcEnabled`, and at most one of `compareGpc`,
+  `compareShields`, `compareConsent`.
+- To inspect one connection, add `inspect` to a single scan. Give a request
+  row's published address without its query. The immediate result carries
+  what that visit recorded about the call stacks of its requests to the
+  address, in `ephemeral.inspection`, which is never saved.
+- To check the page after scrolling, add `check: "scroll"` to a single scan
+  instead. It costs two rate-limit tokens, as a comparison does. The
+  immediate result carries the check's evidence in `ephemeral.scrollCheck`.
+  The evidence includes:
+  - call-stack hosts for the hosts it first contacted while scrolling;
+  - the GA4 and Adobe Analytics events it saw sent;
+  - its count of requests that got no answer;
+  - its same-visit list matches.
+
+  Nothing from that visit is saved, so it has no share.
+
+Read the answer:
+
+- A synchronous deployment answers with the report.
+- An async deployment answers `202` with `jobId` and `statusPath`.
+  `DELETE /api/scans/:id` cancels cooperatively until publication begins.
+
+Refusals:
+
+| Status | Cause |
+|---|---|
+| `400` | An invalid or non-public target. |
+| `401` | A missing token. |
+| `413` | An oversize body. |
+| `429` | The per-client limit. |
+| `503` | The scanner is busy (or already running an after-scrolling check), a producer is misconfigured or cannot carry what was asked for, or public-host verification could not complete. |
+
+Failures, after a scan started (none of these makes a report):
+
+| Status | Cause |
+|---|---|
+| `422` | The address is a file to download. |
+| `502` | The page could not be loaded. |
+| `504` | The visit ran out of time. |
+| `503` | The page's browser process crashed, the browser runtime could not start in time, or the scanner's own browser setup took the time, so the page did not get its full navigation window. |
+
+Other routes:
+
+- `GET /api/reports/:id` returns the stored wire byte for byte.
+- `GET /api/reports/:id/pdf` renders it.
+- `GET /api/health` reports readiness, the build commit, and the effective
+  state of every producer flag.
 
 ## Verify a report
 
-```bash
-npm run verify:report -- <report-id>
-```
+1. Run the verifier with the report ID:
 
-That downloads the report, its provenance sidecar and the report index from
-sitebehavior.org and replays the digest chain from those bytes to the
-transparency log in your clone. Add `--from <dir>` to check bytes you saved yourself instead; with
-`--from` nothing is downloaded. Anchors cover a prefix of the log: entries published since the most recently anchored head
-carry no anchor in the published log until an anchor proposal for a later head
-is merged. Read `docs/verify-a-report.md` and `docs/evidence-custody.md` before
-relying on a report; a printed copy is a rendering whose footer carries the
-wire digest, not the evidence.
+   ```bash
+   npm run verify:report -- <report-id>
+   ```
+
+   It downloads the report, its provenance sidecar and the report index from
+   sitebehavior.org. Then it replays the digest chain from those bytes to the
+   transparency log in your clone.
+2. To check bytes you saved yourself, add `--from <dir>`. With `--from`,
+   nothing is downloaded.
+3. Read `docs/verify-a-report.md` and `docs/evidence-custody.md` before you
+   rely on a report.
+
+Anchors cover a prefix of the log. Entries published since the most recently
+anchored head carry no anchor in the published log until an anchor proposal
+for a later head is merged. A printed copy is a rendering whose footer
+carries the wire digest, not the evidence.
 
 ## Measurement identity
 
@@ -397,24 +409,27 @@ consent, resource-budget, proxy-traffic, service-worker-block,
 detector-accountability, service-role-taxonomy, GPC worker-application,
 active-probe, auxiliary-context-block, and worker-fingerprint components,
 recorded verbatim in `provenance.methodologyVersion`. Each detector's version
-and the detector registry are recorded too. The Shields simulation uses the `adblock`
-Rust crate compiled to WASM from `tools/adblock-wasm/` over a pinned snapshot
-of Brave's default lists whose manifest digest is part of the identity; the
-curated service catalog is `lib/tracker-catalog.ts`, versioned by digest.
-Corpus statistics keep a separate cohort for every exact combination of
-schema, methodology, catalog, taxonomy, metric contract, producer, and
-requested GPC state, so a value is never compared across instruments. Changing
-any of these is a measurement identity change and follows `RELEASE.md`, not a
-routine edit.
+and the detector registry are recorded too. The Shields simulation uses the
+`adblock` Rust crate compiled to WASM from `tools/adblock-wasm/`, over a
+pinned snapshot of Brave's default lists whose manifest digest is part of the
+identity. The curated service catalog is `lib/tracker-catalog.ts`, versioned
+by digest. Corpus statistics keep a separate cohort for every exact
+combination of schema, methodology, catalog, taxonomy, metric contract,
+producer, and requested GPC state, so a value is never compared across
+instruments. Changing any of these is a measurement identity change and
+follows `RELEASE.md`, not a routine edit.
 
 ## Where the details live
 
+- `docs/capabilities.md`: the long-form capability list.
 - `docs/runtime-boundaries.md`, `docs/scan-job-model.md`: what runs where,
   and the job lifecycle.
 - `docs/scan-report-v2-rfc.md`, `docs/compatibility-promise.md`: the report
   contract and what may change in a committed report.
 - `docs/limitations.md`: acceptable use, data attribution, and each
   measurement's limits in detail.
+- `docs/operations.md`: what is deployed and how it is promoted, and the
+  point-in-time operational receipts.
 - `docs/research-evidence-model.md`, `docs/calibration-study-operations.md`,
   `docs/calibration-findings.md`: the evidence model and the calibration
   program that gates published detector accuracy.
@@ -430,15 +445,15 @@ routine edit.
 - `docs/pagegraph-adapter.md`, `docs/native-shields-differential.md`:
   research-only importers and comparisons that never write public reports.
 - `docs/audit-2026-10-17.md`: the most recent audit, with what changed, how
-  it was verified, and what stays open; `docs/comprehensive-review-2026-09-22.md`
+  it was verified, and what stays open. `docs/comprehensive-review-2026-09-22.md`
   and `docs/critical-use-audit-2026-09-01.md` came before it.
 
 ## Contributing, security, license
 
-Read `CONTRIBUTING.md` before opening a change; the rule that matters most is
+Read `CONTRIBUTING.md` before you open a change. The rule that matters most is
 that a published claim never outruns the recorded evidence. Report
 vulnerabilities through the private advisory channel described in
 `SECURITY.md`, never in a public issue. The scanner is for inspecting publicly
 reachable websites where that is allowed, not for attacking or probing systems
-you do not own. The code is licensed under AGPL-3.0-or-later (`LICENSE`); the
+you do not own. The code is licensed under AGPL-3.0-or-later (`LICENSE`). The
 curated catalog ships with it and bundles no third-party dataset.

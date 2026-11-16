@@ -308,3 +308,29 @@ measured: blocked/failed visits remain missing coverage. Automation prepares
 validated proposals; reviewed publication and deployment are still required
 before their evidence reaches the public status page. Installed toolchain
 versions are disclosed separately from upstream upgrade availability.
+
+## Scheduled workflows
+
+No scheduled workflow pushes to `main`. Featured-site rescans are scheduled
+weekly in two legs (the gallery and the de-bias seed catalogs), each opening
+a pull request a human must merge. That workflow is disabled as of
+2026-11-14, so the committed corpus is not being refreshed, and the
+[status page](https://sitebehavior.org/status/) dates its newest evidence.
+The weekly transparency-log anchor extends one standing anchor proposal a
+human must merge. Dependabot proposals get their derived manifests
+regenerated and still need a human.
+
+## Brave list refresh
+
+The weekly Brave Shields list refresh fetches and validates the lists, then
+force-updates the proposal branch `automation/brave-list-refresh` and its pull
+request. When upstream rules have moved, the snapshot is a new measurement
+identity only a human can declare. The human freezes the outgoing identity as
+a closed producer row and adopts the `NODE_R2_CURRENT_ADBLOCK_IDENTITY`
+literal that `npm run lists:adoption` prints; until then the proposal stays
+open. Setting the `SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE` repository variable
+to `1` quiesces the refresh. A separate job in the same workflow compares
+the pinned adblock crate, Playwright, tldts, bundled Chromium, and the pdf.js
+and undici versions the privacy-policy detector reads policy PDFs with
+against their upstream stable releases. It keeps the measurement-toolchain
+drift issue open while an actionable upgrade is available.
