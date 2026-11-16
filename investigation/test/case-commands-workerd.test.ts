@@ -105,7 +105,7 @@ test("the owner freezes a plan, records an exception, starts, deadlines, answers
   assert.ok(!closed.body.includes("Cancel the case") && !closed.body.includes("Start attempt"));
 });
 
-test("reconcile reads a running attempt as failed with its cleanup unconfirmed, the owner settles it, and the case's deadline closes the case", { timeout: 120_000 }, async () => {
+test("reconcile reads a running attempt as failed with its cleanup unconfirmed, the owner cannot record a destroyed environment the object never destroyed, and the case's deadline closes the case", { timeout: 120_000 }, async () => {
   const caseId = await world.create();
   await written(caseId, "/plan/freeze", [["plan", "a second plan"]]);
   await written(caseId, "/exception", [["slot", "B1"], ["reason", "No control run exists yet."]]);
@@ -113,8 +113,9 @@ test("reconcile reads a running attempt as failed with its cleanup unconfirmed, 
   const reconciled = await written(caseId, "/reconcile");
   assert.deepEqual(phases(reconciled), ["B1:failed:unconfirmed", "I1:planned:none"]);
   await refused(caseId, "/attempts/I1/start", "cleanup-unresolved");
-  const destroyed = await written(caseId, "/attempts/B1/cleanup", [["cleanup", "environment-destroyed"]]);
-  assert.deepEqual(phases(destroyed), ["B1:failed:environment_destroyed", "I1:planned:none"]);
+  // No container was started for B1 here, so it has no destroy record, and the owner cannot record its environment as destroyed (D-5).
+  await refused(caseId, "/attempts/B1/cleanup", "environment-not-destroyed", [["cleanup", "environment-destroyed"]]);
+  assert.deepEqual(phases(await viewOf(caseId)), ["B1:failed:unconfirmed", "I1:planned:none"]);
   const notMet = await written(caseId, "/baseline-rule", [["result", "not_met"]]);
   assert.equal(notMet.state?.machine.closedBy, "baseline_not_met");
 
