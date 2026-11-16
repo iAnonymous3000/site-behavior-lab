@@ -93,6 +93,18 @@ test("what the handler sends on is built from the props: a call naming another c
   assert.equal(cases.sent.length, before);
 });
 
+test("each call is held to its own cap: a token request past 1 KiB and an event past an entry's bound are refused unread past the cap, and reach no case", async () => {
+  const cases = recordingCases();
+  const tokenRequest = JSON.stringify({ call: "runner-token", caseId: CASE, attemptId: ATTEMPT });
+  assert.equal((await runnerHandler(body(tokenRequest + " ".repeat(1024)), cases.env, PROPS)).status, 413);
+  const write = JSON.stringify({ call: "runner", caseId: CASE, token: "b".repeat(64), viewedHead: "h".repeat(300 * 1024), event: { type: "capture-began", data: { slot: "B1" } } });
+  assert.equal((await runnerHandler(body(write), cases.env, PROPS)).status, 413);
+  assert.deepEqual(cases.sent, []);
+  // The same token request within its cap is sent on.
+  assert.equal((await runnerHandler(body(tokenRequest), cases.env, PROPS)).status, 200);
+  assert.equal(cases.sent.length, 1);
+});
+
 test("the handler keeps nothing between requests: no binding at its top level is reassigned or holds a collection", () => {
   const source = read("investigation/core/runner-handler.ts");
   const file = ts.createSourceFile("runner-handler.ts", source, ts.ScriptTarget.Latest);

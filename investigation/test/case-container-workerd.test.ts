@@ -366,6 +366,9 @@ test("12. an object: bounded by its declared length before it is read, stored on
   // A runner call to the object without the header the handler sends is refused, so none is read unbounded.
   const head = (await opened(caseId)).head;
   assert.deepEqual(await world.directRaw(CASES_BINDING, caseId, { headers: { "content-type": "application/json" }, body: JSON.stringify({ call: "runner", caseId, token, viewedHead: head, event: { type: "capture-began", data: { slot: "B1" } } }) }), { status: 400, answer: { ok: false, refusal: "malformed-call" } });
+  // A runner's call to the object is held to its own cap there too: a token request past 1 KiB is refused.
+  const padded = JSON.stringify({ call: "runner-token", caseId, attemptId: (await attemptOf(caseId, "B1")).attemptId }) + " ".repeat(1024);
+  assert.deepEqual(await world.directRaw(CASES_BINDING, caseId, { headers: { "content-type": "application/json", [RUNNER_CALL_HEADER]: "runner-token" }, body: padded }), { status: 413, answer: { ok: false, refusal: "body-too-large" } });
   // After the outcome an object is refused as a row is.
   await b1Finished(caseId, token);
   assert.deepEqual((await storeObject(caseId, token, { length: 10, byte: 0x64 })).answer, { ok: false, refusal: "attempt-ended" });
