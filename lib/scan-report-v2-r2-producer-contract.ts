@@ -678,8 +678,8 @@ export const HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY = Object.freeze({
 export const NODE_R2_CURRENT_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
   lists: 31,
-  fetchedAt: "2026-10-19T13:08:56.937Z",
-  manifestDigest: "25bef053aac3c343e99c5ae44836c6ce0550669a75cd7568bc95fda8a3d6f624",
+  fetchedAt: "2026-11-16T15:57:59.448Z",
+  manifestDigest: "b7bf174ee3b17c822dc7f6162cd9fbef6c0055dc702e067d2c2102bff1c475fd",
   engineVersion: NODE_ADBLOCK_ENGINE_VERSION
 } satisfies NonNullable<Toolchain["adblock"]>);
 
@@ -786,9 +786,10 @@ export const HISTORICAL_R2_LISTS_2026_10_19_ADBLOCK_0_13_3_IDENTITY = Object.fre
 /**
  * Frozen copy of the October 19 list snapshot under adblock-rust 0.13.5, as
  * the 2026-12 toolchain producer's list row, the v31 list row, published it
- * until node-detectors-v25 closed it, and as the v32 list row published it
- * until node-detectors-v26 closed that. The live constant follows each adoption
- * and each engine move; this closed copy never does.
+ * until node-detectors-v25 closed it, as the v32 list row published it until
+ * node-detectors-v26 closed that, and as the v33 list row published it until
+ * the November 16 list adoption closed that one. The live constant follows
+ * each adoption and each engine move; this closed copy never does.
  */
 export const HISTORICAL_R2_LISTS_2026_10_19_ADBLOCK_0_13_5_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
@@ -2025,6 +2026,58 @@ const HISTORICAL_NODE_V25_FIELDS: NodeTupleFields = Object.freeze({
   phaseOmissionContractVersion: "phase-omission-v2",
 });
 
+// Exact node-detectors-v26 producer fields (fingerprint-observer@15), frozen
+// when the November 16 list adoption closed the v33 list row: v25's fields
+// with the registry and the fingerprint observer that v26 moved. The no-list
+// v33 row still follows the live fields, since a list-only adoption does not
+// mint a new one.
+const HISTORICAL_NODE_V26_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: Object.freeze({
+    "version": "node-detectors-v26",
+    "digest": "43a70dc072ba80e54029b52bea3bfed49c232d9ae9b753c5d6649eee833c97c1"
+  } as const),
+  detectorVersions: Object.freeze({
+    "fingerprint-heuristics": "fingerprint-observer@15",
+    "keystroke-exfiltration": "synthetic-sentinel@6",
+    "cname-uncloaking": "dns-cname-chain@6",
+    "pixel-events": "pixel-request-decoder@6",
+    "consent-banner": "consent-control-and-state@5",
+    "privacy-policy": "policy-text-cross-check@13"
+  } as const),
+  detectorStatusContractVersion: "detector-status-v2",
+  detectorObligations: Object.freeze({
+    "version": "detector-obligations-v3",
+    "digest": "f023d19e5cce23873ecd61af6d5f957002db137c8d81883f11965ab1afa518b2"
+  } as const),
+  serviceRoleTaxonomy: Object.freeze({
+    "version": "service-role-taxonomy-v1",
+    "digest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67"
+  } as const),
+  trackerCatalog: Object.freeze({
+    "source": "Hand-curated service catalog",
+    "version": "hand-curated-2026.08",
+    "entries": 146,
+    "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+  } as const),
+  publicLimits: Object.freeze({
+    "phases": 16,
+    "warnings": 64,
+    "requests": 1000,
+    "cookieRecords": 1000,
+    "cookieMutations": 2000,
+    "storageRecords": 1000,
+    "storageMutations": 2000,
+    "fingerprintEvents": 1000,
+    "fingerprintDetections": 256,
+    "cnameCloaks": 256,
+    "pixelEvents": 512,
+    "consentObservations": 32,
+    "policyClaims": 32,
+    "policyEntities": 100
+  } as const),
+  phaseOmissionContractVersion: "phase-omission-v2",
+});
+
 const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
   isDetectorReasonCode("evidence-cap-reached") ? "detector-status-v2" : "detector-status-v1";
 const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
@@ -2069,7 +2122,10 @@ function nodeTuple(
 // netted one count against the other) with the registry; the methodology,
 // normalization, obligations, lists, toolchain and every other field are
 // unchanged from v32, whose two live rows, the October 19 list row and the
-// no-list row, are closed below in NODE_R2_PRODUCER_TUPLES.
+// no-list row, are closed below in NODE_R2_PRODUCER_TUPLES. The November 16
+// list adoption closed the v33 list row as it ran with the October 19 lists;
+// the live list row carries the November 16 lists, and the no-list row is
+// unchanged.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V31_METHODOLOGY ||
   String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V26_NORMALIZATION ||
@@ -2078,7 +2134,7 @@ const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v33-detectors-v26-active-lists-2026-10-19",
+        "node-v33-detectors-v26-active-lists-2026-11-16",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -2723,6 +2779,15 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
   nodeTuple("node-v32-detectors-v25-active-no-adblock",
     HISTORICAL_NODE_V26_NORMALIZATION, HISTORICAL_NODE_V31_METHODOLOGY,
     HISTORICAL_NODE_V25_FIELDS, null
+  ),
+  // The node-detectors-v26 list row with the October 19 lists, closed to its
+  // exact source identity by the November 16 list adoption: the v31
+  // methodology (adblock-rust 0.13.5, Playwright 1.65.0), the 3a2328d7 policy
+  // digest under tldts 7.4.16, node-detectors-v26 (fingerprint-observer@15)
+  // and adblock-rust 0.13.5. The v33 no-list row stays live.
+  nodeTuple("node-v33-detectors-v26-active-lists-2026-10-19",
+    HISTORICAL_NODE_V26_NORMALIZATION, HISTORICAL_NODE_V31_METHODOLOGY,
+    HISTORICAL_NODE_V26_FIELDS, HISTORICAL_R2_LISTS_2026_10_19_ADBLOCK_0_13_5_IDENTITY
   ),
   ...ACTIVE_NODE_TUPLES
 ]);
