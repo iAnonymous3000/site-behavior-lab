@@ -562,8 +562,23 @@ test("release documents say what the two removed operator gates leave unverified
   assert.doesNotMatch(qualification, /production egress, admission, retention/);
 
   // Every document that describes these two controls says the same thing.
+  // The README stopped describing them on 2026-11-16 (docs/operations.md,
+  // below, now carries its wording). It still names the removal, and it may
+  // never present either gate as deferred or open.
+  const readme = flat("README.md");
+  assert.match(readme, /release gates removed on 2026-11-11/, "README.md must still name the removal");
+  assert.doesNotMatch(
+    readme,
+    /(?:egress[- ]backstop|log[- ]retention)[^.]{0,120}(?:is|are|both) deferred to 1\.1\.0/i,
+    "README.md still describes a removed operator gate as deferred"
+  );
+  assert.doesNotMatch(readme, /defers both to 1\.1\.0/, "README.md");
+  assert.doesNotMatch(
+    readme,
+    /`log-retention` release gates both still report open/,
+    "README.md still describes the removed log-retention gate as an open 1.0 gate"
+  );
   for (const file of [
-    "README.md",
     "RELEASE.md",
     "docs/limitations.md",
     "docs/operations.md",
