@@ -394,8 +394,10 @@ test("measurement-freeze policy distinguishes stale proposals from the controlle
  * hand-off to a human identity declaration, the committed quiesce switch, and
  * the drift job's independence from the refresh job.
  */
-test("the README describes the Brave-list refresh the committed workflow implements", () => {
-  const readme = source("README.md");
+test("the operations document describes the Brave-list refresh the committed workflow implements", () => {
+  // This passage moved from the README into its own docs/operations.md
+  // section on 2026-11-16.
+  const operations = source("docs/operations.md");
   const workflow = source(".github/workflows/update-brave-lists.yml");
 
   assert.match(workflow, /run: npm run lists:adoption/);
@@ -407,12 +409,14 @@ test("the README describes the Brave-list refresh the committed workflow impleme
   assert.doesNotMatch(
     driftJobHeader,
     /\bneeds:|\bif:/,
-    "the drift job became conditional; revisit how the README explains the drift issue"
+    "the drift job became conditional; revisit how docs/operations.md explains the drift issue"
   );
 
-  const start = readme.indexOf("Brave Shields list refresh");
-  assert.ok(start >= 0, "the README no longer describes the Brave-list refresh");
-  const passage = readme.slice(start, readme.indexOf("\n\n", start));
+  const start = operations.indexOf("Brave Shields list refresh");
+  assert.ok(start >= 0, "docs/operations.md no longer describes the Brave-list refresh");
+  // The passage is one paragraph; it may be the last one in the file.
+  const end = operations.indexOf("\n\n", start);
+  const passage = operations.slice(start, end >= 0 ? end : operations.length);
   assert.match(passage, /`npm run lists:adoption`/);
   assert.match(passage, /automation\/brave-list-refresh/);
   assert.match(passage, /NODE_R2_CURRENT_ADBLOCK_IDENTITY/);
