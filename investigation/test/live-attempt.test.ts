@@ -160,12 +160,9 @@ test("E-7: the capture record reader's field lists equal the fields of S5c's rec
     assert.deepEqual([...keys].sort(), [...CAPTURE_RECORD_FIELDS[at]].sort(), at);
   }
   const unrecorded = Object.keys(CAPTURE_RECORD_FIELDS).filter((at) => !seen.has(at));
-  // The two variants no recorded record holds are written by the runner as the reader lists them.
+  // Exactly two variants are in no recorded record: an armed time never printed and an unreadable process.
+  // Nothing here shows they match what the runner writes; joining the two is a later stage's to show.
   assert.deepEqual(unrecorded.sort(), ["environment.processes[] (unreadable)", "times.recorder.recorder reported armed (absent)"]);
-  const core = readFileSync(path.join(ROOT, "investigation/runner/s5/runner/core.mjs"), "utf8");
-  assert.ok(core.includes('{ absent: true, what: "observe printed no armed line" }'));
-  assert.ok(core.includes("processes.push({ kind: proc.kind, readable: false, error:"));
-  assert.ok(core.includes('export const CAPTURE_RECORD_VERSION = "s5c-capture-record@1";'));
 });
 
 test("1: an output with an unknown or missing field is refused, not read loosely, and the refusal names no planted key", async () => {
