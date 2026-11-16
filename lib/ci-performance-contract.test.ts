@@ -63,18 +63,35 @@ test("Docker dependencies are independent of source identity while all source ch
   const dockerfile = readFileSync(path.join(root, "Dockerfile"), "utf8");
   const [, afterDeps] = dockerfile.split("FROM playwright-base AS deps\n");
   assert.ok(afterDeps, "the reusable dependency layers must form the deps stage");
-  const [deps, build] = afterDeps.split("FROM deps AS build\n");
-  assert.ok(build, "the build stage must start from exactly those dependency layers");
+  const [deps, afterSource] = afterDeps.split("FROM deps AS source\n");
+  assert.ok(afterSource, "the source stage must start from exactly those dependency layers");
   assert.ok(deps.indexOf("COPY package.json package-lock.json ./") < deps.indexOf("RUN npm ci && npx playwright install chromium"));
   for (const sourceBound of ["ARG ", "COPY . .", "SITE_BEHAVIOR_LAB_BUILD_COMMIT", "RUN npm run check"]) {
     assert.ok(!deps.includes(sourceBound), `the cached deps stage must not depend on ${sourceBound.trim()}`);
   }
-  const identity = build.indexOf("ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT");
-  const source = build.indexOf("COPY . .");
-  const checks = build.indexOf("RUN npm run check");
-  assert.ok(identity >= 0 && identity < source && source < checks);
-  assert.ok(build.indexOf("ENV SITE_BEHAVIOR_LAB_BUILD_COMMIT=") < checks);
-  assert.match(build, /must be a full lowercase Git SHA/);
+  // The source stage is the build identity and the exact tree, and runs no part of check.
+  const [source, afterBuild] = afterSource.split("FROM source AS build\n");
+  assert.ok(afterBuild, "the build stage must start from exactly the source stage");
+  const identity = source.indexOf("ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT");
+  const tree = source.indexOf("COPY . .");
+  assert.ok(identity >= 0 && identity < tree);
+  assert.ok(source.indexOf("ENV SITE_BEHAVIOR_LAB_BUILD_COMMIT=") < tree);
+  assert.match(source, /must be a full lowercase Git SHA/);
+  assert.doesNotMatch(source, /npm run/);
+  // The stages after it, each by its instructions alone.
+  const instructions = (stage: string) => stage.split("\n").filter((line) => line.trim() !== "" && !line.startsWith("#"));
+  const [build, afterCompiled] = afterBuild.split("FROM source AS compiled\n");
+  assert.ok(afterCompiled, "the compiled stage must start from exactly the source stage");
+  assert.deepEqual(instructions(build), ["RUN npm run check && rm -rf .next/cache && npm prune --omit=dev"]);
+  const [compiled, runner] = afterCompiled.split("FROM playwright-base AS runner\n");
+  assert.ok(runner, "the runner stage must follow the compiled stage");
+  assert.deepEqual(instructions(compiled), ["RUN npm run check:without-unit && rm -rf .next/cache && npm prune --omit=dev"]);
+  // The runner is the last stage, so every plain build's target, and takes
+  // the app from build alone: no plain build can reach compiled.
+  assert.doesNotMatch(runner, /^FROM /m);
+  const sources = [...runner.matchAll(/^COPY --from=(\S+) /gm)].map((match) => match[1]);
+  assert.ok(sources.length > 0);
+  assert.deepEqual([...new Set(sources)], ["build"]);
   assert.match(dockerfile, /^COPY --from=build \/app\/node_modules \.\/node_modules$/m);
 });
 

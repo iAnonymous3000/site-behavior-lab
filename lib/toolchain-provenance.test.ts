@@ -125,7 +125,9 @@ test("Playwright package, lockfile, installation, and container base use one exa
   assert.deepEqual(fromLines, [
     externalBase[0],
     "FROM playwright-base AS deps",
-    "FROM deps AS build",
+    "FROM deps AS source",
+    "FROM source AS build",
+    "FROM source AS compiled",
     "FROM playwright-base AS runner"
   ]);
 
