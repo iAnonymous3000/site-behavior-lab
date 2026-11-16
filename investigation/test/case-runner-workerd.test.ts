@@ -251,8 +251,9 @@ test("3. after the outcome the token is refused for every event that is not a cl
   assert.equal((await opened(last.caseId)).state.machine.closedBy, "completed");
   await refusesAll(last.caseId, last.token, NOT_CLEANUP, ENDED, "after the last slot's outcome");
   accepted(await write(last.caseId, last.token, "cleanup-confirmed", { slot: "B1" }), "the last slot's cleanup");
-  // Once the cleanup is settled the window is shut.
-  await refusesAll(last.caseId, last.token, RUNNER_EVENT_TYPES, ENDED, "after the last slot's cleanup");
+  // Once the cleanup is settled the window is shut: the runner's own cleanup event stops its runner, and the stop ends the token.
+  await refusesAll(last.caseId, last.token, RUNNER_EVENT_TYPES, REFUSED, "after the last slot's cleanup");
+  assert.notEqual((await storageOf(last.caseId)).runner_records.find(({ slot }) => slot === "B1")?.stopped_at_ms ?? null, null);
 });
 
 test("4. a second stop of the same attempt is accepted as done", { timeout: 120_000 }, async () => {
