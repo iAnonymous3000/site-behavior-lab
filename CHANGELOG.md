@@ -9,6 +9,24 @@ public API or a 1.0 release.
 
 ### Added
 
+- The investigation workspace's case object can start and stop its
+  runner's container, in tests only: no container is bound in any deployed
+  configuration, so in production nothing starts. A start is launched only
+  after the case has written `attempt-started`. It registers a handler for
+  that one attempt at one internal address, starts the container with four
+  environment names, no token and no internet, and watches it; a run still
+  live from an earlier attempt is destroyed first. The alarm's stop, the
+  runner's own cleanup event, an exit and the owner's ending commands each
+  stop and destroy the container, and the owner can record an environment
+  as destroyed only after the object's own destroy has resolved. The
+  handler acts only for its start's case, slot and attempt and keeps
+  nothing between calls. Every body is bounded by its declared length
+  before it is read; an object is stored under the SHA-256 worked out from
+  its bytes, one at a time, and an attempt may store at most 40 objects and
+  128 MiB. Limits: everything ran on local workerd with a stand-in
+  container; hosted behaviour, a real container, its start time and its
+  network are not shown. No scanner code, scan or report changes.
+
 - One function now makes a live attempt's evidence rows and instrument
   records in the investigation workspace (`investigation/core/live-attempt.ts`):
   one row per stored output, each naming the SHA-256 of exactly the bytes it
