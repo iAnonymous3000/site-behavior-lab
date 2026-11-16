@@ -58,6 +58,9 @@ import type { ScanResult } from "./types";
  *    names. TIMING_FIELDS is held to the fields that two ordinary visits of
  *    the same fixture themselves differ in, so the comparison is blind to
  *    exactly those fields and to nothing else.
+ *    The two request lists are compared as multisets, since the browser can
+ *    announce concurrent requests in either order: a seam whose only effect
+ *    is to reorder concurrent requests is not seen (see comparable()).
  *    This holds for a page that reads nothing a seam's script defines. The
  *    limit is held too: on READS_SEAM_PAGE, which does read one, the seam
  *    visit records the page's different request and nothing else differs.
@@ -243,7 +246,59 @@ function recorded(envelope: NodeScanMeasurementEnvelope): Record<string, unknown
   delete result[SEAM_VISIT_MARKER];
   delete measurement[SEAM_VISIT_MARKER];
   const check = scrollCheckEvidence(envelope);
-  return { result, measurement, check: check === undefined ? null : JSON.parse(JSON.stringify(check)) };
+  return comparable(result, measurement, check === undefined ? null : JSON.parse(JSON.stringify(check)));
+}
+
+/**
+ * The recorded JSON with its two request lists made order-free. The scanner
+ * lists requests in the order the browser announced them, and two visits of
+ * one page can announce concurrent requests in either order, so the order of
+ * these two lists is not compared. Each list becomes its rows sorted by their
+ * content, every field but `id` (the announcement rank) and `startedAtMs` (a
+ * clock reading), with `id` taken off; the ids each list used are compared
+ * as their own sorted list under `requestRanks`. So a request missing, added,
+ * duplicated or changed in any field still differs, and only which request
+ * got which rank is forgotten. What this gives up: the comparison no longer
+ * sees a seam whose only effect is to reorder concurrent requests. Anything
+ * else in the record that names a request by id or by position is compared
+ * as it was.
+ */
+function comparable(result: Record<string, unknown>, measurement: Record<string, unknown>, check: unknown): Record<string, unknown> {
+  const evidence = measurement.evidence as Record<string, unknown> | undefined;
+  const resultRequests = unordered(result.requests);
+  const evidenceRequests = unordered(evidence?.requests);
+  if (resultRequests) result.requests = resultRequests.rows;
+  if (evidence && evidenceRequests) evidence.requests = evidenceRequests.rows;
+  return {
+    result,
+    measurement,
+    check,
+    requestRanks: { result: resultRequests?.ranks ?? null, evidence: evidenceRequests?.ranks ?? null }
+  };
+}
+
+/** JSON with every object's keys in sorted order, so equal content gives equal text. */
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    const entries = Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson((value as Record<string, unknown>)[key])}`);
+    return `{${entries.join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+/** A request list as a multiset: rows sorted by content without `id`, and the ids as a sorted list. Anything not a list is left alone. */
+function unordered(requests: unknown): { rows: Record<string, unknown>[]; ranks: unknown[] } | undefined {
+  if (!Array.isArray(requests)) return undefined;
+  const keyed = (requests as Record<string, unknown>[]).map((request) => {
+    const { id: _rank, startedAtMs: _clock, ...content } = request;
+    const { id: _id, ...row } = request;
+    return { key: canonicalJson(content), row };
+  });
+  keyed.sort((left, right) => (left.key < right.key ? -1 : left.key > right.key ? 1 : 0));
+  const ranks = (requests as Record<string, unknown>[]).map((request) => request.id);
+  ranks.sort((left, right) => canonicalJson(left) < canonicalJson(right) ? -1 : canonicalJson(left) > canonicalJson(right) ? 1 : 0);
+  return { rows: keyed.map(({ row }) => row), ranks };
 }
 
 /**
@@ -467,6 +522,81 @@ test("S3 bounds: the caller's signal ends a wait on each awaited hook as soon as
     assert.ok(afterAbort < 15_000, `${hook}: the visit ended ${afterAbort} ms after the abort`);
     assert.equal(getEventListeners(cancel.signal, "abort").length, 0, `${hook}: its wait left a listener`);
   }
+});
+
+test("S3 isolation comparison: two request lists in another order compare equal, and a request removed, added, duplicated, dropped from a pair or changed in one field does not", () => {
+  const row = (id: number, url: string, resourceType: string, thirdParty: boolean, startedAtMs: number): Record<string, unknown> => ({
+    id,
+    url,
+    domain: new URL(url).hostname,
+    method: "GET",
+    resourceType,
+    status: 200,
+    thirdParty,
+    tracker: null,
+    startedAtMs
+  });
+  const base = (): Record<string, unknown>[] => [
+    row(1, "http://www.example.com/page", "document", false, 0),
+    row(2, "http://static.example.com/pixel.png", "image", false, 40),
+    row(3, "http://cdn.example.org/lib.js", "script", true, 41),
+    row(4, "http://frame.example.net/inner", "document", true, 60)
+  ];
+  // A visit's record as recorded() builds it, from one request list given to both places that hold it.
+  const record = (requests: Record<string, unknown>[]): Record<string, unknown> =>
+    comparable({ requests: JSON.parse(JSON.stringify(requests)) }, { evidence: { requests: JSON.parse(JSON.stringify(requests)) } }, null);
+  const beyond = (requests: Record<string, unknown>[]): string[] =>
+    [...new Set(differences(record(base()), record(requests)))].filter((where) => !timing(where)).sort();
+  const both = (field: string): string[] => [`.measurement.evidence.requests[].${field}`, `.result.requests[].${field}`];
+
+  // Two concurrent requests announced the other way round: their ranks and their places swap, and their clock readings move.
+  const swapped = base();
+  [swapped[1], swapped[2]] = [{ ...swapped[2], id: 2, startedAtMs: 40 }, { ...swapped[1], id: 3, startedAtMs: 41 }];
+  assert.deepEqual(beyond(swapped), [], "a reordering of two requests differs");
+  assert.deepEqual([...new Set(differences(record(base()), record(swapped)).filter(timing))].sort(), both("startedAtMs"), "the swap's clock readings are not still compared");
+  // Two requests that differ in one field only, announced either way round: the order is found from that field alone.
+  for (const [field, value] of [
+    ["url", "http://static.example.com/lib-pixel.png"],
+    ["domain", "img.example.com"],
+    ["method", "POST"],
+    ["resourceType", "xhr"],
+    ["status", null],
+    ["thirdParty", true],
+    ["tracker", { entity: "Fixture" }]
+  ] as const) {
+    const pairOf = (first: Record<string, unknown>, second: Record<string, unknown>): Record<string, unknown>[] => [...base(), { ...first, id: 5, startedAtMs: 70 }, { ...second, id: 6, startedAtMs: 71 }];
+    const one = base()[1];
+    const other = { ...one, [field]: value };
+    const found = [...new Set(differences(record(pairOf(one, other)), record(pairOf(other, one))))].filter((where) => !timing(where));
+    assert.deepEqual(found, [], `two requests that differ only in ${field}, in another order, differ: ${found.join(", ")}`);
+  }
+
+  const removed = base().slice(0, 3);
+  assert.ok(beyond(removed).includes(".result.requests.length") && beyond(removed).includes(".measurement.evidence.requests.length"), `a removed request: ${beyond(removed).join(", ")}`);
+  const added = [...base(), row(5, "http://static.example.com/lib-pixel.png", "image", false, 70)];
+  assert.ok(beyond(added).includes(".result.requests.length"), `an added request: ${beyond(added).join(", ")}`);
+  const duplicated = [...base(), { ...base()[1], id: 5 }];
+  assert.ok(beyond(duplicated).includes(".result.requests.length"), `a duplicated request: ${beyond(duplicated).join(", ")}`);
+
+  // A pair of equal requests in both visits, one of them dropped from the second.
+  const pair = [...base(), { ...base()[1], id: 5, startedAtMs: 80 }];
+  const pairDropped = [...base()];
+  assert.deepEqual(differences(record(pair), record(pair)), [], "a list differs from itself");
+  assert.ok(
+    [...new Set(differences(record(pair), record(pairDropped)))].filter((where) => !timing(where)).includes(".result.requests.length"),
+    "a request dropped from an equal pair is not seen"
+  );
+
+  for (const [field, value] of [["domain", "other.example.com"], ["resourceType", "xhr"], ["thirdParty", true], ["url", "http://static.example.com/other.png"]] as const) {
+    const changed = base();
+    changed[1] = { ...changed[1], [field]: value };
+    const found = beyond(changed);
+    assert.ok(both(field).every((where) => found.includes(where)), `${field} changed in one request: ${found.join(", ")}`);
+  }
+
+  const renumbered = base();
+  renumbered[3] = { ...renumbered[3], id: 9 };
+  assert.deepEqual(beyond(renumbered), [".requestRanks.evidence[]", ".requestRanks.result[]"], "a changed id is not seen");
 });
 
 test("S3 isolation: over the suite's seam behaviours, a seam visit records what an ordinary visit records, but for the mark and the timing fields", { timeout: 360_000 }, async () => {
