@@ -335,7 +335,7 @@ function checkoutProblems(file: string, name: string, job: WorkflowJob): string[
  * image build. A job counts as running the suite in the image only if every line of it that names
  * the suite is such a step.
  */
-const IN_IMAGE_SUITE = /^docker run --rm "\$SOURCE_IMAGE_ID" npm run test:unit:leg -- "\$LEG"$/;
+const IN_IMAGE_SUITE = /^docker run --rm --init "\$SOURCE_IMAGE_ID" npm run test:unit:leg -- "\$LEG"$/;
 
 /** Every way a workflow's unit-suite job can fail the history rule, as `file job: problem`. */
 function historyProblems(workflows: ReadonlyMap<string, string>, dockerignore = readFileSync(path.join(root, ".dockerignore"), "utf8")): string[] {
@@ -399,7 +399,7 @@ function editedInJob(file: string, job: string, find: string, replace: string): 
 const REFRESH_CHECKOUT_DEPTH = "        with:\n          fetch-depth: 0\n\n      - name: Set up Node\n";
 const SECOND_CHECKOUT = "      - name: Checkout beside it\n        uses: actions/checkout@v7\n        with:\n          path: beside\n          fetch-depth: 0\n\n";
 const SHALLOW_SECOND_CHECKOUT = "      - name: Checkout beside it\n        uses: actions/checkout@v7\n        with:\n          path: beside\n\n";
-const IMAGE_UNIT_RUN = "        run: docker run --rm \"$SOURCE_IMAGE_ID\" npm run test:unit:leg -- \"$LEG\"\n";
+const IMAGE_UNIT_RUN = "        run: docker run --rm --init \"$SOURCE_IMAGE_ID\" npm run test:unit:leg -- \"$LEG\"\n";
 const CI_UNIT_STEP = "      - name: Unit tests\n        run: npm run test:unit:leg -- ${{ matrix.leg }}\n";
 const withWorkflow = (name: string, text: string): Map<string, string> => new Map([...WORKFLOWS, [name, text]]);
 const refreshSuiteRun = (run: string) => refreshDepth("fetch-depth: 1", editedWorkflows("update-brave-lists.yml", "        run: npm run test:unit\n", `        run: ${run}\n`));
