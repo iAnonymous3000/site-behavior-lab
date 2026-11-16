@@ -520,6 +520,19 @@ public API or a 1.0 release.
 
 ### Changed
 
+- Hosted CI runs the unit suite as six legs on separate machines, and once
+  more on the image's Node in six legs from one exact source image, built
+  once. The release image is built from that source image, named by its
+  digest, without running the suite a second time; that build still runs
+  the HSTS preload test. The attest job signs the release image only when a
+  split build record binds it to that source image and every image-Node leg
+  passed on it in the same commit and run. A plain `docker build` is
+  unchanged and still runs the whole suite, and `RELEASE.md` says so. The
+  source image is kept as an Actions artifact for one day. On its pull
+  request the jobs a release waits on finished in about 15 minutes; on
+  main's last run before it they took about 41 (one run each). No scanner
+  code, scan or report changes.
+
 - The README is shorter and reordered: what a report proves and does not
   prove comes before the start instructions, its operating state (the
   hourly synthetic, the R2 delete canary, disabled previews and
