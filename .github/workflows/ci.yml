@@ -617,7 +617,12 @@ jobs:
             SITE_BEHAVIOR_LAB_BUILD_COMMIT=${{ steps.container_inputs.outputs.commit }}
             SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF=${{ steps.container_inputs.outputs.proof }}
           cache-from: type=gha,scope=scanner-amd64-v1,version=2
-          outputs: type=oci,dest=${{ runner.temp }}/source-image.oci.tar
+          outputs: type=oci,dest=${{ runner.temp }}/source-oci,tar=false
+
+      # Packed here with its exact member names, which every reader of the
+      # archive names in turn: GNU tar finds index.json only under that name.
+      - name: Pack the exact source image
+        run: tar -C "$RUNNER_TEMP/source-oci" -cf "$RUNNER_TEMP/source-image.oci.tar" index.json oci-layout blobs
 
       - name: Record the exact source image's identity
         id: source_image
