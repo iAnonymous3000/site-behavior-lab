@@ -9,6 +9,23 @@ public API or a 1.0 release.
 
 ### Added
 
+- One function now makes a live attempt's evidence rows and instrument
+  records in the investigation workspace (`investigation/core/live-attempt.ts`):
+  one row per stored output, each naming the SHA-256 of exactly the bytes it
+  was given, and one instrument record per instrument. It reads the
+  runner's capture record strictly and refuses an attempt whose record has
+  an unknown version or field. A recorder failure, or an observation that
+  did not end cleanly, leaves no rows, each failure kept apart. Three limits
+  become slugs on the rows: the recorder was ready only after the scanner
+  had finished measuring; a script was labelled the scanner's by containing
+  the scanner's text, with up to 1,024 characters beyond it; and a capture
+  record that describes a script in a way that contradicts itself, which
+  keeps its rows and marks the labels as not settled. Its tests read four
+  recorded attempts from fixture pages and a snapshot of the scanner's
+  injected script text, committed as data. Limits: the runner does not call
+  this function yet, the case machine is not shown to accept the order, and
+  nothing here ran on a real site. No scanner code, scan or report changes.
+
 - The investigation workspace has a runner for a one-attempt container, in
   fixture mode only (`investigation/runner/s5`). It asks the case service
   for its token once, runs one scanner visit through the private
