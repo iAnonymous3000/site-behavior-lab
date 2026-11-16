@@ -1,0 +1,18 @@
+{
+  "recorder": "rea-agents",
+  "release": "6.8.0",
+  "label": "observed on the control fixture, not measured in this visit",
+  "source": "S5a spike (ii), 2026-11-15, the recorder's messages to the browser through the logging relay, control fixture, one run",
+  "commands": {
+    "observe-web-execution": {
+      "enabled": ["Page", "Runtime", "Debugger", "Network", "Profiler"],
+      "otherDomainsCalled": ["Target"],
+      "sentWithoutEnable": []
+    },
+    "inspect-web-page": {
+      "enabled": ["Page", "Runtime", "Debugger", "Network"],
+      "otherDomainsCalled": ["Target", "DOMSnapshot", "Accessibility", "Storage", "DOMStorage", "IndexedDB", "CacheStorage"],
+      "sentWithoutEnable": ["WebMCP.disable"]
+    }
+  }
+}

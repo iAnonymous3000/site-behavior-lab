@@ -1,0 +1,18 @@
+<!doctype html><title>slow</title>
+<script>
+// R-b: the load event waits for slow.js, which the fixture server holds back for 3 s, so the page is
+// still loading, and the scanner still measuring, when the recorder arms about a second after the
+// first navigation commit. Meanwhile the page reads a canvas and sets storage, on a timer, so the
+// scanner's record has something the recorder could disturb.
+var ticks = 0;
+var timer = setInterval(function () {
+  ticks += 1;
+  var c = document.createElement("canvas");
+  c.getContext("2d").fillText("slow " + ticks, 1, 1);
+  c.toDataURL();
+  try { localStorage.setItem("slow_ticks", String(ticks)); } catch (e) {}
+  if (ticks >= 40) clearInterval(timer);
+}, 100);
+</script>
+<script src="/slow.js"></script>
+<p>slow</p>

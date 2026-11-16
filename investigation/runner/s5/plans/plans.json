@@ -1,0 +1,40 @@
+{
+  "comment": "Fixture plans, one per container run. Each run makes one attempt. The token is a canary: a fixed value the stand-in hands out and the container tests look for in every output. It is a fixture value, never a credential.",
+  "defaults": {
+    "caseId": "s5c-fixture-case",
+    "attemptId": "5c00000000000000000000000000000a",
+    "slot": "I1",
+    "arm": "instrumented",
+    "path": "/control.html",
+    "device": "desktop",
+    "gpcEnabled": false,
+    "consentMode": "observe",
+    "observeMs": 5000,
+    "visitDeadlineMs": 240000,
+    "standin": { "token": "c5c0ffee5c5c5c5c0a0a0a0a0a0a0a0a5c5c5c5c0b0b0b0b0b0b0b0b5c5c5c5c", "refuseToken": false, "ownerWriteBefore": null },
+    "failFirstStart": false,
+    "crashAtCommit": false
+  },
+  "plans": {
+    "s3-page-baseline": { "slot": "B1", "arm": "baseline", "path": "/page" },
+    "s3-page-instrumented": { "path": "/page" },
+    "s3-reads-seam-baseline": { "slot": "B1", "arm": "baseline", "path": "/reads-seam" },
+    "s3-reads-seam-instrumented": { "path": "/reads-seam" },
+    "large-post": { "path": "/post-budget", "observeMs": 6000 },
+    "crash": { "crashAtCommit": true },
+    "kill": { "path": "/slow", "observeMs": 8000 },
+    "standin-host": { "slot": "B1", "arm": "baseline", "path": "/standin-host" },
+    "token-refused": { "standin": { "token": "c5c0ffee5c5c5c5c0a0a0a0a0a0a0a0a5c5c5c5c0b0b0b0b0b0b0b0b5c5c5c5c", "refuseToken": true, "ownerWriteBefore": null } },
+    "ref-default": {},
+    "ref-gpc": { "gpcEnabled": true },
+    "ref-consent": { "path": "/banner", "consentMode": "accept-all" },
+    "overlap-baseline-a": { "slot": "B1", "arm": "baseline", "path": "/slow" },
+    "overlap-instrumented": { "path": "/slow", "observeMs": 6000 },
+    "overlap-baseline-b": { "slot": "B2", "arm": "baseline", "path": "/slow" },
+    "d3-empty-a": { "slot": "B1", "arm": "baseline" },
+    "d3-empty-b": { "slot": "B2", "arm": "baseline" },
+    "d3-no-seam": { "slot": "B3", "arm": "no-seam" },
+    "retried-start": { "failFirstStart": true },
+    "stale-head": { "standin": { "token": "c5c0ffee5c5c5c5c0a0a0a0a0a0a0a0a5c5c5c5c0b0b0b0b0b0b0b0b5c5c5c5c", "refuseToken": false, "ownerWriteBefore": 3 } }
+  }
+}

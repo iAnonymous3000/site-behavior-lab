@@ -1,0 +1,14 @@
+{
+  "name": "sbl-s5c-scanner",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The scanner's run-time packages for the S5c fixture runner image, at the repository lockfile's versions, plus the TypeScript that transpiles lib/ at build time.",
+  "dependencies": {
+    "playwright": "1.65.0",
+    "tldts": "7.4.16",
+    "undici": "8.12.3"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

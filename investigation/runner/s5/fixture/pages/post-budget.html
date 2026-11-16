@@ -1,0 +1,7 @@
+<!doctype html><title>post-budget</title>
+<script>
+// D-4: a same-origin POST of 9 MiB, sent by the page itself 2.5 s after it loads, so the recorder,
+// which arms about a second after the first navigation commit, is watching when it goes.
+addEventListener("load", () => setTimeout(() => { fetch("/post", { method: "POST", body: new Uint8Array(9 * 1024 * 1024) }); }, 2500));
+setInterval(function tick() { return 1; }, 50);
+</script>

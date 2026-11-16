@@ -1,0 +1,6 @@
+<!doctype html><title>consent banner</title>
+<div id="onetrust-banner-sdk">
+  <p>This fixture asks for consent.</p>
+  <button id="onetrust-accept-btn-handler" onclick="document.cookie = 'cmp-choice=granted; path=/';">Accept all</button>
+</div>
+<script>setInterval(function tick() { return document.cookie.length; }, 50);</script>

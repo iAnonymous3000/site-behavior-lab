@@ -1,0 +1,11 @@
+<!doctype html><title>Seam setting fixture</title>
+<script>
+  document.cookie = "fixture_first=1; path=/";
+  try { localStorage.setItem("fixture_key", "1"); } catch (error) {}
+  new Image().src = "http://static.example.com/pixel.png";
+  document.createElement("canvas").toDataURL();
+</script>
+<script src="http://cdn.example.org/lib.js"></script>
+<style>body { margin: 0 } section { height: 980px }</style>
+<iframe src="http://frame.example.net/inner" width="300" height="200"></iframe>
+<section>One</section><section>Two</section><section>Three</section><section>Four</section>

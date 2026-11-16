@@ -1,0 +1,8 @@
+<!doctype html><title>stand-in host</title>
+<script>
+// Answer 4: the page asks for the stand-in's own host, twice. The scanner's guard must refuse both,
+// and the stand-in's record must show neither arrived.
+new Image().src = "http://127.0.0.1:{{STANDIN_PORT}}/from-page.png";
+fetch("http://127.0.0.1:{{STANDIN_PORT}}/", { method: "POST", body: "{}" }).catch(() => undefined);
+</script>
+<p>stand-in host</p>

@@ -1,0 +1,10 @@
+<!doctype html><title>control</title>
+<script>
+// Runs on a timer so a window sees calls. branchy() has two paths (block ranges);
+// once() runs a single time inside the window, so it may be reported per function only.
+let n = 0;
+function branchy(i) { if (i % 2) { return i * 3; } else { return i + 1; } }
+function once() { return document.title.length; }
+setInterval(() => { n = branchy(n + 1) % 1000; }, 50);
+setTimeout(once, 1500);
+</script>
