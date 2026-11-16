@@ -28,7 +28,11 @@ const reviewedPolicyPdfLibraries: Readonly<Record<string, { "pdfjs-dist": string
   // node-detectors-v20 moved undici to 8.12.3, the release that patches
   // CVE-2026-109869 (GHSA-xjj6-f33q-929c) and two moderate advisories, and
   // left pdf.js where it was.
-  "policy-text-cross-check@13": { "pdfjs-dist": "6.3.289", undici: "8.12.3" }
+  "policy-text-cross-check@13": { "pdfjs-dist": "6.3.289", undici: "8.12.3" },
+  // node-detectors-v27 moved pdf.js to 6.5.438 (its optional native canvas
+  // package to 1.1.1) and undici to 8.12.4 together, in the catch-up refresh,
+  // and changed nothing else the detector does.
+  "policy-text-cross-check@14": { "pdfjs-dist": "6.5.438", undici: "8.12.4" }
 };
 
 test("pdf.js and undici move only with the privacy-policy detector's version", () => {
