@@ -152,7 +152,8 @@ test("every core module is walked, including the summary tier the entry does not
     "investigation/core/capture-adapter.ts",
     "investigation/core/trial-layout.ts",
     "investigation/core/sufficiency.ts",
-    "investigation/core/recorder-shapes-6-8-0.ts"
+    "investigation/core/recorder-shapes-6-8-0.ts",
+    "investigation/core/live-attempt.ts"
   ]) {
     assert.ok(graph.has(file), file);
   }
@@ -221,7 +222,10 @@ for (const [name, property, target, line] of [
   ["a Node builtin in the adapter", "the Worker's side names no Node builtin", "investigation/core/capture-adapter.ts", 'import { readFileSync } from "node:fs";'],
   ["the local reader from the trial layout", "the Worker's side reaches neither the filesystem store nor test code", "investigation/core/trial-layout.ts", 'import { readRecordedFiles } from "../local/recorded-folder";'],
   ["a Node global in the imported case", "the Worker's side uses no Node global", "investigation/core/imported-case.ts", 'const bytes = Buffer.from("x");'],
-  ["a Node builtin in the recorder's shapes", "the Worker's side names no Node builtin", "investigation/core/recorder-shapes.ts", 'import { readFileSync } from "node:fs";']
+  ["a Node builtin in the recorder's shapes", "the Worker's side names no Node builtin", "investigation/core/recorder-shapes.ts", 'import { readFileSync } from "node:fs";'],
+  ["a package in the live attempt", "the Worker's side names no package", "investigation/core/live-attempt.ts", 'import "playwright";'],
+  ["a public module from the live attempt", "the Worker's side stays inside the workspace's own code", "investigation/core/live-attempt.ts", 'import "../../lib/domain-utils";'],
+  ["a Node builtin in the live attempt", "the Worker's side names no Node builtin", "investigation/core/live-attempt.ts", 'import { createHash } from "node:crypto";']
 ] as const) {
   test(`${name} in the Worker's side is caught`, async () => {
     await assertCaughtBy(name, property, () => checkWorkerSide(planted(target, line)));
