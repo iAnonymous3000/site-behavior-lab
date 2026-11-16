@@ -926,22 +926,36 @@ test("a test:unit leg runs its steps in order and stops at the first that fails,
   }
 });
 
-test("CI's tests job runs exactly the planner's legs, each once", () => {
+test("CI's tests job and image-Node legs each run exactly the planner's legs, each once", () => {
   const ci = readFileSync(path.join(root, ".github", "workflows", "ci.yml"), "utf8");
-  const testsJob = ci.slice(ci.indexOf("\n  tests:"), ci.indexOf("\n  pages:"));
-  const legs = /\n {6}matrix:\n {8}leg: \[([^\]\n]*)\]\n/.exec(testsJob)?.[1]?.split(",").map((leg) => leg.trim());
-  assert.ok(legs && legs.length > 0, "the tests job must list its legs in one matrix.leg line");
-  assert.deepEqual(legs, [...LEGS], "ci.yml's legs must equal scripts/unit-test-plan.mjs's LEGS, in order");
-  assert.match(testsJob, /\n {6}fail-fast: false\n/, "one failing leg must not cancel the others");
-  // Each leg runs the suite through the planner alone, so ci.yml restates nothing of test:unit.
-  assert.equal(testsJob.split("npm run test:unit").length - 1, 1);
-  for (const restated of [".unit-test-dist", "unit-test-lanes.mjs", "--only", "--shard"]) {
-    assert.ok(!testsJob.includes(restated), `the tests job restates ${restated}`);
+  const jobText = (name) => {
+    const start = ci.indexOf(`\n  ${name}:\n`);
+    assert.ok(start >= 0, `ci.yml has no ${name} job`);
+    const next = ci.slice(start + 1).search(/\n  [\w-]+:\n/);
+    return next < 0 ? ci.slice(start) : ci.slice(start, start + 1 + next);
+  };
+  for (const [name, run] of [
+    ["tests", "        run: npm run test:unit:leg -- ${{ matrix.leg }}\n"],
+    ["image-tests", '        run: docker run --rm "$SOURCE_IMAGE_ID" npm run test:unit:leg -- "$LEG"\n']
+  ]) {
+    const job = jobText(name);
+    const legs = /\n {6}matrix:\n {8}leg: \[([^\]\n]*)\]\n/.exec(job)?.[1]?.split(",").map((leg) => leg.trim());
+    assert.ok(legs && legs.length > 0, `${name} must list its legs in one matrix.leg line`);
+    assert.deepEqual(legs, [...LEGS], `${name}'s legs must equal scripts/unit-test-plan.mjs's LEGS, in order`);
+    assert.match(job, /\n {6}fail-fast: false\n/, `${name}: one failing leg must not cancel the others`);
+    // Each leg runs the suite through the planner alone, so ci.yml restates nothing of test:unit.
+    assert.equal(job.split(run).length - 1, 1, `${name} must run its leg exactly once, as ${run.trim()}`);
+    assert.equal(job.split("npm run test:unit").length - 1, 1, `${name} names test:unit once`);
+    for (const restated of [".unit-test-dist", "unit-test-lanes.mjs", "--only", "--shard"]) {
+      assert.ok(!job.includes(restated), `${name} restates ${restated}`);
+    }
   }
   // No other job runs a leg, and no matrix leg may become a required job.
-  assert.equal(ci.split("npm run test:unit:leg").length - 1, 1);
+  assert.equal(ci.split("npm run test:unit:leg").length - 1, 2);
   const required = JSON.parse(readFileSync(path.join(root, ".github", "required-ci-jobs.json"), "utf8")).jobs;
-  assert.ok(!required.some((name) => name.startsWith("Typecheck and Unit Tests")), "a matrix leg cannot be a required job");
+  for (const leg of ["Typecheck and Unit Tests", "Image-Node Unit Tests"]) {
+    assert.ok(!required.some((name) => name.startsWith(leg)), `a matrix leg of ${leg} cannot be a required job`);
+  }
 });
 
 // The Dockerfile's compiled stage, which only hosted CI builds, runs check
