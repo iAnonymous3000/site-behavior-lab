@@ -5,7 +5,7 @@ import { test } from "node:test";
 import ts from "typescript";
 import { assertPublicHttpUrlShape } from "../../lib/url-safety";
 import { HANDLER_HOST, HANDLER_ORIGIN } from "../core/case-container";
-import { isHandlerProps, readBounded, RUNNER_CALL_HEADER, runnerHandler } from "../core/runner-handler";
+import { isHandlerProps, readBounded, RUNNER_CALL_CAPS, RUNNER_CALL_HEADER, RUNNER_CASE_HEADER, RUNNER_TOKEN_HEADER, runnerHandler } from "../core/runner-handler";
 
 /**
  * The handler's pure parts in Node: how a body is bounded, which props are a start's, that what it
@@ -103,6 +103,20 @@ test("each call is held to its own cap: a token request past 1 KiB and an event 
   // The same token request within its cap is sent on.
   assert.equal((await runnerHandler(body(tokenRequest), cases.env, PROPS)).status, 200);
   assert.equal(cases.sent.length, 1);
+});
+
+test("the handler holds an object to its declared length: past the cap it is refused 413, nothing is read, and no case is called", async () => {
+  const sent = async (declared: number) => {
+    const cases = recordingCases();
+    const counted = { pulled: 0 };
+    const stream = new ReadableStream<Uint8Array>({ pull: (controller) => (counted.pulled += 16, controller.enqueue(new Uint8Array(16).fill(0x61)), controller.close()) }, { highWaterMark: 0 });
+    const headers = { [RUNNER_CALL_HEADER]: "runner-object", [RUNNER_CASE_HEADER]: CASE, [RUNNER_TOKEN_HEADER]: "b".repeat(64), "content-length": String(declared) };
+    const answer = await runnerHandler(new Request("http://case-handler.internal/", { method: "POST", headers, body: stream, duplex: "half" } as RequestInit), cases.env, PROPS);
+    return { status: answer.status, answer: await answer.json(), pulled: counted.pulled, calls: cases.sent.length };
+  };
+  assert.deepEqual(await sent(RUNNER_CALL_CAPS["runner-object"] + 1), { status: 413, answer: { ok: false, refusal: "body-too-large" }, pulled: 0, calls: 0 });
+  // Within the cap the same object is sent on, read as it goes.
+  assert.deepEqual(await sent(16), { status: 200, answer: { ok: true, head: "h", seq: 1 }, pulled: 16, calls: 1 });
 });
 
 test("the handler keeps nothing between requests: no binding at its top level is reassigned or holds a collection", () => {
