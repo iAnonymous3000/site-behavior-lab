@@ -143,7 +143,7 @@
   "dependencies": {
     "@cloudflare/containers": "^0.3.7",
     "aws4fetch": "^1.0.20",
-    "lucide-react": "^1.71.0",
+    "lucide-react": "^1.73.0",
     "next": "^16.4.6",
     "pdfjs-dist": "^6.5.438",
     "playwright": "1.65.0",

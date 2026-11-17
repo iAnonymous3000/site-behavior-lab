@@ -7,7 +7,7 @@
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",
-      "sha256": "81892efb0ba42617a732fe52b92329a73d48e51b71d142a0788749b21303f9d4"
+      "sha256": "9b38a4279864517c5202fe433995e8c140b9af720514f366184b8ccd257860b6"
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
@@ -1619,13 +1619,13 @@
     },
     {
       "name": "lucide-react",
-      "version": "1.71.0",
+      "version": "1.73.0",
       "lockPath": "node_modules/lucide-react",
       "license": "ISC",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/lucide-react/-/lucide-react-1.71.0.tgz",
-      "integrity": "sha512-8YtvF+bqT/EMqAXU7kWvYdRu+TV9j4kS1eIS7IbN1j1Z1DgupbrTL0nDIygdqgBDTD7AJPP607VdVgzDTar4zA==",
+      "resolved": "https://registry.npmjs.org/lucide-react/-/lucide-react-1.73.0.tgz",
+      "integrity": "sha512-fVOzGviL9mTfHenG1PbCfIceavyGlnpYNSYr+aGZHLRymAJ7DTP6KHuqt0uBkCKAoenr1UVkwSbDIYt2xIesEQ==",
       "developmentOnly": false,
       "optional": false
     },
