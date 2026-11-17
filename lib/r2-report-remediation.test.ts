@@ -884,12 +884,14 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
     // An exact host that was a registrable domain and is now a suffix.
     ["surge.sh", false],
     ["glideos.app", false],
-    // Controls: as REQUEST hosts, the Heroku zone's apex and a grandchild, an
+    // The Heroku zone's apex was a control here until tldts@7.5.4, which adds
+    // compute.herokuapp.com as an exact rule: the apex is now a suffix too.
+    ["compute.herokuapp.com", false],
+    // Controls: as REQUEST hosts, the Heroku zone's grandchild, an
     // allowlisted label under the removed rule, a site host below an exact
     // added rule (its stored registrable domain still fails: subject rows
     // below) and a Databricks app host, which the older engine already
     // generalized below databricksapps.com, are unchanged.
-    ["compute.herokuapp.com", true],
     ["{label}.{label}.compute.herokuapp.com", true],
     ["api.alpha-myqnapcloud.com", true],
     ["{label}.surge.sh", true],
@@ -924,13 +926,14 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
     // suffix with no public host boundary, so the subject fails all the same.
     ["https://{label}.compute.herokuapp.com", "compute.herokuapp.com", false],
     ["https://api.compute.herokuapp.com", "compute.herokuapp.com", false],
+    // The Heroku zone's apex and a site deeper than a direct child kept both
+    // stored positions until tldts@7.5.4 added compute.herokuapp.com as an
+    // exact rule: the stored registrable domain of each is now a suffix.
+    ["https://compute.herokuapp.com", "compute.herokuapp.com", false],
+    ["https://{label}.{label}.compute.herokuapp.com", "compute.herokuapp.com", false],
     // Controls: a scanned site keeps the allowlist exception under the removed
-    // rule; the Heroku zone's apex and a site deeper than a direct child keep
-    // both stored positions; and substituting an unchanged site through the
-    // same path reads.
+    // rule, and substituting an unchanged site through the same path reads.
     ["https://api.alpha-myqnapcloud.com", "api.alpha-myqnapcloud.com", true],
-    ["https://compute.herokuapp.com", "compute.herokuapp.com", true],
-    ["https://{label}.{label}.compute.herokuapp.com", "compute.herokuapp.com", true],
     ["https://{label}.contoso-apps.com", "contoso-apps.com", true]
   ] as const) {
     const { reportContents, sidecarContents } = storedWith((run) => {
@@ -975,9 +978,11 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
     // stays fixed but compute.herokuapp.com is no longer its registrable
     // domain.
     ["{label}.{label}.compute.herokuapp.com", "compute.herokuapp.com", false],
-    // Controls: the Heroku zone's apex, a Databricks app host and an
-    // unchanged tracker host keep their stored domain.
-    ["compute.herokuapp.com", "compute.herokuapp.com", true],
+    // The Heroku zone's apex kept its stored domain until tldts@7.5.4 added
+    // compute.herokuapp.com as an exact rule.
+    ["compute.herokuapp.com", "compute.herokuapp.com", false],
+    // Controls: a Databricks app host and an unchanged tracker host keep
+    // their stored domain.
     ["{label}.{label}.{label}.databricksapps.com", "databricksapps.com", true],
     ["cdn.tracker-example.com", "tracker-example.com", true]
   ] as const) {

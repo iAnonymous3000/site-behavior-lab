@@ -723,7 +723,9 @@ const HOST_FORMS: ReadonlyArray<{ url: string; published: string; site: string }
   { url: "http://x.alice.github.io/x", published: "{label}.alice.github.io", site: "alice.github.io" },
   { url: "http://www.github.io/x", published: "www.github.io", site: "www.github.io" },
   { url: "http://b.s3.amazonaws.com/x", published: "b.s3.amazonaws.com", site: "b.s3.amazonaws.com" },
-  { url: "http://compute.amazonaws.com/x", published: "{label}.amazonaws.com", site: "amazonaws.com" },
+  // A generalized label under amazonaws.com until tldts@7.5.4, which adds
+  // compute.amazonaws.com as a private rule: the host is now a suffix.
+  { url: "http://compute.amazonaws.com/x", published: "{invalid-host}", site: "{invalid-host}" },
   { url: "http://d111.cloudfront.net/x", published: "d111.cloudfront.net", site: "d111.cloudfront.net" },
   { url: "http://0123456789abcdef0123456789abcdef.herokuapp.com/x", published: "{label}.herokuapp.com", site: "{label}.herokuapp.com" },
   { url: "http://fedcba9876543210fedcba9876543210.herokuapp.com/x", published: "{label}.herokuapp.com", site: "{label}.herokuapp.com" },
