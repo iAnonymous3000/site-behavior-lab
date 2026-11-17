@@ -172,6 +172,6 @@
     "miniflare": "4.20260730.0",
     "ts-json-schema-generator": "2.9.0",
     "typescript": "^5.7.2",
-    "wrangler": "^4.159.0"
+    "wrangler": "^4.162.0"
   }
 }
