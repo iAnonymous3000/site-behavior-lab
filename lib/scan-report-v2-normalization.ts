@@ -97,6 +97,125 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
   Record<ObserverKind, readonly string[]>
 > = Object.freeze({
   "node-playwright": Object.freeze([
+    // Retired by the 2027-01 toolchain epoch, which moved the public-suffix
+    // engine to tldts@7.5.4 under the same policy digest. This is the
+    // recorded owner exception in the docblock above, not a widening: it
+    // removes admitted strings. Unlike the two earlier engine moves, 7.5
+    // changes code as well as the trie. tldts-core now ends a host at a
+    // backslash, reads "\\" as "//", no longer refuses an input with ":/"
+    // inside its path, query or fragment, returns no host for javascript:,
+    // trims trailing dots on the no-extraction path and reads "::" as an IP;
+    // its new extraSuffixes option is off by default and unused here. The
+    // trie grows from 10793 to 11222 rules: 463 added (19 ICANN, among them
+    // ck, er, fk, jm, mm, np, pg, nom.br, sch.uk and seven Japanese city
+    // names such as kawasaki.jp, most an exact rule beside an existing
+    // wildcard; 444 private, 25 of them wildcards such as *.apps.grok.bot)
+    // and 34 removed (the ICANN TLDs helsinki and juniper; 32 private: 25
+    // replit.dev children and aliases121.com, gitapp.si, imagine-proxy.work,
+    // imagine.diy, knightpoint.systems, oya.to and perspecta.cloud); no rule
+    // changes section. The authoritative list is the rule diff between the
+    // two tldts tries. Categories 1 to 4 are host strings (a request, cookie,
+    // frame or script host); category 5 is a registrable domain the report
+    // stores. By category, a host the 7.4.16 sanitizer published:
+    // 1. equal to an added exact rule, ICANN or private, is now a suffix
+    //    itself and stops being a fixed point: "kawasaki.jp", "ad.vn" and
+    //    "abyme.dev" redact to "{invalid-host}". A host below such a rule
+    //    stays a fixed point as a host string ("api.abyme.dev",
+    //    "{label}.abyme.dev"), and a host beside a new exact rule that sits
+    //    under its exception (www.ck) stays fixed too;
+    // 2. under an added wildcard: the apex and every direct child are now
+    //    suffixes, whether the child's label was allowlisted or generalized
+    //    ("apps.grok.bot", "api.apps.grok.bot", "{label}.apps.grok.bot");
+    //    deeper hosts stay fixed ("{label}.{label}.apps.grok.bot");
+    // 3. under a removed ICANN TLD (helsinki, juniper): no host has a public
+    //    boundary left, so every one stops being a fixed point
+    //    ("api.helsinki");
+    // 4. under a removed private rule: a label the older engine kept whole as
+    //    part of the registrable domain is now generalized
+    //    ("city.aliases121.com" becomes "{label}.aliases121.com",
+    //    "myapp.aliases121.com" likewise). A host whose labels below the new
+    //    registrable domain are all ones the allowlist keeps stays fixed
+    //    ("api.aliases121.com");
+    // 5. stored as a registrable domain the 7.4.16 engine computed is checked
+    //    again under the new engine even where every host string above stays
+    //    fixed. The scanned site's subject.requested and subject.observed
+    //    fail when the new engine redacts the stored registrableDomain
+    //    differently or finds no public host boundary in the stored origin: a
+    //    site at or below an added exact rule (api.abyme.dev stored
+    //    abyme.dev, now a suffix), at an added wildcard's apex or direct
+    //    child, under a removed TLD, or under a removed rule with a label the
+    //    new engine generalizes ("https://myapp.aliases121.com"). A scanned
+    //    site keeps the allowlist exception under a removed rule
+    //    (api.aliases121.com) and reads deeper than a direct child of an
+    //    added wildcard ("https://{label}.{label}.apps.grok.bot", which
+    //    stored grok.bot). The sanitizer throws unsafe-subject-identity,
+    //    which the reader reports as redaction-not-idempotent and the
+    //    remediation planner as unsupported-report-schema. The domain and
+    //    entity of a Shields-list tracker are recomputed from the stored host
+    //    it was matched on, in both positions that store one:
+    //    evidence.requests[].tracker from the request's domain and
+    //    evidence.cnameCloaks[].tracker from the cloak's cname
+    //    (redactTrackerMatch). They fail when the new engine computes a
+    //    different registrable domain for that stored host: at or below an
+    //    added exact rule ("{label}.abyme.dev" no longer stores abyme.dev),
+    //    anywhere under an added wildcard ("{label}.{label}.apps.grok.bot" no
+    //    longer stores grok.bot), anywhere under a removed TLD, and anywhere
+    //    under a removed private rule, allowlisted or not (every stored
+    //    domain under aliases121.com recomputes to the bare apex). A request
+    //    whose match fails publishes tracker null, so the reader and the
+    //    planner report redaction-not-idempotent; a cloak whose match fails
+    //    throws, so the reader reports redaction-not-idempotent and the
+    //    planner unsupported-report-schema (sanitizer-rejected-evidence).
+    // 6. Code paths: of 16 probes of the tldts-core change only the new city
+    //    rules move a stored position (category 1). siteProfileKey moves for
+    //    "ck" and "www.ck" (both now ck), and a host ending in a backslash
+    //    now has a party domain at scan time; neither moves a stored string.
+    // readManagedReport enters its fixed-point branch on the redaction
+    // version alone, never the normalization, so every stored redaction-v4 r2
+    // report of every era, not only 3a2328d7 ones, is re-redacted with the
+    // new engine when read, and one holding a host in category 1 to 4, or a
+    // stored registrable domain in category 5, fails closed instead of being
+    // served. Read-time party grouping of a host kept whole under a changed
+    // zone also follows the new engine.
+    // Stored positions, measured: 5749 synthetic probes (the 497 changed
+    // rules, each as the apex and under ten label shapes, the parent of each,
+    // and the 16 code-path probes) were each placed in four stored positions
+    // of a raw report (a request host, the scanned site, a request's
+    // Shields-list tracker and a cloak's Shields-list tracker), sanitized by
+    // the 7.4.16 engine, read back as a fixed point there through
+    // readManagedReport and the remediation planner, and read again under
+    // 7.5.4. Of the fixed points under 7.4.16, 260 of 5740 request hosts,
+    // 1059 of 3888 scanned sites, 1099 of 3876 request trackers and 1099 of
+    // 3876 cloak trackers stop being fixed points, all in the categories
+    // above (1852 probes have no registrable domain under 7.4.16 and cannot
+    // be stored as a site or a tracker; 21 probes at added rules, such as
+    // ap-north-1.r.cloud.int.apple, are not fixed points under 7.4.16
+    // either). No placement that 7.4.16 refused reads under 7.5.4.
+    // Committed corpus: every host-like token and URL in every tracked text
+    // file (56338 tokens and 6553 URLs from 3741 files, 2082 of them under
+    // public/, the committed reports, their provenance sidecars and the index
+    // included, and the allowlists and tracker catalogs) was run through
+    // redactHostnameV2, publicRegistrableDomain, isExactPublicSuffixHost,
+    // isGeneralizedPrivateSuffixTenantHost, partyRegistrableDomain,
+    // siteProfileKey and redactUrlV2 under both engines. Nothing under
+    // public/, in an allowlist or in a catalog moves; the 19 tokens and 2
+    // URLs that differ are test fixtures, comments of this file and the
+    // changelog and the 2026-10 epoch record. Run on 2026-11-17 at 6d9ec912
+    // and on this tree, reports:remediate --check reports all 1029 reports
+    // and sidecars current under each engine, and the two corpus-neutrality
+    // snapshots are byte-identical across 1028 comparison reports (63cef2c0),
+    // so every committed report stays a fixed point and no committed decision
+    // moves.
+    // Live store: the application stops serving a share at its 7-day expiry
+    // and the bucket's reports-retention-backstop-8d rule deletes the
+    // reports/ prefix at 8 days
+    // (research/ops-receipts/r2-lifecycle-readback.json, recorded 2026-07-31;
+    // read back with wrangler on 2026-09-30, enabled and unchanged). That
+    // rule was not read back for this epoch. Exposure is bounded to reports
+    // saved in the 8 days before the deploy that hold such a host or stored
+    // domain. The owner accepted orphaning those reports instead of
+    // remediating them on 2026-11-16, with the shape list above.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3a2328d7af1e870389650de03af6f4a0cc06561258ee8bd2b42ad6dba27ba1a1+tldts@7.4.16+node-evidence-policy-v1+r2-http-status-compat-v1",
     // Retired by the node-detectors-v21 detector epoch, which admits one
     // dynamic scanner warning through a new isScannerWarning pattern
     // (scanner-warning-patterns-v10): the v1 line fingerprint-observer@10
@@ -478,6 +597,12 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1"
   ]),
   "pagegraph-import": Object.freeze([
+    // Retired by the 2027-01 toolchain epoch's move to tldts@7.5.4; see the
+    // node-playwright entry. A PageGraph import records requests and a
+    // subject and no Shields-list match (its rows carry no ad-block
+    // identity), so of the positions listed there the host-string and
+    // subject ones apply.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3a2328d7af1e870389650de03af6f4a0cc06561258ee8bd2b42ad6dba27ba1a1+tldts@7.4.16+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     // Retired by node-detectors-v21's widening (the line for shared workers
     // that ended at once); see the node-playwright entry. A PageGraph import
     // records no fingerprint events and never emits the line, but the

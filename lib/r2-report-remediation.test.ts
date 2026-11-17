@@ -1068,6 +1068,253 @@ test("the planner and reader refuse a stored report holding a host the tldts@7.4
   }
 });
 
+test("the planner and reader refuse a stored report holding a host the tldts@7.5.4 refresh moved", () => {
+  // The 2027-01 toolchain epoch keeps accepting the 3a2328d7 identity under
+  // tldts@7.4.16, but the managed reader re-sanitizes every stored v4 report
+  // with the current engine. These are the exact bytes the 7.4.16 engine
+  // published for hosts in each failing category (see the
+  // SUPERSEDED_R2_NORMALIZATIONS entry), taken from the stored-position walk
+  // that recorded that entry: each was a fixed point under 7.4.16 and is not
+  // one under 7.5.4, so the remediation Worker's dry run (which runs this
+  // planner) must count each as an issue, and the reader must refuse it. The
+  // controls read under both engines.
+  const retired = SUPERSEDED_R2_NORMALIZATIONS["node-playwright"].find((normalization) =>
+    normalization.includes(
+      "public-string-policy-v4:3a2328d7af1e870389650de03af6f4a0cc06561258ee8bd2b42ad6dba27ba1a1+tldts@7.4.16+"
+    )
+  );
+  assert.notEqual(retired, undefined);
+  const tuple = NODE_R2_PRODUCER_TUPLES.find(
+    (candidate) => candidate.id === "node-v34-detectors-v27-active-no-adblock"
+  );
+  assert.equal(tuple?.normalizationVersion, retired);
+  const listsTuple = NODE_R2_PRODUCER_TUPLES.find(
+    (candidate) => candidate.id === "node-v34-detectors-v27-active-lists-2026-11-16"
+  );
+  assert.equal(listsTuple?.normalizationVersion, retired);
+
+  function storedWith(
+    substitute: (run: ScanRunV2R2) => void,
+    options: { producer?: (typeof NODE_R2_PRODUCER_TUPLES)[number]; raw?: (run: ScanRunV2R2) => void } = {}
+  ) {
+    const producer = options.producer ?? tuple!;
+    const report = makePublicSingleReportV2R2();
+    const run = report.run;
+    run.privacy.redactionVersion = REDACTION_VERSION;
+    run.toolchain.normalizationVersion = retired!;
+    run.provenance.methodologyVersion = producer.methodologyVersion;
+    run.provenance.detectorRegistry = { ...producer.detectorRegistry };
+    run.toolchain.trackerCatalog = { ...producer.trackerCatalog };
+    run.toolchain.adblock = producer.adblockIdentity === null ? null : { ...producer.adblockIdentity };
+    for (const id of Object.keys(run.detectors) as Array<keyof typeof run.detectors>) {
+      run.detectors[id] = { ...run.detectors[id], version: producer.detectorVersions[id] };
+    }
+    run.evidence.requests.push({
+      id: 2,
+      url: "https://cdn.tracker-example.com/app.js",
+      domain: "cdn.tracker-example.com",
+      method: "GET",
+      resourceType: "script",
+      status: 200,
+      thirdParty: true,
+      tracker: null,
+      startedAtMs: 20,
+      phaseId: 0
+    });
+    options.raw?.(run);
+    run.fingerprints = buildFingerprints({
+      conditions: run.conditions,
+      provenance: run.provenance,
+      toolchain: run.toolchain,
+      detectors: run.detectors
+    });
+    // Sanitize under the current engine first, then substitute the bytes the
+    // 7.4.16 engine published, so the substituted field is the only difference.
+    const stored = redactPublicScanReportV2R2(report);
+    if (stored.reportType !== "single") throw new Error("fixture invariant");
+    substitute(stored.run);
+    const sidecar = buildProvenanceEntry({
+      reportId: REPORT_ID,
+      publicReport: stored,
+      writtenAt: CLOCK.createdAt,
+      createdAt: CLOCK.createdAt,
+      expiresAt: CLOCK.expiresAt
+    });
+    return { reportContents: JSON.stringify(stored), sidecarContents: JSON.stringify(sidecar) };
+  }
+
+  for (const [domain, readable] of [
+    // A host equal to an added exact rule, ICANN or private, is now a suffix.
+    ["kawasaki.jp", false],
+    ["abyme.dev", false],
+    // Under an added wildcard the apex and every direct child are suffixes,
+    // whether the child's label was allowlisted or generalized.
+    ["apps.grok.bot", false],
+    ["api.apps.grok.bot", false],
+    ["{label}.apps.grok.bot", false],
+    // Under a removed ICANN TLD no host has a public boundary left.
+    ["api.helsinki", false],
+    // Under a removed private rule a label the older engine kept whole as
+    // part of the registrable domain is now generalized.
+    ["city.aliases121.com", false],
+    ["myapp.aliases121.com", false],
+    // Controls: as REQUEST hosts, a host below an added exact rule (its
+    // stored registrable domain still fails: subject and tracker rows below),
+    // a grandchild of an added wildcard, an allowlisted label under a removed
+    // rule, and a host beside a new exact rule that sits under its
+    // exception, are unchanged.
+    ["api.abyme.dev", true],
+    ["{label}.abyme.dev", true],
+    ["{label}.{label}.apps.grok.bot", true],
+    ["api.aliases121.com", true],
+    ["www.ck", true],
+    ["cdn.tracker-example.com", true]
+  ] as const) {
+    const { reportContents, sidecarContents } = storedWith((run) => {
+      const request = run.evidence.requests.find((entry) => entry.id === 2);
+      if (!request) throw new Error("fixture invariant");
+      request.url = `https://${domain}/{seg}`;
+      request.domain = domain;
+    });
+    assertStoredOutcome(domain, reportContents, sidecarContents, readable);
+  }
+
+  // A registrable domain the report STORES is recomputed on read too: the
+  // scanned site's subject keys. A site below an added exact rule keeps a
+  // fixed-point host string but stored the rule as its registrable domain,
+  // which is now a suffix; a site under a removed rule stored a domain the
+  // new engine generalizes; and a site at an added rule or under a removed
+  // TLD has no public boundary left. The sanitizer throws
+  // unsafe-subject-identity: the reader reports that as
+  // redaction-not-idempotent and the planner as unsupported-report-schema.
+  for (const [origin, registrableDomain, readable] of [
+    ["https://kawasaki.jp", "kawasaki.jp", false],
+    ["https://api.abyme.dev", "abyme.dev", false],
+    ["https://{label}.abyme.dev", "abyme.dev", false],
+    ["https://api.helsinki", "api.helsinki", false],
+    ["https://myapp.aliases121.com", "myapp.aliases121.com", false],
+    // Controls: an allowlisted site under a removed rule keeps its stored
+    // key, a site deeper than a direct child of an added wildcard keeps the
+    // registrable domain it stored, and an unchanged site reads.
+    ["https://api.aliases121.com", "api.aliases121.com", true],
+    ["https://{label}.{label}.apps.grok.bot", "grok.bot", true],
+    ["https://{label}.contoso-apps.com", "contoso-apps.com", true]
+  ] as const) {
+    const { reportContents, sidecarContents } = storedWith((run) => {
+      run.subject.requested = { ...run.subject.requested, origin, registrableDomain };
+      run.subject.observed = { ...run.subject.observed, origin, registrableDomain };
+    });
+    assertStoredOutcome(`subject ${registrableDomain}`, reportContents, sidecarContents, readable, {
+      issue: "unsupported-report-schema",
+      detail: "unsafe-subject-identity"
+    });
+  }
+
+  // The domain and entity of a Shields-list match are recomputed on read from
+  // the stored host it was matched on, in both positions that store one. These
+  // are the bytes 7.4.16 published for each; under 7.5.4 the recomputed
+  // registrable domain differs, so a request's match publishes as null (the
+  // reader and the planner report redaction-not-idempotent) and a cloak's
+  // match throws (the planner reports unsupported-report-schema,
+  // sanitizer-rejected-evidence). The tracker position fails even where the
+  // host string and the scanned-site position stay fixed.
+  const shieldsMatch = (domain: string) => ({
+    domain,
+    entity: domain,
+    category: "tracking (Brave Shields list)",
+    confidence: "shields-list" as const
+  });
+  for (const [host, trackerDomain, readable] of [
+    ["api.abyme.dev", "abyme.dev", false],
+    ["{label}.abyme.dev", "abyme.dev", false],
+    ["api.aliases121.com", "api.aliases121.com", false],
+    ["{label}.{label}.apps.grok.bot", "grok.bot", false],
+    ["api.helsinki", "api.helsinki", false],
+    // Control: an unchanged tracker host keeps its stored domain.
+    ["cdn.tracker-example.com", "tracker-example.com", true]
+  ] as const) {
+    const request = storedWith(
+      (run) => {
+        const entry = run.evidence.requests.find((candidate) => candidate.id === 2);
+        if (!entry) throw new Error("fixture invariant");
+        entry.url = `https://${host}/{seg}`;
+        entry.domain = host;
+        entry.tracker = shieldsMatch(trackerDomain);
+      },
+      {
+        producer: listsTuple!,
+        raw: (run) => {
+          const entry = run.evidence.requests.find((candidate) => candidate.id === 2);
+          if (!entry) throw new Error("fixture invariant");
+          entry.tracker = shieldsMatch("tracker-example.com");
+        }
+      }
+    );
+    assertStoredOutcome(`request tracker ${host}`, request.reportContents, request.sidecarContents, readable);
+    const cloak = storedWith(
+      (run) => {
+        const entry = run.evidence.cnameCloaks[0];
+        if (!entry) throw new Error("fixture invariant");
+        entry.cname = host;
+        entry.tracker = { ...entry.tracker, domain: trackerDomain, entity: trackerDomain };
+      },
+      {
+        producer: listsTuple!,
+        raw: (run) => {
+          run.evidence.requests.push({
+            id: 3,
+            url: "https://metrics.example.com/collect",
+            domain: "metrics.example.com",
+            method: "GET",
+            resourceType: "script",
+            status: 200,
+            thirdParty: false,
+            tracker: null,
+            startedAtMs: 30,
+            phaseId: 0
+          });
+          run.evidence.cnameCloaks = [
+            { host: "metrics.example.com", cname: "cdn.tracker-example.com", tracker: shieldsMatch("tracker-example.com") }
+          ];
+        }
+      }
+    );
+    assertStoredOutcome(`cloak tracker ${host}`, cloak.reportContents, cloak.sidecarContents, readable, {
+      issue: "unsupported-report-schema",
+      detail: "sanitizer-rejected-evidence"
+    });
+  }
+
+  function assertStoredOutcome(
+    label: string,
+    reportContents: string,
+    sidecarContents: string,
+    readable: boolean,
+    planRefusal: { issue: string; detail?: string } = { issue: "redaction-not-idempotent" }
+  ) {
+    const read = readManagedReport({ reportId: REPORT_ID, reportContents, sidecarContents, retention: CLOCK });
+    const plan = planR2ReportRemediation({
+      reportId: REPORT_ID,
+      reportContents,
+      sidecarContents,
+      retentionSource: METADATA_SOURCE,
+      writtenAt: WRITTEN_AT,
+      now: WRITTEN_AT
+    });
+    if (readable) {
+      assert.equal(read.ok, true, label);
+      assert.equal(plan.ok && plan.action, "current", label);
+    } else {
+      assert.deepEqual(read.ok ? "ok" : read.reason, "redaction-not-idempotent", label);
+      assert.deepEqual(
+        plan.ok ? plan.action : { issue: plan.issue, ...(plan.detail ? { detail: plan.detail } : {}) },
+        planRefusal,
+        label
+      );
+    }
+  }
+});
+
 test("a stored share under the identity public-string-policy-v4 retired reads unless it holds a string v4 removes", () => {
   // public-string-policy-v4 is a reviewed narrowing: the retired identity stays
   // declarable, and the reader re-runs the current sanitizer, so a share the

@@ -441,6 +441,13 @@ test("the current-line literal equals what new reports will record, so an epoch 
     id: "toolchain-2026-11",
     methodologyVersion: "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.64.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2"
   })), false);
+  // The line the 2027-01 toolchain epoch (Playwright 1.65.1) retired, which
+  // moved only the Playwright component. No committed report was on it when
+  // that epoch recorded its line.
+  assert.equal(isOnCurrentMeasurementLine(identity({
+    id: "toolchain-2026-12",
+    methodologyVersion: "shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2"
+  })), false);
   // The line lives inside the v1 benchmark generation only.
   assert.equal(
     isOnCurrentMeasurementLine(identity({ id: "x", schemaVersion: 2, methodologyVersion: CURRENT_MEASUREMENT_LINE_METHODOLOGY })),
@@ -458,7 +465,8 @@ test("the reviewed line history is append-only and ends at the current line", ()
     "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2",
     "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2",
     "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.64.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2",
-    "shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2"
+    "shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2",
+    "shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2"
   ]);
   assert.equal(Object.isFrozen(REVIEWED_MEASUREMENT_LINES), true);
   assert.equal(new Set(REVIEWED_MEASUREMENT_LINES).size, REVIEWED_MEASUREMENT_LINES.length);

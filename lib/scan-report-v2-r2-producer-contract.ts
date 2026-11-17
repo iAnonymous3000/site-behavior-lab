@@ -506,8 +506,9 @@ const HISTORICAL_NODE_V29_METHODOLOGY = "shields-request-context-v2-adblock-rust
 // Exact methodology of the 2026-12 toolchain epoch (adblock-rust 0.13.5,
 // Playwright 1.65.0), spelled out so the two v31 rows stay put when a later
 // epoch moves it. The node-detectors-v25, v26 and v27 detector epochs each
-// closed the live rows and kept this methodology: the v32 and v33 rows ran it
-// and the v34 rows run it.
+// closed the live rows and kept this methodology: the v32, v33 and v34 rows
+// ran it too, and the 2027-01 toolchain epoch, which moved it, closed the v34
+// rows to it.
 const HISTORICAL_NODE_V31_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v5+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v3+active-probe-v3+auxiliary-context-block-v1+worker-fingerprint-v1";
 // Exact normalization of the node-detectors-v12 production producer (f9d6c46e,
 // the main and production tip when it closed), closed by the 2026-10 toolchain
@@ -535,12 +536,25 @@ const HISTORICAL_NODE_V20_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04
 // the v26, v27 and v28 rows ran it under the v15 methodology, the v29 and v30
 // rows name it under the Playwright 1.64.1 methodology, and the v31, v32, v33
 // and v34 rows under the adblock-rust 0.13.5 and Playwright 1.65.0
-// methodology. It is not superseded.
+// methodology. The 2027-01 toolchain epoch retired it by moving the
+// public-suffix engine to tldts@7.5.4 under the same policy digest, the
+// recorded owner exception, so it is superseded for both observers.
 const HISTORICAL_NODE_V26_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3a2328d7af1e870389650de03af6f4a0cc06561258ee8bd2b42ad6dba27ba1a1+tldts@7.4.16+node-evidence-policy-v1+r2-http-status-compat-v1";
 
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
 > = Object.freeze({
+  // The 3a2328d7 identity under tldts@7.4.16 closed when the 2027-01 toolchain
+  // epoch moved the public-suffix engine to tldts@7.5.4. It ran under three
+  // methodologies: the v15 methodology (the node-detectors-v21 to v23 rows),
+  // the Playwright 1.64.1 methodology (the 2026-11 toolchain and
+  // node-detectors-v24 rows) and the adblock-rust 0.13.5 and Playwright 1.65.0
+  // methodology (the 2026-12 toolchain and node-detectors-v25 to v27 rows).
+  [HISTORICAL_NODE_V26_NORMALIZATION]: Object.freeze([
+    HISTORICAL_NODE_V15_METHODOLOGY,
+    HISTORICAL_NODE_V29_METHODOLOGY,
+    HISTORICAL_NODE_V31_METHODOLOGY
+  ]),
   // The bc719d41 identity under tldts@7.4.16 closed when node-detectors-v21
   // admitted the line for shared workers that ended at once. The
   // node-detectors-v15 to v20 rows ran it, all under the one v15
@@ -801,9 +815,10 @@ export const HISTORICAL_R2_LISTS_2026_10_19_ADBLOCK_0_13_5_IDENTITY = Object.fre
 
 /**
  * Frozen copy of the November 16 list snapshot under adblock-rust 0.13.5, as
- * the v33 list row published it until node-detectors-v27 closed it. The live
- * constant follows each adoption and each engine move; this closed copy never
- * does.
+ * the v33 list row published it until node-detectors-v27 closed it, and the
+ * v34 list row after it until the 2027-01 toolchain epoch closed that. The
+ * live constant follows each adoption and each engine move; this closed copy
+ * never does.
  */
 export const HISTORICAL_R2_LISTS_2026_11_16_ADBLOCK_0_13_5_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
@@ -2092,6 +2107,58 @@ const HISTORICAL_NODE_V26_FIELDS: NodeTupleFields = Object.freeze({
   phaseOmissionContractVersion: "phase-omission-v2",
 });
 
+// Exact node-detectors-v27 producer fields (policy-text-cross-check@14),
+// frozen when the 2027-01 toolchain epoch closed the two v34 rows, taken from
+// the tables at 6d9ec912 by executing them. No detector moved in that epoch,
+// so the active fields still equal these today; the closed rows must not
+// follow them when a later detector epoch moves.
+const HISTORICAL_NODE_V27_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: Object.freeze({
+    "version": "node-detectors-v27",
+    "digest": "2ac1c5c3eefb8acdbb28e13f1142b39d6f2518011c9f72cdde081859aa5d44e0"
+  } as const),
+  detectorVersions: Object.freeze({
+    "fingerprint-heuristics": "fingerprint-observer@15",
+    "keystroke-exfiltration": "synthetic-sentinel@6",
+    "cname-uncloaking": "dns-cname-chain@6",
+    "pixel-events": "pixel-request-decoder@6",
+    "consent-banner": "consent-control-and-state@5",
+    "privacy-policy": "policy-text-cross-check@14"
+  } as const),
+  detectorStatusContractVersion: "detector-status-v2",
+  detectorObligations: Object.freeze({
+    "version": "detector-obligations-v3",
+    "digest": "f023d19e5cce23873ecd61af6d5f957002db137c8d81883f11965ab1afa518b2"
+  } as const),
+  serviceRoleTaxonomy: Object.freeze({
+    "version": "service-role-taxonomy-v1",
+    "digest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67"
+  } as const),
+  trackerCatalog: Object.freeze({
+    "source": "Hand-curated service catalog",
+    "version": "hand-curated-2026.08",
+    "entries": 146,
+    "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+  } as const),
+  publicLimits: Object.freeze({
+    "phases": 16,
+    "warnings": 64,
+    "requests": 1000,
+    "cookieRecords": 1000,
+    "cookieMutations": 2000,
+    "storageRecords": 1000,
+    "storageMutations": 2000,
+    "fingerprintEvents": 1000,
+    "fingerprintDetections": 256,
+    "cnameCloaks": 256,
+    "pixelEvents": 512,
+    "consentObservations": 32,
+    "policyClaims": 32,
+    "policyEntities": 100
+  } as const),
+  phaseOmissionContractVersion: "phase-omission-v2",
+});
+
 const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
   isDetectorReasonCode("evidence-cap-reached") ? "detector-status-v2" : "detector-status-v1";
 const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
@@ -2129,30 +2196,29 @@ function nodeTuple(
   });
 }
 
-// Closed rows retain their exact literals; the node-detectors-v27 detector
-// epoch defines v34. It moves the privacy-policy cross-check
-// (policy-text-cross-check@14, which fetches a direct PDF policy with undici
-// 8.12.4 and reads it with pdf.js 6.5.438, where @13 used 8.12.3 and 6.3.289)
-// with the registry; the methodology, normalization, obligations, lists,
-// toolchain and every other field are unchanged from v33, whose two live rows,
-// the November 16 list row and the no-list row, are closed below in
-// NODE_R2_PRODUCER_TUPLES.
+// Closed rows retain their exact literals; the 2027-01 toolchain epoch defines
+// v35. It moves the methodology's Playwright component (1.65.0 to 1.65.1, with
+// bundled Chromium 158.0.8127.18 to 159.0.8154.6) and the normalization's
+// public-suffix engine (tldts@7.4.16 to tldts@7.5.4, under the same 3a2328d7
+// policy digest). The detectors, registry, obligations, lists, catalog and
+// every other field are unchanged from v34, whose two live rows, the November
+// 16 list row and the no-list row, are closed below in NODE_R2_PRODUCER_TUPLES.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V31_METHODOLOGY ||
   String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V26_NORMALIZATION ||
-  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V26_FIELDS);
+  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V27_FIELDS);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v34-detectors-v27-active-lists-2026-11-16",
+        "node-v35-toolchain-2027-01-active-lists-2026-11-16",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v34-detectors-v27-active-no-adblock",
+        "node-v35-toolchain-2027-01-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -2815,6 +2881,20 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     HISTORICAL_NODE_V26_NORMALIZATION, HISTORICAL_NODE_V31_METHODOLOGY,
     HISTORICAL_NODE_V26_FIELDS, null
   ),
+  // The node-detectors-v27 producer, with the November 16 lists and without
+  // lists, closed to its exact source identity by the 2027-01 toolchain epoch:
+  // the v31 methodology (adblock-rust 0.13.5, Playwright 1.65.0), the 3a2328d7
+  // policy digest under tldts 7.4.16, node-detectors-v27
+  // (policy-text-cross-check@14) and, for the list row, the frozen November 16
+  // lists under adblock-rust 0.13.5.
+  nodeTuple("node-v34-detectors-v27-active-lists-2026-11-16",
+    HISTORICAL_NODE_V26_NORMALIZATION, HISTORICAL_NODE_V31_METHODOLOGY,
+    HISTORICAL_NODE_V27_FIELDS, HISTORICAL_R2_LISTS_2026_11_16_ADBLOCK_0_13_5_IDENTITY
+  ),
+  nodeTuple("node-v34-detectors-v27-active-no-adblock",
+    HISTORICAL_NODE_V26_NORMALIZATION, HISTORICAL_NODE_V31_METHODOLOGY,
+    HISTORICAL_NODE_V27_FIELDS, null
+  ),
   ...ACTIVE_NODE_TUPLES
 ]);
 
@@ -2944,7 +3024,13 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:bc719d41df186ae38fdb34695df43780a816d32b41068a6107cd35035269844e+tldts@7.4.16+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     HISTORICAL_R2_2026_08_TRACKER_CATALOG
   ),
-  pageGraphTuple("pagegraph-v4-shared-worker-ended-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
+  // Closed by the 2027-01 toolchain epoch, which moved the public-suffix engine
+  // from tldts@7.4.16 to tldts@7.5.4 under the same policy digest.
+  pageGraphTuple("pagegraph-v4-shared-worker-ended-active",
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v4:3a2328d7af1e870389650de03af6f4a0cc06561258ee8bd2b42ad6dba27ba1a1+tldts@7.4.16+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
+    HISTORICAL_R2_2026_08_TRACKER_CATALOG
+  ),
+  pageGraphTuple("pagegraph-v4-tldts754-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
     methodologyVersion: PAGEGRAPH_R2_METHODOLOGY_VERSION,
     publicLimits: PAGEGRAPH_R2_PUBLIC_LIMITS,
     detectorRegistry: PAGEGRAPH_REGISTRY,

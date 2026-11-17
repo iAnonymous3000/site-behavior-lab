@@ -961,6 +961,11 @@ function previousNodeScannerDisclosure(
  * outgoing identity here.
  */
 const HISTORICAL_NODE_SCANNER_METHODOLOGIES: readonly string[] = Object.freeze([
+  // Retired by the 2027-01 toolchain epoch (Playwright 1.65.1). No committed
+  // report carried it when that epoch recorded it, on 2026-11-17. It is the
+  // base a scanner built from the 2026-12 toolchain epoch records, so a report
+  // such a scanner wrote stays a fixed point here.
+  "shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2",
   // Retired by the 2026-12 toolchain epoch (adblock-rust 0.13.5, Playwright
   // 1.65.0). No committed report carried it when that epoch recorded it, on
   // 2026-11-10. It is the base a scanner built from the 2026-11 toolchain
