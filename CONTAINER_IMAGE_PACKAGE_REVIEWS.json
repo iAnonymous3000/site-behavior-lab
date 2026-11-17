@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "artifactKind": "site-behavior-container-image-package-review-ledger",
-  "inventoryPackageSetDigest": "cde067a50250f238572fcc922f50aacc2bcd46b7d29be99649daa319909dc673",
+  "inventoryPackageSetDigest": "f6e674e2f108f595be331519cd13bc7e7701adfa3a8eddc536ca51969696b871",
   "notice": "Rows are synchronized from an exact smoke-tested container OS-package inventory. New or changed package evidence is unreviewed until a human records a substantive license determination and resolves every distribution obligation. Scanner output is evidence, not a legal conclusion.",
   "reviews": [
     {
@@ -5164,8 +5164,8 @@
       "notes": null
     },
     {
-      "key": "os:ubuntu:nodejs@26.13.0#amd64",
-      "inventoryEvidenceDigest": "d74840e016507677fdb67ad2c6a2173afc203bb0ff5344295351023db4cc64fe",
+      "key": "os:ubuntu:nodejs@26.13.1#amd64",
+      "inventoryEvidenceDigest": "eecfe29415fcc8b730df0c825fdd1ca6bf7d1806372249a0211d7dacddcc3b2e",
       "status": "unreviewed",
       "determinedLicense": null,
       "licenseEvidenceRefs": [],
