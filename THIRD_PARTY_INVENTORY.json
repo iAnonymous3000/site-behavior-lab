@@ -7,7 +7,7 @@
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",
-      "sha256": "5549b2f4bf3563a75b241e0199ca2c7f8b4534f08382f0a698b6b806f434a5ad"
+      "sha256": "6e19cf2184572799c581e50b64b13150ed9e594fb6b50ef6e90939e1e21042f1"
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
@@ -1775,25 +1775,25 @@
     },
     {
       "name": "playwright",
-      "version": "1.65.0",
+      "version": "1.65.1",
       "lockPath": "node_modules/playwright",
       "license": "Apache-2.0",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.65.0.tgz",
-      "integrity": "sha512-F3AMWcR44qMBt4kq+6Kb6mX7bjGXshktKFOPULd7reED6ZJWevjbNRqysP7q+AATE9kdPEZBibex1BYsvpVoeA==",
+      "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.65.1.tgz",
+      "integrity": "sha512-vJ1FuoOrNwOKHUIVEvSt3jT1L+wjjDpwhwIstKtfvTh8XIG4FG4bIFuvNdMxi81LGfAhUgUZleVFaOLY4RIUUw==",
       "developmentOnly": false,
       "optional": false
     },
     {
       "name": "playwright-core",
-      "version": "1.65.0",
+      "version": "1.65.1",
       "lockPath": "node_modules/playwright-core",
       "license": "Apache-2.0",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.65.0.tgz",
-      "integrity": "sha512-vNSKgH6YqtN7cdT/L334zo0a+YwkrpicyrHJlWWPIm/Q+Nn2SWInil01oT0mbu96U4GgoRtCYQD9CzJQgju+lA==",
+      "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.65.1.tgz",
+      "integrity": "sha512-hqPpz7blSMPxWVdoeE1yiBSzXsKiVOd2k+kjCvmUywD2GPO2Dd9HfcWnq9NN0GHbNZDFgZ9JfBFr+X5/BLo0qw==",
       "developmentOnly": false,
       "optional": false
     },
