@@ -164,7 +164,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
-    "@cloudflare/workers-types": "^5.20261110.1",
+    "@cloudflare/workers-types": "^5.20261113.1",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
