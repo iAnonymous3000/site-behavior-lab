@@ -30,6 +30,11 @@
       "tagCommit": "6449d9f9a6a906edff724b7b220199b3fde4615c",
       "committedAt": "2026-11-04T01:08:26Z",
       "bundledBy": "Playwright 1.65.0"
+    },
+    "159.0.8154.6": {
+      "tagCommit": "98a2592026af8d673b9fa83b626ac68bdf4ae78a",
+      "committedAt": "2026-11-11T21:11:54Z",
+      "bundledBy": "Playwright 1.65.1"
     }
   }
 }

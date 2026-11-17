@@ -22,12 +22,18 @@ import { browserProcessEnvironment, SCAN_CHROMIUM_LAUNCH_ARGS } from "./scanner"
  *
  * This records a fact. On 2026-11-03 the owner delegated the choice of
  * semantics, and the recommendation taken was to keep the scan browser within
- * its 70 days. Recorded 2026-11-10: Playwright 1.65.0's Chromium 158.0.8127.18
- * applies the list. Its version tag was committed 2026-11-04 01:08:26 UTC, so
- * its estimated cutoff is 2027-01-13 01:08 UTC, on the assumption that the
- * build time IsBuildTimely() compares is the tag's commit time, an assumption
- * one lapse has confirmed so far. That lapse: Playwright 1.63.0's Chromium
- * 153.0.8010.12 (tag committed 2026-08-25 20:20:53 UTC) stopped applying the
+ * its 70 days. Recorded 2026-11-17: Playwright 1.65.1's Chromium 159.0.8154.6
+ * is the scan browser this source installs. Its version tag was committed
+ * 2026-11-11 21:11:54 UTC, so its estimated cutoff is 2027-01-20 21:11 UTC, on
+ * the assumption that the build time IsBuildTimely() compares is the tag's
+ * commit time, an assumption one lapse has confirmed so far. This test has not
+ * run on that build on this record's date: it runs in the Linux image build.
+ * Before it, Playwright 1.65.0's Chromium 158.0.8127.18 applied the list when
+ * it was recorded on 2026-11-10; its tag was committed 2026-11-04 01:08:26
+ * UTC, so its estimated cutoff is 2027-01-13 01:08 UTC, and the 2027-01
+ * toolchain epoch moved the browser in this source before that time. The one
+ * confirmed lapse: Playwright 1.63.0's Chromium 153.0.8010.12 (tag committed
+ * 2026-08-25 20:20:53 UTC) stopped applying the
  * list on 2026-11-03 between two gate runs, a window that holds the predicted
  * 20:20:53 UTC, and this test expected that until the 2026-11 toolchain epoch
  * moved the browser. That epoch's Chromium 156.0.8078.4 (Playwright 1.64.1,
@@ -71,7 +77,7 @@ function mismatch(version: string, name: string, plain: boolean, upgraded: boole
   return `Chromium ${version} does not apply its HSTS preload list to ${name}: its build is likely more than 70 days old (scripts/chromium-hsts-preload-cutoff.mjs estimates each cutoff), so scans send http:// requests to preloaded names as http. Keeping the scan browser within its 70 days needs the next toolchain epoch; do not change PRELOAD_APPLIED to make this pass.`;
 }
 
-test(`the scan browser, Chromium ${BUNDLED_CHROMIUM}, applies its HSTS preload list (expectation recorded 2026-11-10)`, { timeout: 60_000 }, async (t) => {
+test(`the scan browser, Chromium ${BUNDLED_CHROMIUM}, applies its HSTS preload list (expectation recorded 2026-11-17)`, { timeout: 60_000 }, async (t) => {
   const seen: string[] = [];
   const proxy = createServer((request, response) => {
     seen.push(`${request.method} ${request.url}`);
