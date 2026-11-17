@@ -4,7 +4,7 @@ ARG SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF=""
 # Keep one literal, immutable external base so Docker Dependabot can update it.
 # lib/toolchain-provenance.test.ts ties this tag to package.json and requires
 # the digest, preventing the runtime image from drifting behind the scanner.
-FROM mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e6da6d2674e5e89fa16516cb37d6fdd91372273d AS playwright-base
+FROM mcr.microsoft.com/playwright:v1.65.1-noble@sha256:1507cbfc550a63a6b7396791ca4f00df17beb56342d2447b3f106c306f525579 AS playwright-base
 
 # The digest-pinned Playwright base intentionally carries a newer runtime than
 # the host/Actions authoring toolchain, and from the v1.65.0-noble base a
@@ -30,12 +30,12 @@ FROM mcr.microsoft.com/playwright:v1.65.0-noble@sha256:6e3fb709361521eb27161606e
 # are two copies of that layer in the runtime image. An emulated build does
 # not show it: there these commands leave Node's compile cache in /tmp, so the
 # layer is not empty, while a native build leaves nothing.
-RUN test "$(node --version)" = "v26.13.0" \
+RUN test "$(node --version)" = "v26.13.1" \
   && test "$(npm --version)" = "11.20.0" \
-  && set -- /ms-playwright/chromium_headless_shell-1254/*/chrome-headless-shell \
+  && set -- /ms-playwright/chromium_headless_shell-1255/*/chrome-headless-shell \
   && test "$#" -eq 1 \
   && test -x "$1" \
-  && test "$("$1" --version)" = "Google Chrome for Testing 158.0.8127.18"
+  && test "$("$1" --version)" = "Google Chrome for Testing 159.0.8154.6"
 
 # Dependencies depend on the lockfile and pinned base, not the source commit
 # or public build identity. Keep these layers reusable when either changes;
@@ -47,14 +47,15 @@ FROM playwright-base AS deps
 # Independent ZIP interoperability checks use the system reader. Install it
 # only in the build stages; the scanner runtime does not need archive tools.
 #
-# The apt that downloads here is the base's 2.8.3, the one CVE-2026-109518
-# names (remote code execution via hard link reuse during package download
-# retries, fixed in 2.8.4ubuntu0.1). So it downloads with its retries off and
-# from HTTPS sources only, and a failed download fails the step. The runner
+# The apt that downloads here is the base's. Until the v1.65.1-noble base it
+# was 2.8.3, the one CVE-2026-109518 names (remote code execution via hard
+# link reuse during package download retries, fixed in 2.8.4ubuntu0.1); this
+# base ships 2.8.4ubuntu0.1. It still downloads with its retries off and from
+# HTTPS sources only, and a failed download fails the step. The runner
 # stage's upgrade step, which does the same, says why at length. The https
 # source both read is Ubuntu's snapshot of its archive at one fixed time,
 # which also makes the unzip this stage installs the same in every build.
-RUN sed -i 's|^URIs: .*|URIs: https://snapshot.ubuntu.com/ubuntu/20261110T000000Z/|' /etc/apt/sources.list.d/ubuntu.sources \
+RUN sed -i 's|^URIs: .*|URIs: https://snapshot.ubuntu.com/ubuntu/20261116T000000Z/|' /etc/apt/sources.list.d/ubuntu.sources \
   && ! grep -rqsE '^[^#]*http://' /etc/apt/sources.list /etc/apt/sources.list.d \
   && apt-get -o Acquire::Retries=0 -o APT::Update::Error-Mode=any update \
   && apt-get -o Acquire::Retries=0 install -y --no-install-recommends unzip \
@@ -145,16 +146,19 @@ FROM playwright-base AS runner
 # The image scan refuses a base package with a HIGH or CRITICAL advisory, so
 # this step upgrades exactly the packages one names to the patched Ubuntu
 # version. CVE-2026-109518 (HIGH, remote code execution via hard link reuse
-# during package download retries): the base ships apt and libapt-pkg6.0t64
-# 2.8.3, fixed in 2.8.4ubuntu0.1. The upgrade installs no package and removes
-# none. The container package ledger keys packages by upstream version, and
-# the apt fix changes the version its apt and libapt-pkg6.0t64 rows key on,
-# so they move with it. Drop each pin when a base digest ships its fix.
-# The base already ships libssl3t64 and openssl 3.0.13-0ubuntu3.16, past
-# CVE-2026-84782 (HIGH, OpenSSL), and libbrotli1 1.1.0-2ubuntu0.1, past
-# CVE-2026-111497 (HIGH, an out-of-bounds write in the Brotli decoder), so
-# they are not pinned; the end of this step fails the build if a base ever
-# ships an older one.
+# during package download retries): bases up to v1.65.0-noble shipped apt and
+# libapt-pkg6.0t64 2.8.3, fixed in 2.8.4ubuntu0.1. The v1.65.1-noble base
+# ships 2.8.4ubuntu0.1 (read 2026-11-16 on linux/amd64 and linux/arm64), so
+# the pinned upgrade finds both packages at their pin and changes nothing; the
+# pin stays, with its check, until its removal is reviewed. The upgrade
+# installs no package and removes none. The container package ledger keys
+# packages by upstream version, and the apt fix changes the version its apt
+# and libapt-pkg6.0t64 rows key on, so they move with it. Drop each pin when a
+# base digest ships its fix. The base already ships libssl3t64 and openssl
+# 3.0.13-0ubuntu3.16, past CVE-2026-84782 (HIGH, OpenSSL), and libbrotli1
+# 1.1.0-2ubuntu0.1, past CVE-2026-111497 (HIGH, an out-of-bounds write in the
+# Brotli decoder), so they are not pinned; the end of this step fails the
+# build if a base ever ships an older one.
 #
 # That check fails the image build unless every package an advisory above
 # names is installed exactly once and at or past its fix: libssl3t64, openssl
@@ -180,22 +184,22 @@ FROM playwright-base AS runner
 # stage's layers only (.github/workflows/ci.yml), so every image build there
 # still runs this step.
 #
-# The apt that downloads in this step, and in the deps stage's step, is the
-# base's 2.8.3: the fixed apt is in place only once this step's install has
-# ended. CVE-2026-109518 is in that apt's download retries, so every apt-get
-# that downloads in the two steps carries -o Acquire::Retries=0, and the
-# retry path stays off until the fixed apt is the one downloading. apt's
-# built-in default is 3 retries and no file in the base sets another, so
-# until this was added the build let the vulnerable apt retry. With retries
-# off, a download that fails fails the step. That is the intended trade:
-# build again. apt-get update would not keep it by itself: it exits 0 when
-# an index fails to download, and the install after it then reads whatever
-# indexes did arrive. So each apt-get update also carries
-# -o APT::Update::Error-Mode=any, and one failed index fails the command:
-# with retries off, a failed index must fail the step, not thin the package
-# lists silently. The step is not retried from the shell either: a second
-# attempt in the same layer would meet whatever files the first left behind,
-# and reuse of what an earlier attempt left is what the advisory names.
+# Until the v1.65.1-noble base, the apt that downloaded in this step, and in
+# the deps stage's step, was the base's 2.8.3: the fixed apt was in place only
+# once this step's install had ended. CVE-2026-109518 is in that apt's
+# download retries, so every apt-get that downloads in the two steps carries
+# -o Acquire::Retries=0, and the retry path stays off until the fixed apt is
+# the one downloading. apt's built-in default is 3 retries and no file in the
+# base sets another, so until this was added the build let the vulnerable apt
+# retry. With retries off, a download that fails fails the step. That is the
+# intended trade: build again. apt-get update would not keep it by itself: it
+# exits 0 when an index fails to download, and the install after it then reads
+# whatever indexes did arrive. So each apt-get update also carries
+# -o APT::Update::Error-Mode=any, and one failed index fails the command: with
+# retries off, a failed index must fail the step, not thin the package lists
+# silently. The step is not retried from the shell either: a second attempt in
+# the same layer would meet whatever files the first left behind, and reuse of
+# what an earlier attempt left is what the advisory names.
 #
 # The base's Ubuntu sources are plain http. Each of the two steps first
 # moves them to https, then fails if any apt source still names http://, so
@@ -203,7 +207,7 @@ FROM playwright-base AS runner
 # and a base whose sources the rewrite misses cannot leave it on plain http
 # unseen. The base ships ca-certificates; without it the fetch fails, and
 # nothing falls back to http. The runtime image keeps the https sources.
-# Drop the option with the apt pin, when a base ships the fixed apt:
+# Drop the option with the apt pin, now that a base ships the fixed apt:
 # lib/toolchain-provenance.test.ts requires it while the pin stands, and at
 # any time refuses a retry count above 0 and a plain http apt source.
 #
@@ -221,21 +225,21 @@ FROM playwright-base AS runner
 #
 # The first command therefore rewrites every URIs line of the base's Ubuntu
 # sources to the snapshot, the security pocket's among them. After the
-# install, two commands fail the build unless the security pocket's index
-# came from the snapshot service and no index came from any other
-# ubuntu.com host, so a base whose sources the rewrite misses cannot fall
-# back to a live mirror unseen. apt's own --snapshot option is not used.
-# Measured in this base on 2026-11-10: given to apt-get update on
-# linux/amd64 it fetches the live mirrors' indexes beside the snapshot's,
-# and the install then resolves against the live ones; on linux/arm64,
-# whose mirror host apt does not know, it is ignored without a word. The
-# NodeSource index is still fetched live, and nothing is installed from it.
-# Hosted CI runs this step in every image build, and with retries off one
-# bad answer from the snapshot service fails that build.
+# install, two commands fail the build unless the security pocket's index came
+# from the snapshot service and no index came from any other ubuntu.com host,
+# so a base whose sources the rewrite misses cannot fall back to a live mirror
+# unseen. apt's own --snapshot option is not used. Measured in the
+# v1.65.0-noble base on 2026-11-10: given to apt-get update on linux/amd64 it
+# fetches the live mirrors' indexes beside the snapshot's, and the install
+# then resolves against the live ones; on linux/arm64, whose mirror host apt
+# does not know, it is ignored without a word. The NodeSource index is still
+# fetched live, and nothing is installed from it. Hosted CI runs this step in
+# every image build, and with retries off one bad answer from the snapshot
+# service fails that build.
 # docs/toolchain-epoch.md says how to choose the time, and
 # lib/toolchain-provenance.test.ts holds every step that runs apt-get
 # update to the one time, fixed and past.
-RUN sed -i 's|^URIs: .*|URIs: https://snapshot.ubuntu.com/ubuntu/20261110T000000Z/|' /etc/apt/sources.list.d/ubuntu.sources \
+RUN sed -i 's|^URIs: .*|URIs: https://snapshot.ubuntu.com/ubuntu/20261116T000000Z/|' /etc/apt/sources.list.d/ubuntu.sources \
   && ! grep -rqsE '^[^#]*http://' /etc/apt/sources.list /etc/apt/sources.list.d \
   && apt-get -o Acquire::Retries=0 -o APT::Update::Error-Mode=any update \
   && apt-get -o Acquire::Retries=0 install -y --no-install-recommends --only-upgrade \
