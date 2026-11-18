@@ -398,6 +398,34 @@ function observationHasDigestBoundProvenance(observation, expectedBuildCommit) {
   );
 }
 
+/**
+ * An attempt the scanner answered with a report, whether or not the report
+ * passed the invariants. A positive list, so an outcome added later is never
+ * counted as answered by accident.
+ */
+export function isAnsweredOutcome(outcome) {
+  return outcome === "pass" || outcome === "invariant-failure";
+}
+
+/**
+ * How many answered reports carried each censored family, read from the
+ * written ledger. Each attempt's censoredFamilies is already deduplicated, so a
+ * comparison censored in both arms counts once, in the same unit as
+ * answeredRuns: one report per attempt. Sorted by count, then by family name.
+ */
+export function censoredFamilyTally(ledger) {
+  const counts = new Map();
+  for (const attempt of ledger.attempts) {
+    if (!isAnsweredOutcome(attempt.outcome)) continue;
+    for (const family of new Set(attempt.censoredFamilies)) {
+      counts.set(family, (counts.get(family) ?? 0) + 1);
+    }
+  }
+  return [...counts].sort(
+    (left, right) => right[1] - left[1] || (left[0] < right[0] ? -1 : left[0] > right[0] ? 1 : 0)
+  );
+}
+
 export function buildAttemptLedger(input) {
   const repetitions = requiredInteger(input.repetitions, "repetitions", 1);
   const selectedTargets = requiredInteger(input.selectedTargets, "selectedTargets", 1);
@@ -430,7 +458,7 @@ export function buildAttemptLedger(input) {
   }));
   const repeatability = summarizeRepeatability(input.attempts);
   const answeredTargets = new Set(
-    input.attempts.filter((attempt) => attempt.outcome !== "scan-failure").map((attempt) => attempt.url)
+    input.attempts.filter((attempt) => isAnsweredOutcome(attempt.outcome)).map((attempt) => attempt.url)
   ).size;
   const passedRuns = attempts.filter((attempt) => attempt.outcome === "pass").length;
   const invariantFailedRuns = attempts.filter((attempt) => attempt.outcome === "invariant-failure").length;
@@ -522,7 +550,7 @@ export function buildAttemptLedger(input) {
     plannedRuns,
     attemptedRuns: attempts.length,
     answeredTargets,
-    answeredRuns: attempts.filter((attempt) => attempt.outcome !== "scan-failure").length,
+    answeredRuns: attempts.filter((attempt) => isAnsweredOutcome(attempt.outcome)).length,
     passedRuns,
     invariantFailedRuns,
     scanFailedRuns,

@@ -62,6 +62,8 @@ type StudyHelpers = {
     targets: Array<Record<string, any>>;
   };
   buildAttemptLedger(input: Record<string, any>): Record<string, any>;
+  isAnsweredOutcome(outcome: string): boolean;
+  censoredFamilyTally(ledger: Record<string, any>): Array<[string, number]>;
   scannerFidelityAttemptLedgerDigest(ledger: unknown): string;
   scannerFidelityAttemptLedgerIssues(
     ledger: unknown,
@@ -366,6 +368,84 @@ test("the fidelity receipt retains every attempt, provenance, thresholds, and no
   assert.equal(ledger.attempts[0].observation.arms.run.producerRuntime.identityDigest.length, 64);
   assert.equal(ledger.receiptDigest.length, 64);
   assert.equal(JSON.stringify(ledger).includes("private-to-the-study.example"), false);
+});
+
+function ledgerOf(
+  build: StudyHelpers["buildAttemptLedger"],
+  attempts: Attempt[],
+  options: { selectedTargets: number; minimumAnsweringTargets?: number }
+): Record<string, any> {
+  return build({
+    createdAt: "2026-07-28T00:00:00.000Z",
+    collection: {
+      startedAt: "2026-07-27T23:58:00.000Z",
+      completedAt: "2026-07-27T23:59:00.000Z"
+    },
+    baseOrigin: "http://127.0.0.1:3000",
+    sitesFile: "public/scanner-fidelity-sites.json",
+    shardIndex: 0,
+    shardCount: 1,
+    conditions: { mode: "shields" },
+    provenance: RECEIPT_PROVENANCE,
+    acceptanceThresholds: {
+      minimumAnsweringTargets: options.minimumAnsweringTargets ?? 1,
+      minimumRepeatableTargets: 0
+    },
+    repetitions: 1,
+    selectedTargets: options.selectedTargets,
+    attempts
+  });
+}
+
+function targetAttempt(index: number, fields: Partial<Attempt>): Attempt {
+  return {
+    ...attempt(1, comparisonObservation(10, 10, ["a.example"], "AB")),
+    url: `https://target-${index}.example/`,
+    ...fields
+  };
+}
+
+test("the censoring tally counts reports, in the unit of answeredRuns, from the written ledger", async () => {
+  const { buildAttemptLedger, censoredFamilyTally } = await helpers;
+  const ledger = ledgerOf(
+    buildAttemptLedger,
+    [
+      // One comparison report censored in BOTH arms: the invariant observer
+      // pushes the family once per arm, and the ledger stores it once.
+      targetAttempt(1, { censoredFamilies: ["detector-output", "detector-output"] }),
+      targetAttempt(2, { censoredFamilies: ["detector-output", "requests"] }),
+      targetAttempt(3, {
+        outcome: "invariant-failure",
+        reason: "fixture invariant",
+        censoredFamilies: ["requests"]
+      }),
+      targetAttempt(4, {
+        outcome: "scan-failure",
+        reason: "the target refused",
+        censoredFamilies: [],
+        observation: null
+      })
+    ],
+    { selectedTargets: 4 }
+  );
+  const tally = censoredFamilyTally(ledger);
+
+  assert.deepEqual(tally, [
+    ["detector-output", 2],
+    ["requests", 2]
+  ], "a family censored in both arms of one report counts once");
+  assert.equal(ledger.answeredRuns, 3, "a refused target is not an answered run");
+  for (const [family, count] of tally) {
+    assert.ok(count <= ledger.answeredRuns, `${family}: ${count} is more than ${ledger.answeredRuns} answered reports`);
+  }
+});
+
+test("only a report the scanner returned counts as answered", async () => {
+  const { isAnsweredOutcome } = await helpers;
+  assert.equal(isAnsweredOutcome("pass"), true);
+  assert.equal(isAnsweredOutcome("invariant-failure"), true);
+  assert.equal(isAnsweredOutcome("scan-failure"), false);
+  assert.equal(isAnsweredOutcome("an-outcome-added-later"), false);
 });
 
 test("the fidelity ledger validates exact provenance and both canonical digests", async () => {

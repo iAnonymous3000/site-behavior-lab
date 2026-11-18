@@ -31,6 +31,7 @@ import { ensureRenderBridge, evaluateScanBody } from "./scanner-fidelity-invaria
 import {
   boundedInteger,
   buildAttemptLedger,
+  censoredFamilyTally,
   sanitizeAttemptReason,
   scannerFidelitySitesOf,
   selectShard
@@ -131,7 +132,6 @@ console.log(
 // will not compile, that is a red gate, not a reason to silently check less.
 const bridge = ensureRenderBridge();
 const answeredTargets = new Set();
-const censoredFamilies = new Map();
 const attempts = [];
 const collectionStartedAt = new Date().toISOString();
 
@@ -158,9 +158,6 @@ for (const site of sites) {
     }
     answeredTargets.add(site.url);
     const evaluation = evaluateScanBody(site.url, result.report, bridge);
-    for (const family of evaluation.censored) {
-      censoredFamilies.set(family, (censoredFamilies.get(family) ?? 0) + 1);
-    }
     for (const entry of evaluation.censoredDetail ?? []) {
       console.log(
         `  censored ${entry.tag} ${entry.family}: reasons ${entry.reasons.join(", ") || "-"}; losses ${entry.losses.join(", ") || "-"}` +
@@ -233,10 +230,14 @@ console.log(
   `\n${answeredTargets.size}/${sites.length} targets answered; ${checks} invariant-clean, ` +
   `${failures} invariant failure(s); gate ${ledger.acceptance.outcome}`
 );
-if (censoredFamilies.size > 0) {
+// Tallied from the written ledger, one report per answered attempt, so the
+// numerator and answeredRuns share a unit: a comparison censored in both arms
+// is one report, not two.
+const censoredFamilyCounts = censoredFamilyTally(ledger);
+if (censoredFamilyCounts.length > 0) {
   console.log("censoring observed (reported, not asserted; sites differ):");
-  for (const [family, count] of [...censoredFamilies].sort((a, b) => b[1] - a[1])) {
-    console.log(`  ${count}/${ledger.answeredRuns} ${family}`);
+  for (const [family, count] of censoredFamilyCounts) {
+    console.log(`  ${count}/${ledger.answeredRuns} reports ${family}`);
   }
 }
 
