@@ -581,7 +581,7 @@ function extractSchemaRequestProvenance(
   index: GraphIndex
 ): NetworkRequestProvenance | undefined {
   const actor = requestStart.source ? index.recordsById.get(requestStart.source) : undefined;
-  const attributedScript = scriptForActor(actor, index);
+  const attributedScript = scriptForActor(actor, index, requestStart);
   const injector = attributedScript ? injectorForScript(attributedScript, index) : undefined;
   const actorUrl = firstUrl(actor);
   const scriptUrl = firstUrl(attributedScript);
@@ -687,18 +687,49 @@ function requestCompletionMap(edges: GraphRecord[]): Map<string, GraphRecord> {
   return completions;
 }
 
-function scriptForActor(actor: GraphRecord | undefined, index: GraphIndex): GraphRecord | undefined {
+/**
+ * The script that made an element's request. A create or insert edge can
+ * credit a script only if it happened at or before the request started: an
+ * element the parser created and requested, which a script inserted again
+ * later, was not loaded by that script. Without a readable timestamp on the
+ * request or on the edge there is no order to read, so the script stays
+ * unattributed rather than guessed. Within one millisecond the capture cannot
+ * order an insertion against a request, so a same-millisecond edge counts as
+ * before it.
+ */
+function scriptForActor(
+  actor: GraphRecord | undefined,
+  index: GraphIndex,
+  requestStart: GraphRecord
+): GraphRecord | undefined {
   if (!actor) return undefined;
   if (nodeType(actor) === "script") return actor;
 
+  const requestedAt = graphTimestamp(requestStart);
+  if (requestedAt === undefined) return undefined;
   for (const edge of index.incomingByTarget.get(actor.id) ?? []) {
     const type = edgeType(edge);
     if (type !== "create node" && type !== "insert node") continue;
+    const happenedAt = graphTimestamp(edge);
+    if (happenedAt === undefined || happenedAt > requestedAt) continue;
     const source = edge.source ? index.recordsById.get(edge.source) : undefined;
     if (nodeType(source) === "script") return source;
   }
 
   return undefined;
+}
+
+/**
+ * A record's own timestamp, or undefined when it has none that reads as a
+ * plain non-negative decimal. Not numberField: Number reads whitespace as 0,
+ * which would place an edge with a blank timestamp before every request, and
+ * it also accepts forms such as 0x10 and 1e3 that no capture writes.
+ */
+function graphTimestamp(record: GraphRecord): number | undefined {
+  const value = firstField(record, ["timestamp"]);
+  if (value === undefined || !/^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$/.test(value)) return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
 }
 
 function injectorForScript(script: GraphRecord, index: GraphIndex): GraphRecord | undefined {

@@ -618,3 +618,22 @@ test("capture identities and environment facts cannot use guessed placeholders",
   credentialUrl.capture.requestedUrl = "https://user:password@www.wikipedia.org/";
   assert.throws(() => parsePageGraphCaptureMetadata(credentialUrl), /credential-free/);
 });
+
+test("a script that inserted an element after its request is not credited in the r2 rows", () => {
+  const original = new TextDecoder().decode(GRAPH_BYTES);
+  const withInsert = (timestamp: number) =>
+    original.replace(
+      "</graph>",
+      `<edge id="e900001" source="n12981" target="n232"><data key="d9">insert node</data>` +
+        `<data key="d24">900001</data><data key="d26">${timestamp}</data><data key="d11">9</data></edge>\n</graph>`
+    );
+  const rowsOf = (graphml: string) => {
+    const target = metadata();
+    return buildPageGraphScanReportV2R2(bytesFor(graphml, target), target, CONTEXT).run.evidence.requests;
+  };
+  const baseline = rowsOf(original);
+  // The image request started at 207 ms. An insertion at 450 ms leaves every
+  // row as the capture without it; one at 150 ms credits the script.
+  assert.deepEqual(rowsOf(withInsert(450)), baseline);
+  assert.notDeepEqual(rowsOf(withInsert(150)), baseline);
+});

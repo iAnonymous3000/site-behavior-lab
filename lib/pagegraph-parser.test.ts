@@ -265,3 +265,54 @@ test("normalizePageGraphResourceType folds Blink names into the Playwright vocab
   assert.equal(normalizePageGraphResourceType("xhr"), "xhr");
   assert.equal(normalizePageGraphResourceType(""), "other");
 });
+
+const WIKIPEDIA_OPTIONS = {
+  requestedUrl: "https://www.wikipedia.org/",
+  finalUrl: "https://www.wikipedia.org/",
+  scannedAt: new Date(0).toISOString()
+};
+
+/**
+ * The real capture with one more `insert node` edge from script n12981 to
+ * image n232. The parser created and inserted n232 at 197 ms and its request
+ * (id 2) started at 207 ms, so only an edge at or before 207 can have loaded it.
+ */
+function wikipediaWithScriptInsert(timestamp: string): string {
+  const graphml = readFileSync(path.join(PAGEGRAPH_FIXTURE_DIR, "real-wikipedia-2026-07-19.graphml"), "utf8");
+  const edge =
+    `<edge id="e900001" source="n12981" target="n232"><data key="d9">insert node</data>` +
+    `<data key="d24">900001</data><data key="d26">${timestamp}</data><data key="d11">9</data></edge>\n`;
+  assert.equal(graphml.split("</graph>").length, 2, "the fixture has one graph to append to");
+  return graphml.replace("</graph>", `${edge}</graph>`);
+}
+
+function imageRequestProvenance(graphml: string) {
+  const requests = pageGraphGraphmlToStrictAdapterInput(graphml, WIKIPEDIA_OPTIONS).requests ?? [];
+  const request = requests.find((candidate) => candidate.requestId === "2");
+  assert.ok(request, "the image request is in the capture");
+  return request.provenance;
+}
+
+test("a script is credited with an element's request only through a DOM edge at or before the request", () => {
+  const original = readFileSync(path.join(PAGEGRAPH_FIXTURE_DIR, "real-wikipedia-2026-07-19.graphml"), "utf8");
+  const before = imageRequestProvenance(original);
+  assert.equal(before?.scriptId, undefined, "the parser loaded this image; no script made it");
+
+  const later = imageRequestProvenance(wikipediaWithScriptInsert("450"));
+  assert.equal(later?.scriptId, undefined, "an insertion 243 ms after the request did not make it");
+  assert.equal(later?.injectedById, undefined);
+  assert.deepEqual(later, before, "a later insertion changes nothing about the request");
+
+  const earlier = imageRequestProvenance(wikipediaWithScriptInsert("150"));
+  assert.equal(earlier?.scriptId, "15", "an insertion before the request credits its script");
+
+  const sameMillisecond = imageRequestProvenance(wikipediaWithScriptInsert("207"));
+  assert.equal(sameMillisecond?.scriptId, "15", "the capture cannot order within a millisecond, so equal counts as before");
+});
+
+test("a DOM edge whose time cannot be read credits no script", () => {
+  for (const timestamp of ["", "1e2", "0x10", "-5", "later"]) {
+    const provenance = imageRequestProvenance(wikipediaWithScriptInsert(timestamp));
+    assert.equal(provenance?.scriptId, undefined, `timestamp ${JSON.stringify(timestamp)} must not order the edge`);
+  }
+});
