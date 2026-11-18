@@ -13,14 +13,16 @@ const sha256 = (data) => createHash("sha256").update(data).digest("hex");
 const compact = (text) => text.replace(/\s+/g, "");
 // Immutable published witnesses; expected populations are not derived from the renderer.
 // Retention prunes any report the corrections ledger does not pin, so every
-// witness but the single-run one (no pinned single-run report exists) is pinned;
-// lib/report-export-acceptance.test.ts holds that.
+// witness is pinned; lib/report-export-acceptance.test.ts holds that. No pinned
+// single-run report exists, so none is listed: the Docker smoke's printable-route
+// check exports the single report its own scan persisted.
 export const PDF_EXPORT_WITNESSES = [
-  { id: "20260730-748f7a920c0fdcf86c9a348a8660d395", rows: [6] },
   { id: "20260814-f47e5f1cd64def348acb6072ca7dae41", rows: [150, 91], corrected: true },
   { id: "20260727-509bb57e6b43e7ea7003a5f4577209b6", rows: [1000, 51], capped: true, corrected: true },
   { id: "20260824-4f89a805b50169b2c0e8b01a975018c9", rows: [183, 180], corrected: true }
 ];
+/** The comparison witness whose page the download UI check drives. */
+export const DOWNLOAD_UI_WITNESS_ID = "20260824-4f89a805b50169b2c0e8b01a975018c9";
 
 /** Whether the catalog declares tagged content. pdf.js 6.3 returns MarkInfo as a Map, not an object. */
 export async function pdfRetainsReadingStructure(doc) {
@@ -127,8 +129,11 @@ export async function assertReportExportAcceptance(baseUrl, { outputDir } = {}) 
 
 /** Exercise the ordinary controls, not only hand-constructed API URLs. */
 export async function assertReportDownloadUi(baseUrl) {
+  // Named, not indexed, so a change to the witness list cannot move it.
+  const witness = PDF_EXPORT_WITNESSES.find((entry) => entry.id === DOWNLOAD_UI_WITNESS_ID);
+  assert.equal(witness?.rows.length, 2, `${DOWNLOAD_UI_WITNESS_ID} must be a comparison export witness`);
+  const id = witness.id;
   const browser = await chromium.launch({ headless: true });
-  const id = PDF_EXPORT_WITNESSES[3].id;
   const scratch = await mkdtemp(path.join(os.tmpdir(), "sbl-export-ui-"));
   try {
     const page = await browser.newPage({ acceptDownloads: true });
@@ -150,8 +155,8 @@ export async function assertReportDownloadUi(baseUrl) {
     await page.waitForFunction(() => document.documentElement.dataset.reportPrintReady === "true");
     const ids = await page.locator("main [id]").evaluateAll(elements => elements.map(element => element.id));
     assert.equal(new Set(ids).size, ids.length, `duplicate printable IDs: ${ids.filter((id, index) => ids.indexOf(id) !== index).join(", ")}`);
-    assert.equal(await page.locator('[data-evidence-arm="baseline"] [data-request-row]').count(), 183);
-    assert.equal(await page.locator('[data-evidence-arm="variant"] [data-request-row]').count(), 180);
+    assert.equal(await page.locator('[data-evidence-arm="baseline"] [data-request-row]').count(), witness.rows[0]);
+    assert.equal(await page.locator('[data-evidence-arm="variant"] [data-request-row]').count(), witness.rows[1]);
   } finally { await browser.close(); await rm(scratch, { recursive: true, force: true }); }
 }
 

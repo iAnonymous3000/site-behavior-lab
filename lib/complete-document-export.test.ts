@@ -69,13 +69,13 @@ test("every other report shape exports, including an empty supporting-pair list"
 });
 
 test("every PDF export witness exports", async () => {
-  // The Docker smoke renders these four and checks every printed request row,
+  // The Docker smoke renders these three and checks every printed request row,
   // so a refusal here would surface only there, in CI.
   const nativeImport = new Function("specifier", "return import(specifier)") as (specifier: string) => Promise<unknown>;
   const { PDF_EXPORT_WITNESSES } = (await nativeImport(
     pathToFileURL(path.join(root, "scripts", "report-export-acceptance.mjs")).href
   )) as { PDF_EXPORT_WITNESSES: readonly { id: string }[] };
-  assert.equal(PDF_EXPORT_WITNESSES.length, 4);
+  assert.equal(PDF_EXPORT_WITNESSES.length, 3);
   for (const witness of PDF_EXPORT_WITNESSES) {
     const read = await readStaticReportBundle(path.join(root, "public", "reports"), witness.id);
     if (read.outcome !== "found") assert.fail(`${witness.id} is not a readable committed report`);

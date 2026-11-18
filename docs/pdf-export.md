@@ -45,9 +45,12 @@ PDF to fit the byte ceiling.
 ## Release validation
 
 The existing Docker CI smoke now runs `scripts/report-export-acceptance.mjs`
-against single, r2 comparison, request-capped comparison, and corrected legacy
-comparison witnesses. Their expected request populations are fixed independently
-of the rendering code. The checks use PDF.js, standard unzip, and Node's SHA-256
+against r2 comparison, request-capped comparison, and corrected legacy
+comparison witnesses, each pinned by the corrections ledger so retention cannot
+remove it. Their expected request populations are fixed independently
+of the rendering code. No pinned single-run report exists, so the published
+corpus has no single-run witness: the smoke's printable-route check renders and
+exports the single report its own scan stores, with a lower bound on its rows. The checks use PDF.js, standard unzip, and Node's SHA-256
 to verify every request reference once, recorded timing and resource type,
 portable links, document tags and bookmarks, minimum request-reference text size,
 source/correction hashes, and every packaged file. Browser checks cover the

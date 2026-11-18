@@ -18,6 +18,7 @@ const acceptance = nativeImport(
 ) as Promise<{
   pdfRetainsReadingStructure(doc: PdfDocument): Promise<boolean>;
   PDF_EXPORT_WITNESSES: readonly ExportWitness[];
+  DOWNLOAD_UI_WITNESS_ID: string;
 }>;
 // The same pdf.js build the acceptance script imports, resolved from the checkout.
 const pdfjs = nativeImport(
@@ -48,8 +49,10 @@ test("every PDF export witness is a committed report that retention cannot prune
   // The Docker smoke fetches each witness from the image's committed corpus, so
   // a witness that retention prunes fails only there, in CI, after the refresh
   // that pruned it lands: the capped witness did, on the October 12 refresh.
-  // The corrections ledger's pins are retention's only absolute exemption.
-  const { PDF_EXPORT_WITNESSES } = await acceptance;
+  // The corrections ledger's pins are retention's only absolute exemption. The
+  // single-run witness was the one exception, unpinned because no pinned
+  // single-run report exists, and the November 18 refresh retired it.
+  const { PDF_EXPORT_WITNESSES, DOWNLOAD_UI_WITNESS_ID } = await acceptance;
   const ledgerPath = path.join(process.cwd(), "public", "corrections.json");
   const pinned = await readCorrectionsLedgerReportIds(ledgerPath);
   const ledger = await readCorrectionsLedger(ledgerPath);
@@ -66,8 +69,15 @@ test("every PDF export witness is a committed report that retention cannot prune
   assert.ok(PDF_EXPORT_WITNESSES.some((witness) => witness.capped), "a request-capped witness carries the lower-bounds check");
   assert.deepEqual(
     PDF_EXPORT_WITNESSES.filter((witness) => !pinned.has(witness.id)).map((witness) => witness.id),
-    ["20260730-748f7a920c0fdcf86c9a348a8660d395"],
-    "only the single-run witness may be unpinned, because no pinned single-run report exists"
+    [],
+    "every witness must be pinned by the corrections ledger"
+  );
+  // The download UI check counts both printed visits of the witness it names,
+  // so that witness must be on the list, as a comparison.
+  assert.equal(
+    PDF_EXPORT_WITNESSES.find((witness) => witness.id === DOWNLOAD_UI_WITNESS_ID)?.rows.length,
+    2,
+    "the download UI check's witness must be a listed comparison witness"
   );
 });
 
