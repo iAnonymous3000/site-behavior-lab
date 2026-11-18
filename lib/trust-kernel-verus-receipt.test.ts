@@ -170,6 +170,9 @@ test("the kernel workflow writes the receipt only from the Verus step, holds it 
   assert.deepEqual([...order].sort((a, b) => a - b), order);
   const kept = /name: (trust-kernel-verus-receipt-\$\{\{ github\.sha \}\}-\$\{\{ github\.run_id \}\})\n {10}path: \$\{\{ runner\.temp \}\}\/(site-behavior-lab-trust-kernel-verus-receipt\.json)\n/.exec(checkJob);
   assert.ok(kept, "the receipt is not kept under its commit and run");
+  // The receipt's bytes outlive the run for exactly this long, written out
+  // rather than left to the repository's default.
+  assert.match(checkJob, /path: \$\{\{ runner\.temp \}\}\/site-behavior-lab-trust-kernel-verus-receipt\.json\n {10}if-no-files-found: warn\n {10}retention-days: 90\n/);
   assert.ok(attestJob.includes(`name: ${kept[1]}\n`), "the attest job downloads another artifact");
   assert.ok(attestJob.includes(`subject-path: \${{ runner.temp }}/trust-kernel-verus-receipt/${kept[2]}\n`), "the attest job signs another file");
 

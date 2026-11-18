@@ -114,6 +114,9 @@ test("the deploy workflow writes the record from the readback step and signs it 
   assert.match(readback, /run: node scripts\/verify-deployed-container\.mjs\n/);
   const kept = /name: (production-container-readback-\$\{\{ github\.sha \}\}-\$\{\{ github\.run_attempt \}\})\n {10}path: \$\{\{ runner\.temp \}\}\/([^\n]+)\n/.exec(deployJob);
   assert.ok(kept, "the record is not kept under its commit and attempt");
+  // The record's bytes outlive the run for exactly this long, written out
+  // rather than left to the repository's default.
+  assert.match(deployJob, /path: \$\{\{ runner\.temp \}\}\/production-container-readback\.json\n {10}if-no-files-found: error\n {10}retention-days: 90\n/);
   assert.equal(kept[2], DEPLOYMENT_RECORD_FILE);
   assert.ok(attestJob.includes(`name: ${kept[1]}\n`), "the signing job downloads another artifact");
   assert.ok(attestJob.includes(`subject-path: \${{ runner.temp }}/production-deployment-record/${DEPLOYMENT_RECORD_FILE}\n`), "the signing job signs another file");

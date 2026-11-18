@@ -85,7 +85,7 @@ export async function waitForDeployment({
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   // The record names the CI run whose evidence the image came from and this
-  // deployment run, so an archive can tie the record to both. Read first, so
+  // deployment run, so a reader can tie the record to both. Read first, so
   // a missing id fails before the rollout wait.
   const runs = {
     ciRunId: positiveInteger(process.env.CI_RUN_ID, "CI_RUN_ID"),
