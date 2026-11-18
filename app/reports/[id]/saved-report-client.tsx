@@ -9,6 +9,7 @@ import {
 } from "@/lib/client-fetch-policy";
 import { parseDigestBoundReportJson } from "@/lib/client-report-integrity";
 import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
+import { explorerSectionForHash } from "@/lib/report-section-ids";
 import { claimRowsLink } from "@/lib/claim-rows-link";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "@/lib/report-resource-limits";
 import type { LoadedReport } from "@/lib/scan-report-view";
@@ -17,6 +18,9 @@ import { SiteChrome } from "@/app/_components/site-chrome";
 const LazyReportRenderer = lazy(() =>
   import("../../_components/report-renderer").then((module) => ({ default: module.ReportRenderer }))
 );
+
+/** How many frames a section link waits for its section to render after the explorer mounts (about two seconds). */
+const SECTION_ARRIVAL_FRAMES = 120;
 
 /**
  * Tiny permalink controller. Its RSC slots contain the useful compact summary
@@ -85,6 +89,7 @@ export function SavedReportClient({
   const evidenceOperationRef = useRef<LatestClientOperation | null>(null);
   const evidenceIdentityRef = useRef({ id, evidenceHref, expectedEvidenceSha256 });
   const autoOpenedRef = useRef(false);
+  const pendingSectionRef = useRef<string | null>(null);
   // The finding evidence link whose press loaded the evidence, if one did.
   const pressedClaimRef = useRef<HTMLAnchorElement | null>(null);
   if (!evidenceOperationRef.current) evidenceOperationRef.current = new LatestClientOperation();
@@ -112,9 +117,30 @@ export function SavedReportClient({
   // screen-reader users do not fall back to the document body.
   // A finding's evidence link is the exception: its rows open under its own
   // claim, the link is still there, and focus stays on it.
+  // A section link (#cookies, #request-evidence) lands on that section once
+  // the explorer has rendered it, which happens after the lazy chunk mounts.
   useEffect(() => {
-    if (pressedClaimRef.current) return;
-    if (loaded) evidenceExplorerRef.current?.focus();
+    if (pressedClaimRef.current || !loaded) return;
+    const section = pendingSectionRef.current;
+    pendingSectionRef.current = null;
+    if (!section) {
+      evidenceExplorerRef.current?.focus();
+      return;
+    }
+    evidenceExplorerRef.current?.focus({ preventScroll: true });
+    let frames = 0;
+    let handle = 0;
+    const land = () => {
+      const target = document.getElementById(section);
+      if (target) {
+        target.scrollIntoView({ block: "start" });
+        return;
+      }
+      // Bounded: a section this report does not render never appears.
+      if ((frames += 1) < SECTION_ARRIVAL_FRAMES) handle = window.requestAnimationFrame(land);
+    };
+    handle = window.requestAnimationFrame(land);
+    return () => window.cancelAnimationFrame(handle);
   }, [loaded]);
 
   async function loadEvidence() {
@@ -187,9 +213,14 @@ export function SavedReportClient({
   // anything. Opening the explorer hands the fragment to its existing handler.
   useEffect(() => {
     if (loaded) return;
+    // A section anchor the explorer alone renders is the same case: copied out
+    // of the address bar or reloaded, it named a section that did not exist yet.
     const openWhenEvidenceLinked = () => {
-      if (autoOpenedRef.current || !parseEvidenceHash(window.location.hash)) return;
+      if (autoOpenedRef.current) return;
+      const section = explorerSectionForHash(window.location.hash);
+      if (!parseEvidenceHash(window.location.hash) && !section) return;
       autoOpenedRef.current = true;
+      pendingSectionRef.current = section;
       void loadEvidenceRef.current();
     };
     openWhenEvidenceLinked();

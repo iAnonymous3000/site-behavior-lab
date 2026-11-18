@@ -59,6 +59,7 @@ import { ReportRecord, schemaNotePlacement } from "@/app/_design/record-block";
 import { ReportPageSummary } from "@/app/_design/report-summary";
 import { RequestFigure } from "@/app/_design/request-figure";
 import { groupReportWarnings, reportWarningCount } from "@/lib/report-warnings";
+import { REPORT_SECTION_IDS, type ReportSectionId } from "@/lib/report-section-ids";
 import { methodologyBenchmarkScope } from "@/lib/report-findings";
 
 /**
@@ -69,6 +70,26 @@ import { methodologyBenchmarkScope } from "@/lib/report-findings";
  * importer code from entering report-page bundles and prevents report tables
  * from entering the homepage's initial route chunk.
  */
+
+/** The section nav's label for each section, the same words it showed before. */
+const REPORT_SECTION_LABELS: Record<ReportSectionId, string> = {
+  findings: "Findings",
+  comparison: "Comparison",
+  numbers: "Numbers",
+  traffic: "Traffic",
+  "visit-phases": "Visit phases",
+  "domain-evidence": "Domains",
+  "request-evidence": "Request log",
+  "third-parties": "Third parties",
+  cookies: "Cookies",
+  storage: "Storage",
+  signals: "Signals",
+  pixels: "Pixels",
+  "causal-map": "Attribution",
+  "measurement-limits": "Limits",
+  conditions: "Conditions"
+};
+
 export function ReportRenderer({
   loaded,
   liveApiServesReportPages,
@@ -368,23 +389,20 @@ export function ReportRenderer({
   const count = (value: number) => value.toLocaleString("en-US");
   const shown = displayedRun.evidence;
   const limitCount = reportWarningCount(groupReportWarnings(reportView.warnings, reportView.comparison?.runLabels ?? null));
-  const sections: ReportSection[] = [
-    { id: "findings", label: "Findings" },
-    { id: "comparison", label: "Comparison" },
-    { id: "numbers", label: "Numbers" },
-    { id: "traffic", label: "Traffic" },
-    { id: "visit-phases", label: "Visit phases" },
-    { id: "domain-evidence", label: "Domains", count: count(shown.domains.length) },
-    { id: "request-evidence", label: "Request log", count: count(shown.requests.length) },
-    { id: "third-parties", label: "Third parties" },
-    { id: "cookies", label: "Cookies", ...(shown.cookies.length > 0 ? { count: count(shown.cookies.length) } : {}) },
-    { id: "storage", label: "Storage", ...(shown.storage.length > 0 ? { count: count(shown.storage.length) } : {}) },
-    { id: "signals", label: "Signals" },
-    { id: "pixels", label: "Pixels" },
-    { id: "causal-map", label: "Attribution" },
-    { id: "measurement-limits", label: "Limits", ...(limitCount > 0 ? { count: count(limitCount) } : {}) },
-    { id: "conditions", label: "Conditions" }
-  ];
+  // The ids and their order come from the one list the saved report page
+  // also reads (lib/report-section-ids.ts); a label is required for each.
+  const sectionCounts: Partial<Record<ReportSectionId, string>> = {
+    "domain-evidence": count(shown.domains.length),
+    "request-evidence": count(shown.requests.length),
+    ...(shown.cookies.length > 0 ? { cookies: count(shown.cookies.length) } : {}),
+    ...(shown.storage.length > 0 ? { storage: count(shown.storage.length) } : {}),
+    ...(limitCount > 0 ? { "measurement-limits": count(limitCount) } : {})
+  };
+  const sections: ReportSection[] = REPORT_SECTION_IDS.map((id) => ({
+    id,
+    label: REPORT_SECTION_LABELS[id],
+    ...(sectionCounts[id] !== undefined ? { count: sectionCounts[id] } : {})
+  }));
 
   // A result with no page of its own (a scan's result on the homepage, a
   // report opened from a file) reads as a report page does, in place: the
