@@ -26,7 +26,11 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { readScannerFidelityResponse } from "./scanner-fidelity-response.mjs";
+import {
+  attemptRecord,
+  attemptScanRequest,
+  readScannerFidelityResponse
+} from "./scanner-fidelity-response.mjs";
 import { ensureRenderBridge, evaluateScanBody } from "./scanner-fidelity-invariants.mjs";
 import {
   boundedInteger,
@@ -102,8 +106,9 @@ async function scan(url) {
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(SCAN_TIMEOUT_MS)
   });
-  // Server errors and unreadable wires must fail the run, even when enough
-  // other targets answered to meet the ordinary coverage threshold.
+  // Only a refusal whose declared cause is the target's is a skipped target.
+  // Every other refusal, and every throw, fails the run even when enough other
+  // targets answered to meet the ordinary coverage threshold.
   return readScannerFidelityResponse(response, `scan ${url}`);
 }
 
@@ -137,23 +142,22 @@ const collectionStartedAt = new Date().toISOString();
 
 for (const site of sites) {
   for (let repetition = 1; repetition <= REPETITIONS; repetition += 1) {
-    const result = await scan(site.url).catch((error) => ({
-      ok: false,
-      reason: `scan request failed: ${error instanceof Error ? error.message : String(error)}`
-    }));
-    if (!result.ok) {
+    const result = await attemptScanRequest(() => scan(site.url));
+    if (result.kind === "refused") {
       // The target refused us. Not a scanner defect, and not evidence of health.
-      const reason = sanitizeAttemptReason(result.reason);
-      console.log(`SKIP ${site.url} repetition ${repetition}: ${reason}`);
-      attempts.push({
-        url: site.url,
-        shape: site.shape,
-        repetition,
-        outcome: "scan-failure",
-        reason,
-        censoredFamilies: [],
-        observation: null
-      });
+      const record = attemptRecord(site, repetition, result);
+      console.log(`SKIP ${site.url} repetition ${repetition}: ${sanitizeAttemptReason(record.reason)}`);
+      attempts.push(record);
+      continue;
+    }
+    if (result.kind === "scanner-failure") {
+      const record = attemptRecord(site, repetition, result);
+      // Not fail(): that counts invariant failures, and this run never
+      // reached the invariants. The ledger counts it as scannerFailedRuns.
+      const message = `${site.url} repetition ${repetition}: ${sanitizeAttemptReason(record.reason)}`;
+      console.log(`SCANNER FAIL ${message}`);
+      console.log(`::error title=Scanner fidelity::${message}`);
+      attempts.push(record);
       continue;
     }
     answeredTargets.add(site.url);
@@ -166,27 +170,10 @@ for (const site of sites) {
     }
     if (evaluation.failures.length === 0) {
       pass(`${site.url} repetition ${repetition} (${site.shape})`);
-      attempts.push({
-        url: site.url,
-        shape: site.shape,
-        repetition,
-        outcome: "pass",
-        reason: null,
-        censoredFamilies: evaluation.censored,
-        observation: evaluation.observation ?? null
-      });
     } else {
       for (const message of evaluation.failures) fail(message);
-      attempts.push({
-        url: site.url,
-        shape: site.shape,
-        repetition,
-        outcome: "invariant-failure",
-        reason: evaluation.failures.join(" | "),
-        censoredFamilies: evaluation.censored,
-        observation: evaluation.observation ?? null
-      });
     }
+    attempts.push(attemptRecord(site, repetition, result, evaluation));
   }
 }
 
@@ -228,7 +215,7 @@ const ledger = buildAttemptLedger({
 
 console.log(
   `\n${answeredTargets.size}/${sites.length} targets answered; ${checks} invariant-clean, ` +
-  `${failures} invariant failure(s); gate ${ledger.acceptance.outcome}`
+  `${failures} invariant failure(s), ${ledger.scannerFailedRuns} scanner failure(s); gate ${ledger.acceptance.outcome}`
 );
 // Tallied from the written ledger, one report per answered attempt, so the
 // numerator and answeredRuns share a unit: a comparison censored in both arms

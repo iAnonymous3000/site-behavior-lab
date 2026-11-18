@@ -42,7 +42,7 @@ type Attempt = {
   url: string;
   shape: string;
   repetition: number;
-  outcome: "pass" | "invariant-failure" | "scan-failure";
+  outcome: "pass" | "invariant-failure" | "scan-failure" | "scanner-failure";
   reason: string | null;
   censoredFamilies: string[];
   observation: Observation | null;
@@ -352,7 +352,7 @@ test("the fidelity receipt retains every attempt, provenance, thresholds, and no
     attempts
   });
 
-  assert.equal(ledger.receiptVersion, 3);
+  assert.equal(ledger.receiptVersion, 4);
   assert.equal(ledger.plannedRuns, 2);
   assert.equal(ledger.attemptedRuns, 2);
   assert.equal(ledger.answeredTargets, 1);
@@ -424,9 +424,15 @@ test("the censoring tally counts reports, in the unit of answeredRuns, from the 
         reason: "the target refused",
         censoredFamilies: [],
         observation: null
+      }),
+      targetAttempt(5, {
+        outcome: "scanner-failure",
+        reason: "scanner refused the request (HTTP 502, cause none)",
+        censoredFamilies: [],
+        observation: null
       })
     ],
-    { selectedTargets: 4 }
+    { selectedTargets: 5 }
   );
   const tally = censoredFamilyTally(ledger);
 
@@ -434,7 +440,7 @@ test("the censoring tally counts reports, in the unit of answeredRuns, from the 
     ["detector-output", 2],
     ["requests", 2]
   ], "a family censored in both arms of one report counts once");
-  assert.equal(ledger.answeredRuns, 3, "a refused target is not an answered run");
+  assert.equal(ledger.answeredRuns, 3, "neither a refused target nor a scanner failure is an answered run");
   for (const [family, count] of tally) {
     assert.ok(count <= ledger.answeredRuns, `${family}: ${count} is more than ${ledger.answeredRuns} answered reports`);
   }
@@ -445,7 +451,61 @@ test("only a report the scanner returned counts as answered", async () => {
   assert.equal(isAnsweredOutcome("pass"), true);
   assert.equal(isAnsweredOutcome("invariant-failure"), true);
   assert.equal(isAnsweredOutcome("scan-failure"), false);
+  assert.equal(isAnsweredOutcome("scanner-failure"), false);
   assert.equal(isAnsweredOutcome("an-outcome-added-later"), false);
+});
+
+test("one scanner failure fails the run even when the answering floor is met", async () => {
+  // The 2026-09-26 shape: enough targets answered, one scan request failed at
+  // the scanner, and the gate stayed green because the failure was filed as a
+  // target that refused.
+  const { buildAttemptLedger } = await helpers;
+  const attempts = [1, 2, 3, 4].map((index) => targetAttempt(index, {}));
+  attempts.push(
+    targetAttempt(5, { outcome: "scan-failure", reason: "the target refused", observation: null }),
+    targetAttempt(6, {
+      outcome: "scanner-failure",
+      reason: "scanner refused the request (HTTP 502, cause none)",
+      observation: null
+    })
+  );
+  const ledger = ledgerOf(buildAttemptLedger, attempts, { selectedTargets: 6, minimumAnsweringTargets: 4 });
+
+  assert.equal(ledger.answeredTargets, 4, "a scanner failure is not an answered target");
+  assert.equal(ledger.answeredRuns, 4, "a scanner failure is not an answered run");
+  assert.equal(ledger.scanFailedRuns, 1);
+  assert.equal(ledger.scannerFailedRuns, 1);
+  assert.equal(ledger.acceptance.thresholds.requireNoScannerFailures, true);
+  assert.equal(ledger.acceptance.outcome, "fail");
+  assert.deepEqual(ledger.acceptance.reasons, ["1 scan request(s) failed at the scanner, not at the target"]);
+
+  // The same run with the scanner failure removed passes on the floor, so the
+  // failure above is the scanner's alone.
+  const clean = ledgerOf(buildAttemptLedger, attempts.slice(0, 5), { selectedTargets: 5, minimumAnsweringTargets: 4 });
+  assert.equal(clean.acceptance.outcome, "pass");
+});
+
+test("a ledger edited to pass while it records a failed run does not validate", async () => {
+  const { buildAttemptLedger, scannerFidelityAttemptLedgerDigest, scannerFidelityAttemptLedgerIssues } = await helpers;
+  for (const outcome of ["scanner-failure", "invariant-failure"] as const) {
+    const ledger = ledgerOf(
+      buildAttemptLedger,
+      [targetAttempt(1, {}), targetAttempt(2, { outcome, reason: "fixture failure", observation: null })],
+      { selectedTargets: 2 }
+    );
+    assert.equal(ledger.acceptance.outcome, "fail");
+    assert.deepEqual(scannerFidelityAttemptLedgerIssues(ledger), [], `${outcome}: the honest ledger validates`);
+    const edited = structuredClone(ledger);
+    edited.acceptance.outcome = "pass";
+    edited.acceptance.reasons = [];
+    edited.receiptDigest = scannerFidelityAttemptLedgerDigest(edited);
+    assert.ok(
+      scannerFidelityAttemptLedgerIssues(edited).includes(
+        "ledger.acceptance.outcome cannot be pass while an attempt failed at the scanner or its invariants"
+      ),
+      `${outcome}: an edited pass must not validate`
+    );
+  }
 });
 
 test("the fidelity ledger validates exact provenance and both canonical digests", async () => {

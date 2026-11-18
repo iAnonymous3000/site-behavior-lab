@@ -12,7 +12,7 @@ export const METRICS = Object.freeze([
 ]);
 export const SCANNER_FIDELITY_LEDGER_KIND =
   "site-behavior-scanner-fidelity-attempt-ledger";
-export const SCANNER_FIDELITY_LEDGER_VERSION = 3;
+export const SCANNER_FIDELITY_LEDGER_VERSION = 4;
 const SHA256 = /^[0-9a-f]{64}$/;
 const FULL_GIT_SHA = /^[0-9a-f]{40}$/;
 const CANONICAL_INSTANT =
@@ -463,6 +463,7 @@ export function buildAttemptLedger(input) {
   const passedRuns = attempts.filter((attempt) => attempt.outcome === "pass").length;
   const invariantFailedRuns = attempts.filter((attempt) => attempt.outcome === "invariant-failure").length;
   const scanFailedRuns = attempts.filter((attempt) => attempt.outcome === "scan-failure").length;
+  const scannerFailedRuns = attempts.filter((attempt) => attempt.outcome === "scanner-failure").length;
   const provenanceMissingRuns = input.attempts.filter(
     (attempt) =>
       attempt.outcome === "pass" &&
@@ -488,6 +489,12 @@ export function buildAttemptLedger(input) {
   }
   if (invariantFailedRuns > 0) {
     reasons.push(`${invariantFailedRuns} answered run(s) failed scanner invariants`);
+  }
+  // A scanner failure fails the run even when enough other targets answered:
+  // the answering floor exists for targets that refuse, not for a scanner
+  // that broke on some of them.
+  if (scannerFailedRuns > 0) {
+    reasons.push(`${scannerFailedRuns} scan request(s) failed at the scanner, not at the target`);
   }
   if (answeredTargets < minimumAnsweringTargets) {
     reasons.push(
@@ -554,6 +561,7 @@ export function buildAttemptLedger(input) {
     passedRuns,
     invariantFailedRuns,
     scanFailedRuns,
+    scannerFailedRuns,
     provenanceMissingRuns,
     attempts,
     repeatability,
@@ -564,6 +572,7 @@ export function buildAttemptLedger(input) {
         minimumEligibleRunsPerRepeatableTarget: MINIMUM_REPEATABILITY_RUNS,
         requireCompleteAttemptDenominator: true,
         requireNoInvariantFailures: true,
+        requireNoScannerFailures: true,
         requireDigestBoundProducerRuntime: true
       },
       outcome: reasons.length === 0 ? "pass" : "fail",
@@ -905,6 +914,7 @@ export function scannerFidelityAttemptLedgerIssues(
         "passedRuns",
         "invariantFailedRuns",
         "scanFailedRuns",
+        "scannerFailedRuns",
         "provenanceMissingRuns",
         "attempts",
         "repeatability",
@@ -1033,6 +1043,7 @@ export function scannerFidelityAttemptLedgerIssues(
     "passedRuns",
     "invariantFailedRuns",
     "scanFailedRuns",
+    "scannerFailedRuns",
     "provenanceMissingRuns"
   ]) {
     if (!nonNegativeSafeInteger(ledger[field])) {
@@ -1077,7 +1088,7 @@ export function scannerFidelityAttemptLedgerIssues(
         issues.push(`${label}.repetition must be a positive integer`);
       }
       if (
-        !new Set(["pass", "invariant-failure", "scan-failure"]).has(attempt.outcome)
+        !new Set(["pass", "invariant-failure", "scan-failure", "scanner-failure"]).has(attempt.outcome)
       ) {
         issues.push(`${label}.outcome is not recognized`);
       }
@@ -1116,6 +1127,7 @@ export function scannerFidelityAttemptLedgerIssues(
           "minimumEligibleRunsPerRepeatableTarget",
           "requireCompleteAttemptDenominator",
           "requireNoInvariantFailures",
+          "requireNoScannerFailures",
           "requireDigestBoundProducerRuntime"
         ],
         "ledger.acceptance.thresholds",
@@ -1139,6 +1151,7 @@ export function scannerFidelityAttemptLedgerIssues(
       for (const field of [
         "requireCompleteAttemptDenominator",
         "requireNoInvariantFailures",
+        "requireNoScannerFailures",
         "requireDigestBoundProducerRuntime"
       ]) {
         if (acceptance.thresholds[field] !== true) {
@@ -1148,6 +1161,17 @@ export function scannerFidelityAttemptLedgerIssues(
     }
     if (acceptance.outcome !== "pass" && acceptance.outcome !== "fail") {
       issues.push("ledger.acceptance.outcome must be pass or fail");
+    }
+    // Re-derived from the attempts, not read from the stored counts: a ledger
+    // edited to pass while it records a failed run must not validate.
+    if (
+      acceptance.outcome === "pass" &&
+      Array.isArray(ledger.attempts) &&
+      ledger.attempts.some(
+        (attempt) => attempt?.outcome === "invariant-failure" || attempt?.outcome === "scanner-failure"
+      )
+    ) {
+      issues.push("ledger.acceptance.outcome cannot be pass while an attempt failed at the scanner or its invariants");
     }
     if (
       !Array.isArray(acceptance.reasons) ||
