@@ -1286,7 +1286,7 @@ report facts, and RC-A holds the activity slice with them in it.
 
 ### RC. No consistency rule fires over the product of visits
 
-- **Property:** On each view of the suite's product, the facts, the headline and the findings board built for the arm that headline focuses break no rule of `reportConsistencyViolations`: no fingerprint story without fingerprint activity, no cookie absence beside a recorded cookie of another site, no calm headline over a warn or loud card or an alert bottom line, no absent services card beside a named operator, no categorical absence under a closed fact gate, no unscoped absence lead under a closed fact gate, no error page's evidence put on the requested page, and no single-visit headline above a card for the other visit.
+- **Property:** On each view of the suite's product, the facts, the headline and the findings board built for the arm that headline focuses break no rule of `reportConsistencyViolations`: no fingerprint story without fingerprint activity, no cookie absence beside a recorded cookie of another site, no calm headline over a warn or loud card or an alert bottom line, no absent services card beside a named operator, no categorical absence under a closed fact gate, no unscoped absence lead under a closed fact gate, no error page's evidence put on the requested page, no single-visit headline above a card for the other visit, no services or platforms card, and no subhead that states the shown visit's cross-site counts, without that visit's phase note, and no comparison headline whose two visits recorded different scanner actions without the caveat, and none with it where they match. A pair-scope headline is exempt from the phase-note rule: its subhead compares two visits' whole-visit totals, and the rule holds only the findings board to the note of the visit the board shows.
 - **Code:** `buildReportFacts` in `lib/report-facts.ts`, `buildReportHeadline` in `lib/report-headline.ts`, `buildFindings` in `lib/report-findings.ts` and `reportConsistencyViolations` in `lib/report-consistency.ts`.
 - **Domain:** Exhaustive over each slice's own product of the lists the suite writes out: `ACTIVITY` and `ACTIVITY_LEADS`, a visit on the v1 wire read by `viewFromV1Report`; `SUBJECT`, `LEGACY_GAPS`, `LEDGER` and `FAMILY_LOSS` crossed with `AVAILABILITY_VISITS`, where the r2 form is set on the view and made by no reader; `DESIGNS` crossed with `ARM` for each visit of a pair, joined by the comparison constructors of `lib/compare-reports.ts`; and `CONSENT` over the r2 consent fixture's pair. Sampled for the value that stands for each class, which the suite writes out; for each field no list names, which stays as the fixtures give it; and for pairings of classes across slices, which are not built.
 - **Bounds:** none beyond those products.
@@ -1301,6 +1301,20 @@ report facts, and RC-A holds the activity slice with them in it.
   - `lib/fv-report-consistency.test.ts`: names beginning "RC catches a variant"
   - `lib/fv-report-consistency.test.ts`: "every rule has a seeded fault"
 - **Commit:** bc1ff528b0e014a59e50b354ab3f6edc28b0fb8b
+
+### RC-P. The phase note and the comparison caveat over the phase and typing classes
+
+- **Property:** On each view of the suite's `PHASES` product and of its pairs over `DESIGNS` crossed with `TYPING`, the facts, the headline and the findings board built for the arm that headline focuses break no rule of `reportConsistencyViolations`, among them `count-phase-note-mismatch` and `pair-action-caveat`.
+- **Code:** `runPhaseNotes` and `pairActionCaveat` in `lib/report-phase-note.ts`, `crossSitePhaseSplit` and `recordedScannerActions` in `lib/report-phase-split.ts`, `buildReportHeadline` in `lib/report-headline.ts`, `buildFindings` in `lib/report-findings.ts` and `reportConsistencyViolations` in `lib/report-consistency.ts`.
+- **Domain:** Exhaustive over `PHASES`, an r2 single visit made from the r2 fixture whose counted rows the suite places in page load, partly or wholly in an active-probe phase, crossed with the services it names and a complete or censored request log; and over `DESIGNS` crossed with `TYPING` for each visit of a pair, joined by the comparison constructors of `lib/compare-reports.ts`. Sampled for the value that stands for each class, which the suite writes out, and for each field no list names, which stays as the fixtures give it.
+- **Bounds:** none beyond those products.
+- **Axioms:** none
+- **Method:** exhaustive, sampled
+- **Not claimed:** That a phase records why a request was made or what it carried. A report outside the product: an r2 comparison whose visits recorded different actions, a consent phase in `PHASES`, and a phase the walk does not place. That the notes say the right thing, or that a share text or share card the gate does not read carries them.
+- **Tests:**
+  - `lib/fv-report-consistency.test.ts`: "RC: no rule fires on any pair whose two visits carry each typing disclosure, over each design"
+  - `lib/fv-report-consistency.test.ts`: "RC: no rule fires on a visit whose counted rows were recorded in page load, partly or wholly during the typing probe"
+- **Commit:** a8ac2e4558a79e356800e85d374eed082a1c19d9
 
 ### RC-A. The activity slice, with the classes the walk first found
 
