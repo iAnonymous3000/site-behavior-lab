@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import path from "node:path";
 import { test } from "node:test";
+import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 
 const SCRIPT = path.join(process.cwd(), "scripts/smoke-production-synthetic.mjs");
 const MONITOR_TOKEN = "production-synthetic-test-token-123456";
@@ -63,6 +64,49 @@ test("production synthetic preserves the legitimate same-origin report flow", as
   } finally {
     await server.close();
   }
+});
+
+async function syntheticPassLine(report: Record<string, unknown>): Promise<string> {
+  const server = await listen((request, response) => {
+    if (request.url === "/api/scan" && request.method === "POST") {
+      return readBody(request).then(() => sendJson(response, 200, report));
+    }
+    if (request.url === `/api/reports/${REPORT_ID}`) return sendJson(response, 200, report);
+    if (request.url === `/reports/${REPORT_ID}`) {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      return response.end(`<main>${REPORT_ID}</main>`);
+    }
+    sendJson(response, 404, { error: "not found" });
+  });
+  try {
+    const result = await runSynthetic(server.origin);
+    assert.equal(result.status, 0, result.stderr);
+    const line = result.stdout.split("\n").find((entry) => entry.startsWith("PASS production synthetic"));
+    assert.ok(line, result.stdout);
+    return line;
+  } finally {
+    await server.close();
+  }
+}
+
+test("production synthetic counts the persisted report's frozen GPC worker loss line", async () => {
+  const line = await syntheticPassLine(
+    syntheticReport({ warnings: ["An unrelated scanner warning.", GPC_WORKER_CAPTURE_LOSS_WARNING] })
+  );
+  assert.match(line, /; gpc-worker-loss=1; dedicated-worker-coverage=unrecorded\)\.$/);
+});
+
+test("production synthetic prints a zero GPC worker loss count only for a report whose warnings lack the line", async () => {
+  // A near miss must not count: the producer's frozen sentence is compared whole.
+  const line = await syntheticPassLine(
+    syntheticReport({ warnings: [`${GPC_WORKER_CAPTURE_LOSS_WARNING} (paraphrased)`] })
+  );
+  assert.match(line, /; gpc-worker-loss=0; dedicated-worker-coverage=unrecorded\)\.$/);
+});
+
+test("production synthetic says the GPC worker loss count is unrecorded when the report holds no warnings list", async () => {
+  const line = await syntheticPassLine(syntheticReport());
+  assert.match(line, /; gpc-worker-loss=unrecorded; dedicated-worker-coverage=unrecorded\)\.$/);
 });
 
 test("production synthetic falls through to the second fixed target when the first target's scan fails", async () => {
@@ -532,6 +576,7 @@ function syntheticReport(
     observedOrigin?: string;
     subject?: { origin: string; registrableDomain: string; routeShape: string };
     gpc?: boolean;
+    warnings?: string[];
   } = {}
 ): Record<string, unknown> {
   const reportId = options.reportId ?? REPORT_ID;
@@ -559,7 +604,8 @@ function syntheticReport(
         consent: "observe",
         device: { kind: "desktop", viewport: { isMobile: false } }
       },
-      summary: { counts: { totalRequests: 1 } }
+      summary: { counts: { totalRequests: 1 } },
+      ...(options.warnings ? { warnings: options.warnings } : {})
     },
     share: {
       id: reportId,

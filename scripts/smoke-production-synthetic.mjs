@@ -12,6 +12,7 @@ import {
   singleReportTotalRequests
 } from "./smoke-deployed-scanner-report.mjs";
 import { prepareScanAdmission } from "./scan-admission.mjs";
+import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "../lib/gpc-injection.ts";
 import {
   readResponseJsonWithinLimit,
   readResponseTextWithinLimit,
@@ -394,11 +395,23 @@ async function runSyntheticAttempt(target) {
     fail("Synthetic report page did not render the saved report ID.");
   }
 
-  return totalRequests;
+  return { totalRequests, gpcWorkerLoss: gpcWorkerLossCount(saved) };
+}
+
+// The GPC worker watch for the R07 epoch: how many times the persisted report
+// carries the frozen GPC worker capture-loss line, compared by the producer's
+// own constant. A report without a warnings list prints "unrecorded" rather
+// than a count it does not hold. The wire records no count of the dedicated
+// workers a visit started, so this line cannot show whether a zero means no
+// worker started or every worker was verified.
+function gpcWorkerLossCount(report) {
+  const warnings = report?.run?.warnings;
+  if (!Array.isArray(warnings)) return "unrecorded";
+  return warnings.filter((warning) => warning === GPC_WORKER_CAPTURE_LOSS_WARNING).length;
 }
 
 const targetFailures = [];
-let completedTotalRequests = null;
+let completed = null;
 for (let targetIndex = 0; targetIndex < syntheticTargets.length; targetIndex += 1) {
   const target = syntheticTargets[targetIndex];
   const remainingMs = totalDeadline - Date.now();
@@ -409,7 +422,7 @@ for (let targetIndex = 0; targetIndex < syntheticTargets.length; targetIndex += 
   const reserveMs = fallbackReserveMs * (syntheticTargets.length - targetIndex - 1);
   attemptDeadline = Date.now() + Math.max(attemptFloorMs, remainingMs - reserveMs);
   try {
-    completedTotalRequests = await runSyntheticAttempt(target);
+    completed = await runSyntheticAttempt(target);
     break;
   } catch (error) {
     if (!(error instanceof TargetScanFailure)) throw error;
@@ -419,10 +432,10 @@ for (let targetIndex = 0; targetIndex < syntheticTargets.length; targetIndex += 
     );
   }
 }
-if (completedTotalRequests === null) {
+if (completed === null) {
   fail(`Synthetic scan failed on every candidate target: ${targetFailures.join("; ")}`);
 }
 
 console.log(
-  `PASS production synthetic completed, persisted, read back, and rendered (${completedTotalRequests} recorded requests).`
+  `PASS production synthetic completed, persisted, read back, and rendered (${completed.totalRequests} recorded requests; gpc-worker-loss=${completed.gpcWorkerLoss}; dedicated-worker-coverage=unrecorded).`
 );
