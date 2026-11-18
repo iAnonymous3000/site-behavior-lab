@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
-import { cp, mkdtemp, readFile, rm } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { cp, mkdir, mkdtemp, readdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { promisify } from "node:util";
 import { corpusRollupMembership, createCorpusStatsAccumulator } from "../corpus-stats-builder";
 import { readCorrectionsLedgerReportIds } from "../corrections-ledger";
 import { preferCorpusRepresentative } from "../corpus-representative";
@@ -28,6 +30,7 @@ import { listStaticReportCandidateIds, readStaticReportBundle } from "../static-
  */
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
+const execFileAsync = promisify(execFile);
 
 async function cliDefaults(): Promise<{ maxAgeDays: number; maxCount: number; keepPerSite: number }> {
   // Read from the CLI source, so the scratch prune uses the workflow's policy
@@ -76,15 +79,84 @@ async function aggregateOf(reportsDir: string) {
 type Aggregate = Awaited<ReturnType<typeof aggregateOf>>;
 
 /**
+ * What a pruned tree publishes about the aggregate, as bytes: the projection
+ * of corpus-stats.json and of the /status snapshot that names the primary
+ * cohort and its sites. Every other field of the two outputs moves with any
+ * trim by design, so it is left out here, each for the reason it gives.
+ */
+type Published = { stats: string; snapshot: string };
+
+const CAP_DEPENDENT_FIELDS = Object.freeze({
+  "corpus-stats.json cohorts (all but the primary)": "an off-line cohort outside the tier may shrink under the cap",
+  "corpus-stats.json coverageSiteCount, cappedSiteCount": "the cap removes reports, so loaded and capped site counts move",
+  "corpus-stats.json generatedAt": "a build time, not a measurement",
+  "snapshot v1ReportCount, v2ReportCount": "1,000 with the cap, more without it",
+  "snapshot coverageSiteCount": "the cap removes reports, so the loaded site count moves",
+  "snapshot latestEligibleEvidence, newerEligibleOutsideAggregate": "read from every cohort, not the aggregate",
+  "snapshot categoryCohortCount, categoriesUseAggregateCohort, mostPagesRankElsewhere":
+    "per-category selections run over category subsets the tier does not protect",
+  "snapshot scanRankingSentence": "reads cohorts beyond the aggregate's to place a fresh scan",
+  "snapshot filter, catalog and toolchain fields": "fixed by the code, not by the corpus",
+  "snapshot schemaVersion, sourceRevision": "the snapshot's own format and build revision"
+});
+
+async function publishedAggregate(root: string, aggregate: Aggregate): Promise<Published> {
+  const { stats } = aggregate;
+  await writeFile(path.join(root, "public", "corpus-stats.json"), `${JSON.stringify(stats, null, 2)}\n`);
+  // The snapshot reads public/ under the working directory and caches per
+  // process, so each tree gets a child of its own.
+  const child = await execFileAsync(
+    process.execPath,
+    [
+      "--input-type=module",
+      "-e",
+      "const m = await import(process.cwd() + '/.unit-test-dist/lib/status-snapshot-server.js'); process.stdout.write(JSON.stringify(await m.loadStatusSnapshot()));"
+    ],
+    { cwd: root, encoding: "utf8", timeout: 600_000, killSignal: "SIGKILL", maxBuffer: 64 * 1024 * 1024 }
+  );
+  const snapshot = JSON.parse(child.stdout) as Record<string, unknown>;
+  assertSnapshotFieldsAccounted(snapshot);
+  return {
+    stats: JSON.stringify({
+      primaryCohortId: stats.primaryCohortId,
+      sampleSize: stats.sampleSize,
+      metricContractVersion: stats.metricContractVersion,
+      metricContractDigest: stats.metricContractDigest,
+      metrics: stats.metrics,
+      primaryCohort: stats.cohorts.find((cohort) => cohort.id === stats.primaryCohortId) ?? null
+    }),
+    snapshot: JSON.stringify({
+      aggregateCohortId: snapshot.aggregateCohortId,
+      latestAggregateEvidence: snapshot.latestAggregateEvidence,
+      siteCount: snapshot.siteCount,
+      aggregateSiteDates: snapshot.aggregateSiteDates
+    })
+  };
+}
+
+/** Every snapshot field is compared or named as cap-dependent, so a new field cannot slip past both. */
+function assertSnapshotFieldsAccounted(snapshot: Record<string, unknown>): void {
+  const compared = ["aggregateCohortId", "latestAggregateEvidence", "siteCount", "aggregateSiteDates"];
+  const named = Object.keys(CAP_DEPENDENT_FIELDS).filter((key) => key.startsWith("snapshot ")).join(" ");
+  for (const field of Object.keys(snapshot)) {
+    if (compared.includes(field) || named.includes(field)) continue;
+    if (/^(filter|catalog|playwright|adblock)/.test(field)) continue;
+    assert.fail(`status snapshot field ${field} is neither compared nor named as cap-dependent`);
+  }
+}
+
+/**
  * One scratch copy of the committed corpus pruned as the workflow prunes it,
  * and one pruned the same way with no count cap. Computed once for the tests
  * below, since each prune walks every committed report.
  */
+type Pruned = Aggregate & { published: Published };
+
 let prunes: Promise<{
   before: Aggregate;
-  capped: Aggregate;
-  tight: Aggregate;
-  uncapped: Aggregate;
+  capped: Pruned;
+  tight: Pruned;
+  uncapped: Pruned;
   removed: number;
   remaining: Set<string>;
 }> | null = null;
@@ -94,7 +166,16 @@ function prunedCopies() {
     const scratch = await mkdtemp(path.join(tmpdir(), "sbl-corpus-retention-"));
     try {
       const prune = async (name: string, maxCount: number | null) => {
-        const reportsDir = path.join(scratch, name);
+        // A tree the status snapshot can read: this copy's reports and stats,
+        // every other public file and the compiled code linked from here.
+        const root = path.join(scratch, name);
+        const reportsDir = path.join(root, "public", "reports");
+        await mkdir(path.join(root, "public"), { recursive: true });
+        for (const entry of await readdir(path.join(process.cwd(), "public"))) {
+          if (entry === "reports" || entry === "corpus-stats.json") continue;
+          await symlink(path.join(process.cwd(), "public", entry), path.join(root, "public", entry));
+        }
+        await symlink(path.join(process.cwd(), ".unit-test-dist"), path.join(root, ".unit-test-dist"));
         await cp(path.join(process.cwd(), "public", "reports"), reportsDir, { recursive: true });
         const before = await aggregateOf(reportsDir);
         const defaults = await cliDefaults();
@@ -111,9 +192,10 @@ function prunedCopies() {
           },
           DECIDED_PACKAGE_INPUT_FILES.map((file) => path.join(process.cwd(), file))
         );
+        const after = await aggregateOf(reportsDir);
         return {
           before,
-          after: await aggregateOf(reportsDir),
+          after: { ...after, published: await publishedAggregate(root, after) },
           removed: removed.length,
           remaining: new Set(await listStaticReportCandidateIds(reportsDir))
         };
@@ -171,16 +253,22 @@ test("a prune of the committed corpus keeps every site of the cohorts the aggreg
 
 /**
  * The count cap may trim reports outside the last-trimmed tier, and an
- * off-line cohort may shrink. What it may not do is move the selection:
- * the cohort it picks, the cohorts it consults on the way, and each of
- * their site sets, which the line handoffs compare, come out as they do
- * when no count cap trims anything.
+ * off-line cohort may shrink. What it may not do is move what the aggregate
+ * publishes: the cohort the selection picks, the exact sites of every cohort
+ * the uncapped selection consults, and the published aggregate's bytes come
+ * out as they do when no count cap trims anything. Which cohorts the capped
+ * selection consults is not compared: a vetoed loser the cap pushes under
+ * the site floor leaves the pool, and its vetoer stops vetoing, without any
+ * published byte changing.
  */
 test("the count cap's trims outside the last-trimmed tier leave the selection's result as it is without them", async () => {
   const { capped, tight, uncapped } = await prunedCopies();
   for (const [cap, pruned] of [["the workflow's cap", capped], ["the tightest cap the tier fits", tight]] as const) {
+    // The published bytes first (they carry the primary cohort id), so a
+    // change to what readers see fails here by name.
+    assert.equal(pruned.published.stats, uncapped.published.stats, `${cap} changed the aggregate corpus-stats.json publishes`);
+    assert.equal(pruned.published.snapshot, uncapped.published.snapshot, `${cap} changed the aggregate the status snapshot publishes`);
     assert.equal(pruned.stats.primaryCohortId, uncapped.stats.primaryCohortId, cap);
-    assert.deepEqual([...pruned.used].sort(), [...uncapped.used].sort(), cap);
     for (const id of uncapped.used) {
       assert.deepEqual(
         [...(pruned.sites.get(id) ?? [])].sort(),
