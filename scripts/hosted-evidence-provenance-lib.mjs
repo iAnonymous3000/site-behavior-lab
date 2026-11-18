@@ -382,6 +382,9 @@ const PROFILE_RULES = Object.freeze({
   })
 });
 
+/** The profiles the archive knows, in table order: the one list tests read. */
+export const HOSTED_EVIDENCE_PROFILES = Object.freeze(Object.keys(PROFILE_RULES));
+
 function productionHealthRule() {
   return Object.freeze({
     workflows: Object.freeze([
