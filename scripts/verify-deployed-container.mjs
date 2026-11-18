@@ -6,6 +6,9 @@ import path from "node:path";
 import { setTimeout } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
 import { IMAGE_REPOSITORY } from "./published-container-lib.mjs";
+import {
+  DEPLOYMENT_RECORD_FILE, deploymentRecord, deploymentRecordProblems, positiveInteger
+} from "./production-deployment-record.mjs";
 import { readResponseJsonWithinLimit, withHttpOperationDeadline } from "./http-response.mjs";
 
 function readApplication(timeoutMs) {
@@ -81,10 +84,21 @@ export async function waitForDeployment({
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  // The record names the CI run whose evidence the image came from and this
+  // deployment run, so an archive can tie the record to both. Read first, so
+  // a missing id fails before the rollout wait.
+  const runs = {
+    ciRunId: positiveInteger(process.env.CI_RUN_ID, "CI_RUN_ID"),
+    deployRunId: positiveInteger(process.env.GITHUB_RUN_ID, "GITHUB_RUN_ID"),
+    deployRunAttempt: positiveInteger(process.env.GITHUB_RUN_ATTEMPT, "GITHUB_RUN_ATTEMPT")
+  };
   const readback = await waitForDeployment({
     expectedImage: process.env.EXPECTED_IMAGE, expectedCommit: process.env.GITHUB_SHA
   });
-  writeFileSync(path.join(process.env.RUNNER_TEMP, "production-container-readback.json"),
-    JSON.stringify(readback, null, 2) + "\n", { flag: "wx" });
+  const record = deploymentRecord(readback, runs);
+  const problems = deploymentRecordProblems(record, { commit: process.env.GITHUB_SHA, ...runs });
+  assert.deepEqual(problems, [], `The deployment record is not this deployment's: ${problems.join("; ")}`);
+  writeFileSync(path.join(process.env.RUNNER_TEMP, DEPLOYMENT_RECORD_FILE),
+    JSON.stringify(record, null, 2) + "\n", { flag: "wx" });
   console.log(`Provider targets ${readback.image}; live scanner identifies ${readback.sourceCommit}.`);
 }
