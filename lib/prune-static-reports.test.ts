@@ -908,3 +908,56 @@ test("the count cap trims last the cohort whose veto decides the selection, thou
   );
   assert.equal((await selected()).primaryCohortId, before.primaryCohortId);
 });
+
+test("the count cap trims last the off-line incumbent a first-line takeover was judged against", async () => {
+  // The first reviewed line takes the aggregate straight from the off-line
+  // incumbent, retaining nine of its ten sites: exactly the 10% the handoff
+  // allows. The incumbent no longer publishes, but its population is what the
+  // handoff was judged against, so a trim of one of its covered sites would
+  // push the share past 10% and hand the aggregate back to it.
+  const [first, second] = REVIEWED_MEASUREMENT_LINES;
+  const playwright = (line: string) => /-playwright-(\d+\.\d+\.\d+)/.exec(line)?.[1] ?? "";
+  const onLine = (report: ScanResult, line: string): ScanResult => {
+    report.conditions.scannerDisclosure = (report.conditions.scannerDisclosure ?? "")
+      .replace(CURRENT_MEASUREMENT_LINE_METHODOLOGY, line)
+      .replace(`using Playwright ${playwright(CURRENT_MEASUREMENT_LINE_METHODOLOGY)} `, `using Playwright ${playwright(line)} `);
+    return report;
+  };
+  const day = (n: number) => `2026-07-${String(n).padStart(2, "0")}T00:00:00.000Z`;
+  // Written after every scan in the fixture, as a published bundle is.
+  const write = (reportId: string, report: ScanResult) =>
+    writeManagedPublicReport(reportId, redactScanReportV1(report).report, "2026-07-31T00:00:00.000Z");
+  let serial = 0;
+  const id = (dayOfMonth: number) => `202607${String(dayOfMonth).padStart(2, "0")}-${(serial += 1).toString(16).padStart(32, "0")}`;
+  // The incumbent's oldest site is the oldest report in the corpus.
+  await write(id(1), offLine(makeResult("site-0.dev", day(1))));
+  for (let site = 1; site < 10; site += 1) {
+    await write(id(site + 5), offLine(makeResult(`site-${site}.dev`, day(site + 5))));
+  }
+  // An unrelated cohort on the second line: it fails its own handoff, vetoes
+  // nothing and holds nothing, so the selection does not read it.
+  const unrelated = id(3);
+  await write(unrelated, onLine(makeResult("elsewhere.dev", day(3)), second));
+  for (let site = 0; site < 9; site += 1) {
+    await write(id(site + 16), onLine(makeResult(`site-${site}.dev`, day(site + 16)), first));
+  }
+
+  const before = (await buildCorpusStats(reportsDir)).stats;
+  const taker = before.cohorts.find((cohort) => cohort.methodologyVersion === first);
+  assert.ok(taker, "fixture invariant: a first-line cohort");
+  assert.equal(before.primaryCohortId, taker.id, "fixture invariant: the first line took the aggregate at exactly 10% missing");
+
+  const { removed } = await pruneStaticReportsWithCorrections(reportsDir, emptyLedgerPath, {
+    maxAgeMs: 365 * DAY_MS,
+    maxCount: 19,
+    keepPerSite: 2,
+    now: Date.parse("2026-07-30T00:00:00.000Z")
+  });
+
+  assert.deepEqual(
+    removed.map((file) => path.basename(file, ".json")),
+    [unrelated],
+    "the cap trims the unrelated cohort, never a site the takeover was judged against"
+  );
+  assert.equal((await buildCorpusStats(reportsDir)).stats.primaryCohortId, before.primaryCohortId);
+});
