@@ -629,3 +629,55 @@ function savedReport(reportId = REPORT_ID) {
   report.share = buildReportShare(reportId);
   return report;
 }
+
+/**
+ * A job that reports "failed" after its saver lost the commit's answer may
+ * still have saved the report under the reserved id. Run the poll against a
+ * failed status and one report-read answer, recording every request.
+ */
+async function pollFailedJob(reportRead: () => Response) {
+  const requests: string[] = [];
+  const fetcher: ScanJobPollFetcher = async (url) => {
+    requests.push(String(url));
+    if (url === STATUS_PATH) {
+      return jobResponse("failed", { error: "The service could not complete this request. Try again later." });
+    }
+    return reportRead();
+  };
+  const outcome = await pollAcceptedScanJob({
+    statusPath: STATUS_PATH,
+    reportId: REPORT_ID,
+    fetcher,
+    now: () => 0,
+    wait: async () => undefined
+  }).then(
+    (loaded) => ({ loaded, error: null as unknown }),
+    (error: unknown) => ({ loaded: null, error })
+  );
+  return { ...outcome, requests };
+}
+
+test("a failed job whose report was in fact saved returns the report instead of ending recovery", async () => {
+  const { loaded, error, requests } = await pollFailedJob(() => Response.json(savedReport()));
+  assert.equal(error, null);
+  assert.equal(loaded?.source, "v1");
+  assert.deepEqual(requests, [STATUS_PATH, `/api/reports/${REPORT_ID}`]);
+});
+
+test("a failed job with no saved report ends recovery as a failure", async () => {
+  const { error, requests } = await pollFailedJob(() =>
+    Response.json({ ok: false, error: "Report not found." }, { status: 404 })
+  );
+  assert.ok(error instanceof ScanJobEndedError, "a confirmed failure releases recovery");
+  assert.equal(error.status, "failed");
+  assert.match(error.message, /could not complete this request/);
+  assert.deepEqual(requests, [STATUS_PATH, `/api/reports/${REPORT_ID}`]);
+});
+
+test("a failed job whose saved-report read cannot finish keeps recovery for a resume", async () => {
+  const { error } = await pollFailedJob(() =>
+    Response.json({ ok: false, error: "Temporarily unavailable." }, { status: 503 })
+  );
+  assert.ok(error instanceof Error);
+  assert.ok(!(error instanceof ScanJobEndedError), "an unsettled read must not release recovery");
+});

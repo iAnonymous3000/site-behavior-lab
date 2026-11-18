@@ -193,6 +193,27 @@ export async function pollAcceptedScanJob(options: AcceptedScanJobPoll): Promise
       throw new Error("Completed scan did not include a readable report yet. Retry status checks shortly.");
     }
 
+    if (payload.status === "failed" && savedReportId) {
+      // A failed job can still have saved its report: the in-process saver
+      // reports "failed" when its commit's answer was lost and the read-back
+      // could not settle the outcome, even if the write landed. Read the
+      // reserved report once, as the 404 branch does, before recovery is
+      // dropped and the reader is told to visit the target again. Found: the
+      // report. Not found: the failure stands. A read that cannot finish
+      // throws an ordinary error, which keeps recovery for a resume.
+      const recovered = await readSavedReportWithRetry(savedReportId, {
+        fetcher,
+        resolveApiUrl,
+        signal: options.signal,
+        wait,
+        now,
+        label: "The saved report",
+        attemptTimeoutMs: options.attemptTimeoutMs
+      });
+      if (recovered) return recovered;
+      throw new ScanJobEndedError(payload.status, payload.error || "Scan job did not complete.");
+    }
+
     if (payload.status === "failed" || payload.status === "expired" || payload.status === "cancelled") {
       throw new ScanJobEndedError(payload.status, payload.error || "Scan job did not complete.");
     }
