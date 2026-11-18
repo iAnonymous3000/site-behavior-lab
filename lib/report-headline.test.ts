@@ -984,7 +984,8 @@ test("an unverified legacy consent pair falls through to the raw evidence headli
 
   const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /shop\.example contacted catalogued Google and Meta domains during the visit labeled Accept-all click\./);
+  // A legacy visit whose control was activated records no phases, so its lead names its log (owner packet H-A5.3).
+  assert.equal(headline.headline, "The log of the shop.example visit labeled Accept-all click, which included a consent click, lists catalogued Google and Meta domains.");
   assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /Reject all|Accept all|after the click/);
   assert.equal(headline.focusArm, undefined);
 });
@@ -1004,7 +1005,7 @@ test("an unverified legacy consent pair keeps unanswered traffic in raw send-onl
   };
 
   const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
-  assert.match(headline.headline, /contacted 1 distinct catalogued tracking-related service/);
+  assert.equal(headline.headline, "The log of the shop.example visit labeled Accept-all click, which included a consent click, lists 1 distinct catalogued tracking-related service.");
   assert.match(headline.subhead, /had requests dispatched with no recorded response/);
   assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /received requests|still reached|Reject all|Accept all/);
 });
@@ -1370,7 +1371,7 @@ test("a clean legacy reject attempt cannot drive a consent headline", () => {
 
   const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
   assert.equal(headline.tone, "warn");
-  assert.match(headline.headline, /shop\.example contacted catalogued Google domains during the visit labeled Accept-all click\./);
+  assert.equal(headline.headline, "The log of the shop.example visit labeled Accept-all click, which included a consent click, lists catalogued Google domains.");
   assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /Reject all|Accept all|Rejecting|removed/);
 });
 
@@ -1392,7 +1393,7 @@ test("an un-clicked reject run falls through to the ordinary evidence headline",
   // No Reject all claim is allowed when the click never happened; the report
   // leads with the ordinary evidence story instead.
   assert.equal(/Reject all/.test(headline.headline), false);
-  assert.match(headline.headline, /shop\.example contacted catalogued Google domains during the visit labeled Accept-all click\./);
+  assert.equal(headline.headline, "The log of the shop.example visit labeled Accept-all click, which included a consent click, lists catalogued Google domains.");
 });
 
 test("an HTTP error load is framed as a failed load, not as relatively private", () => {

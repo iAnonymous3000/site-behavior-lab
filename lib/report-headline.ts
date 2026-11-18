@@ -32,6 +32,16 @@ import {
   type ReportClaimId,
   type RunFacts
 } from "./report-facts";
+import {
+  firstSentence,
+  pairActionCaveat,
+  runPhaseNotes,
+  unknownPhaseLead,
+  withNoteAfterFirstSentence,
+  type RunPhaseNotes
+} from "./report-phase-note";
+import { OG_REPORT_SUBHEAD_MAX_CHARACTERS } from "./og-card-bound";
+import { crossSitePhaseSplit, recordedScannerActions, type CrossSitePhaseSplit, type CrossSitePhaseState } from "./report-phase-split";
 
 /**
  * Plain-language "headline" layer.
@@ -97,6 +107,12 @@ export type ReportHeadline = {
    */
   compactSubheadSource?: string;
   /**
+   * A sentence a clarification's short card notice keeps after it: the
+   * caveat of a comparison whose two visits recorded different scanner
+   * actions qualifies the headline, which the card still shows.
+   */
+  compactQualifier?: string;
+  /**
    * The comparison arm the lead finding DESCRIBES, when that differs from the
    * report's lead run. The shell opens the evidence switcher on this arm so a
    * variant-focused headline never sits above baseline evidence. Absent on
@@ -134,6 +150,16 @@ export type ReportHeadline = {
     subjectScope: "requested-page" | "returned-document";
     assertedClaims: ReportClaimId[];
     absenceClaims: ReportClaimId[];
+    /**
+     * When the counted cross-site rows of the run this headline describes were
+     * recorded, relative to the scanner's actions (lib/report-phase-split.ts).
+     * Absent on a pair-scope headline, which describes two runs.
+     */
+    phase?: CrossSitePhaseState;
+    /** The subhead states this run's cross-site counts, so it carries the run's phase note. */
+    countsCrossSite?: true;
+    /** The caveat of a comparison whose two visits recorded different scanner actions. */
+    pairCaveat?: string;
   };
 };
 
@@ -175,7 +201,7 @@ export function buildReportHeadline(
   // replaces everything: there the claim itself is withdrawn.
   if (clarification !== null) return {
     ...headline, subhead: `${headline.subhead} ${notice}`, subheadPrimaryClaim: notice,
-    compactSubhead: clarification,
+    compactSubhead: headline.compactQualifier ? `${clarification} ${headline.compactQualifier}` : clarification,
     // The card takes the compact form only when it was written for exactly
     // this subhead, so the source is the joined text, not the notice alone.
     compactSubheadSource: `${headline.subhead} ${notice}`,
@@ -278,6 +304,27 @@ function buildUncorrectedReportHeadline(
         ? ` In the visit labeled ${extrasVisitLabel}, it also looks like ${joinNames(extras, 2)}.`
         : ` It also looks like ${joinNames(extras, 2)}.`;
 
+  // When this visit's counted cross-site rows were recorded, relative to the
+  // scanner's actions, and the note every count surface prints about it.
+  const phaseNotes = runPhaseNotes(facts);
+  const crossSiteState = phaseNotes.crossSite.state;
+  // A visit with no phases that did act on the page: its lead names its log,
+  // not what the site "contacted" (owner packet H-A5.3). A truncated log keeps
+  // its own "retained log includes" lead.
+  const unknownLead = (claim: string): string | null =>
+    crossSiteState === "unknown-after-action" && requestState !== "censored"
+      ? unknownPhaseLead(domain, extrasVisitLabel, phaseNotes.recorded.kinds, claim)
+      : null;
+  // Every row behind the lead's claim recorded during the typing probe, and
+  // none in page load: the lead says so instead of "contacted" (H-15.1).
+  const allDuringProbe = (split: CrossSitePhaseSplit): boolean =>
+    split.state === "all-after-action" &&
+    !split.requestsCensored &&
+    split.actions.length === 1 &&
+    split.actions[0] === "active-probe";
+  const withPhaseNote = (text: string): string =>
+    phaseNotes.note ? withNoteAfterFirstSentence(text, phaseNotes.note) : text;
+
   const finish = (
     tone: HeadlineTone,
     headline: string,
@@ -296,6 +343,44 @@ function buildUncorrectedReportHeadline(
         : runScope === "baseline" || runScope === "variant"
           ? [reportFacts.arms?.[runScope] ?? facts]
           : [facts];
+    // The phase note of the one run this headline describes, from the same
+    // function the findings board reads. A pair headline describes two runs:
+    // it carries the comparison caveat instead, when its visits did different things.
+    const scopedNotes: RunPhaseNotes | null =
+      runScope === "pair" ? null : semanticRuns[0] === facts ? phaseNotes : runPhaseNotes(semanticRuns[0]);
+    const pairCaveat =
+      runScope === "pair" && arms && view.comparison
+        ? pairActionCaveat(
+            { baseline: recordedScannerActions(arms.baseline), variant: recordedScannerActions(arms.variant) },
+            view.comparison.runLabels,
+            axis
+          )
+        : null;
+    if (pairCaveat) {
+      // After the lead claim, before any secondary clause.
+      const primary = extraNote.length > 0 && subhead.endsWith(extraNote) ? subhead.slice(0, -extraNote.length) : subhead;
+      subhead = `${primary} ${pairCaveat}${subhead.slice(primary.length)}`;
+      compactSubhead = compactSubhead
+        ? `${firstSentence(compactSubhead)} ${pairCaveat}`
+        : subhead.length > OG_REPORT_SUBHEAD_MAX_CHARACTERS
+          ? `${firstSentence(subhead)} ${pairCaveat}`
+          : undefined;
+    } else if (scopedNotes?.note && subhead.includes(scopedNotes.note) && subhead.length > OG_REPORT_SUBHEAD_MAX_CHARACTERS && !compactSubhead) {
+      // The card's short form keeps the claim's first sentence and the note
+      // (owner choice, 2026-11-18): it drops every other sentence, never the note.
+      compactSubhead = `${firstSentence(subhead)} ${scopedNotes.note}`;
+    }
+    // The share text travels alone. Where it quotes the cross-site chips and
+    // its lead does not already state the phase, it carries the same note.
+    const quotedChips = runScope === "pair" ? [] : resolvedStats;
+    const shareNote =
+      scopedNotes?.note &&
+      quotedChips.slice(0, 2).some((stat) => /cross-site/.test(stat.label)) &&
+      (scopedNotes.crossSite.state === "mixed" ||
+        scopedNotes.crossSite.state === "unknown-after-action" ||
+        (scopedNotes.crossSite.requestsCensored && scopedNotes.crossSite.state === "all-after-action"))
+        ? scopedNotes.note
+        : null;
     // Derived from the exact clause appended above, never by re-matching its
     // prose: a second copy of that sentence in another module is one wording
     // change away from silently keeping the secondary claim.
@@ -316,7 +401,7 @@ function buildUncorrectedReportHeadline(
       // A pair-framed sentence describes a difference between two visits, while
       // the chips are one arm's counts with no arm label. The page captions them
       // with its visit label; the share text travels alone, so it quotes none.
-      shareText: buildShareText(headline, runScope === "pair" ? [] : resolvedStats, reportCaveat),
+      shareText: buildShareText(headline, quotedChips, reportCaveat, pairCaveat ?? shareNote),
       semantic: {
         story: "observed-activity",
         reassuring: tone === "calm",
@@ -326,9 +411,12 @@ function buildUncorrectedReportHeadline(
           : "returned-document",
         assertedClaims: [],
         absenceClaims: [],
+        ...(scopedNotes ? { phase: scopedNotes.crossSite.state } : {}),
+        ...(pairCaveat ? { pairCaveat } : {}),
         ...semanticOverride
       },
       ...(compactSubhead ? { compactSubhead, compactSubheadSource: subhead } : {}),
+      ...(pairCaveat ? { compactQualifier: pairCaveat } : {}),
       ...(focusArm ? { focusArm } : {})
     };
   };
@@ -860,17 +948,32 @@ function buildUncorrectedReportHeadline(
             trackingEntities.filter((entity) => respondedEntities.has(entity.entity)).length
           )
         : receiptClause("Catalogued platform domains", platforms.length, answeredPlatforms.length);
+    // A named platform whose every row came during the typing probe, while
+    // others' rows came in page load, is named apart (H-15.1, walgreens).
+    const probeOnlyPlatforms = platforms.filter((platform) => {
+      const split = phaseNotes.perPlatform.get(platform);
+      return split !== undefined && allDuringProbe(split);
+    });
+    const pageLoadPlatforms = platforms.filter((platform) => !probeOnlyPlatforms.includes(platform));
     return finish(
       platforms.length >= 3 ? "alarm" : "warn",
       requestState === "censored"
         ? `${domain}'s retained request log includes catalogued ${joinNames(platforms)} domains.`
-        : `${domain} contacted catalogued ${joinNames(platforms)} domains during ${visitPhrase}.`,
-      `${clause} across ${retainedCountPhrase(
+        : unknownLead(`catalogued ${joinNames(platforms)} domains`) ??
+          (allDuringProbe(phaseNotes.platforms)
+            ? `${domain}'s requests to catalogued ${joinNames(platforms)} domains were all recorded during the scanner's typing probe.`
+            : probeOnlyPlatforms.length > 0 && pageLoadPlatforms.length > 0
+              ? `${domain} contacted catalogued ${joinNames(pageLoadPlatforms)} domains during ${visitPhrase}, and ${joinNames(probeOnlyPlatforms)} domains only during the scanner's typing probe.`
+              : `${domain} contacted catalogued ${joinNames(platforms)} domains during ${visitPhrase}.`),
+      withPhaseNote(`${clause} across ${retainedCountPhrase(
         run.counts.thirdPartyDomains,
         "cross-site domain",
         "cross-site domains",
         requestState
-      )}. A catalog match identifies the service domain, not why the request occurred or what it carried.${sameOrganizationNote}${extraNote}`
+      )}. A catalog match identifies the service domain, not why the request occurred or what it carried.${sameOrganizationNote}${extraNote}`),
+      undefined,
+      undefined,
+      { countsCrossSite: true }
     );
   }
 
@@ -883,11 +986,17 @@ function buildUncorrectedReportHeadline(
             trackingEntities.length,
             "distinct catalogued tracking-related service"
           )}.`
-        : `${domain} contacted ${plural(
-            trackingEntities.length,
-            "distinct catalogued tracking-related service"
-          )} during ${visitPhrase}.`,
-      `${
+        : unknownLead(plural(trackingEntities.length, "distinct catalogued tracking-related service")) ??
+          (allDuringProbe(phaseNotes.tracking)
+            ? `${domain}'s requests to ${plural(
+                trackingEntities.length,
+                "distinct catalogued tracking-related service"
+              )} were all recorded during the scanner's typing probe.`
+            : `${domain} contacted ${plural(
+                trackingEntities.length,
+                "distinct catalogued tracking-related service"
+              )} during ${visitPhrase}.`),
+      withPhaseNote(`${
         requestState === "censored"
           ? `Retained rows include ${joinNames(trackingNames)} (${answeredCount} recorded responses)`
           : answeredCount === trackingEntities.length
@@ -905,7 +1014,10 @@ function buildUncorrectedReportHeadline(
         "cross-site domain",
         "cross-site domains",
         requestState
-      )}. Catalog labels do not prove the purpose of an individual request or that profiling occurred.${sameOrganizationNote}${extraNote}`
+      )}. Catalog labels do not prove the purpose of an individual request or that profiling occurred.${sameOrganizationNote}${extraNote}`),
+      undefined,
+      undefined,
+      { countsCrossSite: true }
     );
   }
 
@@ -918,7 +1030,19 @@ function buildUncorrectedReportHeadline(
       "info",
       requestState === "censored"
         ? `${domain}'s retained request log includes catalogued services on separate ${sameOrganization} domains.`
-        : `${domain} contacted catalogued services on separate ${sameOrganization} domains.`,
+        : unknownLead(`catalogued services on separate ${sameOrganization} domains`) ??
+          (allDuringProbe(
+            crossSitePhaseSplit(run, {
+              claimRows: (request) =>
+                request.thirdParty &&
+                request.tracker !== null &&
+                sameOrganizationTrackingEntities.some((entity) => entity.entity === request.tracker?.entity),
+              requestsCensored: false,
+              unphased: phaseNotes.recorded
+            })
+          )
+            ? `${domain}'s requests to catalogued services on separate ${sameOrganization} domains were all recorded during the scanner's typing probe.`
+            : `${domain} contacted catalogued services on separate ${sameOrganization} domains.`),
       `${requestState === "censored" ? "At least " : ""}${plural(
         ownership.sameOrganizationDomainCount,
         "request destination"
@@ -1073,18 +1197,33 @@ function buildUncorrectedReportHeadline(
             run.counts.thirdPartyDomains,
             "cross-site host"
           )} that the service catalog did not classify as tracking.`
-        : `${domain} contacted ${plural(
-            run.counts.thirdPartyDomains,
-            "cross-site host"
-          )} that the service catalog did not classify as tracking.`,
-      `${capitalize(
-        retainedCountPhrase(run.counts.thirdPartyRequests, "cross-site request", "cross-site requests", requestState)
-      )} appeared in the log. The identity map named ${
-        facts.identity.coverage.identifiedHosts
-      } of ${plural(facts.identity.coverage.thirdPartyHosts, "host")}; an unmatched host is a catalog limit, not evidence that it is harmless.`,
+        : unknownLead(`${plural(run.counts.thirdPartyDomains, "cross-site host")} that the service catalog did not classify as tracking`) ??
+          (allDuringProbe(phaseNotes.crossSite)
+            ? `${domain}'s cross-site traffic was all recorded during the scanner's typing probe: ${plural(
+                run.counts.thirdPartyDomains,
+                "host"
+              )}, not classified as tracking.`
+            : `${domain} contacted ${plural(
+                run.counts.thirdPartyDomains,
+                "cross-site host"
+              )} that the service catalog did not classify as tracking.`),
+      // When every counted row came during the probe, the note restates the
+      // request count, so it takes the place of the count sentence (H-A5.1).
+      (allDuringProbe(phaseNotes.crossSite) && phaseNotes.note
+        ? (rest: string) => `${phaseNotes.note} ${rest}`
+        : (rest: string) =>
+            withPhaseNote(
+              `${capitalize(
+                retainedCountPhrase(run.counts.thirdPartyRequests, "cross-site request", "cross-site requests", requestState)
+              )} appeared in the log. ${rest}`
+            ))(
+        `The identity map named ${
+          facts.identity.coverage.identifiedHosts
+        } of ${plural(facts.identity.coverage.thirdPartyHosts, "host")}; an unmatched host is a catalog limit, not evidence that it is harmless.`
+      ),
       stats,
       undefined,
-      { story: "unidentified-cross-site" }
+      { story: "unidentified-cross-site", countsCrossSite: true }
     );
   }
 
@@ -1405,13 +1544,14 @@ function buildStats(facts: RunFacts, trackingCount: number): ReportHeadlineStat[
  * was shipping the punch without the qualification. That is the overclaim this
  * project exists to avoid, on the surface with the widest reach.
  */
-function buildShareText(headline: string, stats: ReportHeadlineStat[], caveat: string): string {
+function buildShareText(headline: string, stats: ReportHeadlineStat[], caveat: string, addition: string | null): string {
   const top = stats
     .slice(0, 2)
     .map((stat) => `${stat.value} ${stat.label}`)
     .join(" · ");
   const claim = top ? `${headline} ${top}.` : headline;
-  return `${claim} ${caveat} ${SHARE_TAGLINE}`;
+  // A phase note or a comparison caveat follows the claim it qualifies.
+  return addition ? `${claim} ${addition} ${caveat} ${SHARE_TAGLINE}` : `${claim} ${caveat} ${SHARE_TAGLINE}`;
 }
 
 function friendlyDomain(run: RunView): string {

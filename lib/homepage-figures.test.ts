@@ -341,6 +341,7 @@ test("a record of a report with a published clarification carries the share card
   // file restates the sentence.
   const headlineSource = readFileSync(path.join(process.cwd(), "lib/report-headline.ts"), "utf8");
   assert.equal(headlineSource.split("A public clarification applies. Open the report").length, 2);
-  assert.match(headlineSource, /compactSubhead: clarification,/);
+  // The card's notice is the same value; a comparison caveat may follow it (owner packet H-A20).
+  assert.match(headlineSource, /compactSubhead: headline\.compactQualifier \? `\$\{clarification\} \$\{headline\.compactQualifier\}` : clarification,/);
   assert.match(readFileSync(path.join(process.cwd(), "lib/homepage-figures.ts"), "utf8"), /clarification: publishedClarificationNotice\(reportId\),/);
 });
