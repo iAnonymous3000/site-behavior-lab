@@ -97,7 +97,7 @@ For each `resource` node reached by a `request start` edge, let `actor` be the
 | `initiatorId` | `actor` node id |
 | `initiatorType` | `actor`'s `node type` (`script`, `HTML element`, `parser`, `DOM root`, `frame owner`) |
 | `initiatorUrl` / `initiatorDomain` | `actor.url` when `actor` is a `script`; absent for an `HTML element` (describe by `tag name`) |
-| `scriptId` | if `actor` is `script` → its `script id`; if `actor` is an `HTML element` → walk the incoming `create node`/`insert node` edge to its source `script` node |
+| `scriptId` | if `actor` is `script` → its `script id`; if `actor` is an `HTML element` → walk the incoming `create node`/`insert node` edges whose timestamp is at or before the request start to the first whose source is a `script` node; with no such edge, or a missing timestamp, the script is unattributed |
 | `scriptUrl` / `scriptDomain` | that script node's `url` |
 | `injectedById` | source of the `execute` (or `execute from attribute`) edge whose target is the attributed script node, i.e. the script/parser that caused it to run |
 | `injectedByUrl` / `injectedByDomain` | that injecting node's `url`; mark first-party/document when the source is `parser`/`DOM root` |
