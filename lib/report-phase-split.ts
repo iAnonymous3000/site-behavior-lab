@@ -1,5 +1,6 @@
 import type { PhaseKind } from "./scan-report-v2";
 import type { RunView } from "./scan-report-views";
+import { typingProbeRecord } from "./typing-disclosure";
 
 /**
  * When a visit's counted cross-site rows were recorded, relative to the
@@ -13,8 +14,9 @@ import type { RunView } from "./scan-report-views";
  * split from here, so the headline, its share text and the findings board
  * cannot describe the same rows differently.
  *
- * React-free and wording-free, so it runs in the client renderer, the server
- * routes and the share-card route, and its states can be checked exhaustively.
+ * React-free and wording-free (the wording is lib/report-phase-note.ts), so it
+ * runs in the client renderer, the server routes and the share-card route,
+ * and its states can be checked exhaustively.
  */
 
 /** Every phase the scanner opens by acting on the page. */
@@ -145,4 +147,39 @@ export function crossSitePhaseSplit(
     hosts: { total: hosts.size, onlyAfterAction: laterHosts },
     entities: { total: entities.size, onlyAfterAction: laterEntities }
   };
+}
+
+/** A scanner action a visit's own record shows, in the reader's words. */
+export type RecordedScannerAction = "consent click" | "typing probe";
+
+export type RecordedScannerActions = UnphasedActions & {
+  /** The actions this visit recorded whose requests are in its counts, consent first. */
+  kinds: RecordedScannerAction[];
+};
+
+/**
+ * What a visit's own record says the scanner did on the page: its consent and
+ * typing phases on r2, or on a report without phases its typing disclosure
+ * (read by lib/typing-disclosure.ts) and its consent mode. A typing probe
+ * whose disclosure says its requests were left out of the counts is not
+ * listed, since it changed nothing the counts show.
+ *
+ * The one reader of this question: the phase split's input for a visit with
+ * no phases, and the comparison caveat, both read it.
+ */
+export function recordedScannerActions(
+  run: Pick<RunView, "phases" | "warnings"> & { conditions: Pick<RunView["conditions"], "consentMode"> }
+): RecordedScannerActions {
+  const typing = typingProbeRecord(run);
+  const typingCounted = typing !== null && !typing.requestsOmitted;
+  const consentClick = run.conditions.consentMode === "accept-all" || run.conditions.consentMode === "reject-all";
+  const kinds: RecordedScannerAction[] = [];
+  if (run.phases) {
+    if (run.phases.some((phase) => phase.kind === "consent-interaction")) kinds.push("consent click");
+    if (run.phases.some((phase) => phase.kind === "active-probe") && !typing?.requestsOmitted) kinds.push("typing probe");
+  } else {
+    if (consentClick) kinds.push("consent click");
+    if (typingCounted) kinds.push("typing probe");
+  }
+  return { typingCounted, consentClick, kinds };
 }
