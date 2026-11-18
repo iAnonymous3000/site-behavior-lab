@@ -316,3 +316,18 @@ test("a DOM edge whose time cannot be read credits no script", () => {
     assert.equal(provenance?.scriptId, undefined, `timestamp ${JSON.stringify(timestamp)} must not order the edge`);
   }
 });
+
+test("without a request timestamp no DOM edge can be ordered, so no script is credited", () => {
+  // The strict importer refuses a request with no timestamp; the legacy
+  // viewer reads one, so the order rule must hold there too.
+  const graphml = wikipediaWithScriptInsert("150").replace(
+    '<data key="d26">207</data><data key="d30">2</data>',
+    '<data key="d30">2</data>'
+  );
+  assert.notEqual(graphml, wikipediaWithScriptInsert("150"), "the request timestamp was removed");
+  const request = (pageGraphGraphmlToAdapterInput(graphml, WIKIPEDIA_OPTIONS).requests ?? []).find(
+    (candidate) => candidate.requestId === "2"
+  );
+  assert.ok(request);
+  assert.equal(request.provenance?.scriptId, undefined);
+});
