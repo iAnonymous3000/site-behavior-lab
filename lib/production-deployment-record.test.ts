@@ -68,6 +68,8 @@ test("a record is refused for each way it is not this deployment's", async () =>
     ["another repository", (r) => { r.image = r.image.replace("site-behavior-lab-scanner", "other-scanner"); }, /no immutable image/],
     ["no application", (r) => { r.applicationId = ""; }, /names no application/],
     ["a loose time", (r) => { r.observedAt = "2026-11-18T10:04:50Z"; }, /not a canonical instant/],
+    // A text no date reads is refused, not thrown on: toISOString would throw on it.
+    ["an unparseable time", (r) => { r.observedAt = "yesterday"; }, /not a canonical instant/],
     ["no CI run", (r) => { r.ciRun = { id: 0 }; }, /names no CI run/],
     ["another deployment run", (r) => { r.deployRun = { id: RUNS.deployRunId + 1, attempt: RUNS.deployRunAttempt }; }, /not of deployment run/],
     ["another attempt", (r) => { r.deployRun = { id: RUNS.deployRunId, attempt: 1 }; }, /not of deployment run/],
