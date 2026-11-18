@@ -110,12 +110,35 @@ async function publishedAggregate(root: string, aggregate: Aggregate): Promise<P
     [
       "--input-type=module",
       "-e",
-      "const m = await import(process.cwd() + '/.unit-test-dist/lib/status-snapshot-server.js'); process.stdout.write(JSON.stringify(await m.loadStatusSnapshot()));"
+      [
+        "const lib = process.cwd() + '/.unit-test-dist/lib/';",
+        "const { loadStatusSnapshot } = await import(lib + 'status-snapshot-server.js');",
+        "const { entryEligibleForCorpusRollups, loadCorpusOverview } = await import(lib + 'corpus-overview.js');",
+        "const snapshot = await loadStatusSnapshot();",
+        // The snapshot's per-site dates carry no site, so each site's newest
+        // eligible aggregate date is taken here from the same overview entries
+        // by the same rule (lib/status-snapshot-server.ts), to bind which site
+        // has which date.
+        "const dates = new Map();",
+        "for (const entry of (await loadCorpusOverview()).entries) {",
+        "  if (!entryEligibleForCorpusRollups(entry) || !Number.isFinite(Date.parse(entry.scannedAt))) continue;",
+        "  if (entry.corpusCohort.id !== snapshot.aggregateCohortId || entry.siteKey === null) continue;",
+        "  const previous = dates.get(entry.siteKey);",
+        "  if (!previous || Date.parse(entry.scannedAt) > Date.parse(previous)) dates.set(entry.siteKey, entry.scannedAt);",
+        "}",
+        "process.stdout.write(JSON.stringify({ snapshot, siteDates: [...dates].sort(([a], [b]) => a.localeCompare(b)) }));"
+      ].join("\n")
     ],
     { cwd: root, encoding: "utf8", timeout: 600_000, killSignal: "SIGKILL", maxBuffer: 64 * 1024 * 1024 }
   );
-  const snapshot = JSON.parse(child.stdout) as Record<string, unknown>;
+  const { snapshot, siteDates } = JSON.parse(child.stdout) as { snapshot: Record<string, unknown>; siteDates: [string, string][] };
   assertSnapshotFieldsAccounted(snapshot);
+  // Fixture invariant: the keyed dates are the snapshot's own dates.
+  assert.deepEqual(
+    siteDates.map(([, date]) => date).sort(),
+    [...(snapshot.aggregateSiteDates as string[])].sort(),
+    "the per-site dates drifted from the snapshot's"
+  );
   return {
     stats: JSON.stringify({
       primaryCohortId: stats.primaryCohortId,
@@ -129,7 +152,11 @@ async function publishedAggregate(root: string, aggregate: Aggregate): Promise<P
       aggregateCohortId: snapshot.aggregateCohortId,
       latestAggregateEvidence: snapshot.latestAggregateEvidence,
       siteCount: snapshot.siteCount,
-      aggregateSiteDates: snapshot.aggregateSiteDates
+      // Its order follows the overview's entry sort, which a trim of an older
+      // report of the same site can change; its only readers count it. The
+      // keyed pairs bind each site's date.
+      aggregateSiteDates: [...(snapshot.aggregateSiteDates as string[])].sort(),
+      siteDates
     })
   };
 }
