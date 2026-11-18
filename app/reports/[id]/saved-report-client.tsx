@@ -120,13 +120,13 @@ export function SavedReportClient({
   // A section link (#cookies, #request-evidence) lands on that section once
   // the explorer has rendered it, which happens after the lazy chunk mounts.
   useEffect(() => {
-    if (pressedClaimRef.current || !loaded) return;
-    const section = pendingSectionRef.current;
-    pendingSectionRef.current = null;
+    if (pressedClaimRef.current) return;
+    const section = loaded ? pendingSectionRef.current : null;
     if (!section) {
-      evidenceExplorerRef.current?.focus();
+      if (loaded) evidenceExplorerRef.current?.focus();
       return;
     }
+    pendingSectionRef.current = null;
     evidenceExplorerRef.current?.focus({ preventScroll: true });
     let frames = 0;
     let handle = 0;

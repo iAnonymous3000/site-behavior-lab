@@ -109,7 +109,10 @@ test("a shared evidence fragment opens the explorer that reads it", () => {
     assert.match(lazyReader, /parseEvidenceHash\(/);
   }
   assert.match(permalink, /import \{ parseEvidenceHash \} from "@\/lib\/report-evidence-navigation"/);
-  assert.match(permalink, /if \(autoOpenedRef\.current \|\| !parseEvidenceHash\(window\.location\.hash\)\) return/);
+  // A section anchor only the explorer renders opens it too (lib/report-section-ids.ts).
+  assert.match(permalink, /if \(autoOpenedRef\.current\) return;/);
+  assert.match(permalink, /const section = explorerSectionForHash\(window\.location\.hash\);/);
+  assert.match(permalink, /if \(!parseEvidenceHash\(window\.location\.hash\) && !section\) return;/);
   assert.match(permalink, /void loadEvidenceRef\.current\(\)/);
   assert.match(permalink, /addEventListener\("hashchange", openWhenEvidenceLinked\)/);
   assert.match(permalink, /removeEventListener\("hashchange", openWhenEvidenceLinked\)/);
