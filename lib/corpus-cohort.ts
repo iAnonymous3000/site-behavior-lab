@@ -319,12 +319,14 @@ export function selectPrimaryCorpusCohort<Identity extends CorpusCohortIdentity>
 /**
  * The cohorts {@link selectPrimaryCorpusCohort} consults, not only the one it
  * picks: every cohort that was the running incumbent at some step of the
- * line history (the off-line pick, and each line's taker), and every cohort
- * of the current line in the pool. Removing a site from any of them can move
- * the selection (an incumbent's population is what a handoff must retain),
- * so retention trims their representatives last
- * (lib/prune-static-reports.ts). Derived from the same pass that selects, so
- * the two cannot disagree.
+ * line history (the off-line pick, and each line's taker), every cohort of
+ * the current line in the pool, and every cohort whose composition veto
+ * fired in the pass. Removing a site from any of them can move the selection:
+ * an incumbent's population is what a handoff must retain, and a veto that
+ * fired removed a candidate that could otherwise win. A cohort checked as a
+ * possible vetoer that did not veto is not among them. Retention trims their
+ * representatives last (lib/prune-static-reports.ts). Derived from the same
+ * pass that selects, so the two cannot disagree.
  */
 export function corpusCohortsTheSelectionUses<Identity extends CorpusCohortIdentity>(
   candidates: readonly CorpusCohortCandidate<Identity>[],
@@ -345,16 +347,19 @@ function corpusCohortSelection<Identity extends CorpusCohortIdentity>(
   const usable = generation.filter((candidate) => candidate.siteCount >= minSiteCount);
   const pool = usable.length > 0 ? usable : generation;
   const consulted = new Set<CorpusCohortCandidate<Identity>>();
+  const vetoers = new Set<CorpusCohortCandidate<Identity>>();
   let incumbent = pickByCompositionAndRecency(
-    pool.filter((candidate) => measurementLineIndex(candidate.identity, lines) === -1)
+    pool.filter((candidate) => measurementLineIndex(candidate.identity, lines) === -1),
+    vetoers
   );
   if (incumbent) consulted.add(incumbent);
   for (let line = 0; line < lines.length; line += 1) {
     const onLine = pool.filter((candidate) => measurementLineIndex(candidate.identity, lines) === line);
     if (line === lines.length - 1) for (const candidate of onLine) consulted.add(candidate);
-    incumbent = handOffToLine(onLine, incumbent);
+    incumbent = handOffToLine(onLine, incumbent, vetoers);
     if (incumbent) consulted.add(incumbent);
   }
+  for (const vetoer of vetoers) consulted.add(vetoer);
   return { selected: incumbent, consulted: [...consulted] };
 }
 
@@ -364,7 +369,8 @@ function corpusCohortSelection<Identity extends CorpusCohortIdentity>(
  */
 function handOffToLine<Identity extends CorpusCohortIdentity>(
   onLine: readonly CorpusCohortCandidate<Identity>[],
-  incumbent: CorpusCohortCandidate<Identity> | null
+  incumbent: CorpusCohortCandidate<Identity> | null,
+  vetoers?: Set<CorpusCohortCandidate<Identity>>
 ): CorpusCohortCandidate<Identity> | null {
   if (onLine.length === 0) return incumbent;
   // The handoff gate, applied per contender rather than winner-take-or-revert.
@@ -382,7 +388,7 @@ function handOffToLine<Identity extends CorpusCohortIdentity>(
   // The gate fails open when either side carries no site keys: a caller that
   // never supplies them cannot be judged, which is the same rule the
   // composition veto already applies to itself.
-  for (const contender of lineContendersInOrder(onLine)) {
+  for (const contender of lineContendersInOrder(onLine, vetoers)) {
     if (!incumbent || missingShare(contender, incumbent) <= MAX_DROPPED_SITE_SHARE) return contender;
   }
   return incumbent;
@@ -390,21 +396,30 @@ function handOffToLine<Identity extends CorpusCohortIdentity>(
 
 /** The established rule: composition-vetted, then newest evidence wins. */
 function pickByCompositionAndRecency<Identity extends CorpusCohortIdentity>(
-  pool: readonly CorpusCohortCandidate<Identity>[]
+  pool: readonly CorpusCohortCandidate<Identity>[],
+  vetoers?: Set<CorpusCohortCandidate<Identity>>
 ): CorpusCohortCandidate<Identity> | null {
-  return lineContendersInOrder(pool)[0] ?? null;
+  return lineContendersInOrder(pool, vetoers)[0] ?? null;
 }
 
-/** Same rule, whole ordering: veto survivors first, then the vetoed fallback. */
+/**
+ * Same rule, whole ordering: veto survivors first, then the vetoed fallback.
+ * Every cohort whose veto fires is added to `vetoers` when one is given.
+ */
 function lineContendersInOrder<Identity extends CorpusCohortIdentity>(
-  pool: readonly CorpusCohortCandidate<Identity>[]
+  pool: readonly CorpusCohortCandidate<Identity>[],
+  vetoers?: Set<CorpusCohortCandidate<Identity>>
 ): CorpusCohortCandidate<Identity>[] {
   if (pool.length === 0) return [];
   // Recency may not buy a narrower universe. A candidate leads only if it is
   // not missing a material share of any other qualifying cohort's sites; when
   // every candidate drops one of the others, no composition is comparable and
   // the broadest description is the honest one.
-  const ranked = pool.filter((candidate) => !dropsAComparableCohortsSites(candidate, pool));
+  const ranked = pool.filter((candidate) => {
+    const vetoing = cohortsVetoing(candidate, pool);
+    for (const vetoer of vetoing) vetoers?.add(vetoer);
+    return vetoing.length === 0;
+  });
   const contenders = ranked.length > 0 ? ranked : [...pool].sort((left, right) => right.siteCount - left.siteCount).slice(0, 1);
   return [...contenders].sort((left, right) => {
     const leftAt = Date.parse(left.latestRunAt ?? "");
@@ -461,13 +476,14 @@ export const COHORT_FIELDS_OUTSIDE_THE_VETO = Object.freeze([
   "methodologyOrigin"
 ] as const satisfies readonly (keyof CorpusCohortIdentityComponents)[]);
 
-function dropsAComparableCohortsSites<Identity extends CorpusCohortIdentity>(
+/** The broader comparable cohorts whose sites `candidate` drops too many of: each one vetoes it. */
+function cohortsVetoing<Identity extends CorpusCohortIdentity>(
   candidate: CorpusCohortCandidate<Identity>,
   pool: readonly CorpusCohortCandidate<Identity>[]
-): boolean {
+): CorpusCohortCandidate<Identity>[] {
   const own = new Set(candidate.sites ?? []);
-  if (own.size === 0) return false;
-  return pool.some((other) => {
+  if (own.size === 0) return [];
+  return pool.filter((other) => {
     if (other === candidate) return false;
     // Only cohorts on the SAME measurement line are substitutable descriptions
     // of the corpus. A different methodology or producer is a different

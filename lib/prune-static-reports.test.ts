@@ -5,7 +5,7 @@ import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { pathToFileURL } from "node:url";
 import { spawnSyncBounded } from "./bounded-spawn";
-import { CURRENT_MEASUREMENT_LINE_METHODOLOGY, corpusCohortIdentityForView } from "./corpus-cohort";
+import { CURRENT_MEASUREMENT_LINE_METHODOLOGY, REVIEWED_MEASUREMENT_LINES, corpusCohortIdentityForView } from "./corpus-cohort";
 import { buildCorpusStats } from "./corpus-stats-builder";
 import { createShieldsComparisonReport } from "./compare-reports";
 import { frozenReportView, frozenReportWire } from "./pinned-reports";
@@ -859,4 +859,52 @@ test("the count cap trims the aggregate selection's representatives last, and na
   assert.deepEqual(warnings, [
     `The count cap removed the last eligible report (${otherOldest}) for site a-site.dev in corpus cohort ${otherCohort.id}.`
   ]);
+});
+
+test("the count cap trims last the cohort whose veto decides the selection, though it is no incumbent", async () => {
+  // The off-line incumbent holds two sites. On a retired line, a broad GPC-on
+  // cohort vetoes a narrow GPC-off one (the 2026-07-27 shape): the narrow one
+  // covers the incumbent's sites and would take the aggregate, but the veto
+  // keeps it from contending, and the broad one cannot retain the incumbent's
+  // sites. So the vetoer, which never holds the aggregate, decides it.
+  const retired = REVIEWED_MEASUREMENT_LINES[REVIEWED_MEASUREMENT_LINES.length - 2];
+  const playwright = (line: string) => /-playwright-(\d+\.\d+\.\d+)/.exec(line)?.[1] ?? "";
+  const onRetiredLine = (report: ScanResult, gpcEnabled: boolean): ScanResult => {
+    report.conditions.gpcEnabled = gpcEnabled;
+    report.conditions.scannerDisclosure = (report.conditions.scannerDisclosure ?? "")
+      .replace(CURRENT_MEASUREMENT_LINE_METHODOLOGY, retired)
+      .replace(`using Playwright ${playwright(CURRENT_MEASUREMENT_LINE_METHODOLOGY)} `, `using Playwright ${playwright(retired)} `);
+    return report;
+  };
+  const vetoer = ["20260701-11111111111111111111111111111111", "20260702-22222222222222222222222222222222", "20260703-33333333333333333333333333333333"];
+  const vetoed = ["20260704-44444444444444444444444444444444", "20260705-55555555555555555555555555555555"];
+  for (const [index, id] of vetoer.entries()) {
+    await writeReport(id, onRetiredLine(makeResult(`broad-${index}.dev`, `2026-07-0${index + 1}T00:00:00.000Z`), true));
+  }
+  for (const [index, id] of vetoed.entries()) {
+    await writeReport(id, onRetiredLine(makeResult(`shared-${index}.dev`, `2026-07-0${index + 4}T00:00:00.000Z`), false));
+  }
+  await writeReport("20260706-66666666666666666666666666666666", offLine(makeResult("shared-0.dev", "2026-07-06T00:00:00.000Z")));
+  await writeReport("20260707-77777777777777777777777777777777", offLine(makeResult("shared-1.dev", "2026-07-07T00:00:00.000Z")));
+
+  const selected = async () => (await buildCorpusStats(reportsDir)).stats;
+  const before = await selected();
+  const incumbent = before.cohorts.find((cohort) => cohort.methodologyVersion !== retired);
+  assert.ok(incumbent);
+  assert.equal(before.cohorts.length, 3, "fixture invariant: an incumbent and two retired-line cohorts");
+  assert.equal(before.primaryCohortId, incumbent.id, "fixture invariant: the veto keeps the incumbent publishing");
+
+  const { removed } = await pruneStaticReportsWithCorrections(reportsDir, emptyLedgerPath, {
+    maxAgeMs: 365 * DAY_MS,
+    maxCount: 5,
+    keepPerSite: 2,
+    now: Date.parse("2026-07-10T00:00:00.000Z")
+  });
+
+  assert.deepEqual(
+    removed.map((file) => path.basename(file, ".json")),
+    vetoed,
+    "the cap trims the vetoed cohort, never the vetoer's sites"
+  );
+  assert.equal((await selected()).primaryCohortId, before.primaryCohortId);
 });
