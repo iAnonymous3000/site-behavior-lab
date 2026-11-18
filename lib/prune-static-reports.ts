@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { readCorrectionsLedgerReportIds } from "./corrections-ledger";
 import { acquireReportCorpusLock } from "./report-corpus-lock";
@@ -27,7 +28,8 @@ import type { ComparisonType } from "./types";
  * do not match one another; only the newest report of each broad site/kind is
  * protected as a disappearance guard. The normal count cap trims oldest-first
  * while preferring unprotected reports; immutable correction-linked evidence
- * overrides that cap rather than being silently deleted.
+ * overrides that cap rather than being silently deleted, and so do the inputs
+ * a decided research package cites (DECIDED_PACKAGE_INPUT_FILES).
  *
  * A file the reader cannot read is NEVER deleted: retention must not destroy
  * evidence it cannot understand. It is skipped with a warning and counts
@@ -43,6 +45,12 @@ export type PruneOptions = {
   keepPerSite: number;
   /** Public correction evidence is immutable and exempt from every retention limit. */
   pinnedReportIds: ReadonlySet<string>;
+  /**
+   * Reports a decided research package was built from, exempt from every
+   * retention limit like correction evidence: the package's numbers are true
+   * only while each of its inputs is committed.
+   */
+  decidedPackageReportIds?: ReadonlySet<string>;
   now?: number;
 };
 
@@ -53,16 +61,69 @@ export type PruneResult = {
 };
 
 /**
- * Production retention entry point. The complete corrections ledger is read
- * before report discovery or deletion, so invalid correction state aborts the
- * operation without a partial prune.
+ * Pin files of the decided research packages, relative to the repository
+ * root. Each lists the committed reports its package was built from, and the
+ * package's own check holds the list to the reports it reads
+ * (research/calibration-censoring/census-inputs.mjs). The calibration-censoring
+ * findings state "126 r2 runs", and docs restate that count in the present
+ * tense; without the pin, age pruning removes those reports and the committed
+ * package stops reproducing.
+ */
+export const DECIDED_PACKAGE_INPUT_FILES: readonly string[] = Object.freeze([
+  "research/calibration-censoring/corpus-censoring-inputs.json"
+]);
+
+const REPORT_ID_PATTERN = /^\d{8}-[0-9a-f]{32}$/;
+
+/**
+ * The report ids one decided package cites. A missing or malformed pin file
+ * throws: a prune that cannot tell which reports a package needs must not run.
+ */
+export async function readDecidedPackageReportIds(filePath: string): Promise<ReadonlySet<string>> {
+  let text: string;
+  try {
+    text = await readFile(filePath, "utf8");
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code ?? "unreadable";
+    throw new Error(`Decided-package pin file ${filePath} could not be read (${code}); pruning aborted.`);
+  }
+  const invalid = (why: string) => new Error(`Decided-package pin file ${filePath} is invalid: ${why}; pruning aborted.`);
+  let wire: unknown;
+  try {
+    wire = JSON.parse(text);
+  } catch {
+    throw invalid("not JSON");
+  }
+  if (typeof wire !== "object" || wire === null || Array.isArray(wire)) throw invalid("not an object");
+  const reportIds = (wire as { reportIds?: unknown }).reportIds;
+  if (!Array.isArray(reportIds)) throw invalid("reportIds is not a list");
+  const ids = new Set<string>();
+  for (const id of reportIds) {
+    if (typeof id !== "string" || !REPORT_ID_PATTERN.test(id)) throw invalid(`${JSON.stringify(id)} is not a report id`);
+    if (ids.has(id)) throw invalid(`${id} is listed twice`);
+    ids.add(id);
+  }
+  return ids;
+}
+
+/**
+ * Production retention entry point. The complete corrections ledger and every
+ * decided-package pin file are read before report discovery or deletion, so
+ * invalid pin state aborts the operation without a partial prune.
  */
 export async function pruneStaticReportsWithCorrections(
   reportsDir: string,
   correctionsLedgerPath: string,
-  options: Omit<PruneOptions, "pinnedReportIds">
+  options: Omit<PruneOptions, "pinnedReportIds" | "decidedPackageReportIds">,
+  decidedPackageInputPaths: readonly string[] = []
 ): Promise<PruneResult> {
   const pinnedReportIds = await readCorrectionsLedgerReportIds(correctionsLedgerPath);
+  const decidedPackagePins = new Map<string, string>();
+  for (const filePath of decidedPackageInputPaths) {
+    for (const id of await readDecidedPackageReportIds(filePath)) {
+      if (!decidedPackagePins.has(id)) decidedPackagePins.set(id, filePath);
+    }
+  }
   const lock = await acquireReportCorpusLock(reportsDir, "prune-static-reports");
   try {
     // A ledger reference is a promise that the immutable static bundle exists.
@@ -77,7 +138,21 @@ export async function pruneStaticReportsWithCorrections(
         );
       }
     }
-    return pruneStaticReportsUnderLock(reportsDir, { ...options, pinnedReportIds });
+    // A package citation is the same promise, and is checked the same way.
+    for (const [reportId, filePath] of decidedPackagePins) {
+      const read = await readStaticReportBundle(reportsDir, reportId);
+      if (read.outcome !== "found") {
+        const reason = read.outcome === "not-found" ? "missing-report" : read.reason;
+        throw new Error(
+          `Decided-package report ${reportId} cited by ${filePath} is not a valid committed static report bundle (${reason}); pruning aborted.`
+        );
+      }
+    }
+    return pruneStaticReportsUnderLock(reportsDir, {
+      ...options,
+      pinnedReportIds,
+      decidedPackageReportIds: new Set(decidedPackagePins.keys())
+    });
   } finally {
     await lock.release();
   }
@@ -98,15 +173,14 @@ async function pruneStaticReportsUnderLock(reportsDir: string, options: PruneOpt
   const now = options.now ?? Date.now();
 
   const ageExempt = protectedGenerations(records, options.keepPerSite);
+  const decidedPackageReportIds = options.decidedPackageReportIds ?? new Set<string>();
+  const pinned = (record: ReportRecord) =>
+    options.pinnedReportIds.has(record.id) || decidedPackageReportIds.has(record.id);
   const kept: ReportRecord[] = [];
   const removePaths = new Set<string>();
 
   for (const record of records) {
-    if (
-      now - record.scannedAtMs > options.maxAgeMs &&
-      !ageExempt.has(record) &&
-      !options.pinnedReportIds.has(record.id)
-    ) {
+    if (now - record.scannedAtMs > options.maxAgeMs && !ageExempt.has(record) && !pinned(record)) {
       removePaths.add(record.path);
     } else {
       kept.push(record);
@@ -114,17 +188,22 @@ async function pruneStaticReportsUnderLock(reportsDir: string, options: PruneOpt
   }
 
   // Enforce the normal count ceiling by trimming oldest first while preferring
-  // to keep protected generations. Correction pins are absolute exemptions.
-  const pinnedCount = kept.filter((record) => options.pinnedReportIds.has(record.id)).length;
+  // to keep protected generations. Correction and package pins are absolute
+  // exemptions.
+  const pinnedCount = kept.filter(pinned).length;
   kept
-    .filter((record) => !options.pinnedReportIds.has(record.id))
+    .filter((record) => !pinned(record))
     .sort((a, b) => Number(ageExempt.has(b)) - Number(ageExempt.has(a)) || b.scannedAtMs - a.scannedAtMs)
     .slice(Math.max(0, options.maxCount - pinnedCount))
     .forEach((record) => removePaths.add(record.path));
 
   if (pinnedCount > options.maxCount) {
+    const correctionCount = kept.filter((record) => options.pinnedReportIds.has(record.id)).length;
+    const packageOnly = pinnedCount - correctionCount;
     warnings.push(
-      `Keeping ${pinnedCount} correction-linked static reports even though the configured count cap is ${options.maxCount}.`
+      `Keeping ${correctionCount} correction-linked static reports${
+        packageOnly > 0 ? ` and ${packageOnly} decided-package inputs` : ""
+      } even though the configured count cap is ${options.maxCount}.`
     );
   }
 

@@ -1,5 +1,5 @@
 import path from "node:path";
-import { pruneStaticReportsWithCorrections } from "./prune-static-reports";
+import { DECIDED_PACKAGE_INPUT_FILES, pruneStaticReportsWithCorrections } from "./prune-static-reports";
 
 /**
  * CLI wrapper for corpus retention pruning. Invoked (compiled to the
@@ -11,7 +11,8 @@ import { pruneStaticReportsWithCorrections } from "./prune-static-reports";
 const DEFAULT_MAX_AGE_DAYS = 7;
 // Normal ceiling on committed reports. Exact subject/cohort retention may keep
 // multiple compatible histories per site; correction-linked immutable
-// evidence is the sole override and is reported when it exceeds this bound.
+// evidence and the inputs a decided research package cites are the only
+// overrides, and are reported when they exceed this bound.
 // At ~150 KB per unpinned report this otherwise caps JSON near 150 MB.
 const DEFAULT_MAX_COUNT = 1_000;
 // The newest reports per exact site/kind/subject/versioned cohort stay exempt
@@ -48,11 +49,12 @@ async function main(): Promise<void> {
     Math.floor(nonNegativeNumberFromEnv("SITE_BEHAVIOR_LAB_STATIC_REPORT_KEEP_PER_SITE", DEFAULT_KEEP_PER_SITE))
   );
 
-  const { removed, warnings } = await pruneStaticReportsWithCorrections(reportsDir, correctionsLedgerPath, {
-    maxAgeMs,
-    maxCount,
-    keepPerSite
-  });
+  const { removed, warnings } = await pruneStaticReportsWithCorrections(
+    reportsDir,
+    correctionsLedgerPath,
+    { maxAgeMs, maxCount, keepPerSite },
+    DECIDED_PACKAGE_INPUT_FILES.map((file) => path.join(process.cwd(), file))
+  );
   for (const warning of warnings) {
     console.warn(warning);
   }

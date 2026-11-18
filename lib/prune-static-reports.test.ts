@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
-import { access, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { access, copyFile, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
-import { pruneStaticReportsWithCorrections } from "./prune-static-reports";
+import { pathToFileURL } from "node:url";
+import { spawnSyncBounded } from "./bounded-spawn";
+import { DECIDED_PACKAGE_INPUT_FILES, pruneStaticReportsWithCorrections } from "./prune-static-reports";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { REDACTION_VERSION } from "./redaction-v2";
@@ -523,4 +525,150 @@ test("unknown provenance is retained while verified pruning removes the whole bu
   await access(path.join(reportsDir, committedSidecarFilename(danglingId)));
   await assert.rejects(() => access(path.join(reportsDir, `${verifiedId}.json`)), /ENOENT/);
   await assert.rejects(() => access(path.join(reportsDir, committedSidecarFilename(verifiedId))), /ENOENT/);
+});
+
+// A decided research package is built from committed reports, and its numbers
+// are true only while every one of them is committed. The calibration-censoring
+// package cites its inputs in a pin file the prune CLI reads, so retention can
+// never take one away. These tests drive the compiled CLI itself, in a scratch
+// repository root, so they cover the path the scan workflow runs.
+const CENSUS_REPORT_ID = "20260714-be94cc2d911e26d027950a336147917e";
+const CENSUS_PIN_FILE = path.join("research", "calibration-censoring", "corpus-censoring-inputs.json");
+
+async function censusCliRoot(): Promise<string> {
+  const root = await mkdtemp(path.join(tmpdir(), "sbl-prune-cli-"));
+  await mkdir(path.join(root, "public", "reports"), { recursive: true });
+  await mkdir(path.join(root, "research", "calibration-censoring"), { recursive: true });
+  await writeFile(path.join(root, "public", "corrections.json"), await readFile(emptyLedgerPath, "utf8"));
+  // The frozen copy is the r2 report the package cites, byte for byte.
+  for (const name of [`${CENSUS_REPORT_ID}.json`, `${CENSUS_REPORT_ID}.provenance.json`]) {
+    await copyFile(path.join(process.cwd(), "test-fixtures", "reports", name), path.join(root, "public", "reports", name));
+  }
+  return root;
+}
+
+async function writeCensusPins(root: string, reportIds: readonly string[]): Promise<void> {
+  await writeFile(
+    path.join(root, CENSUS_PIN_FILE),
+    `${JSON.stringify({ package: "corpus-censoring-findings.txt", runCount: reportIds.length * 2, reportIds }, null, 2)}\n`
+  );
+}
+
+function runPruneCli(root: string) {
+  // Pure age pruning: nothing protects the July report except its pin.
+  return spawnSyncBounded(process.execPath, [path.join(__dirname, "prune-static-reports-cli.js")], {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, SITE_BEHAVIOR_LAB_STATIC_REPORT_KEEP_PER_SITE: "0" }
+  });
+}
+
+test("the prune CLI never removes a report the calibration-censoring package cites", async () => {
+  const root = await censusCliRoot();
+  try {
+    const reportPath = path.join(root, "public", "reports", `${CENSUS_REPORT_ID}.json`);
+    await writeCensusPins(root, [CENSUS_REPORT_ID]);
+    const pinned = runPruneCli(root);
+    assert.equal(pinned.status, 0, pinned.stderr);
+    assert.match(pinned.stdout, /Pruned 0 static reports\./);
+    await access(reportPath);
+    await access(path.join(root, "public", "reports", committedSidecarFilename(CENSUS_REPORT_ID)));
+
+    // Without the citation the same CLI ages the report out, so the pin, not
+    // some other protection, is what kept it.
+    await writeCensusPins(root, []);
+    const unpinned = runPruneCli(root);
+    assert.equal(unpinned.status, 0, unpinned.stderr);
+    assert.match(unpinned.stdout, /Pruned 1 static report\./);
+    await assert.rejects(() => access(reportPath), /ENOENT/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("the prune CLI aborts before any removal when the census pin file is missing", async () => {
+  const root = await censusCliRoot();
+  try {
+    const result = runPruneCli(root);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /corpus-censoring-inputs\.json/);
+    assert.doesNotMatch(result.stdout, /Pruned/);
+    await access(path.join(root, "public", "reports", `${CENSUS_REPORT_ID}.json`));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("a census pin naming an absent bundle aborts the prune before any removal", async () => {
+  const root = await censusCliRoot();
+  const absentId = "20260714-ffffffffffffffffffffffffffffffff";
+  try {
+    await writeCensusPins(root, [CENSUS_REPORT_ID, absentId]);
+    const result = runPruneCli(root);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, new RegExp(`${absentId}.*pruning aborted`));
+    assert.doesNotMatch(result.stdout, /Pruned/);
+    await access(path.join(root, "public", "reports", `${CENSUS_REPORT_ID}.json`));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("census pins outrank the count cap, and the cap warning counts them apart from correction pins", async () => {
+  const now = Date.parse("2026-07-10T00:00:00.000Z");
+  const citedIds = ["20250101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "20250102-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"];
+  const unpinnedId = "20260710-cccccccccccccccccccccccccccccccc";
+  await writeReport(citedIds[0], makeResult("cited-one.example.dev", "2025-01-01T00:00:00.000Z"));
+  await writeReport(citedIds[1], makeResult("cited-two.example.dev", "2025-01-02T00:00:00.000Z"));
+  await writeReport(unpinnedId, makeResult("unpinned.example.dev", "2026-07-10T00:00:00.000Z"));
+  const pinPath = path.join(ledgerDir, "inputs.json");
+  await writeFile(pinPath, `${JSON.stringify({ reportIds: citedIds })}\n`);
+
+  const { removed, warnings } = await pruneStaticReportsWithCorrections(
+    reportsDir,
+    emptyLedgerPath,
+    { maxAgeMs: 7 * DAY_MS, maxCount: 1, keepPerSite: 0, now },
+    [pinPath]
+  );
+
+  assert.deepEqual(removed, [path.join(reportsDir, `${unpinnedId}.json`)]);
+  assert.match(warnings.at(-1) ?? "", /Keeping 0 correction-linked static reports and 2 decided-package inputs.*count cap is 1/);
+  for (const id of citedIds) await access(path.join(reportsDir, `${id}.json`));
+});
+
+test("a malformed census pin file aborts before any report is pruned", async () => {
+  const reportId = "20250101-dddddddddddddddddddddddddddddddd";
+  await writeReport(reportId, makeResult("preserved.example.dev", "2025-01-01T00:00:00.000Z"));
+  for (const [name, body] of [
+    ["not-an-object", "[]\n"],
+    ["ids-not-a-list", '{"reportIds":"20250101-dddddddddddddddddddddddddddddddd"}\n'],
+    ["bad-id", '{"reportIds":["../corrections"]}\n'],
+    ["duplicate-id", `{"reportIds":["${reportId}","${reportId}"]}\n`]
+  ] as const) {
+    const pinPath = path.join(ledgerDir, `${name}.json`);
+    await writeFile(pinPath, body);
+    await assert.rejects(
+      () =>
+        pruneStaticReportsWithCorrections(
+          reportsDir,
+          emptyLedgerPath,
+          { maxAgeMs: 1, maxCount: 1, keepPerSite: 0, now: Date.parse("2026-07-10T00:00:00.000Z") },
+          [pinPath]
+        ),
+      /Decided-package pin file .* is invalid/,
+      name
+    );
+  }
+  await access(path.join(reportsDir, `${reportId}.json`));
+});
+
+test("the prune reads the census pin file the calibration-censoring analyzer binds", async () => {
+  const nativeImport = new Function("specifier", "return import(specifier)") as (
+    specifier: string
+  ) => Promise<{ CENSUS_INPUTS_RELATIVE_PATH: string }>;
+  const census = await nativeImport(
+    pathToFileURL(path.join(process.cwd(), "research", "calibration-censoring", "census-inputs.mjs")).href
+  );
+  assert.deepEqual(DECIDED_PACKAGE_INPUT_FILES, [census.CENSUS_INPUTS_RELATIVE_PATH]);
+  assert.equal(census.CENSUS_INPUTS_RELATIVE_PATH, CENSUS_PIN_FILE.split(path.sep).join("/"));
 });

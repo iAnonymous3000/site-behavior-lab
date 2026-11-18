@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { copyFileSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { censusInputProblems, readCensusInputs } from "./census-inputs.mjs";
 import {
   assertDiscriminatorMatchesProduct,
   normalizeHistoricalLossDetail,
@@ -94,4 +96,75 @@ test("the committed findings attribute the byte-budget loss separately", () => {
     /5 {2}requests\/request-capture\/cap/,
     "five recording-cap losses is the pre-discriminator count"
   );
+});
+
+test("the census pin check names every way the reports read and the pins disagree", () => {
+  const runs = [{ reportId: "a" }, { reportId: "a" }, { reportId: "b" }, { reportId: "b" }];
+  assert.deepEqual(censusInputProblems(runs, { reportIds: ["a", "b"], runCount: 4 }), []);
+  assert.deepEqual(censusInputProblems(runs, { reportIds: ["a"], runCount: 4 }), ["read but not pinned: b"]);
+  assert.deepEqual(censusInputProblems(runs, { reportIds: ["a", "b", "c"], runCount: 4 }), ["pinned but not read: c"]);
+  assert.deepEqual(censusInputProblems(runs, { reportIds: ["a", "b"], runCount: 6 }), ["runs read: 4, pinned runCount: 6"]);
+  assert.deepEqual(censusInputProblems(runs, { reportIds: ["a", "b", "b"], runCount: 4 }), ["the pin list names a report twice"]);
+});
+
+test("the committed census pins cite the 126 runs the committed findings state", () => {
+  const inputs = readCensusInputs(repoRoot);
+  assert.equal(inputs.reportIds.length, 63);
+  assert.equal(inputs.runCount, 126);
+  assert.equal(new Set(inputs.reportIds).size, inputs.reportIds.length, "no report is cited twice");
+  assert.deepEqual(inputs.reportIds, [...inputs.reportIds].sort(), "the list stays sorted so a change reads as a diff");
+  const findings = readFileSync(path.join(here, "corpus-censoring-findings.txt"), "utf8");
+  assert.equal(Number(findings.match(/generated from (\d+) r2 runs/)?.[1]), inputs.runCount);
+});
+
+/**
+ * The binding is only worth its pins if the analyzer refuses a list that
+ * disagrees with what it reads. A scratch root holds one frozen r2 report and
+ * links the code the analyzer reads at startup, so the check runs for real.
+ */
+test("the analyzer refuses a census pin list that disagrees with the reports it reads", () => {
+  const scratch = mkdtempSync(path.join(tmpdir(), "census-pins-"));
+  const reportId = "20260714-be94cc2d911e26d027950a336147917e";
+  try {
+    const packageDir = path.join(scratch, "research", "calibration-censoring");
+    mkdirSync(packageDir, { recursive: true });
+    for (const file of ["analyze-corpus-censoring.mjs", "census-inputs.mjs", "historical-loss-detail.mjs", "corpus-censoring-findings.txt"]) {
+      copyFileSync(path.join(here, file), path.join(packageDir, file));
+    }
+    for (const dir of ["lib", "scripts"]) symlinkSync(path.join(repoRoot, dir), path.join(scratch, dir));
+    mkdirSync(path.join(scratch, "public", "reports"), { recursive: true });
+    copyFileSync(path.join(repoRoot, "public", "featured-sites.json"), path.join(scratch, "public", "featured-sites.json"));
+    copyFileSync(
+      path.join(repoRoot, "test-fixtures", "reports", `${reportId}.json`),
+      path.join(scratch, "public", "reports", `${reportId}.json`)
+    );
+    const check = (reportIds, runCount) => {
+      writeFileSync(path.join(packageDir, "corpus-censoring-inputs.json"), `${JSON.stringify({ reportIds, runCount })}\n`);
+      const result = spawnSync(process.execPath, [path.join(packageDir, "analyze-corpus-censoring.mjs"), "--check"], {
+        cwd: scratch,
+        encoding: "utf8",
+        timeout: 60_000,
+        killSignal: "SIGKILL"
+      });
+      assert.equal(result.signal, null, "the analyzer must exit on its own");
+      assert.equal(result.error, undefined);
+      return result;
+    };
+
+    const disagreeing = check(["20260814-001603a1f90af9cd2fee0e1c9be85758"], 2);
+    assert.equal(disagreeing.status, 1);
+    assert.match(disagreeing.stderr, /corpus-censoring-inputs\.json disagrees with the reports this package reads/);
+    assert.match(disagreeing.stderr, new RegExp(`read but not pinned: ${reportId}`));
+    assert.match(disagreeing.stderr, /pinned but not read: 20260814-001603a1f90af9cd2fee0e1c9be85758/);
+
+    // Pins that agree pass the binding, and the analyzer goes on to render.
+    // (One report is too few for its policy simulation to finish, so only
+    // the start of the rendering is asserted.)
+    const agreeing = check([reportId], 2);
+    assert.doesNotMatch(agreeing.stderr, /disagrees/);
+    assert.match(agreeing.stdout, /^CALIBRATION CENSORING DECISION PACKAGE\n/);
+    assert.match(agreeing.stdout, /generated from 2 r2 runs/);
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
 });

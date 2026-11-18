@@ -38,6 +38,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { censusInputProblems, readCensusInputs } from "./census-inputs.mjs";
 import {
   assertDiscriminatorMatchesProduct,
   normalizeHistoricalLossDetail
@@ -120,6 +121,7 @@ function loadRuns() {
       const run = report[arm];
       if (!run?.qualityFacts || !run.quality?.byFamily) continue;
       runs.push({
+        reportId: file.slice(0, -".json".length),
         scanDate: file.slice(0, 8),
         build: (run.provenance?.buildCommit ?? "unrecorded").slice(0, 8),
         domain: run.subject?.observed?.registrableDomain ?? run.subject?.requested?.registrableDomain ?? "unknown",
@@ -228,6 +230,15 @@ const checkOnly = process.argv.includes("--check");
 assertCanonicalConstants(root);
 
 const runs = loadRuns();
+// Before anything is rendered: the package describes exactly the reports its
+// pin file cites, and retention keeps exactly those (census-inputs.mjs).
+{
+  const problems = censusInputProblems(runs, readCensusInputs(root));
+  if (problems.length > 0) {
+    console.error(`corpus-censoring-inputs.json disagrees with the reports this package reads:\n  ${problems.join("\n  ")}`);
+    process.exit(1);
+  }
+}
 const arm = runs.filter(inCnameArm);
 
 /** One bootstrap cluster: a scan date on a build. */
