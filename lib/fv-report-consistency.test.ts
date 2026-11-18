@@ -93,6 +93,8 @@ const PIXELS = ["none", "event-labels", "identifier-fields"] as const;
 const ALIASES = ["none", "tracking-alias"] as const;
 const SHIELDS = ["unmeasured", "matched-0", "matched-1", "matched-10"] as const;
 const POLICY = ["none", "no-checkable-statement", "says-no-cookies", "says-no-third-party-cookies", "says-no-selling"] as const;
+/** The typing disclosure a v1 visit carries: none, one whose probe's requests are counted, one whose are left out. */
+const TYPING = ["none", "counted", "omitted"] as const;
 
 type Visit = {
   services: (typeof SERVICES)[number];
@@ -104,6 +106,7 @@ type Visit = {
   aliases: (typeof ALIASES)[number];
   shields: (typeof SHIELDS)[number];
   policy: (typeof POLICY)[number];
+  typing: (typeof TYPING)[number];
   /** Further third-party requests to one uncatalogued host, which move a pair's request counts and nothing else. */
   padding: number;
   status: number;
@@ -111,7 +114,16 @@ type Visit = {
 
 const QUIET: Visit = {
   services: "none", cookies: "none", fingerprint: "none", listeners: "none", keystroke: "none", pixels: "none",
-  aliases: "none", shields: "unmeasured", policy: "none", padding: 0, status: 200
+  aliases: "none", shields: "unmeasured", policy: "none", typing: "none", padding: 0, status: 200
+};
+
+// The disclosure as the scanner writes it and the sanitizer admits it (lib/redact-scan-report-v1.ts).
+const TYPED_OPENING =
+  "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored.";
+const TYPING_WARNINGS: Record<(typeof TYPING)[number], string[]> = {
+  none: [],
+  counted: [`${TYPED_OPENING} Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.`],
+  omitted: [`${TYPED_OPENING} Requests from this incomplete probe were omitted from the recorded request log and counts.`]
 };
 
 const tracker = (entity: string, domain: string, category: string): TrackerMatch => ({ domain, entity, category, confidence: "curated" });
@@ -149,6 +161,7 @@ function resultOf(visit: Visit): ScanResult {
   const site = visit.services === "consent-platform-own-host" ? "cookiebot.com" : "example.com";
   result.summary.firstPartyDomain = site;
   result.summary.status = visit.status;
+  result.warnings = [...result.warnings, ...TYPING_WARNINGS[visit.typing]];
   result.conditions.requestedUrl = `https://${site}/`;
   result.conditions.finalUrl = `https://${site}/`;
 
@@ -291,7 +304,9 @@ const ACTIVITY = { services: SERVICES, cookies: COOKIES, fingerprint: FINGERPRIN
 const ACTIVITY_LEADS = {
   keystroke: KEYSTROKE, pixels: PIXELS,
   services: ["none", "tracker-1", "platform-1", "consent-platform-own-host"], cookies: ["none", "own-1", "third-party-1"],
-  fingerprint: ["none", "heuristic"], listeners: ["none", "session-recording"], shields: ["unmeasured", "matched-10"], policy: POLICY
+  fingerprint: ["none", "heuristic"], listeners: ["none", "session-recording"], shields: ["unmeasured", "matched-10"], policy: POLICY,
+  // The phase note reads the disclosure on a visit with no phases: walked here, where the seeded faults reach it.
+  typing: TYPING
 } as const;
 
 function walkActivity(tally: Tally, modules: Modules): void {
@@ -424,6 +439,65 @@ function walkPairs(tally: Tally, modules: Modules): void {
 }
 const PAIRS_SIZE = DESIGNS.length * sizeOf(ARM) ** 2;
 
+/**
+ * Pairs whose two visits carry each typing disclosure: the comparison caveat
+ * is owed exactly where one visit's typing is counted and the other's is not
+ * (outside a consent comparison's click). The baseline makes more requests, so
+ * every design that can lead with the pair difference does.
+ */
+function walkPairTyping(tally: Tally, modules: Modules): void {
+  for (const design of DESIGNS) {
+    for (const baselineTyping of TYPING) {
+      for (const variantTyping of TYPING) {
+        const view = pairOf(
+          design,
+          resultOf({ ...QUIET, services: "tracker-1", padding: 40, typing: baselineTyping }),
+          resultOf({ ...QUIET, services: "tracker-1", typing: variantTyping })
+        );
+        hold(tally, view, () => ({ slice: "PAIR_TYPING", design, baselineTyping, variantTyping }), modules);
+      }
+    }
+  }
+}
+const PAIR_TYPING_SIZE = DESIGNS.length * TYPING.length ** 2;
+
+// ---------------------------------------------------------------------------------------
+// PHASES: one r2 visit whose counted rows were recorded in page load, partly or wholly during the typing probe.
+// ---------------------------------------------------------------------------------------
+
+const PHASES = { rows: ["page-load-only", "mixed", "all-after"], services: ["hosts-1", "tracker-1", "platform-1"], requests: ["complete", "censored"] } as const;
+
+function phasedVisit(choice: { [K in keyof typeof PHASES]: (typeof PHASES)[K][number] }): ReportView {
+  const report = makePublicSingleReportV2R2();
+  const run = report.run;
+  const [document] = run.evidence.requests;
+  run.phases = [
+    { phaseId: 0, kind: "passive-load", startedAtMs: 0, endedAtMs: 1000 },
+    { phaseId: 1, kind: "active-probe", startedAtMs: 1000, endedAtMs: 2000 }
+  ];
+  const row = rowsOf(choice.services)[0];
+  const phaseOf = (index: number) => (choice.rows === "page-load-only" ? 0 : choice.rows === "all-after" ? 1 : index % 2);
+  run.evidence.requests = [
+    { ...document, phaseId: 0 },
+    ...[0, 1, 2, 3].map((index) => ({
+      ...document, id: index + 2, url: `https://${row.host}/${index}`, domain: row.host, thirdParty: true, tracker: row.tracker, startedAtMs: 10 + index, phaseId: phaseOf(index)
+    }))
+  ];
+  const view = viewFromV2(report, 2);
+  const shown = view.runs[0];
+  shown.counts.thirdPartyRequests = 4;
+  shown.counts.thirdPartyDomains = 1;
+  shown.counts.knownTrackerRequests = row.tracker ? 4 : 0;
+  shown.counts.totalRequests = 5;
+  shown.evidence.domains = [{ domain: row.host, requests: 4, thirdParty: true, tracker: row.tracker, statuses: [200], resourceTypes: ["script"] }];
+  if (choice.requests === "censored") asRecorded(view, "all-complete", "requests");
+  return view;
+}
+
+function walkPhases(tally: Tally, modules: Modules): void {
+  product(PHASES, (choice) => hold(tally, phasedVisit(choice), () => ({ slice: "PHASES", ...choice }), modules));
+}
+
 // ---------------------------------------------------------------------------------------
 // CONSENT: the r2 consent pair, with a verified choice.
 // ---------------------------------------------------------------------------------------
@@ -483,6 +557,8 @@ function walkForFaults(modules: Modules): Tally {
   walkActivityLeads(tally, modules);
   walkAvailability(tally, modules);
   walkPairs(tally, modules);
+  walkPairTyping(tally, modules);
+  walkPhases(tally, modules);
   walkConsent(tally, modules);
   return tally;
 }
@@ -519,6 +595,20 @@ test("RC: no rule fires on any pair the real comparison constructors join, over 
   walkPairs(tally, PRODUCTION);
   holdRules(seen(tally));
   assert.equal(tally.views, PAIRS_SIZE);
+});
+
+test("RC: no rule fires on any pair whose two visits carry each typing disclosure, over each design", () => {
+  const tally = newTally();
+  walkPairTyping(tally, PRODUCTION);
+  holdRules(seen(tally));
+  assert.equal(tally.views, PAIR_TYPING_SIZE);
+});
+
+test("RC: no rule fires on a visit whose counted rows were recorded in page load, partly or wholly during the typing probe", () => {
+  const tally = newTally();
+  walkPhases(tally, PRODUCTION);
+  holdRules(seen(tally));
+  assert.equal(tally.views, sizeOf(PHASES));
 });
 
 test("RC: no rule fires on the consent pair, over each choice state, gate and tracker", () => {
@@ -640,6 +730,30 @@ const FAULTS: readonly Fault[] = [
     name: "a card speaks of the requested page whatever was returned",
     rule: "error-page-signals-attributed-to-site", alsoFires: [], in: "findings",
     find: 'scope: facts.subject.describesSubject ? "requested-page" : "returned-document"', replace: 'scope: "requested-page"'
+  },
+  {
+    name: "the services card leaves out the shown visit's phase note",
+    rule: "count-phase-note-mismatch", alsoFires: [], in: "findings",
+    find: '"third-party hosts", facts.evidence.requests.state)}.${phaseNotes.note ? ` ${phaseNotes.note}` : ""}`',
+    replace: '"third-party hosts", facts.evidence.requests.state)}.`'
+  },
+  {
+    name: "a subhead that states the visit's cross-site counts leaves out its phase note",
+    rule: "count-phase-note-mismatch", alsoFires: [], in: "headline",
+    find: "const withPhaseNote = (text) => phaseNotes.note ? (0, report_phase_note_1.withNoteAfterFirstSentence)(text, phaseNotes.note) : text;",
+    replace: "const withPhaseNote = (text) => text;"
+  },
+  {
+    name: "a comparison whose visits did different things leaves its caveat out of the subhead",
+    rule: "pair-action-caveat", alsoFires: [], in: "headline",
+    find: "subhead = `${primary} ${pairCaveat}${subhead.slice(primary.length)}`;",
+    replace: "subhead = `${primary}${subhead.slice(primary.length)}`;"
+  },
+  {
+    name: "a comparison carries a different-actions caveat whatever its visits recorded",
+    rule: "pair-action-caveat", alsoFires: [], in: "headline",
+    find: "? (0, report_phase_note_1.pairActionCaveat)(",
+    replace: "? \"Only the visit labeled No blocking recorded the scanner's typing probe; part of this difference may come from it, not blocking.\" ?? (0, report_phase_note_1.pairActionCaveat)("
   },
   {
     name: "the headline never leads with the consent comparison",

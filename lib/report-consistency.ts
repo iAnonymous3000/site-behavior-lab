@@ -4,6 +4,8 @@ import { buildFindings, type Finding } from "./report-findings";
 import { buildReportHeadline, type ReportHeadline } from "./report-headline";
 import type { ReportView } from "./scan-report-views";
 import type { CorpusStats } from "./corpus-stats";
+import { pairActionCaveat, runPhaseNotes } from "./report-phase-note";
+import { recordedScannerActions } from "./report-phase-split";
 
 /**
  * Every rule this gate can report, in one runtime list. The rule id type is
@@ -19,7 +21,9 @@ export const REPORT_CONSISTENCY_RULES = [
   "unsafe-categorical-title-under-incomplete-evidence",
   "unscoped-absence-lead-under-incomplete-evidence",
   "error-page-signals-attributed-to-site",
-  "headline-describes-another-visit"
+  "headline-describes-another-visit",
+  "count-phase-note-mismatch",
+  "pair-action-caveat"
 ] as const;
 
 export type ReportConsistencyRuleId = (typeof REPORT_CONSISTENCY_RULES)[number];
@@ -218,6 +222,44 @@ export function reportConsistencyViolations(
       "headline-describes-another-visit",
       `The headline described the display visit above ${armCards.map((finding) => finding.id).join(", ")}, which describes the ${armCards[0].arm} visit.`
     );
+  }
+
+  // One note per run, held by value on every surface that states the run's
+  // cross-site counts (owner packet 2026-11-18, rule 1). A pair-scope headline
+  // is exempt: its subhead compares two visits' whole-visit totals, and only
+  // the board, which shows one visit, is held to that visit's note.
+  const boardNotes = runPhaseNotes(run);
+  const servicesCard = findings.find((finding) => finding.id === "third-party-services");
+  const platformsCard = findings.find((finding) => finding.id === "named-platforms");
+  if (boardNotes.note && servicesCard && !servicesCard.evidence?.includes(boardNotes.note)) {
+    add("count-phase-note-mismatch", `The services card omits the shown visit's phase note: ${boardNotes.note}`);
+  }
+  if (boardNotes.platformsNote && platformsCard && !platformsCard.evidence?.includes(boardNotes.platformsNote)) {
+    add("count-phase-note-mismatch", `The platforms card omits its own rows' phase note: ${boardNotes.platformsNote}`);
+  }
+  if (headline.semantic.runScope !== "pair" && headline.semantic.countsCrossSite) {
+    const headlineNote = runPhaseNotes(headlineRuns[0]).note;
+    if (headlineNote && !headline.subhead.includes(headlineNote)) {
+      add("count-phase-note-mismatch", `The subhead states this visit's cross-site counts without its phase note: ${headlineNote}`);
+    }
+  }
+
+  // A comparison whose two visits recorded different scanner actions says so,
+  // and one whose visits match says nothing of the kind.
+  if (headline.semantic.runScope === "pair" && facts.arms && facts.view.comparison) {
+    const expected = pairActionCaveat(
+      { baseline: recordedScannerActions(facts.arms.baseline.run), variant: recordedScannerActions(facts.arms.variant.run) },
+      facts.view.comparison.runLabels,
+      facts.view.comparison.axis ?? null
+    );
+    if ((headline.semantic.pairCaveat ?? null) !== expected || (expected !== null && !headline.subhead.includes(expected))) {
+      add(
+        "pair-action-caveat",
+        expected
+          ? `The comparison headline omits that its visits recorded different scanner actions: ${expected}`
+          : "The comparison headline carries a different-actions caveat although both visits recorded the same scanner actions."
+      );
+    }
   }
 
   return violations;
