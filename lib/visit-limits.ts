@@ -168,9 +168,13 @@ export function visitLimits(
       } else if (group.except.length > 0) {
         body.push({ text: `every check except ${group.except.join(" and ")}` });
       } else {
-        group.checks.forEach((check, index) => {
-          if (index > 0) body.push({ text: index === group.checks.length - 1 ? " and " : ", " });
-          body.push(check.cardId ? { text: check.label, cardId: check.cardId } : { text: check.label });
+        const chunks = sentenceChunks(group.intro, group.checks);
+        chunks.forEach((chunk, chunkIndex) => {
+          if (chunkIndex > 0) body.push({ text: `. ${group.intro}` });
+          chunk.forEach((check, index) => {
+            if (index > 0) body.push({ text: index === chunk.length - 1 ? " and " : ", " });
+            body.push(check.cardId ? { text: check.label, cardId: check.cardId } : { text: check.label });
+          });
         });
       }
       body.push({ text: "." });
@@ -189,6 +193,41 @@ export function visitLimits(
 
 /** At most this many unaffected checks are named as exceptions to "every check". */
 const MAX_NAMED_EXCEPTIONS = 2;
+
+/**
+ * No sentence of a limit runs past this many words; the corpus guard in
+ * lib/report-visit-summary.test.ts holds every report to it, and the limit
+ * is never raised to fit a list.
+ */
+const MAX_LIMIT_SENTENCE_WORDS = 30;
+
+/** Words in "<intro>a, b and c.", counted the way the guard counts them. */
+function listSentenceWords(intro: string, labels: readonly string[]): number {
+  const list = labels
+    .map((label, index) => `${index === 0 ? "" : index === labels.length - 1 ? " and " : ", "}${label}`)
+    .join("");
+  return (`${intro}${list}.`.match(/\S+/g) ?? []).length;
+}
+
+/**
+ * A group's named checks as the fewest sentences that each fit the limit,
+ * split as evenly as the list allows and in its own order; every sentence
+ * repeats the group's intro, so each still says which visit lost the checks.
+ * A list that grows with what a visit lost cannot be bounded by its corpus:
+ * nike.com on 2026-11-18 lost nine checks in one visit only and its single
+ * sentence ran to 31 words. One check per sentence is the floor.
+ */
+function sentenceChunks<T extends { label: string }>(intro: string, checks: readonly T[]): T[][] {
+  for (let count = 1; count <= checks.length; count += 1) {
+    const chunks = Array.from({ length: count }, (_, index) =>
+      checks.slice(Math.ceil((index * checks.length) / count), Math.ceil(((index + 1) * checks.length) / count))
+    );
+    if (chunks.every((chunk) => listSentenceWords(intro, chunk.map((check) => check.label)) <= MAX_LIMIT_SENTENCE_WORDS)) {
+      return chunks;
+    }
+  }
+  return checks.map((check) => [check]);
+}
 
 type CutShortCheck = { claim: ReportClaimId; label: string; cardId: string | null };
 type CutShortGroup = {

@@ -39,6 +39,7 @@ import { PUBLIC_SCANNER_EGRESS_LABELS } from "./scanner-egress";
 import { SCROLL_CHECK_ENTRY } from "./scroll-check-copy";
 import { scrollCheckEntry } from "./scroll-check-entry";
 import type { ScanReport, ScanResult } from "./types";
+import { visitLimits, type ArmRun } from "./visit-limits";
 
 /**
  * The lists a report's board states directly after its bottom line. Inputs
@@ -684,6 +685,70 @@ test("every committed report's summary is short, plain, and true to its own warn
       }
     }
   }
+});
+
+/**
+ * The incomplete-checks limit is a list template: its length depends on how
+ * many checks a visit lost, not on the corpus, so the corpus guard above can
+ * pass for months and then fail on one rescan (nike.com on 2026-11-18 lost
+ * nine checks in its No blocking visit only, and the sentence ran to 31
+ * words). This holds every sentence of it to 30 words for every set of lost
+ * checks, under every arm label the comparison vocabulary admits, in each of
+ * the template's shapes: one visit, a loss in one visit only, a loss in both
+ * visits alike, and one visit's loss beside another visit that lost
+ * everything. Custom producer labels pass through unrenamed and are not
+ * bounded here.
+ */
+test("the incomplete-checks sentences stay within 30 words whatever checks a visit lost", () => {
+  const claims = Object.keys(VISIT_CHECK_LABELS) as (keyof typeof VISIT_CHECK_LABELS)[];
+  const findings = claims.map((id) => ({ id }));
+  const sentences = (text: string) => text.split(/(?<=[.!?])\s+(?=[A-Z"(])/).filter(Boolean);
+  const words = (text: string) => (text.match(/\S+/g) ?? []).length;
+  const arm = (label: string, runLabel: "baseline" | "variant" | "single", lost: ReadonlySet<string>): ArmRun => ({
+    label,
+    run: { label: runLabel, warnings: [] } as unknown as ArmRun["run"],
+    facts: {
+      claims: Object.fromEntries(claims.map((claim) => [claim, { blockers: lost.has(claim) ? ["family-censored"] : [] }]))
+    } as unknown as ArmRun["facts"]
+  });
+  // The display labels lib/scan-report-views.ts gives each comparison axis.
+  const labelPairs = [
+    ["No blocking", "Brave-list blocking"],
+    ["GPC off", "GPC on"],
+    ["Accept-all click", "Reject-all click"],
+    ["Accept-all attempt", "Reject-all attempt"],
+    ["Before", "After"],
+    ["Baseline", "Variant"]
+  ] as const;
+  const all = new Set<string>(claims);
+  const none = new Set<string>();
+  let longest = 0;
+  let checked = 0;
+  const check = (arms: ArmRun[], comparison: boolean, context: string) => {
+    const limit = visitLimits(arms, comparison, findings, "baseline").find((entry) => entry.id === "incomplete-checks");
+    assert.ok(limit, context);
+    for (const sentence of sentences(visitLimitText(limit))) {
+      const count = words(sentence);
+      longest = Math.max(longest, count);
+      assert.ok(count <= 30, `${context}: ${count} words: ${sentence}`);
+    }
+    checked += 1;
+  };
+  for (let mask = 1; mask < 1 << claims.length; mask += 1) {
+    const lost = new Set(claims.filter((_, index) => mask & (1 << index)));
+    check([arm("recorded", "single", lost)], false, `one visit lost ${[...lost].join(",")}`);
+    for (const [baseline, variant] of labelPairs) {
+      const context = `${baseline}/${variant} lost ${[...lost].join(",")}`;
+      check([arm(baseline, "baseline", lost), arm(variant, "variant", none)], true, `${context} in the first visit only`);
+      check([arm(baseline, "baseline", none), arm(variant, "variant", lost)], true, `${context} in the second visit only`);
+      check([arm(baseline, "baseline", lost), arm(variant, "variant", lost)], true, `${context} in both visits`);
+      check([arm(baseline, "baseline", lost), arm(variant, "variant", all)], true, `${context} beside a visit that lost all`);
+    }
+  }
+  // Non-vacuity: every shape ran, and the bound was reached rather than
+  // satisfied by sentences far below it.
+  assert.equal(checked, ((1 << claims.length) - 1) * (1 + labelPairs.length * 4));
+  assert.ok(longest >= 25, `the longest sentence was only ${longest} words`);
 });
 
 test("every claim the board can withhold has a reader name", () => {
