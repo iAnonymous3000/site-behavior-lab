@@ -48,6 +48,7 @@ import {
   reviewedOwnershipRelationship
 } from "./reviewed-ownership";
 import { MAX_POLICY_TEXT_CHARS } from "./privacy-policy";
+import { runPhaseNotes } from "./report-phase-note";
 import {
   comparisonArmViews,
   familyCensoredOnRun,
@@ -619,6 +620,10 @@ export function buildFindings(
       ? corpusInput
       : null;
   const run = facts.run;
+  // The same note the headline prints for this run, from the same function
+  // (lib/report-phase-note.ts): the services card carries the cross-site note,
+  // the platforms card the note of its own rows.
+  const phaseNotes = runPhaseNotes(facts);
   const visibleDomain = displayHost(run.domain);
   const arms = comparisonArmViews(view);
   const axis = view.comparison?.axis ?? null;
@@ -1415,7 +1420,7 @@ export function buildFindings(
             ),
             4,
             (count) => `Plus ${plural(count, "other DNS alias", "other DNS aliases")}.`
-          )
+          ) + (phaseNotes.note ? ` ${phaseNotes.note}` : "")
         : `${capitalizeSentence(
             retainedCountPhrase(
               run.counts.thirdPartyRequests,
@@ -1428,7 +1433,7 @@ export function buildFindings(
             "third-party host",
             "third-party hosts",
             facts.evidence.requests.state
-          )}.`,
+          )}.${phaseNotes.note ? ` ${phaseNotes.note}` : ""}`,
     // The LEVEL is the strongest of two metrics, so a badge naming only one of
     // them can read "below the median for third-party domains" on a card that
     // is warn because of tracking entities. Name every metric that actually
@@ -1541,7 +1546,7 @@ export function buildFindings(
             "request",
             "requests",
             facts.evidence.requests.state
-          ))} to these platforms.`
+          ))} to these platforms.${phaseNotes.platformsNote ? ` ${phaseNotes.platformsNote}` : ""}`
         : cataloguedNonTrackingHeadlineNames.length > 0
           ? `${capitalizeSentence(retainedCountPhrase(
               cataloguedNonTrackingHeadlineRequests,
