@@ -60,7 +60,7 @@ import { scansAvailableAfterEdgeOverlay } from "../lib/container-health-overlay"
 import { forwardContainerResponseWithinDeadline } from "../lib/container-forward-response";
 import { requireContainerR2Bucket } from "../lib/container-r2-bucket";
 import { assertDurableAdmittedAtWithinSkew, DurableAdmittedAtSkewError } from "../lib/durable-admission-clock";
-import { publicErrorBody, toPublicError } from "../lib/public-errors";
+import { publicErrorBody, publicErrorHeaders, toPublicError } from "../lib/public-errors";
 import {
   enforcePublicReportRouteEdge,
   type PublicReportReadDecision,
@@ -4022,7 +4022,9 @@ async function handleDurableScanJobRequest(
       return gateErrorResponse(
         new EdgeScanGateError(
           `Too many report requests. Try again in about ${formatPublicScanRetryAfter(polled.charge.retryAfterSeconds)}.`,
-          429
+          429,
+          undefined,
+          polled.charge.retryAfterSeconds
         ),
         request,
         env
@@ -4524,10 +4526,13 @@ async function recoverCommittedScanAdmission(request: Request, env: Env): Promis
     });
     if (result.status === "rate-limited") {
       // Uncaused: a recovery lookup is not a scan submission, and the client
-      // renders recovery failures as the server's own words.
+      // renders recovery failures as the server's own words. The wait still
+      // travels as data, so the refusal also carries it as Retry-After.
       throw new EdgeScanGateError(
         `Too many scan-admission recovery requests. Try again in about ${formatPublicScanRetryAfter(result.retryAfterSeconds)}.`,
-        429
+        429,
+        undefined,
+        result.retryAfterSeconds
       );
     }
     if (result.status === "conflict") throw new ScanAdmissionConflictGateError();
@@ -5467,11 +5472,13 @@ function gateErrorResponse(error: unknown, request: Request, env: Env): Response
   // The Worker and the Node route are two producers of one contract. Both emit
   // `cause` from the same `toPublicError`, so the client has a single shape to
   // read and neither side can drift into its own error vocabulary. The body is
-  // built by `publicErrorBody`, which also carries a quota refusal's wait.
+  // built by `publicErrorBody`, which also carries a quota refusal's wait, and
+  // `publicErrorHeaders` sends that same wait as Retry-After.
   return new Response(JSON.stringify(publicErrorBody(publicError)), {
     status: publicError.status,
     headers: {
       ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),
+      ...publicErrorHeaders(publicError),
       "Content-Type": "application/json; charset=utf-8"
     }
   });

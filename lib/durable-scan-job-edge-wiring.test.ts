@@ -804,3 +804,24 @@ test("every consumer resolves the durable encryption key the same way", async ()
     assert.match(source, consumer);
   }
 });
+
+test("the status and admission-recovery quota refusals carry their wait, and every gate refusal sends it as Retry-After", async () => {
+  // The poller honors only the Retry-After header. Before these refusals
+  // carried their wait as data, it waited 1, 2 and 4 seconds and gave up
+  // inside a fixed-minute window.
+  const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
+  const statusRead = sliceBetween(source, "async function handleDurableScanJobRequest(", "snapshot = polled.snapshot;", "source");
+  assert.match(
+    statusRead,
+    /new EdgeScanGateError\(\s*`Too many report requests\.[^`]*`,\s*429,\s*undefined,\s*polled\.charge\.retryAfterSeconds\s*\)/,
+    "the status read's refusal must pass its wait"
+  );
+  const recovery = sliceBetween(source, "async function recoverCommittedScanAdmission(request:", "async function authorizeScanAdmissionRecovery(", "source");
+  assert.match(
+    recovery,
+    /new EdgeScanGateError\(\s*`Too many scan-admission recovery requests\.[^`]*`,\s*429,\s*undefined,\s*result\.retryAfterSeconds\s*\)/,
+    "the admission-recovery refusal must pass its wait"
+  );
+  const gate = sliceBetween(source, "function gateErrorResponse(", "function refuseDurableAdmittedAtSkew(", "source");
+  assert.match(gate, /\.\.\.publicErrorHeaders\(publicError\)/, "gateErrorResponse must send the wait as Retry-After");
+});

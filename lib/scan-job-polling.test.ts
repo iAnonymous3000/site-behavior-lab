@@ -681,3 +681,29 @@ test("a failed job whose saved-report read cannot finish keeps recovery for a re
   assert.ok(error instanceof Error);
   assert.ok(!(error instanceof ScanJobEndedError), "an unsettled read must not release recovery");
 });
+
+test("a status read refused with Retry-After waits that long before it reads again", async () => {
+  const waits: number[] = [];
+  let statusReads = 0;
+  const fetcher: ScanJobPollFetcher = async () => {
+    statusReads += 1;
+    if (statusReads <= 2) {
+      return Response.json(
+        { ok: false, error: "Too many report requests. Try again in about 20 seconds.", retryAfterSeconds: 20 },
+        { status: 429, headers: { "Retry-After": "20" } }
+      );
+    }
+    return jobResponse("succeeded", { report: savedReport() });
+  };
+  const loaded = await pollAcceptedScanJob({
+    statusPath: STATUS_PATH,
+    reportId: REPORT_ID,
+    fetcher,
+    now: () => 0,
+    wait: async (ms) => {
+      waits.push(ms);
+    }
+  });
+  assert.equal(loaded.source, "v1");
+  assert.deepEqual(waits, [20_000, 20_000]);
+});
