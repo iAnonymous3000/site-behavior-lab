@@ -395,7 +395,7 @@ async function runSyntheticAttempt(target) {
     fail("Synthetic report page did not render the saved report ID.");
   }
 
-  return { totalRequests, gpcWorkerLoss: gpcWorkerLossCount(saved) };
+  return { totalRequests, gpcWorkerLoss: gpcWorkerLossCount(saved), reportId: report.share.id };
 }
 
 // The GPC worker watch for the R07 epoch: how many times the persisted report
@@ -436,6 +436,12 @@ if (completed === null) {
   fail(`Synthetic scan failed on every candidate target: ${targetFailures.join("; ")}`);
 }
 
+// The report id is printed only on an anomaly (a loss line on this fixed
+// harmless page), so the response can read that report at its permalink while
+// the public log stays minimal otherwise.
+const anomalyReport = typeof completed.gpcWorkerLoss === "number" && completed.gpcWorkerLoss > 0
+  ? `; report=${completed.reportId}`
+  : "";
 console.log(
-  `PASS production synthetic completed, persisted, read back, and rendered (${completed.totalRequests} recorded requests; gpc-worker-loss=${completed.gpcWorkerLoss}; dedicated-worker-coverage=unrecorded).`
+  `PASS production synthetic completed, persisted, read back, and rendered (${completed.totalRequests} recorded requests; gpc-worker-loss=${completed.gpcWorkerLoss}; dedicated-worker-coverage=unrecorded${anomalyReport}).`
 );

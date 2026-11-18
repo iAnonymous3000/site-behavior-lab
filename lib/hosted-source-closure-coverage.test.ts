@@ -34,6 +34,7 @@ const EXACT_PATHS = {
     "scripts/verify-required-ci-jobs.mjs"
   ],
   "durable-transition:production-health": [
+    "lib/gpc-injection.ts",
     "lib/strict-json.ts",
     "package.json",
     "scripts/http-response.mjs",
@@ -101,6 +102,7 @@ const EXACT_PATHS = {
     "scripts/smoke-deployed-scanner-report.mjs"
   ],
   "lifecycle:production-health": [
+    "lib/gpc-injection.ts",
     "lib/strict-json.ts",
     "package.json",
     "scripts/http-response.mjs",

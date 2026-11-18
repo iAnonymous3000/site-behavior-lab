@@ -93,7 +93,7 @@ test("production synthetic counts the persisted report's frozen GPC worker loss 
   const line = await syntheticPassLine(
     syntheticReport({ warnings: ["An unrelated scanner warning.", GPC_WORKER_CAPTURE_LOSS_WARNING] })
   );
-  assert.match(line, /; gpc-worker-loss=1; dedicated-worker-coverage=unrecorded\)\.$/);
+  assert.match(line, new RegExp(`; gpc-worker-loss=1; dedicated-worker-coverage=unrecorded; report=${REPORT_ID}\\)\\.$`));
 });
 
 test("production synthetic prints a zero GPC worker loss count only for a report whose warnings lack the line", async () => {

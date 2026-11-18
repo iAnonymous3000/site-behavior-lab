@@ -388,6 +388,7 @@ function productionHealthRule() {
       ".github/workflows/production-health.yml"
     ]),
     trustedSourcePaths: Object.freeze([
+      "lib/gpc-injection.ts",
       "lib/strict-json.ts",
       "package.json",
       "scripts/http-response.mjs",
