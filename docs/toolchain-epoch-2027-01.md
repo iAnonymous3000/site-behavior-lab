@@ -82,7 +82,7 @@ The takeover session provisioned staging on 2026-11-17 from a clean clone of the
 
 Each of these departs from the playbook or the runbook, and each is stated here so that a reader can weigh the rounds with it.
 
-- The R2 key values of the staging token went through a chat: the owner pasted them there when the token was created. The key was treated as exposed from then, and per the takeover session it was revoked after the session; the owner chose to use it for the session rather than replace it first.
+- The R2 key values of the staging token went through a chat: the owner pasted them there when the token was created. The key was treated as exposed from then. The owner chose to use it for the session rather than replace it first, and revokes it after the session; its revocation is recorded with the bucket step, which this record does not yet include.
 - The account-name field of Wrangler's identity check was not printed.
 - No capture-only retry was used, and no arm was rerun.
 - Round 1's two captures are about 70 minutes apart: the baseline's scans started between 20:45 and 20:49 UTC and the candidate's between 21:55 and 21:59 UTC. Round 2's are about 8 minutes apart.
