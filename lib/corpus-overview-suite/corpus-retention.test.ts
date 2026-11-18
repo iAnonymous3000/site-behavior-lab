@@ -288,20 +288,36 @@ test("a prune of the committed corpus keeps every site of the cohorts the aggreg
  * the site floor leaves the pool, and its vetoer stops vetoing, without any
  * published byte changing.
  */
-test("the count cap's trims outside the last-trimmed tier leave the selection's result as it is without them", async () => {
-  const { capped, tight, uncapped } = await prunedCopies();
-  for (const [cap, pruned] of [["the workflow's cap", capped], ["the tightest cap the tier fits", tight]] as const) {
-    // The published bytes first (they carry the primary cohort id), so a
-    // change to what readers see fails here by name.
-    assert.equal(pruned.published.stats, uncapped.published.stats, `${cap} changed the aggregate corpus-stats.json publishes`);
-    assert.equal(pruned.published.snapshot, uncapped.published.snapshot, `${cap} changed the aggregate the status snapshot publishes`);
-    assert.equal(pruned.stats.primaryCohortId, uncapped.stats.primaryCohortId, cap);
-    for (const id of uncapped.used) {
-      assert.deepEqual(
-        [...(pruned.sites.get(id) ?? [])].sort(),
-        [...(uncapped.sites.get(id) ?? [])].sort(),
-        `${cap} changed the sites of cohort ${id}, which the selection consults`
-      );
-    }
+function assertCapLeavesSelection(cap: string, pruned: Pruned, uncapped: Pruned): void {
+  // The published bytes first (they carry the primary cohort id), so a
+  // change to what readers see fails here by name.
+  assert.equal(pruned.published.stats, uncapped.published.stats, `${cap} changed the aggregate corpus-stats.json publishes`);
+  assert.equal(pruned.published.snapshot, uncapped.published.snapshot, `${cap} changed the aggregate the status snapshot publishes`);
+  assert.equal(pruned.stats.primaryCohortId, uncapped.stats.primaryCohortId, cap);
+  for (const id of uncapped.used) {
+    assert.deepEqual(
+      [...(pruned.sites.get(id) ?? [])].sort(),
+      [...(uncapped.sites.get(id) ?? [])].sort(),
+      `${cap} changed the sites of cohort ${id}, which the selection consults`
+    );
   }
+}
+
+// One test per cap, so the tightest cap's check runs even when the
+// workflow's cap fails first.
+//
+// A firing veto joins the tier whether or not it decides the result. On the
+// committed corpus of 2026-11-18 none does (1.61.1 gpc-on vetoes a gpc-off
+// cohort that loses on recency anyway), so dropping vetoers from the tier
+// changes nothing these tests can see here; the vetoer fixture in
+// lib/prune-static-reports.test.ts is what holds that rule. That is the
+// stated cost of keeping every firing veto rather than only decisive ones.
+test("the count cap's trims outside the last-trimmed tier leave the selection's result as it is without them, at the workflow's cap", async () => {
+  const { capped, uncapped } = await prunedCopies();
+  assertCapLeavesSelection("the workflow's cap", capped, uncapped);
+});
+
+test("the count cap's trims outside the last-trimmed tier leave the selection's result as it is without them, at the tightest cap the tier fits", async () => {
+  const { tight, uncapped } = await prunedCopies();
+  assertCapLeavesSelection("the tightest cap the tier fits", tight, uncapped);
 });
