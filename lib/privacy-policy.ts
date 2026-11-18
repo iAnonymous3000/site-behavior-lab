@@ -38,7 +38,14 @@ export type PolicyLinkCandidate = {
 };
 
 const MAX_QUOTE_LENGTH = 200;
-const MAX_UNMENTIONED_ENTITIES = 12;
+/**
+ * The most unmentioned companies a policy read has stored, in every version
+ * so far. A reader that finds exactly this many knows the read may have
+ * stopped before checking every observed company (lib/report-findings.ts).
+ * The live cap is defined from it until the cap itself changes.
+ */
+export const HISTORICAL_MAX_UNMENTIONED_ENTITIES = 12;
+const MAX_UNMENTIONED_ENTITIES = HISTORICAL_MAX_UNMENTIONED_ENTITIES;
 // Below this the "policy" is more likely an error page, interstitial, or bot
 // block than a real policy; treat the fetch as failed rather than analyze it.
 export const MIN_POLICY_TEXT_LENGTH = 500;

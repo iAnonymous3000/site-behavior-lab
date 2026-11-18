@@ -6121,3 +6121,43 @@ test("with several recipients and both hashed and readable forms, no recipient i
   assert.equal(single.title, "A hashed form of synthetic input appeared in requests to 1 cross-site domain before submission");
   assert.ok(single.detail.startsWith("The synthetic value appeared as a one-way hash (sha256) and in a recoverable form (plain). The report"), single.detail);
 });
+
+test("a policy read that stored its full list of unnamed companies discloses the observed companies it never checked", () => {
+  // The owner packet's example (A-11), on the frozen copy.
+  const npr = byId(buildFindings(frozenReportView("20261019-35a2deb55fb041d4989532b0c0690449"), null), "privacy-policy");
+  const unchecked = "This read checked at most 12 unnamed companies, so 9 more observed tracking companies were not checked: LinkedIn, Lotame and StackAdapt, plus 6 others.";
+  assert.equal(
+    npr.evidence,
+    `Policy at https://www.npr.org/…/privacy-policy; 0 checkable statements matched; 2 of 11 checked tracking companies named in the policy. Policy mentions of Magnite, Amazon Ads and Equativ are unknown because the historical alias matcher was incomplete. ${unchecked}`
+  );
+  assert.ok(npr.lead.endsWith(` ${unchecked}`), npr.lead);
+
+  // Synthetic reads: two observed companies, one of them in neither stored list.
+  const read = (unmentionedCount: number) => {
+    const result = makeResult({
+      domains: [makeTrackerDomain("ads.example.net", 2, "Example Ads", "advertising"), makeTrackerDomain("pixel.example.org", 2, "Example Pixel", "advertising")],
+      thirdPartyRequests: 4,
+      thirdPartyDomains: 2
+    });
+    result.privacyPolicy = {
+      url: "https://example.com/privacy",
+      claims: [],
+      mentionedEntities: [],
+      unmentionedEntities: ["Example Ads", ...Array.from({ length: unmentionedCount - 1 }, (_, index) => `Unobserved Company ${index + 1}`)],
+      policyTextLength: 5000
+    };
+    return byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
+  };
+  const capped = read(12);
+  assert.ok(capped.evidence.endsWith("This read checked at most 12 unnamed companies, so 1 more observed tracking company was not checked: Example Pixel."), capped.evidence);
+  assert.match(capped.evidence, /0 of 1 checked tracking company named in the policy/);
+  // Below the stored maximum an absent name is not a company the read skipped.
+  const short = read(11);
+  assert.doesNotMatch(`${short.lead} ${short.evidence}`, /not checked|checked tracking/);
+});
+
+test("the reader's cap is the producer's one historical constant, not a copy", () => {
+  const source = readFileSync(path.join(process.cwd(), "lib", "report-findings.ts"), "utf8");
+  assert.match(source, /import \{ HISTORICAL_MAX_UNMENTIONED_ENTITIES, MAX_POLICY_TEXT_CHARS \} from "\.\/privacy-policy";/);
+  assert.doesNotMatch(source, /unmentionedEntities\.length === 12\b|at most 12 unnamed/);
+});

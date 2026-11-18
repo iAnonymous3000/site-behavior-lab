@@ -50,7 +50,7 @@ import {
 import {
   reviewedOwnershipRelationship
 } from "./reviewed-ownership";
-import { MAX_POLICY_TEXT_CHARS } from "./privacy-policy";
+import { HISTORICAL_MAX_UNMENTIONED_ENTITIES, MAX_POLICY_TEXT_CHARS } from "./privacy-policy";
 import { runPhaseNotes } from "./report-phase-note";
 import {
   comparisonArmViews,
@@ -1183,6 +1183,15 @@ export function buildFindings(
     // older producer put its name in one of these arrays.
     const policyMentionedEntityNames = new Set(policy.mentionedEntities);
     const policyUnmentionedEntityNames = new Set(policy.unmentionedEntities);
+    // A read stores at most this many unmentioned companies, so at exactly
+    // that many, an observed company in neither stored list was never
+    // checked. Saying nothing dropped it from the count and the list.
+    const storedUnmentionedNames = new Set(policy.unmentionedEntities);
+    const uncheckedTrackingEntities =
+      policy.unmentionedEntities.length === HISTORICAL_MAX_UNMENTIONED_ENTITIES
+        ? trackingNames.filter((entity) => !policyMentionedEntityNames.has(entity) && !storedUnmentionedNames.has(entity))
+        : [];
+    const policyReadCapped = uncheckedTrackingEntities.length > 0;
     // Earlier instruments used parent-company keys that did not match the
     // catalog. A historical non-match cannot support an omission accusation.
     const policyDetectorOrdinal = policyCrossCheckOrdinal(run.detectors?.["privacy-policy"]?.version);
@@ -1209,7 +1218,11 @@ export function buildFindings(
     const totalObserved = namedCount + unmentionedTrackingEntities.length;
     const coverage =
       totalObserved > 0
-        ? `${namedCount} of ${plural(totalObserved, "observed tracking company", "observed tracking companies")} named in the policy`
+        ? `${namedCount} of ${plural(
+            totalObserved,
+            policyReadCapped ? "checked tracking company" : "observed tracking company",
+            policyReadCapped ? "checked tracking companies" : "observed tracking companies"
+          )} named in the policy`
         : unknownPolicyMentions.length > 0 || cutPolicyMentions.length > 0
           ? "no reliable company-mention results available"
           : "no catalogued tracking companies observed to check against it";
@@ -1221,6 +1234,13 @@ export function buildFindings(
     const unknownPolicyMentionsNote = (unknownPolicyMentions.length
       ? ` Policy mentions of ${humanList(unknownPolicyMentions)} are unknown because the historical alias matcher was incomplete.`
       : "") + cutPolicyMentionsNote;
+    const uncheckedNote = policyReadCapped
+      ? ` This read checked at most ${HISTORICAL_MAX_UNMENTIONED_ENTITIES} unnamed companies, so ${
+          uncheckedTrackingEntities.length === 1
+            ? "1 more observed tracking company was"
+            : `${uncheckedTrackingEntities.length} more observed tracking companies were`
+        } not checked: ${humanList(uncheckedTrackingEntities)}.`
+      : "";
 
     // A "nothing contradicted" reassurance is itself an absence claim over
     // the checked evidence, so censored collection hedges it.
@@ -1283,7 +1303,7 @@ export function buildFindings(
               .map((conflict, index) => `${index === 0 ? conflict : capitalizeSentence(conflict)}.`)
               .join(" ")}`
           : unmentionedTrackingEntities.length > 0
-            ? `${humanList(unmentionedTrackingEntities)} ${unmentionedTrackingEntities.length === 1 ? "was" : "were"} sent requests during this visit. However, the policy text matched none of the names this scan knows ${unmentionedTrackingEntities.length === 1 ? "that company" : "those companies"} by.`
+            ? `${humanList(unmentionedTrackingEntities)} ${unmentionedTrackingEntities.length === 1 ? "was" : "were"} sent requests during this visit. However, the policy text matched none of the names this scan knows ${unmentionedTrackingEntities.length === 1 ? "that company" : "those companies"} by.${uncheckedNote}`
             : noCheckableClaims
               ? `None of the statements this scan knows how to check appear in the policy text. As a result, nothing was compared against this visit's evidence (${coverage}).${unknownPolicyMentionsNote} That is a limit of the automated check, not a finding about the site either way.`
               : policyAbsence.lead,
@@ -1293,7 +1313,7 @@ export function buildFindings(
           : unmentionedTrackingEntities.length > 0
             ? `Policies often disclose vendor categories rather than company names, so an unnamed vendor is a transparency gap worth reviewing, not automatically a violation.${namedCount > 0 ? ` Named in the policy: ${humanList(mentionedTrackingEntities)}.` : ""}`
             : `Statements checked automatically: blanket no-cookie claims, third-party-cookie claims, and combined do-not-sell-or-share claims against advertising-pixel identifier fields. Global Privacy Control claims are never checked against request counts, which cannot show whether selling or sharing stopped.${policyEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""}`,
-      evidence: `Policy at ${displayPublicUrl(policy.url)}; ${plural(checkablePolicyClaims.length, "checkable statement")} matched; ${coverage}.${unknownPolicyMentionsNote}`,
+      evidence: `Policy at ${displayPublicUrl(policy.url)}; ${plural(checkablePolicyClaims.length, "checkable statement")} matched; ${coverage}.${unknownPolicyMentionsNote}${uncheckedNote}`,
       claim: findingClaim(
         facts,
         "privacy-policy",
