@@ -131,6 +131,42 @@ export const SCANNER_EGRESS_READER_PHRASES: Readonly<Record<(typeof PUBLIC_SCANN
 // The scanner's own disclosures, matched by the clauses the reader restates.
 // lib/report-visit-summary.test.ts holds each one to the admitted vocabulary.
 export const TYPED_FIELDS_DISCLOSURE = /^This scan typed a synthetic test value into (1 form field|([0-9]+) form fields) /;
+// How each admitted typing disclosure ends, which says whether the probe's own
+// requests are in the run's request log and counts. The redactor's patterns
+// (lib/redact-scan-report-v1.ts) stay the pinned copy of the whole sentence;
+// this reader classifies only the ending of a sentence the redactor admitted.
+export const TYPING_REQUESTS_INCLUDED_ENDINGS = [
+  "Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+  "Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts."
+] as const;
+export const TYPING_REQUESTS_OMITTED_ENDING =
+  "Requests from this incomplete probe were omitted from the recorded request log and counts.";
+
+/**
+ * What a run's typing disclosure records: how many fields were typed into,
+ * and whether the probe's requests are in the request log ("included"), were
+ * left out of it ("omitted"), or the disclosure does not say ("unstated", the
+ * oldest form). Null when the run carries no typing disclosure.
+ */
+export type TypingProbeRecord = {
+  fields: number;
+  requests: "included" | "omitted" | "unstated";
+};
+
+export function typingProbeRecord(run: Pick<RunView, "warnings">): TypingProbeRecord | null {
+  for (const warning of run.warnings) {
+    const match = TYPED_FIELDS_DISCLOSURE.exec(warning);
+    if (!match) continue;
+    const fields = match[2] === undefined ? 1 : Number(match[2]);
+    const requests = TYPING_REQUESTS_INCLUDED_ENDINGS.some((ending) => warning.endsWith(ending))
+      ? "included"
+      : warning.endsWith(TYPING_REQUESTS_OMITTED_ENDING)
+        ? "omitted"
+        : "unstated";
+    return { fields, requests };
+  }
+  return null;
+}
 export const NO_INTERACTION_CLAUSE = "with no scrolling, clicking, or consent interaction.";
 export const SCRIPTED_CHOICE_CLAUSES = [
   "with no scrolling or clicking except one scripted choice on the cookie/consent banner",
@@ -342,11 +378,7 @@ function visitsText(view: ReportView, arms: readonly ArmRun[], comparison: boole
 }
 
 function typedFieldCount(run: RunView): number | null {
-  for (const warning of run.warnings) {
-    const match = TYPED_FIELDS_DISCLOSURE.exec(warning);
-    if (match) return match[2] === undefined ? 1 : Number(match[2]);
-  }
-  return null;
+  return typingProbeRecord(run)?.fields ?? null;
 }
 
 function typingSentence(arms: readonly ArmRun[], comparison: boolean): string {
