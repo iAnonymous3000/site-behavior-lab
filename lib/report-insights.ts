@@ -732,6 +732,36 @@ export function keystrokeLeakHashed(encodings: string[]): boolean {
   return encodings.some((encoding) => HASHED_KEYSTROKE_ENCODINGS.has(encoding));
 }
 
+/**
+ * The encodings a reader is shown. For the scanner's own sentinels the base64
+ * and base64url needles are the same characters (letters and digits never
+ * encode to the two characters the forms differ in), so one occurrence
+ * matches both; listing both named one form twice. A base64url match alone
+ * stays as it is.
+ */
+export function displayKeystrokeEncodings(encodings: readonly string[]): string[] {
+  return encodings.includes("base64") ? encodings.filter((encoding) => encoding !== "base64url") : [...encodings];
+}
+
+/** The hashed and the recoverable forms a detection recorded, each in display order. */
+export function keystrokeForms(encodings: readonly string[]): { hashed: string[]; recoverable: string[] } {
+  const shown = displayKeystrokeEncodings(encodings);
+  return {
+    hashed: shown.filter((encoding) => HASHED_KEYSTROKE_ENCODINGS.has(encoding)),
+    recoverable: shown.filter((encoding) => !HASHED_KEYSTROKE_ENCODINGS.has(encoding))
+  };
+}
+
+/**
+ * Whether a detection's recipients and encodings cannot be paired: it keeps
+ * them as two separate lists, so with several recipients and both hashed and
+ * recoverable forms the report cannot say which recipient received which.
+ */
+export function keystrokeFormsUnpaired(evidence: { recipients: readonly string[]; encodings: readonly string[] }): boolean {
+  const forms = keystrokeForms(evidence.encodings);
+  return evidence.recipients.length > 1 && forms.hashed.length > 0 && forms.recoverable.length > 0;
+}
+
 const PIXEL_FIELD_LABELS: Record<PixelMatchField, string> = {
   email: "email",
   phone: "phone",

@@ -8,6 +8,8 @@ import {
   HEADLINE_PLATFORMS,
   fingerprintDetection,
   isTrackingEntity,
+  keystrokeForms,
+  keystrokeFormsUnpaired,
   keystrokeLeakHashed,
   pixelFieldLabel,
   shieldsRunMeasurement,
@@ -522,6 +524,21 @@ function buildUncorrectedReportHeadline(
             "recipient domain"
           )} belonged to the site's same reviewed organization, so that portion is not disclosure to an outside company.`
         : "";
+    // Recipients and encodings are two separate lists; with several
+    // recipients and both hashed and recoverable forms, no recipient is
+    // credited with one form (the interim words until detections pair them).
+    if (keystrokeFormsUnpaired(keystrokeExfil.evidence)) {
+      const forms = keystrokeForms(keystrokeExfil.evidence.encodings);
+      const recoverable = joinNames(forms.recoverable.map((form) => (form === "plain" ? "plain text" : form)));
+      return finish(
+        "alarm",
+        `${domain} sent synthetic form input to ${recipientCount} before submission, at least once as a one-way hash.`,
+        `The scanner's unique test value appeared in requests to ${recipients} without form submission, as ${recoverable} and as a ${joinNames(forms.hashed)} hash. This report does not record which recipient received which form. The report does not establish whether transmission happened during typing, blur, or unload, what the recipient used it for, or whether real visitor input follows the same path.${recipientOwnershipNote}`,
+        undefined,
+        undefined,
+        { story: "keystroke-transmission" }
+      );
+    }
     return keystrokeLeakHashed(keystrokeExfil.evidence.encodings)
       ? finish(
           "alarm",

@@ -33,6 +33,9 @@ import {
   fingerprintDetection,
   isTrackingEntity,
   isTrackingTrackerMatch,
+  displayKeystrokeEncodings,
+  keystrokeForms,
+  keystrokeFormsUnpaired,
   keystrokeLeakHashed,
   normalizeOriginHost,
   pixelEventEvidence,
@@ -921,11 +924,15 @@ export function buildFindings(
     // the lead's one sentence, three of each ran it to about 38 words. Both
     // lists hold single tokens capped at three plus a count, so neither
     // sentence grows with its list.
+    // One base64 occurrence is one form, though it matches two needles.
+    const shownEncodings = displayKeystrokeEncodings(keystrokeDetection.evidence.encodings);
+    const forms = keystrokeForms(keystrokeDetection.evidence.encodings);
+    // Recipients and encodings are two separate lists: with several recipients
+    // and both hashed and recoverable forms, the card cannot pair them.
+    const unpaired = keystrokeFormsUnpaired(keystrokeDetection.evidence);
     const namedRecipientsAndEncodings = ` ${
       keystrokeDetection.evidence.recipients.length === 1 ? "Recipient" : "Recipients"
-    }: ${recipients}. ${keystrokeDetection.evidence.encodings.length === 1 ? "Encoding" : "Encodings"}: ${humanList(
-      keystrokeDetection.evidence.encodings
-    )}.`;
+    }: ${recipients}. ${shownEncodings.length === 1 ? "Encoding" : "Encodings"}: ${humanList(shownEncodings)}.`;
     const fields = plural(keystrokeDetection.evidence.fieldsTyped, "form field");
     // A one-way hash is a stronger transformation signal and retains the loud
     // level, but neither encoding nor this frozen summary proves recipient
@@ -938,20 +945,24 @@ export function buildFindings(
       id: "keystroke-exfiltration",
       icon: "keyboard",
       level: hashed ? "loud" : "warn",
-      title: hashed
+      title: hashed && unpaired
+        ? `Synthetic form input appeared in requests to ${recipientCount} before submission, at least once as a hash`
+        : hashed
         ? `A hashed form of synthetic input appeared in requests to ${recipientCount} before submission`
         : `Synthetic form input appeared in requests to ${recipientCount} before submission`,
       lead: hashed
         ? `When the scanner typed a unique test value into ${fields}, a one-way hash of that value appeared in requests to ${recipientCount} without the form being submitted.${namedRecipientsAndEncodings}`
         : `When the scanner typed a unique test value into ${fields}, that value appeared in requests to ${recipientCount} without the form being submitted.${namedRecipientsAndEncodings}`,
       detail: hashed
-        ? `The synthetic value was hashed (${humanList(
-            keystrokeDetection.evidence.encodings
-          )}) before being sent. The report does not establish whether transmission happened during typing, blur, or unload, what the recipient used it for, or whether real visitor input follows the same path. The scanner types only synthetic values and never submits the form.${recipientOwnershipNote}`
-        : `The synthetic value appeared in a recoverable form (${humanList(
-            keystrokeDetection.evidence.encodings
-          )}). The report does not establish whether transmission happened during typing, blur, or unload, why it was sent, or whether real visitor input follows the same path. The scanner types only synthetic values and never submits the form.${recipientOwnershipNote}`,
-      evidence: `Synthetic test value appeared in requests to ${recipients} via ${humanList(keystrokeDetection.evidence.encodings)}.`,
+        ? `${
+            forms.recoverable.length > 0
+              ? `The synthetic value appeared as a one-way hash (${humanList(forms.hashed)}) and in a recoverable form (${humanList(forms.recoverable)}).${
+                  keystrokeDetection.evidence.recipients.length > 1 ? " This report does not record which recipient received which form." : ""
+                }`
+              : `The synthetic value was hashed (${humanList(forms.hashed)}) before being sent.`
+          } The report does not establish whether transmission happened during typing, blur, or unload, what the recipient used it for, or whether real visitor input follows the same path. The scanner types only synthetic values and never submits the form.${recipientOwnershipNote}`
+        : `The synthetic value appeared in a recoverable form (${humanList(shownEncodings)}). The report does not establish whether transmission happened during typing, blur, or unload, why it was sent, or whether real visitor input follows the same path. The scanner types only synthetic values and never submits the form.${recipientOwnershipNote}`,
+      evidence: `Synthetic test value appeared in requests to ${recipients} via ${humanList(shownEncodings)}.`,
       claim: findingClaim(facts, "keystroke-exfiltration", "presence"),
       ...withLookCloser(
         recipientHost && lookCloserKeepsRows(run.evidence.requests, { query: recipientHost })

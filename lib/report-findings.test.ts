@@ -1179,7 +1179,7 @@ test("list-driven card sentences stay short whatever the lists hold", () => {
     assertSentencesAtMost(card, MAX_CARD_SENTENCE_WORDS);
     assert.match(
       card.lead,
-      /requests to 5 cross-site domains without the form being submitted\. Recipients: www\.google\.com, stats\.g\.doubleclick\.net and collect\.example, plus 2 others\. Encodings: plain, hex and base64, plus (?:4 others|1 other)\.$/
+      /requests to 5 cross-site domains without the form being submitted\. Recipients: www\.google\.com, stats\.g\.doubleclick\.net and collect\.example, plus 2 others\. Encodings: plain, hex and base64(?:, plus 3 others)?\.$/
     );
     assert.match(card.detail, / Of the recipient domains, 2 belong to the site's same reviewed organization, /);
   }
@@ -6065,4 +6065,59 @@ test("no card title or sentence opens with a lower-case count phrase", () => {
   }
   assert.ok([...shapes].some((shape) => /^shields-blocked: At least N retained requests matched the default filter lists/.test(shape)));
   assert.ok([...shapes].some((shape) => /^third-party-services: At least N retained cross-site requests across at least N retained third-party hosts\.$/.test(shape)));
+});
+
+function keystrokeReport(recipients: string[], encodings: string[]) {
+  return viewFromV1Report(
+    makeResult({
+      firstPartyDomain: "shop.example",
+      fingerprintDetections: [
+        {
+          kind: "keystroke-exfiltration",
+          heuristic: "input-sentinel-exfiltration-v1",
+          count: 1,
+          evidence: { recipients, encodings, fieldsTyped: 1, fieldTypes: ["email"] }
+        }
+      ]
+    })
+  );
+}
+
+test("one base64 occurrence is shown as one encoding on every surface of the synthetic-input card", () => {
+  const card = byId(buildFindings(keystrokeReport(["collect.example"], ["base64", "base64url"]), null), "keystroke-exfiltration");
+  assert.match(card.lead, /Encoding: base64\.$/);
+  assert.match(card.detail, /^The synthetic value appeared in a recoverable form \(base64\)\./);
+  assert.equal(card.evidence, "Synthetic test value appeared in requests to collect.example via base64.");
+  // A URL-safe match alone is its own form.
+  const urlSafe = byId(buildFindings(keystrokeReport(["collect.example"], ["base64url"]), null), "keystroke-exfiltration");
+  assert.match(urlSafe.lead, /Encoding: base64url\.$/);
+});
+
+test("with several recipients and both hashed and readable forms, no recipient is credited with one form", () => {
+  // The audit's controlled example (owner packet A-03).
+  const view = keystrokeReport(["a-plain.example", "b-hash.example"], ["plain", "sha256"]);
+  const headline = buildReportHeadline(view);
+  assert.equal(headline.headline, "shop.example sent synthetic form input to 2 cross-site domains before submission, at least once as a one-way hash.");
+  assert.ok(
+    headline.subhead.startsWith(
+      "The scanner's unique test value appeared in requests to a-plain.example and b-hash.example without form submission, as plain text and as a sha256 hash. This report does not record which recipient received which form."
+    ),
+    headline.subhead
+  );
+  assert.equal(headline.tone, "alarm");
+  const card = byId(buildFindings(view, null), "keystroke-exfiltration");
+  assert.equal(card.title, "Synthetic form input appeared in requests to 2 cross-site domains before submission, at least once as a hash");
+  assert.ok(
+    card.detail.startsWith(
+      "The synthetic value appeared as a one-way hash (sha256) and in a recoverable form (plain). This report does not record which recipient received which form."
+    ),
+    card.detail
+  );
+  assert.equal(card.level, "loud");
+  // Every leak hashed, or one recipient: the forms can be stated as before.
+  const allHashed = buildReportHeadline(keystrokeReport(["a.example", "b.example"], ["sha256"]));
+  assert.equal(allHashed.headline, "shop.example sent a hashed form of synthetic input to 2 cross-site domains before submission.");
+  const single = byId(buildFindings(keystrokeReport(["a.example"], ["plain", "sha256"]), null), "keystroke-exfiltration");
+  assert.equal(single.title, "A hashed form of synthetic input appeared in requests to 1 cross-site domain before submission");
+  assert.ok(single.detail.startsWith("The synthetic value appeared as a one-way hash (sha256) and in a recoverable form (plain). The report"), single.detail);
 });
