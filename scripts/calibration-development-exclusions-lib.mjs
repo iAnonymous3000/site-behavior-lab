@@ -257,6 +257,25 @@ export const DEVELOPMENT_EXCLUSION_SURFACES = Object.freeze([
       if (targets.length === 0) fail(`${where} declares no synthetic targets`);
       return targets.map((target, index) => ({ where: `${where} target[${index}]`, values: [target] }));
     }
+  },
+  // The GPC worker watch page, on this site's own origin. Its URL is born in
+  // this module; nothing scans it until the synthetic's allowlist names it,
+  // and reading it here keeps that page out of a frame from the start.
+  {
+    path: "lib/gpc-worker-watch-page.ts",
+    kind: "typescript-literal",
+    items(rootDir) {
+      const where = "lib/gpc-worker-watch-page.ts";
+      let text;
+      try {
+        text = readFileSync(path.join(rootDir, where), "utf8");
+      } catch (error) {
+        fail(`${where} cannot be read (${error.code ?? error.message})`);
+      }
+      const literal = /export const GPC_WORKER_WATCH_PAGE_URL = "([^"]+)";/.exec(text);
+      if (literal === null) fail(`${where} no longer declares GPC_WORKER_WATCH_PAGE_URL as a string literal`);
+      return [{ where: `${where} page`, values: [literal[1]] }];
+    }
   }
 ]);
 
@@ -286,6 +305,7 @@ export const NOT_DEVELOPMENT_VISIT_RECORDS = Object.freeze({
   "public/corrections.schema.json": "schema",
   "public/fonts/": "this site's own type: font files and their licences",
   "public/metric-contract.v1.json": "metric definitions",
+  "public/monitor/": "this site's own GPC worker watch page; its URL is read from lib/gpc-worker-watch-page.ts",
   "public/scan-report.schema.json": "schema",
   "public/service-role-taxonomy.v1.json": "third-party service roles, not visited sites",
   "public/transparency-log.json": "names report ids and digests, never a domain",

@@ -16,6 +16,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { before, test } from "node:test";
 import { PRODUCTION_SYNTHETIC_TARGETS } from "../lib/production-synthetic.ts";
+import { GPC_WORKER_WATCH_PAGE_URL } from "../lib/gpc-worker-watch-page.ts";
 import {
   CLASSIFIED_WHEN_PRESENT,
   DEVELOPMENT_EXCLUSION_SCOPE,
@@ -66,7 +67,11 @@ function derivedProbes() {
     corpusSeed: catalogDomains("public/corpus-seed-sites.json"),
     // The hosts the hourly production synthetic scans, read from the real
     // constant rather than by the library's own literal parser.
-    synthetic: PRODUCTION_SYNTHETIC_TARGETS.map((target) => new URL(target).hostname.replace(/^www\./, "")),
+    // The GPC worker watch page's host joins them, read from the module where
+    // its URL is born.
+    synthetic: [...PRODUCTION_SYNTHETIC_TARGETS, GPC_WORKER_WATCH_PAGE_URL].map((target) =>
+      new URL(target).hostname.replace(/^www\./, "")
+    ),
     screening: ["forbes.com"],
     screeningTcf: ["spiegel.de", "elpais.com", "telegraph.co.uk", "dailymail.co.uk"],
     pixelPilot: ["gap.com", "lowes.com"],
@@ -304,7 +309,8 @@ const SURFACE_PROBES = {
   "scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v2.json": "canary-committed.example",
   "scripts/fixtures/toolchain-canary-qualification-panel.json": "canary-candidate.example",
   "lib/__fixtures__/pagegraph/real-wikipedia-2026-07-19.meta.json": "pagegraph-capture.example",
-  "lib/production-synthetic.ts": "synthetic-target.example"
+  "lib/production-synthetic.ts": "synthetic-target.example",
+  "lib/gpc-worker-watch-page.ts": "watch-page.example"
 };
 
 function writeTreeFile(rootDir, relativePath, content) {
@@ -400,6 +406,10 @@ function syntheticTree() {
   w(
     "lib/production-synthetic.ts",
     `export const PRODUCTION_SYNTHETIC_TARGETS: readonly string[] = Object.freeze([\n  "https://www.${p["lib/production-synthetic.ts"]}/domains/reserved",\n  "https://www.second-synthetic-target.example/TR/"\n]);\n`
+  );
+  w(
+    "lib/gpc-worker-watch-page.ts",
+    `export const GPC_WORKER_WATCH_PAGE_URL = "https://${p["lib/gpc-worker-watch-page.ts"]}/monitor/gpc-worker/";\n`
   );
   return rootDir;
 }
@@ -498,6 +508,12 @@ test("the derivation fails closed: a missing, unparseable, or reshaped surface r
       name: "synthetic targets no longer a frozen literal",
       mutate: (rootDir) => writeTreeFile(rootDir, "lib/production-synthetic.ts", "export const TARGETS = [];\n"),
       refusal: /no longer declares PRODUCTION_SYNTHETIC_TARGETS/
+    },
+    {
+      name: "watch page URL no longer a string literal",
+      mutate: (rootDir) =>
+        writeTreeFile(rootDir, "lib/gpc-worker-watch-page.ts", "export const GPC_WORKER_WATCH_PAGE_URL = PAGE;\n"),
+      refusal: /no longer declares GPC_WORKER_WATCH_PAGE_URL/
     }
   ];
   for (const { name, mutate, refusal } of cases) {

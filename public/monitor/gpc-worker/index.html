@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<title>GPC worker monitor</title>
+<script>
+addEventListener("load", function () {
+  setTimeout(function () {
+    new Worker("/monitor/gpc-worker/worker.js");
+  }, 200);
+});
+</script>
+</head>
+<body></body>
+</html>
