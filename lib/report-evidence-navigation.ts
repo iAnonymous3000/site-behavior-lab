@@ -99,6 +99,22 @@ export function evidenceTargetForPrintedVisit(
 }
 
 /**
+ * Each retained request row's 1-based position in the visit's stored log, by
+ * row identity. The printed key says a reference names the visit's retained
+ * JSON rows in order, so a reference is read from here, never from a row's
+ * place in a filtered or capped list. Identity, not `id`: v2 rows are
+ * phase-tagged and one request id can appear in several phases.
+ */
+export function retainedRowPositions<T extends object>(rows: readonly T[]): ReadonlyMap<T, number> {
+  return new Map(rows.map((row, index) => [row, index + 1]));
+}
+
+/** A printed request reference: the visit's letter (B, V, or S for a single visit) and the row's position. */
+export function printedRequestRef(printVisit: string, position: number): string {
+  return `${printVisit ? printVisit[0].toUpperCase() : "S"}:R${String(position).padStart(4, "0")}`;
+}
+
+/**
  * A same-page, reload-free report evidence link. The target is deliberately
  * encoded in the fragment: freshly produced reports on the scanner page may
  * not have a permalink yet, so changing the query string would discard their

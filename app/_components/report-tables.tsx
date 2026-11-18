@@ -33,6 +33,8 @@ import {
   buildEvidenceHash,
   evidenceTargetForPrintedVisit,
   parseEvidenceHash,
+  printedRequestRef,
+  retainedRowPositions,
   type EvidenceAttributionPair,
   type EvidenceRequestSignal,
   type EvidenceSection,
@@ -371,6 +373,7 @@ function RequestTable({
   ];
 
   const shown = filtered.slice(0, printComplete ? PRINT_ROW_CAPS.requests : REQUEST_SCREEN_ROW_CAP);
+  const positions = useMemo(() => retainedRowPositions(requests), [requests]);
   const filtersActive =
     signalFilter !== "all" ||
     statusFilter !== "all" ||
@@ -549,7 +552,7 @@ function RequestTable({
             Every request row this visit retained, with its time, status, resource type, domain and
             recorded provenance.
           </caption>
-          <RequestLogRows rows={shown} hasPhases={hasPhases} phaseLabels={phaseLabels} inspection={inspection}
+          <RequestLogRows rows={shown} positions={positions} hasPhases={hasPhases} phaseLabels={phaseLabels} inspection={inspection}
             printVisit={printVisit} printComplete={printComplete} timeScale={timeScale}
             limitRow={printComplete ? paperLimits : []} />
         </table>
@@ -594,8 +597,10 @@ function RequestTable({
  * The request log's column heads and rows. The log renders them, and so do a
  * finding's rows under its claim (ClaimRows), so both show one row one way.
  */
-function RequestLogRows({ rows, hasPhases, phaseLabels, inspection, printVisit, printComplete, timeScale, limitRow = [] }: {
+function RequestLogRows({ rows, positions, hasPhases, phaseLabels, inspection, printVisit, printComplete, timeScale, limitRow = [] }: {
   rows: readonly NetworkRequestRecord[];
+  /** Each row's position in the visit's whole stored log, which a printed reference names. */
+  positions: ReadonlyMap<NetworkRequestRecord, number>;
   hasPhases: boolean;
   phaseLabels: ReadonlyMap<number, string>;
   inspection: RequestInspectionContext | null;
@@ -634,7 +639,8 @@ function RequestLogRows({ rows, hasPhases, phaseLabels, inspection, printVisit, 
               const inspect = inspection ? requestInspectionLink(request, inspection) : null;
               return (
               <tr key={`${request.id}:${index}`} data-request-row className={!printComplete && !request.thirdParty ? "is-site" : undefined}>
-                {printComplete && <td className="request-ref"><code>{`${printVisit ? printVisit[0].toUpperCase() : "S"}:R${String(index + 1).padStart(4, "0")}`}</code></td>}
+                {/* The row's place in the stored log, not in this filtered or capped list. */}
+                {printComplete && <td className="request-ref"><code>{printedRequestRef(printVisit, positions.get(request) ?? Number.NaN)}</code></td>}
                 <td className="mono time-cell" data-label="Time">{request.startedAtMs.toLocaleString("en-US")}ms</td>
                 {!printComplete && (
                   <td className="a-t"><TimeStrip ticks={[Math.round((request.startedAtMs / timeScale.spanMs) * 1000) / 1000]} /></td>
@@ -717,7 +723,7 @@ function ClaimRows({ requests, phases, facts, target }: {
             <caption className="visually-hidden">
               {`${showingLine} (${countLine}), each with its time, status, resource type, domain and recorded provenance.`}
             </caption>
-            <RequestLogRows rows={shown} hasPhases={hasPhases} phaseLabels={phaseLabels} inspection={null}
+            <RequestLogRows rows={shown} positions={retainedRowPositions(requests)} hasPhases={hasPhases} phaseLabels={phaseLabels} inspection={null}
               printVisit={printVisit} printComplete={false} timeScale={visitTimeScale(facts.run)} />
           </table>
         </div>

@@ -8,8 +8,10 @@ import {
   evidenceTargetForPrintedVisit,
   findingEvidenceLink,
   parseEvidenceHash,
+  printedRequestRef,
   printedVisitArm,
-  requestTimingSummary
+  requestTimingSummary,
+  retainedRowPositions
 } from "./report-evidence-navigation";
 import { pixelEventLabel } from "./report-insights";
 import { requireIndex } from "./source-markers";
@@ -296,4 +298,29 @@ test("the request timeline's log link and the request log's target both go throu
   assert.match(timeline, /buildEvidenceHash\(\{ section: "requests", \.\.\.\(arm \? \{ arm \} : \{\}\) \}\)/);
   const hook = tables.slice(requireIndex(tables, "function useEvidenceTarget("));
   assert.match(hook.slice(0, hook.indexOf("\nfunction ")), /return evidenceTargetForPrintedVisit\(target, printVisit\);/);
+});
+
+test("a printed request reference names the row's place in the stored log, whatever the filter shows", () => {
+  // The rows of the audit's case: a first-party document, then the first cross-site row.
+  const stored = [
+    { domain: "www.site.example", thirdParty: false },
+    { domain: "fonts.example.net", thirdParty: true },
+    { domain: "www.site.example", thirdParty: false },
+    { domain: "cdn.example.org", thirdParty: true }
+  ];
+  const positions = retainedRowPositions(stored);
+  const filtered = stored.filter((row) => row.thirdParty);
+  assert.deepEqual(filtered.map((row) => printedRequestRef("baseline", positions.get(row)!)), ["B:R0002", "B:R0004"]);
+  assert.deepEqual(stored.map((row) => printedRequestRef("", positions.get(row)!)), ["S:R0001", "S:R0002", "S:R0003", "S:R0004"]);
+  assert.equal(printedRequestRef("variant", 12), "V:R0012");
+  // Two rows with equal content are still two rows.
+  const twins = [{ id: 7 }, { id: 7 }];
+  assert.deepEqual(twins.map((row) => retainedRowPositions(twins).get(row)), [1, 2]);
+});
+
+test("the request log prints each reference from the stored log's positions, never a filtered index", () => {
+  const tables = readFileSync(path.join(process.cwd(), "app", "_components", "report-tables.tsx"), "utf8");
+  assert.match(tables, /const positions = useMemo\(\(\) => retainedRowPositions\(requests\), \[requests\]\);/);
+  assert.match(tables, /printedRequestRef\(printVisit, positions\.get\(request\) \?\? Number\.NaN\)/);
+  assert.doesNotMatch(tables, /:R\$\{String\(index \+ 1\)/, "a reference from the row's index in the shown list");
 });
