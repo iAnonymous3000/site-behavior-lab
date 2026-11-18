@@ -49,14 +49,33 @@ function fromWire(wire: string, id: string) {
   return { view, facts, evidenceArm, figure: buildRequestFigure(view, facts, evidenceArm) };
 }
 
-test("every committed report's figure draws one mark per retained request row, for the visits its claim policy allows", () => {
+/**
+ * The last single-visit report the site published (xkcd.com, July 30), frozen
+ * because retention retired the original on the November 18 refresh. The
+ * corpus walks below add it, so their single-visit branch always runs on a
+ * real published report whatever retention leaves.
+ */
+const FROZEN_SINGLE_ID = "20260730-748f7a920c0fdcf86c9a348a8660d395";
+
+/** Every committed report, then the frozen single-visit one unless it is still committed. */
+function committedAndFrozenSingle(): { id: string; built: () => ReturnType<typeof fromWire> }[] {
   const ids = readdirSync(dir)
     .filter((name) => /^\d{8}-[0-9a-f]{32}\.json$/.test(name))
     .map((name) => name.slice(0, -".json".length));
   assert.ok(ids.length > 0, "no committed report to draw");
+  const reports = ids.map((id) => ({ id, built: () => build(id) }));
+  if (!ids.includes(FROZEN_SINGLE_ID)) reports.push({ id: FROZEN_SINGLE_ID, built: () => buildFrozen(FROZEN_SINGLE_ID) });
+  return reports;
+}
+
+test("the frozen single-visit report is a single visit", () => {
+  assert.equal(buildFrozen(FROZEN_SINGLE_ID).view.reportType, "single");
+});
+
+test("every committed report's figure draws one mark per retained request row, for the visits its claim policy allows", () => {
   const drawn = { single: 0, both: 0, described: 0, lowerBound: 0 };
-  for (const id of ids) {
-    const { view, facts, evidenceArm, figure } = build(id);
+  for (const { id, built } of committedAndFrozenSingle()) {
+    const { view, facts, evidenceArm, figure } = built();
     const expected =
       view.reportType !== "comparison"
         ? [facts.display]
@@ -601,12 +620,9 @@ test("the requested address breaks between its parts, and has the whole line on 
 });
 
 test("a figure asked for the described visit only draws that one visit of an allowed pair, under the caption that names it", () => {
-  const ids = readdirSync(dir)
-    .filter((name) => /^\d{8}-[0-9a-f]{32}\.json$/.test(name))
-    .map((name) => name.slice(0, -".json".length));
   const seen = { single: 0, allowedPair: 0, refusedPair: 0 };
-  for (const id of ids) {
-    const { view, facts, evidenceArm, figure } = build(id);
+  for (const { id, built } of committedAndFrozenSingle()) {
+    const { view, facts, evidenceArm, figure } = built();
     const one = buildRequestFigure(view, facts, evidenceArm, { describedVisitOnly: true });
     // Always one visit.
     assert.equal(one.visits.length, 1, id);
@@ -684,6 +700,9 @@ test("a result's Not measured row and its report page's are one function of the 
     compared += 1;
     if (leads.length > 0) withLeads += 1;
   }
-  assert.ok(compared > 1000, `only ${compared} committed reports were compared`);
+  // Every report the manifest publishes, whatever retention leaves: a fixed
+  // floor here held only while the corpus sat above the 1,000-report cap.
+  const published = JSON.parse(readFileSync(path.join(dir, "index.json"), "utf8")) as { reports: unknown[] };
+  assert.ok(compared > 0 && compared === published.reports.length, `${compared} committed reports were compared, ${published.reports.length} published`);
   assert.ok(withLeads > 0, "no committed report has a Not measured row to compare");
 });

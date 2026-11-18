@@ -320,7 +320,10 @@ test("every committed card states its limit whole and sets its sentence in at mo
     assert.ok(!JSON.stringify(card).includes("open source"), name);
     assert.notEqual(card.correctionLabel, "What this actually means", name);
   }
-  assert.ok(cards > 1000, `only ${cards} committed cards were read`);
+  // Every report the manifest publishes, whatever retention leaves: a fixed
+  // floor here held only while the corpus sat above the 1,000-report cap.
+  const published = JSON.parse(readFileSync(path.join(reportsDir, "index.json"), "utf8")) as { reports: unknown[] };
+  assert.ok(cards > 0 && cards === published.reports.length, `${cards} committed cards were read, ${published.reports.length} published`);
   console.log(`cards ${cards}, sentence stepped down ${stepped}`);
 });
 

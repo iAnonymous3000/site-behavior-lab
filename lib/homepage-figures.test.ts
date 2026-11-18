@@ -8,6 +8,7 @@ import {
   buildSiteRowMarks,
   notMeasuredPhrases
 } from "./homepage-figures";
+import { frozenReportWire } from "./pinned-reports";
 import { publishedReportCorrections } from "./published-report-corrections";
 import { renderedEvidenceArm } from "./report-evidence-navigation";
 import { buildReportFacts } from "./report-facts";
@@ -23,14 +24,29 @@ const ids = readdirSync(dir)
   .filter((name) => /^\d{8}-[0-9a-f]{32}\.json$/.test(name))
   .map((name) => name.slice(0, -".json".length));
 
-function read(id: string) {
-  const result = readStoredScanReport(JSON.parse(readFileSync(path.join(dir, `${id}.json`), "utf8")));
+function storedFromWire(wire: string, id: string) {
+  const result = readStoredScanReport(JSON.parse(wire));
   assert.ok(result.ok, id);
   return result.stored;
 }
 
+function read(id: string) {
+  return storedFromWire(readFileSync(path.join(dir, `${id}.json`), "utf8"), id);
+}
+
+/**
+ * The last single-visit report the site published (xkcd.com, July 30), frozen
+ * because retention retired the original on the November 18 refresh. The
+ * front-page walk adds it, so its single-visit branch always runs on a real
+ * published report whatever retention leaves.
+ */
+const FROZEN_SINGLE_ID = "20260730-748f7a920c0fdcf86c9a348a8660d395";
+
 function described(id: string) {
-  const stored = read(id);
+  return describedStored(read(id));
+}
+
+function describedStored(stored: ReturnType<typeof read>) {
   const view = toReportView(stored);
   const facts = buildReportFacts(view);
   const headline = buildReportHeadline(view, facts);
@@ -76,8 +92,16 @@ test("a site row's marks are the described visit's retained request rows, split 
 test("the front-page record is one visit of one report: its site, date, sentence, limits and figure agree", () => {
   // A single visit, a pair the claim policy allows, and a pair it refuses.
   const kinds = { single: 0, allowedPair: 0, refusedPair: 0, incomplete: 0, ordered: 0 };
-  for (const id of ids) {
-    const { stored, view, facts, headline, evidenceArm, run } = described(id);
+  // The committed reports, then the frozen single visit unless it is still committed.
+  const walk = ids.map((id) => ({ id, load: () => described(id) }));
+  if (!ids.includes(FROZEN_SINGLE_ID)) {
+    walk.push({
+      id: FROZEN_SINGLE_ID,
+      load: () => describedStored(storedFromWire(frozenReportWire(FROZEN_SINGLE_ID), FROZEN_SINGLE_ID))
+    });
+  }
+  for (const { id, load } of walk) {
+    const { stored, view, facts, headline, evidenceArm, run } = load();
     if (kinds.single > 3 && kinds.allowedPair > 3 && kinds.refusedPair > 3 && kinds.incomplete > 3 && kinds.ordered > 3) break;
     const kind =
       view.reportType !== "comparison" ? "single" : view.claims.pairComparison?.allowed === true ? "allowedPair" : "refusedPair";
