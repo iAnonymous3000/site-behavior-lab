@@ -659,4 +659,10 @@ test("the panel and the capabilities page state one sentence about dedicated wor
   assert.doesNotMatch(panel, /dedicated workers? (are|is) /, "the panel restates the sentence in its own words");
   const capabilities = readFileSync(path.join(process.cwd(), "docs", "capabilities.md"), "utf8");
   assert.ok(capabilities.includes(DEDICATED_WORKER_ATTRIBUTION_SENTENCE), "docs/capabilities.md states another sentence");
+  // The approved wording (owner packet A-08): the requests are recorded; their initiator is what is missing.
+  assert.equal(
+    DEDICATED_WORKER_ATTRIBUTION_SENTENCE,
+    "Requests made by dedicated workers are recorded and counted, but the browser reports no initiator for them, so they are not attributed."
+  );
+  assert.doesNotMatch(capabilities, /dedicated workers are not observed/);
 });

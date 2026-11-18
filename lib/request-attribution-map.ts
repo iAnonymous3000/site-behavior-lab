@@ -13,7 +13,7 @@ import type { NetworkRequestRecord } from "./types";
  * The panel and docs/capabilities.md state it, so both read this one value
  * (the docs by a test). Its wording is the owner's to change.
  */
-export const DEDICATED_WORKER_ATTRIBUTION_SENTENCE = "Requests made by dedicated workers are not observed.";
+export const DEDICATED_WORKER_ATTRIBUTION_SENTENCE = "Requests made by dedicated workers are recorded and counted, but the browser reports no initiator for them, so they are not attributed.";
 
 /** Which recorded provenance field named the actor, so no surface has to guess. */
 export type AttributionActorRole = "script" | "initiator" | "injector" | "mixed";
