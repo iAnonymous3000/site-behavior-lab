@@ -637,3 +637,16 @@ test("a script that inserted an element after its request is not credited in the
   assert.deepEqual(rowsOf(withInsert(450)), baseline);
   assert.notDeepEqual(rowsOf(withInsert(150)), baseline);
 });
+
+test("a request whose type is written as an XML character reference stays a request under a complete claim", () => {
+  const original = new TextDecoder().decode(GRAPH_BYTES);
+  const label = '<data key="d9">request start</data>';
+  assert.ok(original.includes(label));
+  const referenced = original.replace(label, '<data key="d9">request&#32;start</data>');
+  const target = metadata();
+  const report = buildPageGraphScanReportV2R2(bytesFor(referenced, target), target, CONTEXT);
+  const baseline = buildPageGraphScanReportV2R2(GRAPH_BYTES, metadata(), CONTEXT);
+  assert.equal(baseline.run.evidence.requests.length, 5);
+  assert.equal(report.run.evidence.requests.length, 5, "the referenced request is not lost");
+  assert.equal(report.run.quality.byFamily.requests.outcome, "complete");
+});

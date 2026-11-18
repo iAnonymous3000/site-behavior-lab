@@ -41,6 +41,16 @@ export const PAGEGRAPH_R2_MAX_KEYS = 1_024;
 const PAGEGRAPH_R2_MAX_FIELDS_PER_RECORD = 64;
 const PAGEGRAPH_R2_MAX_FIELD_CHARS = 16_384;
 export const PAGEGRAPH_R2_SUPPORTED_SCHEMA_VERSION = "0.7.7" as const;
+
+// Refusals of the strict importer, shown to the visitor as written.
+export const PAGEGRAPH_R2_ENTITY_REFUSAL =
+  "PageGraph r2 text contains an unknown or malformed XML entity reference.";
+export const PAGEGRAPH_R2_CHARACTER_REFERENCE_REFUSAL =
+  "PageGraph r2 text contains a character reference outside the XML character range.";
+export const PAGEGRAPH_R2_DATA_NOT_PLAIN_TEXT_REFUSAL =
+  "PageGraph r2 data values must be plain text; CDATA sections, processing instructions and nested elements are not read.";
+export const PAGEGRAPH_R2_REQUEST_COUNT_REFUSAL =
+  "PageGraph r2 import extracted a different number of requests than the capture's request-start edges.";
 const PAGEGRAPH_R2_ABOUT_URL = "https://github.com/brave/brave-browser/wiki/PageGraph";
 
 export type PageGraphDescription = {
@@ -182,7 +192,14 @@ export function pageGraphGraphmlToStrictAdapterInput(
     strictNonnegativeIntegerField(edge, "timestamp");
   }
 
-  return { ...pageGraphRequestRecordsToAdapterInput(records, options), graphRootUrl, description };
+  const adapterInput = pageGraphRequestRecordsToAdapterInput(records, options);
+  // Every request-start edge validated above must reach the report. The
+  // extractor skips edges it cannot read; a skip that the validation above did
+  // not refuse first would drop a request under a complete claim.
+  if ((adapterInput.requests ?? []).length !== requestIds.size) {
+    throw new Error(PAGEGRAPH_R2_REQUEST_COUNT_REFUSAL);
+  }
+  return { ...adapterInput, graphRootUrl, description };
 }
 
 function pageGraphRequestRecordsToAdapterInput(
@@ -236,7 +253,7 @@ function strictNonnegativeIntegerField(record: GraphRecord, name: string): numbe
  * the artifact's own schema, root, wall-clock time, or capture interval.
  */
 function parseStrictPageGraphDescription(graphml: string): PageGraphDescription {
-  const descriptions = [...graphml.matchAll(/<desc\b([^>]*)>([\s\S]*?)<\/desc>/gi)];
+  const descriptions = [...withoutXmlComments(graphml).matchAll(/<desc\b([^>]*)>([\s\S]*?)<\/desc>/gi)];
   if (descriptions.length !== 1 || (descriptions[0]?.[1] ?? "").trim() !== "") {
     throw new Error("PageGraph r2 artifacts require exactly one attribute-free GraphML description.");
   }
@@ -303,7 +320,7 @@ function strictDescriptionValue(body: string, tag: string): string {
   if (!raw || /<[^>]*>/.test(raw)) {
     throw new Error(`PageGraph r2 description ${tag} must be a nonempty scalar value.`);
   }
-  return decodeXml(raw);
+  return decodeXml(raw, true);
 }
 
 function strictDescriptionInteger(body: string, tag: string): number {
@@ -374,8 +391,9 @@ function assertStrictRecordEnvelope(records: GraphRecord[]): void {
 }
 
 export function parseGraphmlRecords(graphml: string): GraphRecord[] {
-  const keys = parseGraphKeys(graphml);
-  return [...parseGraphElements(graphml, "node", keys), ...parseGraphElements(graphml, "edge", keys)];
+  const markup = withoutXmlComments(graphml);
+  const keys = parseGraphKeys(markup);
+  return [...parseGraphElements(markup, "node", keys), ...parseGraphElements(markup, "edge", keys)];
 }
 
 type StrictGraphParseState = {
@@ -384,11 +402,20 @@ type StrictGraphParseState = {
 };
 
 function parseStrictGraphmlRecords(graphml: string): GraphRecord[] {
-  const keys = parseGraphKeys(graphml, true);
+  const markup = withoutXmlComments(graphml);
+  const keys = parseGraphKeys(markup, true);
   const state: StrictGraphParseState = { recordCount: 0, recordIds: new Set() };
-  const nodes = parseGraphElements(graphml, "node", keys, state);
-  const edges = parseGraphElements(graphml, "edge", keys, state);
+  const nodes = parseGraphElements(markup, "node", keys, state);
+  const edges = parseGraphElements(markup, "edge", keys, state);
   return [...nodes, ...edges];
+}
+
+/**
+ * XML comments are not content. Removed before any element is matched, so a
+ * comment can neither hide a record nor invent one from markup-like text.
+ */
+function withoutXmlComments(graphml: string): string {
+  return graphml.replace(/<!--[\s\S]*?-->/g, "");
 }
 
 function parseGraphKeys(graphml: string, strict = false): Map<string, GraphKey> {
@@ -427,7 +454,10 @@ function parseGraphElements(
   strictState?: StrictGraphParseState
 ): GraphRecord[] {
   const records: GraphRecord[] = [];
-  const pattern = new RegExp(`<${kind}\\b([^>]*)>([\\s\\S]*?)<\\/${kind}>`, "gi");
+  // A self-closing element is an empty one. Without the first alternative the
+  // pattern read on to the NEXT closing tag and took the following record's
+  // fields as this one's.
+  const pattern = new RegExp(`<${kind}\\b([^>]*?)(?:\\/>|>([\\s\\S]*?)<\\/${kind}>)`, "gi");
   for (const match of graphml.matchAll(pattern)) {
     if (strictState && ++strictState.recordCount > PAGEGRAPH_R2_MAX_RECORDS) {
       throw new Error(`PageGraph r2 artifacts must not exceed ${PAGEGRAPH_R2_MAX_RECORDS} graph records.`);
@@ -471,7 +501,7 @@ function parseGraphElements(
       assignGraphField(fields, normalizeFieldName(name), value, strictState !== undefined);
     }
 
-    const dataPattern = /<data\b([^>]*)>([\s\S]*?)<\/data>/gi;
+    const dataPattern = /<data\b([^>]*?)(?:\/>|>([\s\S]*?)<\/data>)/gi;
     const dataKeys = strictState ? new Set<string>() : undefined;
     for (const dataMatch of body.matchAll(dataPattern)) {
       const dataAttributes = parseAttributes(dataMatch[1] ?? "", strictState !== undefined);
@@ -486,7 +516,15 @@ function parseGraphElements(
       dataKeys?.add(key);
       const name = normalizeFieldName(keys.get(key)?.name ?? key);
       if (!name) continue;
-      assignGraphField(fields, name, decodeXml(stripTags(dataMatch[2] ?? "").trim()), strictState !== undefined);
+      const raw = dataMatch[2] ?? "";
+      if (strictState && raw.includes("<")) {
+        // CDATA, a processing instruction or a child element. Refused rather
+        // than read: stripping it as a tag turned "request start" written as
+        // CDATA into an empty value and lost the request.
+        throw new Error(PAGEGRAPH_R2_DATA_NOT_PLAIN_TEXT_REFUSAL);
+      }
+      const text = strictState ? raw : stripTags(raw);
+      assignGraphField(fields, name, decodeXml(text.trim(), strictState !== undefined), strictState !== undefined);
     }
 
     records.push({
@@ -1005,7 +1043,7 @@ function parseAttributes(source: string, strict = false): Record<string, string>
     if (strict && Object.prototype.hasOwnProperty.call(attributes, name)) {
       throw new Error(`PageGraph r2 elements must not contain duplicate attributes (${name}).`);
     }
-    attributes[name] = decodeXml(match[2] ?? match[3] ?? "");
+    attributes[name] = decodeXml(match[2] ?? match[3] ?? "", strict);
     consumedThrough = (match.index ?? 0) + match[0].length;
   }
   if (strict && source.slice(consumedThrough).replace(/\/\s*$/, "").trim() !== "") {
@@ -1018,13 +1056,52 @@ function normalizeFieldName(name: string): string {
   return name.trim().toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ");
 }
 
-function decodeXml(value: string): string {
-  return value
-    .replace(/&quot;/g, "\"")
-    .replace(/&apos;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&");
+const XML_NAMED_ENTITIES: Readonly<Record<string, string>> = Object.freeze({
+  quot: "\"",
+  apos: "'",
+  lt: "<",
+  gt: ">",
+  amp: "&"
+});
+
+/** Every reference XML can write, and a bare ampersand that is none of them. */
+const XML_REFERENCE = /&(?:#([0-9]+)|#x([0-9A-Fa-f]+)|([A-Za-z_:][\w.:-]*));|&/g;
+
+/** XML 1.0's Char production. */
+function isXmlChar(codePoint: number): boolean {
+  return (
+    codePoint === 0x9 ||
+    codePoint === 0xa ||
+    codePoint === 0xd ||
+    (codePoint >= 0x20 && codePoint <= 0xd7ff) ||
+    (codePoint >= 0xe000 && codePoint <= 0xfffd) ||
+    (codePoint >= 0x10000 && codePoint <= 0x10ffff)
+  );
+}
+
+/**
+ * Decode XML references in ONE pass, so "&amp;#32;" becomes the literal text
+ * "&#32;" and is never decoded a second time. Numeric references are decoded
+ * as XML defines them: "request&#32;start" is the same text as "request
+ * start", and reading it as anything else lost the request. Strict mode
+ * refuses what it cannot read (an entity outside the five XML defines, which
+ * covers any a document type declares; a bare ampersand; a reference to a
+ * code point XML does not allow). The legacy reader leaves those literal.
+ */
+function decodeXml(value: string, strict = false): string {
+  return value.replace(XML_REFERENCE, (match, decimal?: string, hex?: string, name?: string) => {
+    if (decimal !== undefined || hex !== undefined) {
+      const codePoint = decimal !== undefined ? Number.parseInt(decimal, 10) : Number.parseInt(hex as string, 16);
+      if (isXmlChar(codePoint)) return String.fromCodePoint(codePoint);
+      if (strict) throw new Error(PAGEGRAPH_R2_CHARACTER_REFERENCE_REFUSAL);
+      return match;
+    }
+    if (name !== undefined && Object.prototype.hasOwnProperty.call(XML_NAMED_ENTITIES, name)) {
+      return XML_NAMED_ENTITIES[name] as string;
+    }
+    if (strict) throw new Error(PAGEGRAPH_R2_ENTITY_REFUSAL);
+    return match;
+  });
 }
 
 function stripTags(value: string): string {

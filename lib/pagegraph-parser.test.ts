@@ -3,6 +3,10 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import {
+  PAGEGRAPH_R2_CHARACTER_REFERENCE_REFUSAL,
+  PAGEGRAPH_R2_DATA_NOT_PLAIN_TEXT_REFUSAL,
+  PAGEGRAPH_R2_ENTITY_REFUSAL,
+  PAGEGRAPH_R2_REQUEST_COUNT_REFUSAL,
   extractPageGraphRootUrl,
   normalizePageGraphResourceType,
   pageGraphGraphmlToAdapterInput,
@@ -330,4 +334,108 @@ test("without a request timestamp no DOM edge can be ordered, so no script is cr
   );
   assert.ok(request);
   assert.equal(request.provenance?.scriptId, undefined);
+});
+
+const WIKIPEDIA_GRAPHML = () =>
+  readFileSync(path.join(PAGEGRAPH_FIXTURE_DIR, "real-wikipedia-2026-07-19.graphml"), "utf8");
+
+/** Rewrite the first request-start edge's type label as `label`. */
+function withFirstRequestStartLabel(label: string): string {
+  const graphml = WIKIPEDIA_GRAPHML();
+  const original = '<data key="d9">request start</data>';
+  assert.ok(graphml.includes(original));
+  return graphml.replace(original, `<data key="d9">${label}</data>`);
+}
+
+const strictRequests = (graphml: string) =>
+  pageGraphGraphmlToStrictAdapterInput(graphml, WIKIPEDIA_OPTIONS).requests ?? [];
+
+test("an XML character reference reads as the character it names, so no request is lost", () => {
+  assert.equal(strictRequests(WIKIPEDIA_GRAPHML()).length, 5);
+  assert.equal(strictRequests(withFirstRequestStartLabel("request&#32;start")).length, 5, "decimal reference");
+  assert.equal(strictRequests(withFirstRequestStartLabel("&#x72;equest start")).length, 5, "hexadecimal reference");
+  assert.equal(
+    (pageGraphGraphmlToAdapterInput(withFirstRequestStartLabel("request&#32;start"), WIKIPEDIA_OPTIONS).requests ?? []).length,
+    5,
+    "the legacy reader decodes it too"
+  );
+});
+
+test("references decode in one pass, so an escaped reference stays literal text", () => {
+  // "&amp;#32;" is the text "&#32;", not a space: decoding twice would turn
+  // this label into "request start" and invent a request.
+  assert.equal(strictRequests(withFirstRequestStartLabel("request&amp;#32;start")).length, 4);
+});
+
+test("strict import refuses an entity it cannot read", () => {
+  for (const label of ["request&nbsp;start", "request & start", "request&#X20;start"]) {
+    assert.throws(
+      () => strictRequests(withFirstRequestStartLabel(label)),
+      { message: PAGEGRAPH_R2_ENTITY_REFUSAL },
+      label
+    );
+    assert.doesNotThrow(() => pageGraphGraphmlToAdapterInput(withFirstRequestStartLabel(label), WIKIPEDIA_OPTIONS), label);
+  }
+});
+
+test("strict import refuses a character reference outside the XML character range", () => {
+  for (const label of ["request&#0;start", "request&#xD800;start", "request&#x110000;start", "request&#99999999999999999999;start"]) {
+    assert.throws(
+      () => strictRequests(withFirstRequestStartLabel(label)),
+      { message: PAGEGRAPH_R2_CHARACTER_REFERENCE_REFUSAL },
+      label
+    );
+    assert.doesNotThrow(() => pageGraphGraphmlToAdapterInput(withFirstRequestStartLabel(label), WIKIPEDIA_OPTIONS), label);
+  }
+});
+
+test("strict import refuses a data value that is not plain text", () => {
+  for (const label of ["<![CDATA[request start]]>", "<?pi request start?>", "<b>request start</b>"]) {
+    assert.throws(
+      () => strictRequests(withFirstRequestStartLabel(label)),
+      { message: PAGEGRAPH_R2_DATA_NOT_PLAIN_TEXT_REFUSAL },
+      label
+    );
+  }
+});
+
+test("a self-closing element is empty and never reads the next record's fields", () => {
+  const graphml = WIKIPEDIA_GRAPHML();
+  const firstRequest = graphml.indexOf('<edge id="e4097"');
+  assert.ok(firstRequest > 0);
+  // An empty edge between the same two nodes as nothing, written self-closed,
+  // placed right before a request-start edge.
+  const emptyEdge = graphml.slice(0, firstRequest) + '<edge id="e900002" source="n48" target="n232"/>\n' + graphml.slice(firstRequest);
+  const requests = strictRequests(emptyEdge);
+  assert.equal(requests.length, 5);
+  const image = requests.find((request) => request.requestId === "2");
+  assert.equal(image?.provenance?.initiatorId, "n232", "the request keeps its own source");
+
+  // An empty data value, self-closed, placed before the edge-type field.
+  const emptyData = graphml.replace(
+    '<edge id="e4097" source="n232" target="n4096"><data key="d9">request start</data>',
+    '<edge id="e4097" source="n232" target="n4096"><data key="d45"/><data key="d9">request start</data>'
+  );
+  assert.notEqual(emptyData, graphml);
+  assert.equal(strictRequests(emptyData).length, 5, "the type after an empty value is still read");
+});
+
+test("a comment can neither hide a record nor invent one", () => {
+  const graphml = WIKIPEDIA_GRAPHML();
+  const invented = graphml.replace(
+    "</graph>",
+    '<!-- <edge id="e900003" source="n48" target="n4096"><data key="d9">request start</data></edge> -->\n</graph>'
+  );
+  assert.equal(strictRequests(invented).length, 5);
+  assert.equal((pageGraphGraphmlToAdapterInput(invented, WIKIPEDIA_OPTIONS).requests ?? []).length, 5);
+});
+
+test("the request-count refusal is exported as the approved sentence", () => {
+  // No input reaches it today, because validation refuses every edge the
+  // extractor would skip. The batch C mutation log seeds a skip in the
+  // extractor to prove it fires; this pins the sentence it fires with.
+  assert.equal(
+    PAGEGRAPH_R2_REQUEST_COUNT_REFUSAL,
+    "PageGraph r2 import extracted a different number of requests than the capture's request-start edges."
+  );
 });
