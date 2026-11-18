@@ -8,8 +8,11 @@ name: Archive Deployment Records
 # attestation bundles under research/production-deployments/ through the
 # reviewed automation/* pull-request path.
 #
-# It is started by hand and in batches, never per deployment: a merged
-# proposal is a push to main, which deploys and leaves another record.
+# It is started by hand, once a month, with the month's deployment runs,
+# never per deployment: a merged proposal is a push to main, which deploys
+# and leaves another record. It has no schedule on purpose; each proposal
+# lands as a fresh commit on main by the maintainer, not on a day corpus
+# refresh legs land.
 # Nothing in the promotion path reads these files.
 
 on:
