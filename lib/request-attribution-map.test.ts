@@ -6,6 +6,7 @@ import { ledgerPinnedReportWire } from "./pinned-reports";
 import { buildReportFacts } from "./report-facts";
 import {
   buildRequestAttributionMap,
+  DEDICATED_WORKER_ATTRIBUTION_SENTENCE,
   MAX_DRAWN_ATTRIBUTION_EDGES,
   requestAttributionActor,
   requestMatchesAttributionPair,
@@ -650,4 +651,12 @@ test("conflicting entity names on one public host fall back deterministically to
       tracker: true
     }
   ]);
+});
+
+test("the panel and the capabilities page state one sentence about dedicated workers' requests", () => {
+  const panel = readFileSync(path.join(process.cwd(), "app", "_components", "causality-graph.tsx"), "utf8");
+  assert.match(panel, /\$\{DEDICATED_WORKER_ATTRIBUTION_SENTENCE\}/, "the panel reads the shared sentence");
+  assert.doesNotMatch(panel, /dedicated workers? (are|is) /, "the panel restates the sentence in its own words");
+  const capabilities = readFileSync(path.join(process.cwd(), "docs", "capabilities.md"), "utf8");
+  assert.ok(capabilities.includes(DEDICATED_WORKER_ATTRIBUTION_SENTENCE), "docs/capabilities.md states another sentence");
 });
