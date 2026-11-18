@@ -31,10 +31,13 @@ import { DETECTOR_IDS, type DetectorId } from "./scan-report-v2";
  * NEVER STORE THE ANSWER. Callers must derive this at render time from studies
  * re-analyzed against the CURRENT release identity, never from a value written
  * into a report. A study's eligibility is perishable by construction: the
- * analyzer compares the study's recorded Brave-list identity against the
- * current one, and that identity carries `fetchedAt`, which the weekly list
- * refresh moves. A rate rendered from a stored string would keep asserting a
- * number days after the analyzer stopped accepting it.
+ * analyzer binds it to the build commit that ran it (build-commit-mismatch
+ * in lib/detector-calibration.ts), so any later build ends it unless the
+ * verified measurement-candidate binding in lib/detector-calibration-source.ts
+ * proves the build carries only evidence. The Brave-list comparison strips
+ * `fetchedAt`, so a weekly refetch of identical lists does not. A rate
+ * rendered from a stored string would keep asserting a number after the
+ * analyzer stopped accepting it.
  */
 
 export type DetectorCalibrationReaderState =

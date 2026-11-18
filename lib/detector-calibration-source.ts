@@ -163,9 +163,10 @@ export function committedCalibrationStudyAnalyses(
  * Per-detector reader state, re-analyzed against the current identity.
  *
  * The report surface calls this at render time rather than reading anything
- * stored, because eligibility is perishable: the analyzer compares a study's
- * recorded Brave-list identity against the current one, and that identity
- * carries `fetchedAt`, which the weekly refresh moves. See
+ * stored, because eligibility is perishable: the analyzer binds a study to
+ * the build commit that ran it (build-commit-mismatch), so any later build
+ * ends it unless the verified candidate binding above proves the build
+ * carries only evidence. The Brave-list comparison strips `fetchedAt`. See
  * lib/detector-calibration-reader.ts for the fail-closed publication rule.
  */
 export function committedDetectorCalibrationReaderClaims(

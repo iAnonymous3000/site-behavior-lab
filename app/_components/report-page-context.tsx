@@ -284,11 +284,13 @@ export function ReportEvidenceReceipt({
             <Link href={COVERAGE_BOUNDARY_PATH}>Read the published coverage boundary</Link>.
           </p>
           {/* Derived here, at render, from the committed studies re-analyzed
-              against the CURRENT release identity -- never read from the report.
+              against the CURRENT release identity, never read from the report.
               A study stops supporting its rate when any bound identity moves,
-              and one of those identities is the Brave list's `fetchedAt`, which
-              the weekly refresh changes. A stored sentence would go on
-              asserting a number the analyzer had already withdrawn. */}
+              and one of those is the build commit that ran it, so any later
+              build ends it unless a verified candidate binding proves the
+              build carries only evidence. A stored
+              sentence would go on asserting a number the analyzer had already
+              withdrawn. */}
           <p className="evidence-receipt-note">
             {detectorCalibrationReaderSentence(
               withRunApplicability(
