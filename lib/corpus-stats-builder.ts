@@ -1,6 +1,7 @@
 import { publishedReportCorrections } from "./published-report-corrections";
 import {
   corpusCohortIdentityForView,
+  corpusCohortsTheSelectionUses,
   selectPrimaryCorpusCohort,
   type CorpusCohortIdentity
 } from "./corpus-cohort";
@@ -28,6 +29,7 @@ import {
   runInCorpusDistributionPopulation,
   toReportView
 } from "./scan-report-view";
+import type { ReportView } from "./scan-report-views";
 import {
   listDanglingStaticSidecarIds,
   listStaticReportCandidateIds,
@@ -75,6 +77,69 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     accumulator.add(id, toReportView(read.stored));
   }
   return { stats: accumulator.finish(), warnings: [] };
+}
+
+/**
+ * Whether a report joins a cohort's percentile sample, and as which site of
+ * which cohort; null when it joins none. The accumulator below decides with
+ * this and nothing else, and retention (lib/prune-static-reports.ts) keeps
+ * each cohort's representative report per site by the same decision, so the
+ * aggregate can never depend on a report retention does not know it needs.
+ */
+export function corpusRollupMembership(
+  id: string,
+  view: ReportView
+): { identity: CorpusCohortIdentity; siteKey: string; scannedAt: string } | null {
+  // Corrections exclude reports from distributions without erasing that a
+  // visit was attempted and its document loaded.
+  if (publishedReportCorrections(id).suppressIndexing) return null;
+
+  const result = displayRunView(view);
+  // A run that answered with an HTTP error (403/401/429 bot walls, outages)
+  // reflects an error page, not the site, and a null status means the main
+  // document never produced a response at all (timeout, refused connect):
+  // either way the near-zero counts would drag the percentile distribution
+  // down and misrank every real site against it. The per-report pages
+  // already disclose these as failed loads.
+  if (result.quality.outcome !== "complete" || typeof result.status !== "number" || result.status >= 400) return null;
+
+  const leadDomain = corpusSiteKeyForRun(result);
+  if (!leadDomain || isReservedReportDomain(leadDomain)) return null;
+
+  // A run that hit the request-recording cap has activity counts that are
+  // floors cut off mid-collection (and cookie/storage snapshots of an
+  // interrupted visit), not the site's measured behavior: including
+  // them clamps the distribution's tail to the cap (the heaviest sites are
+  // exactly the ones that cap) and misranks every real site against a
+  // truncated ceiling. The per-report pages disclose capped runs as cut
+  // short.
+  //
+  // A consent-interaction arm is a post-intervention state, not a default
+  // visit: a consent comparison's baseline clicked "accept all" before
+  // collection, so its counts describe the accepted-cookies experience.
+  // Ranking ordinary scans against it would contaminate the cohort the
+  // distribution claims to describe (the plain first visit). Covered, but
+  // never measured.
+  //
+  // Both of those rules, plus the completion check above, live in
+  // runInCorpusDistributionPopulation so the findings board applies exactly
+  // the same population rule when it decides whether to show a percentile.
+  if (!runInCorpusDistributionPopulation(result)) return null;
+
+  // One definition of "when this report was measured", shared with
+  // lib/corpus-overview.ts, which ranks the same cohorts by view.scannedAt
+  // and hands them to the same selectPrimaryCorpusCohort. Recency is that
+  // selector's first sort key, and the lead run's own start is a DIFFERENT
+  // clock on every v1 comparison (the wire's report-level time is the
+  // variant arm's start, so the two disagree by the baseline visit's
+  // duration): ranking on it here would let the published artifact and the
+  // rendered aggregate name different cohorts whenever two cohorts' newest
+  // reports land within that skew. The same value also picks each site's
+  // representative report, which the export and the directory decide with
+  // view.scannedAt too.
+  const scannedAt = view.scannedAt ?? "";
+  if (!Number.isFinite(Date.parse(scannedAt))) return null;
+  return { identity: corpusCohortIdentityForView(view), siteKey: leadDomain, scannedAt };
 }
 
 /**
@@ -127,55 +192,9 @@ export function createCorpusStatsAccumulator(now = new Date()) {
       if (successfulRuns.some(runHitRequestRecordingCap)) cappedDomains.add(domain);
     }
 
-    // Corrections exclude reports from distributions without erasing that a
-    // visit was attempted and its document loaded.
-    if (publishedReportCorrections(id).suppressIndexing) return;
-
-    // A run that answered with an HTTP error (403/401/429 bot walls, outages)
-    // reflects an error page, not the site, and a null status means the main
-    // document never produced a response at all (timeout, refused connect):
-    // either way the near-zero counts would drag the percentile distribution
-    // down and misrank every real site against it. The per-report pages
-    // already disclose these as failed loads.
-    if (result.quality.outcome !== "complete" || typeof result.status !== "number" || result.status >= 400) return;
-
-    const leadDomain = corpusSiteKeyForRun(result);
-    if (!leadDomain || isReservedReportDomain(leadDomain)) return;
-
-    // A run that hit the request-recording cap has activity counts that are
-    // floors cut off mid-collection (and cookie/storage snapshots of an
-    // interrupted visit), not the site's measured behavior: including
-    // them clamps the distribution's tail to the cap (the heaviest sites are
-    // exactly the ones that cap) and misranks every real site against a
-    // truncated ceiling. The per-report pages disclose capped runs as cut
-    // short.
-    //
-    // A consent-interaction arm is a post-intervention state, not a default
-    // visit: a consent comparison's baseline clicked "accept all" before
-    // collection, so its counts describe the accepted-cookies experience.
-    // Ranking ordinary scans against it would contaminate the cohort the
-    // distribution claims to describe (the plain first visit). Covered, but
-    // never measured.
-    //
-    // Both of those rules, plus the completion check above, live in
-    // runInCorpusDistributionPopulation so the findings board applies exactly
-    // the same population rule when it decides whether to show a percentile.
-    if (!runInCorpusDistributionPopulation(result)) return;
-
-    // One definition of "when this report was measured", shared with
-    // lib/corpus-overview.ts, which ranks the same cohorts by view.scannedAt
-    // and hands them to the same selectPrimaryCorpusCohort. Recency is that
-    // selector's first sort key, and the lead run's own start is a DIFFERENT
-    // clock on every v1 comparison (the wire's report-level time is the
-    // variant arm's start, so the two disagree by the baseline visit's
-    // duration): ranking on it here would let the published artifact and the
-    // rendered aggregate name different cohorts whenever two cohorts' newest
-    // reports land within that skew. The same value also picks each site's
-    // representative report, which the export and the directory decide with
-    // view.scannedAt too.
-    const scannedAt = view.scannedAt ?? "";
-    if (!Number.isFinite(Date.parse(scannedAt))) return;
-    const identity = corpusCohortIdentityForView(view);
+    const membership = corpusRollupMembership(id, view);
+    if (!membership) return;
+    const { identity, siteKey: leadDomain, scannedAt } = membership;
     const cohort = byCohort.get(identity.id) ?? { identity, bySite: new Map() };
     if (!byCohort.has(identity.id)) byCohort.set(identity.id, cohort);
     const existing = cohort.bySite.get(leadDomain);
@@ -206,7 +225,18 @@ export function createCorpusStatsAccumulator(now = new Date()) {
     });
   }
 
-  function finish(): CurrentCorpusStats {
+  /**
+   * The ids of the cohorts the aggregate selection consults over what was
+   * added so far, from the same candidates finish() hands the selector.
+   */
+  function cohortIdsTheSelectionUses(): ReadonlySet<string> {
+    return new Set(
+      corpusCohortsTheSelectionUses(summarize().candidates, CORPUS_MIN_SAMPLE).map((candidate) => candidate.identity.id)
+    );
+  }
+
+  /** Per-cohort statistics, and the candidates the selector ranks them as. */
+  function summarize() {
     const cohorts: CorpusStatsCohort[] = [...byCohort.values()]
       .map(({ identity, bySite: sites }) => ({
         ...identity,
@@ -230,15 +260,18 @@ export function createCorpusStatsAccumulator(now = new Date()) {
     const cohortSites = new Map(
       [...byCohort.values()].map(({ identity, bySite }) => [identity.id, [...bySite.keys()]] as const)
     );
-    const primary = selectPrimaryCorpusCohort(
-      cohorts.map((cohort) => ({
-        identity: cohort,
-        siteCount: cohort.sampleSize,
-        latestRunAt: cohort.latestRunAt,
-        sites: cohortSites.get(cohort.id) ?? []
-      })),
-      CORPUS_MIN_SAMPLE
-    )?.identity;
+    const candidates = cohorts.map((cohort) => ({
+      identity: cohort,
+      siteCount: cohort.sampleSize,
+      latestRunAt: cohort.latestRunAt,
+      sites: cohortSites.get(cohort.id) ?? []
+    }));
+    return { cohorts, candidates };
+  }
+
+  function finish(): CurrentCorpusStats {
+    const { cohorts, candidates } = summarize();
+    const primary = selectPrimaryCorpusCohort(candidates, CORPUS_MIN_SAMPLE)?.identity;
 
     return {
       version: CORPUS_STATS_ARTIFACT_VERSION,
@@ -254,7 +287,7 @@ export function createCorpusStatsAccumulator(now = new Date()) {
     };
   }
 
-  return { add, finish };
+  return { add, finish, cohortIdsTheSelectionUses };
 }
 
 function metricDistributions(

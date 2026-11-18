@@ -5,6 +5,10 @@ import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { pathToFileURL } from "node:url";
 import { spawnSyncBounded } from "./bounded-spawn";
+import { CURRENT_MEASUREMENT_LINE_METHODOLOGY, corpusCohortIdentityForView } from "./corpus-cohort";
+import { buildCorpusStats } from "./corpus-stats-builder";
+import { createShieldsComparisonReport } from "./compare-reports";
+import { frozenReportView, frozenReportWire } from "./pinned-reports";
 import { DECIDED_PACKAGE_INPUT_FILES, pruneStaticReportsWithCorrections } from "./prune-static-reports";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
@@ -92,7 +96,11 @@ async function writeReport(id: string, report: TestReport): Promise<void> {
   await writeManagedPublicReport(id, redactPublicScanReportV2R2(current));
 }
 
-async function writeManagedPublicReport(id: string, publicReport: TestReport): Promise<void> {
+async function writeManagedPublicReport(
+  id: string,
+  publicReport: TestReport,
+  writtenAt = "2026-07-12T00:00:00.000Z"
+): Promise<void> {
   await writeFile(path.join(reportsDir, `${id}.json`), `${JSON.stringify(publicReport)}\n`);
   const createdAt =
     publicReport.schemaVersion === 1
@@ -105,7 +113,7 @@ async function writeManagedPublicReport(id: string, publicReport: TestReport): P
   const sidecar = buildProvenanceEntry({
     reportId: id,
     publicReport,
-    writtenAt: "2026-07-12T00:00:00.000Z",
+    writtenAt,
     createdAt,
     expiresAt: null
   });
@@ -671,4 +679,184 @@ test("the prune reads the census pin file the calibration-censoring analyzer bin
   );
   assert.deepEqual(DECIDED_PACKAGE_INPUT_FILES, [census.CENSUS_INPUTS_RELATIVE_PATH]);
   assert.equal(census.CENSUS_INPUTS_RELATIVE_PATH, CENSUS_PIN_FILE.split(path.sep).join("/"));
+});
+
+// Retention keeps every corpus cohort's eligible sites against age pruning.
+// The published aggregate rolls up each cohort's newest eligible report per
+// site and hands a new measurement line the aggregate only once that line
+// retains the incumbent's sites, so a report retention does not know the
+// aggregate needs can move what the homepage publishes with no site behaving
+// differently.
+const OCT19_SHIELDS_ID = "20261019-c35def81f59a9c087376db846202b22a";
+const AUG24_SHIELDS_ID = "20260824-662c9f2fe6a2a45af8356a647ab41042";
+// Synthetic: no report has this id. The newer-line rescan is built in memory
+// from the frozen Oct 19 copy and never committed.
+const NEWER_LINE_SYNTHETIC_ID = "20261118-00000000000000000000000000000001";
+
+/**
+ * A report in the off-line cohort a disclosure with no methodology token
+ * joins. The public boundary admits only a disclosure that matches its
+ * producer's template, so this is the way a fixture leaves the current line.
+ */
+function offLine(report: ScanResult, gpcEnabled = false): ScanResult {
+  COHORT_MISMATCHES[0].mutate(report);
+  report.conditions.gpcEnabled = gpcEnabled;
+  return report;
+}
+
+async function copyFrozenBundle(id: string): Promise<void> {
+  for (const name of [`${id}.json`, `${id}.provenance.json`]) {
+    await copyFile(path.join(process.cwd(), "test-fixtures", "reports", name), path.join(reportsDir, name));
+  }
+}
+
+async function cohortStats(): Promise<{ id: string; methodologyVersion: string; sampleSize: number; latestRunAt: string | null }[]> {
+  const { stats } = await buildCorpusStats(reportsDir);
+  return stats.cohorts.map(({ id, methodologyVersion, sampleSize, latestRunAt }) => ({ id, methodologyVersion, sampleSize, latestRunAt }));
+}
+
+test("a rescan on a new measurement line does not age out the previous line's report for the site", async () => {
+  // The 2026-11-18 shape: craigslist.org's Oct 19 Shields comparison (the
+  // 1.63.0 line, published, frozen byte for byte), its corrections-pinned
+  // Aug 24 predecessor, and a rescan on the current line. A v1 Shields
+  // comparison carries no pairing key, so retention protected only the
+  // newest report per site and kind, and the rescan cost the Oct 19 cohort
+  // the site.
+  await copyFrozenBundle(OCT19_SHIELDS_ID);
+  await copyFrozenBundle(AUG24_SHIELDS_ID);
+  const oct19 = JSON.parse(frozenReportWire(OCT19_SHIELDS_ID)) as Extract<ScanReport, { reportType: "comparison" }>;
+  const oct19Line = corpusCohortIdentityForView(frozenReportView(OCT19_SHIELDS_ID)).methodologyVersion;
+  const rescan = structuredClone(oct19);
+  const shift = Date.parse("2026-11-18T17:45:00.000Z") - Date.parse(oct19.scannedAt);
+  const shifted = (iso: string) => new Date(Date.parse(iso) + shift).toISOString();
+  const playwright = (line: string) => /-playwright-(\d+\.\d+\.\d+)/.exec(line)?.[1] ?? "";
+  rescan.scannedAt = shifted(oct19.scannedAt);
+  for (const arm of [rescan.baseline, rescan.variant]) {
+    arm.conditions.scannedAt = shifted(arm.conditions.scannedAt);
+    arm.conditions.scannerDisclosure = (arm.conditions.scannerDisclosure ?? "")
+      .replace(oct19Line, CURRENT_MEASUREMENT_LINE_METHODOLOGY)
+      .replace(`using Playwright ${playwright(oct19Line)} `, `using Playwright ${playwright(CURRENT_MEASUREMENT_LINE_METHODOLOGY)} `);
+  }
+  rescan.share = {
+    id: NEWER_LINE_SYNTHETIC_ID,
+    path: `/reports/${NEWER_LINE_SYNTHETIC_ID}/`,
+    jsonPath: `/reports/${NEWER_LINE_SYNTHETIC_ID}.json`
+  };
+  await writeManagedPublicReport(NEWER_LINE_SYNTHETIC_ID, redactScanReportV1(rescan).report, "2026-11-18T18:00:00.000Z");
+  const ledgerPath = path.join(ledgerDir, "aug24-pinned.json");
+  await writeFile(ledgerPath, `${JSON.stringify({
+    $schema: "https://sitebehavior.org/corrections.schema.json",
+    schemaVersion: 1,
+    policy: "https://sitebehavior.org/corrections/",
+    entries: [{
+      eventId: "SBL-CORR-2026-001",
+      publishedAt: "2026-08-25T00:00:00.000Z",
+      state: "active",
+      reportIds: [AUG24_SHIELDS_ID],
+      summary: "A fixture clarification that pins the Aug 24 report, as the published ledger does.",
+      detailsUrl: "https://example.test/corrections/1"
+    }]
+  })}\n`);
+
+  const before = await cohortStats();
+  // Fixture invariants: three cohorts, one site each, the rescan on the
+  // current line and the Oct 19 report on the line before it.
+  assert.equal(before.length, 3);
+  assert.deepEqual(before.map((cohort) => cohort.sampleSize), [1, 1, 1]);
+  assert.ok(before.some((cohort) => cohort.methodologyVersion === CURRENT_MEASUREMENT_LINE_METHODOLOGY));
+  assert.ok(before.some((cohort) => cohort.methodologyVersion === oct19Line));
+  assert.notEqual(oct19Line, CURRENT_MEASUREMENT_LINE_METHODOLOGY);
+
+  const { removed, warnings } = await pruneStaticReportsWithCorrections(reportsDir, ledgerPath, {
+    maxAgeMs: 7 * DAY_MS,
+    maxCount: 1_000,
+    keepPerSite: 2,
+    now: Date.parse("2026-11-18T19:00:00.000Z")
+  });
+
+  assert.deepEqual(warnings, []);
+  assert.deepEqual(removed, []);
+  await access(path.join(reportsDir, `${OCT19_SHIELDS_ID}.json`));
+  assert.deepEqual(await cohortStats(), before);
+});
+
+test("age pruning never shrinks a cohort's eligible sites, while it still removes what no cohort needs", async () => {
+  // Shields comparisons that landed on a path redaction generalizes, so they
+  // carry no pairing key, as the six Oct 19 reports did: each site has a
+  // stale report in one cohort, a staler one in the same cohort, and a fresh
+  // one in another (the requested GPC condition is part of the cohort key).
+  const sites = ["one-site.dev", "two-site.dev", "three-site.dev"];
+  const write = async (id: string, domain: string, scannedAt: string, gpcEnabled: boolean) => {
+    const arm = (shieldsMode: "classification" | "block-simulation", at: string) => {
+      const run = makeResult(domain, at);
+      run.conditions.gpcEnabled = gpcEnabled;
+      run.conditions.shieldsMode = shieldsMode;
+      run.conditions.finalUrl = `https://${domain}/patient/alice`;
+      run.conditions.scannerDisclosure = scannerDisclosure("node-playwright", {
+        chromiumVersion: run.conditions.chromiumVersion,
+        locale: run.conditions.locale,
+        scannerEgress: run.conditions.scannerEgress,
+        shieldsMode,
+        timezone: run.conditions.timezone
+      });
+      return run;
+    };
+    const variantAt = new Date(Date.parse(scannedAt) + 60_000).toISOString();
+    await writeReport(id, createShieldsComparisonReport(arm("classification", scannedAt), arm("block-simulation", variantAt)));
+  };
+  const stalest = sites.map((_, index) => `20260101-${String(index + 1).repeat(32)}`);
+  const olderLine = sites.map((_, index) => `20260201-${String(index + 4).repeat(32)}`);
+  const currentLine = sites.map((_, index) => `20260701-${String(index + 7).repeat(32)}`);
+  for (const [index, domain] of sites.entries()) {
+    await write(stalest[index], domain, "2026-01-01T00:00:00.000Z", true);
+    await write(olderLine[index], domain, "2026-02-01T00:00:00.000Z", true);
+    await write(currentLine[index], domain, "2026-07-01T00:00:00.000Z", false);
+  }
+  const before = await cohortStats();
+  assert.deepEqual(before.map((cohort) => cohort.sampleSize), [3, 3], "fixture invariant: two cohorts of three sites");
+
+  const { removed } = await pruneStaticReportsWithCorrections(reportsDir, emptyLedgerPath, {
+    maxAgeMs: 7 * DAY_MS,
+    maxCount: 1_000,
+    keepPerSite: 2,
+    now: Date.parse("2026-07-10T00:00:00.000Z")
+  });
+
+  assert.deepEqual(removed.map((file) => path.basename(file, ".json")), stalest);
+  assert.deepEqual(await cohortStats(), before);
+});
+
+test("the count cap trims the aggregate selection's representatives last, and names a site a cohort loses", async () => {
+  // Two off-line cohorts that differ only in the requested GPC condition.
+  // The one without GPC has the newest evidence and is the aggregate's; its
+  // oldest site is the oldest report in the corpus, so plain oldest-first
+  // trimming would take that site from the published aggregate.
+  const write = async (id: string, domain: string, scannedAt: string, gpcEnabled: boolean) =>
+    writeReport(id, offLine(makeResult(domain, scannedAt), gpcEnabled));
+  const aggregateOldest = "20260701-dddddddddddddddddddddddddddddddd";
+  const otherOldest = "20260705-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  await write(aggregateOldest, "d-site.dev", "2026-07-01T00:00:00.000Z", false);
+  await write(otherOldest, "a-site.dev", "2026-07-05T00:00:00.000Z", true);
+  await write("20260706-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "b-site.dev", "2026-07-06T00:00:00.000Z", true);
+  await write("20260709-cccccccccccccccccccccccccccccccc", "c-site.dev", "2026-07-09T00:00:00.000Z", false);
+  const { stats } = await buildCorpusStats(reportsDir);
+  assert.equal(stats.cohorts.length, 2, "fixture invariant: two cohorts");
+  const aggregateCohort = stats.cohorts.find((cohort) => !cohort.gpc);
+  const otherCohort = stats.cohorts.find((cohort) => cohort.gpc);
+  assert.ok(aggregateCohort && otherCohort);
+  assert.deepEqual([aggregateCohort.sampleSize, otherCohort.sampleSize], [2, 2]);
+  assert.equal(stats.primaryCohortId, aggregateCohort.id, "fixture invariant: the newer cohort is the aggregate's");
+
+  const { removed, warnings } = await pruneStaticReportsWithCorrections(reportsDir, emptyLedgerPath, {
+    maxAgeMs: 365 * DAY_MS,
+    maxCount: 3,
+    keepPerSite: 2,
+    now: Date.parse("2026-07-10T00:00:00.000Z")
+  });
+
+  assert.deepEqual(removed, [path.join(reportsDir, `${otherOldest}.json`)]);
+  await access(path.join(reportsDir, `${aggregateOldest}.json`));
+  assert.deepEqual(warnings, [
+    `The count cap removed the last eligible report (${otherOldest}) for site a-site.dev in corpus cohort ${otherCohort.id}.`
+  ]);
 });

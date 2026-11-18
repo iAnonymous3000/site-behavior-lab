@@ -18,7 +18,8 @@ const DEFAULT_MAX_COUNT = 1_000;
 // The newest reports per exact site/kind/subject/versioned cohort stay exempt
 // from AGE pruning so "changed since last scan" keeps compatible history.
 // Unknown identities only keep the newest broad site/kind disappearance
-// guard. Set to 0 to restore pure age-based pruning.
+// guard, and each corpus cohort keeps the report it measures each site by.
+// Set to 0 to restore pure age-based pruning.
 const DEFAULT_KEEP_PER_SITE = 2;
 
 async function main(): Promise<void> {

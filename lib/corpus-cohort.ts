@@ -313,19 +313,49 @@ export function selectPrimaryCorpusCohort<Identity extends CorpusCohortIdentity>
   minSiteCount: number,
   lines: readonly string[] = REVIEWED_MEASUREMENT_LINES
 ): CorpusCohortCandidate<Identity> | null {
-  if (candidates.length === 0) return null;
+  return corpusCohortSelection(candidates, minSiteCount, lines).selected;
+}
+
+/**
+ * The cohorts {@link selectPrimaryCorpusCohort} consults, not only the one it
+ * picks: every cohort that was the running incumbent at some step of the
+ * line history (the off-line pick, and each line's taker), and every cohort
+ * of the current line in the pool. Removing a site from any of them can move
+ * the selection (an incumbent's population is what a handoff must retain),
+ * so retention trims their representatives last
+ * (lib/prune-static-reports.ts). Derived from the same pass that selects, so
+ * the two cannot disagree.
+ */
+export function corpusCohortsTheSelectionUses<Identity extends CorpusCohortIdentity>(
+  candidates: readonly CorpusCohortCandidate<Identity>[],
+  minSiteCount: number,
+  lines: readonly string[] = REVIEWED_MEASUREMENT_LINES
+): CorpusCohortCandidate<Identity>[] {
+  return corpusCohortSelection(candidates, minSiteCount, lines).consulted;
+}
+
+function corpusCohortSelection<Identity extends CorpusCohortIdentity>(
+  candidates: readonly CorpusCohortCandidate<Identity>[],
+  minSiteCount: number,
+  lines: readonly string[]
+): { selected: CorpusCohortCandidate<Identity> | null; consulted: CorpusCohortCandidate<Identity>[] } {
+  if (candidates.length === 0) return { selected: null, consulted: [] };
   const legacy = candidates.filter((candidate) => candidate.identity.schemaVersion === 1);
   const generation = legacy.length > 0 ? legacy : candidates;
   const usable = generation.filter((candidate) => candidate.siteCount >= minSiteCount);
   const pool = usable.length > 0 ? usable : generation;
+  const consulted = new Set<CorpusCohortCandidate<Identity>>();
   let incumbent = pickByCompositionAndRecency(
     pool.filter((candidate) => measurementLineIndex(candidate.identity, lines) === -1)
   );
+  if (incumbent) consulted.add(incumbent);
   for (let line = 0; line < lines.length; line += 1) {
     const onLine = pool.filter((candidate) => measurementLineIndex(candidate.identity, lines) === line);
+    if (line === lines.length - 1) for (const candidate of onLine) consulted.add(candidate);
     incumbent = handOffToLine(onLine, incumbent);
+    if (incumbent) consulted.add(incumbent);
   }
-  return incumbent;
+  return { selected: incumbent, consulted: [...consulted] };
 }
 
 /**
