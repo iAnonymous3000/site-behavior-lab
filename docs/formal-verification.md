@@ -1314,6 +1314,11 @@ report facts, and RC-A holds the activity slice with them in it.
 - **Tests:**
   - `lib/fv-report-consistency.test.ts`: "RC: no rule fires on any pair whose two visits carry each typing disclosure, over each design"
   - `lib/fv-report-consistency.test.ts`: "RC: no rule fires on a visit whose counted rows were recorded in page load, partly or wholly during the typing probe"
+- **Variants:**
+  - `lib/fv-report-consistency.test.ts`: "RC catches a variant: the services card leaves out the shown visit's phase note"
+  - `lib/fv-report-consistency.test.ts`: "RC catches a variant: a subhead that states the visit's cross-site counts leaves out its phase note"
+  - `lib/fv-report-consistency.test.ts`: "RC catches a variant: a comparison whose visits did different things leaves its caveat out of the subhead"
+  - `lib/fv-report-consistency.test.ts`: "RC catches a variant: a comparison carries a different-actions caveat whatever its visits recorded"
 - **Commit:** a8ac2e4558a79e356800e85d374eed082a1c19d9
 
 ### RC-A. The activity slice, with the classes the walk first found
