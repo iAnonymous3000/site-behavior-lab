@@ -106,8 +106,7 @@ shasum -a 256 <id>.json
    receipt is archived permanently under `docs/release-receipts/<version>/`):
 
 ```bash
-gh run list --repo iAnonymous3000/site-behavior-lab --branch main --workflow CI \
-  --json databaseId,headSha --jq '.[] | select(.headSha=="<sha>") | .databaseId'
+gh api "repos/iAnonymous3000/site-behavior-lab/actions/workflows/ci.yml/runs?head_sha=<sha>&branch=main" --jq '.workflow_runs[].id'
 gh run download <run-id> --repo iAnonymous3000/site-behavior-lab \
   --name exact-sha-static-evidence-<sha>
 ```
