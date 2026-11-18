@@ -1736,6 +1736,47 @@ test("the 2026-12 record quotes each round's command and the one FAIL line it pr
   ]) assert.ok(record.includes(sentence), `docs/toolchain-epoch-2026-12.md must state: ${sentence}`);
 });
 
+test("the 2027-01 record quotes each round's command and the lines it prints, names both builds and each receipt's sha256, records round 1 as INCONCLUSIVE and round 2 as FAIL under the owner's exception, and quotes no other result line", () => {
+  const record = readFileSync(path.join(process.cwd(), "docs", "toolchain-epoch-2027-01.md"), "utf8");
+  const command = ([baselineFile, candidateFile]: readonly [string, string]) =>
+    `npm run toolchain:canary -- compare \\\n  --baseline docs/${baselineFile} \\\n  --candidate docs/${candidateFile}\n`;
+  const round1Lines = [...ROUND_1_2027_01_STDOUT, ...ROUND_1_2027_01_METRICS, inconclusiveResult(BUILDS_2027_01, ROUND_1_2027_01_SHARE, ROUND_1_2027_01_NAMED)];
+  const round2Lines = [`FAIL ${ROUND_2_2027_01_REFUSAL}`];
+  assert.ok(record.includes("### Round 1: INCONCLUSIVE\n"));
+  assert.ok(record.includes("### Round 2: FAIL\n"));
+  assert.ok(record.includes(command(ROUND_1_2027_01)));
+  assert.ok(record.includes(command(ROUND_2_2027_01)));
+  // Each round's lines as one block, in the order its console log printed them.
+  assert.ok(record.includes(`\`\`\`text\n${round1Lines.join("\n")}\n\`\`\`\n`));
+  assert.ok(record.includes(`\`\`\`text\n${round2Lines.join("\n")}\n\`\`\`\n`));
+  for (const file of RECEIPTS_2027_01) {
+    assert.ok(record.includes(`\`${path.basename(file)}\``), file);
+    assert.ok(record.includes(`\`${RECEIPT_SHA256_2027_01[file]}\``), file);
+  }
+  assert.ok(record.includes(`\`${BASELINE_2027_01}\``));
+  assert.ok(record.includes(`\`${CANDIDATE_2027_01}\``));
+  assert.ok(record.includes(PANEL_V2_DIGEST));
+  // The only lines of a comparison the record quotes are those two blocks:
+  // nothing from a replay and no result of any other kind.
+  const quoted = record.split("\n").filter((line) => /^(?:REPLAY )?(?:PASS|FAIL|INCONCLUSIVE|RULE|NOTED|LEFT OUT)\b/.test(line));
+  assert.deepEqual(quoted, [...round1Lines, ...round2Lines]);
+  assert.doesNotMatch(record, /\bPASS\b/);
+  // The decision in the owner's words, what it does not establish, and the
+  // two facts of the tldts exception the record must not soften.
+  for (const sentence of [
+    "Round 1 stays INCONCLUSIVE and round 2 stays FAIL.",
+    '"Confirm: release the browser update under a recorded exception from 09:00 UTC today?"',
+    '"Yes, release it"',
+    "The A/B did not pass.",
+    "By the playbook the epoch is not complete.",
+    "It is not established that the two browsers measure alike.",
+    "The exception says nothing about any commit after the staged candidate.",
+    "The exception says nothing about the image main CI builds.",
+    "That rule was NOT read back for this epoch.",
+    "after that acceptance; they describe the same shapes and widen nothing."
+  ]) assert.ok(record.includes(sentence), `docs/toolchain-epoch-2027-01.md must state: ${sentence}`);
+});
+
 test("the committed panel directory refuses an empty set, a file that is no panel, a misnamed file and a repeated version", async () => {
   const h = await helpers;
   const v1 = { name: "monthly-toolchain-canary-v1.json", text: JSON.stringify(panel) };

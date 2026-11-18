@@ -4286,6 +4286,48 @@ as intended.
   bisect, a manual teardown) and what was built and run after the entries
   above were written.
 
+### Toolchain epoch 2027-01
+
+- Toolchain epoch 2027-01 moves Playwright from 1.65.0 to 1.65.1 (published
+  2026-11-13), with its bundled Chromium 158.0.8127.18 to 159.0.8154.6, to
+  keep the scan browser within the 70 days in which Chromium applies its
+  built-in HSTS preload list (now until about 2027-01-20 21:11 UTC). It also
+  moves tldts and tldts-core from 7.4.16 to 7.5.4 (published 2026-11-15) and
+  the container base from v1.65.0-noble to v1.65.1-noble (index
+  `1507cbfc`), whose Node is 26.13.1 where it was 26.13.0; npm stays 11.20.0.
+  The image's two package steps read Ubuntu's snapshot of 2026-11-16. The
+  base already ships the fixed apt the runner stage pins, so that upgrade now
+  changes nothing; the pin and its check stay. adblock-rust 0.13.5 and the
+  November 16 Brave lists stay.
+- Recorded identities, old to new: the base Node methodology, which is also
+  the v1 methodology token and the corpus cohort key, moves its Playwright
+  component from `playwright-1.65.0` to `playwright-1.65.1`, and the r2
+  methodology carries the same move. Both r2 normalizations, Node and
+  PageGraph, move from `tldts@7.4.16` to `tldts@7.5.4` under the unchanged
+  public-string-policy-v4 digest `3a2328d7`. The two v34 producer rows close
+  to frozen literals and two v35 rows open, with one PageGraph row frozen and
+  one opened; every earlier row is byte for byte unchanged. tldts 7.5.4
+  removes admitted strings (hosts at its new exact rules and wildcards, under
+  the TLDs it drops and under its removed private rules), so the outgoing
+  normalizations are superseded as a recorded owner exception: a stored
+  report holding such a host, or a stored domain in such a zone, fails
+  closed on read, and no committed report holds one. The rule that bounds
+  the live store was not read back for this epoch.
+- The epoch's record is
+  [docs/toolchain-epoch-2027-01.md](docs/toolchain-epoch-2027-01.md), with
+  the four staging receipts beside it. The A/B did not pass. Round 1 of
+  2026-11-17 is recorded INCONCLUSIVE: no compared median failed, and three
+  guardian metrics (known-tracker requests, third-party domains and
+  Shields-blocked requests) varied within the candidate build by more than
+  their tolerance, from one high run. Round 2 is recorded FAIL on capture
+  loss: guardian's consent-banner probe was dropped on 0 of 3 baseline runs
+  and 2 of 3 candidate runs; across both rounds the same failure is on 2 of
+  6 runs of the production browser and 3 of 6 of the new one. On 2026-11-18
+  the owner decided to release the epoch under a recorded exception. The
+  record says what that exception does not establish: that the two browsers
+  measure alike, anything about a commit after the staged candidate, and
+  anything about the image main CI builds.
+
 ## [0.6.0] - 2026-09-06
 
 Declared on 2026-09-06 (the date above) and tagged `v0.6.0` on 2026-09-24 at

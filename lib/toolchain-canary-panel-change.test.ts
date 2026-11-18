@@ -1782,8 +1782,8 @@ test("the playbook states the panel change as the code holds it: the rule, the o
 // 2. This holds every dated record to the same rule whatever the current
 // panel is: a record whose receipts are on an earlier panel says so, and a
 // record whose receipts are on the current panel quotes commands that run as
-// written. The next panel change fails here until the 2026-12 record has its
-// addendum.
+// written. The next panel change fails here until the 2026-12 and 2027-01
+// records have their addenda.
 test("a dated epoch record says its compare commands need replay exactly when its receipts are on a panel that is not the current one, and names every receipt committed beside it", () => {
   const docs = path.join(root, "docs");
   const records = readdirSync(docs).filter((name) => /^toolchain-epoch-20[0-9]{2}-[0-9]{2}\.md$/.test(name)).sort();
@@ -1806,7 +1806,8 @@ test("a dated epoch record says its compare commands need replay exactly when it
     "toolchain-epoch-2026-09.md 2 monthly-toolchain-canary-v1",
     "toolchain-epoch-2026-10.md 4 monthly-toolchain-canary-v1",
     "toolchain-epoch-2026-11.md 4 monthly-toolchain-canary-v1",
-    "toolchain-epoch-2026-12.md 4 monthly-toolchain-canary-v2"
+    "toolchain-epoch-2026-12.md 4 monthly-toolchain-canary-v2",
+    "toolchain-epoch-2027-01.md 4 monthly-toolchain-canary-v2"
   ]);
 });
 
