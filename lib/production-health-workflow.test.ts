@@ -626,6 +626,7 @@ test("production health defers to a production revision that advanced during its
     { name: "the pin and the advance past the pin's budget", scanner: "A", pages: "B", age: 60, bKnown: true, production: "B", expected: advanced },
     { name: "both serve the advance past the pin's budget", scanner: "B", pages: "B", age: 60, bKnown: true, production: "B", expected: advanced },
     { name: "the advance reached after an unreadable first poll, past the budget", scanner: "-,B", pages: "A,B", age: 60, bKnown: true, production: "B", expected: advanced },
+    { name: "Pages older than the pin while production advanced, past the budget", scanner: "B", pages: "Z", age: 60, bKnown: true, production: "B", expected: stale },
     { name: "Pages on the pin's child that production never held, past the budget", scanner: "A", pages: "G", age: 60, bKnown: true, production: "B", expected: stale },
     { name: "the scanner on the pin's child that production never held, past the budget", scanner: "G", pages: "B", age: 60, bKnown: true, production: "B", expected: stale },
     { name: "production force-moved onto a fork", scanner: "Z", pages: "F", age: 3, production: "F", expected: stale }
