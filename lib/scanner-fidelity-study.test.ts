@@ -419,10 +419,12 @@ test("the censoring tally counts reports, in the unit of answeredRuns, from the 
         reason: "fixture invariant",
         censoredFamilies: ["requests"]
       }),
+      // A refused target can carry no report, but its families must not
+      // count even if a writer put some there.
       targetAttempt(4, {
         outcome: "scan-failure",
         reason: "the target refused",
-        censoredFamilies: [],
+        censoredFamilies: ["requests"],
         observation: null
       }),
       targetAttempt(5, {
@@ -441,6 +443,13 @@ test("the censoring tally counts reports, in the unit of answeredRuns, from the 
     ["requests", 2]
   ], "a family censored in both arms of one report counts once");
   assert.equal(ledger.answeredRuns, 3, "neither a refused target nor a scanner failure is an answered run");
+  assert.deepEqual(ledger.attempts[0].censoredFamilies, ["detector-output"], "the ledger stores a family once per report");
+  // The tally deduplicates on its own too, so a ledger written by another
+  // tool cannot double a report.
+  assert.deepEqual(
+    censoredFamilyTally({ attempts: [{ outcome: "pass", censoredFamilies: ["detector-output", "detector-output"] }] }),
+    [["detector-output", 1]]
+  );
   for (const [family, count] of tally) {
     assert.ok(count <= ledger.answeredRuns, `${family}: ${count} is more than ${ledger.answeredRuns} answered reports`);
   }
