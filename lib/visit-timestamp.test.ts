@@ -25,11 +25,15 @@ test("the result surface states a visit's start with the report pages' formatter
   // the shared module directly; the visit summary stays server only
   // (lib/report-visit-summary.test.ts holds that side).
   const trails = clientImportTrails("lib/visit-timestamp.ts");
-  for (const component of ["app/_components/report-header.tsx", "app/_components/comparison-panel.tsx"]) {
-    assert.ok(trails.includes(`${component} -> lib/visit-timestamp.ts`), `${component} does not import the shared formatter`);
+  // The record block heads the same surface (and its print dateline), so it is held to the same rule.
+  for (const component of ["app/_components/report-header.tsx", "app/_components/comparison-panel.tsx", "app/_design/record-block.tsx"]) {
+    const source = readFileSync(path.join(process.cwd(), component), "utf8");
+    // The record block is reached through the client renderer rather than being
+    // an entry of its own, so its import is read from its source.
+    if (component.startsWith("app/_design/")) assert.match(source, /from "@\/lib\/visit-timestamp"/, component);
+    else assert.ok(trails.includes(`${component} -> lib/visit-timestamp.ts`), `${component} does not import the shared formatter`);
     // Both print what an opened file holds, so neither may format a value the
     // canonical-instant rule has not passed.
-    const source = readFileSync(path.join(process.cwd(), component), "utf8");
     assert.match(source, /readableVisitStart\(/, component);
     assert.doesNotMatch(source, /formatReportTimestamp/, `${component} formats a file's start time unchecked`);
   }

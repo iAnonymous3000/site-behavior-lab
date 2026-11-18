@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { reportActivation } from "@/lib/report-trust";
 import { crossSiteLandingLines } from "@/lib/report-subject-landing";
-import { formatReportTimestamp } from "@/lib/visit-timestamp";
+import { readableVisitStart, unshownVisitStart } from "@/lib/visit-timestamp";
 import { displayRunView, runVisitLabel, type ReportView } from "@/lib/scan-report-views";
 import { SCHEMA_LABEL, schemaNotePlacement } from "@/lib/schema-note";
 import { siteNameStep } from "@/lib/site-name-size";
@@ -82,7 +82,8 @@ export function ReportRecord({
         </dd>
         {/* The row is named for the visit the timestamp belongs to, never the pair. */}
         <dt>{runVisitLabel(run)}</dt>
-        <dd><time dateTime={started ?? undefined}>{formatReportTimestamp(started)}</time></dd>
+        {/* An opened file can hold any string here; only an instant is formatted, as the header does. */}
+        <dd><time dateTime={started ?? undefined}>{readableVisitStart(started) ?? unshownVisitStart(started)}</time></dd>
         <dt>Requested address</dt>
         <dd>
           {/* A break opportunity after each "/" and ".", so an address too
@@ -192,7 +193,7 @@ export function RecordDateline({ view }: { view: ReportView }) {
     <p className="a-dateline">
       <span className="a-dateline-l">Site</span> <span className="a-mono">{displayHost(run.domain)}</span>
       <span className="a-dateline-l">{runVisitLabel(run)}</span>{" "}
-      <time dateTime={started ?? undefined}>{formatReportTimestamp(started)}</time>
+      <time dateTime={started ?? undefined}>{readableVisitStart(started) ?? unshownVisitStart(started)}</time>
     </p>
   );
 }
