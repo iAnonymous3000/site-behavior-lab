@@ -935,7 +935,11 @@ test("the count cap trims last the off-line incumbent a first-line takeover was 
     await write(id(site + 5), offLine(makeResult(`site-${site}.dev`, day(site + 5))));
   }
   // An unrelated cohort on the second line: it fails its own handoff, vetoes
-  // nothing and holds nothing, so the selection does not read it.
+  // nothing and holds nothing, so the selection does not read it. It is not
+  // an off-line cohort beside the incumbent: one differing only in the GPC
+  // condition would be vetoed by the broader incumbent, the incumbent would
+  // join the tier as a firing vetoer, and a tier that dropped the incumbent
+  // itself would pass unnoticed.
   const unrelated = id(3);
   await write(unrelated, onLine(makeResult("elsewhere.dev", day(3)), second));
   for (let site = 0; site < 9; site += 1) {
