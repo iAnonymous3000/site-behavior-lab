@@ -85,3 +85,14 @@ export function publicErrorBody(publicError: ReturnType<typeof toPublicError>): 
     ...(publicError.retryAfterSeconds === undefined ? {} : { retryAfterSeconds: publicError.retryAfterSeconds })
   };
 }
+
+/**
+ * The headers that go with that body. A refusal whose body carries a wait
+ * also sends it as Retry-After, from the same field, so the two cannot
+ * disagree. The browser's status poller honors only the header: without it a
+ * fixed-minute quota refusal left the poller three short backoffs that ended
+ * inside the same minute, and it gave up while the wait still ran.
+ */
+export function publicErrorHeaders(publicError: ReturnType<typeof toPublicError>): Record<string, string> {
+  return publicError.retryAfterSeconds === undefined ? {} : { "Retry-After": String(publicError.retryAfterSeconds) };
+}

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
-import { PublicFacingError, PublicScanError, publicErrorBody, toPublicError } from "./public-errors";
+import { PublicFacingError, PublicScanError, publicErrorBody, publicErrorHeaders, toPublicError } from "./public-errors";
 import { PublicUrlDnsUnavailableError } from "./url-safety";
 
 test("public-facing errors share one status-carrying base class", () => {
@@ -90,4 +90,14 @@ test("a quota refusal carries its wait as data, and every other body keeps its e
     JSON.stringify(publicErrorBody(toPublicError(new PublicScanError("m", 429, "request-limit", 30)))),
     '{"ok":false,"error":"m","cause":"request-limit","retryAfterSeconds":30}'
   );
+});
+
+test("a refusal that carries a wait also sends it as Retry-After, and no other body gains the header", () => {
+  const withWait = toPublicError(new PublicScanError("Too many report requests. Try again in about 37 seconds.", 429, undefined, 37));
+  assert.deepEqual(publicErrorHeaders(withWait), { "Retry-After": "37" });
+  assert.equal(publicErrorBody(withWait).retryAfterSeconds, 37, "the header and the body carry the same wait");
+
+  assert.deepEqual(publicErrorHeaders(toPublicError(new PublicScanError("Refused.", 429))), {});
+  assert.deepEqual(publicErrorHeaders(toPublicError(new PublicScanError("Refused.", 429, undefined, 0))), {}, "no wait of 0");
+  assert.deepEqual(publicErrorHeaders(toPublicError(new Error("unexpected"))), {});
 });
