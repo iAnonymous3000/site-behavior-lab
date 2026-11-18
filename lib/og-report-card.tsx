@@ -7,6 +7,7 @@ import {
   type ReportHeadlineStat
 } from "./report-headline";
 import type { ReportView } from "./scan-report-views";
+import { OG_REPORT_SUBHEAD_MAX_CHARACTERS } from "./og-card-bound";
 import { CARD_TEXT_WIDTH, OG_REPORT_CARD_FOOT, OG_REPORT_CARD_PADDING, OG_REPORT_CARD_SIDE, OG_REPORT_CARD_TOP, cardFont, lineCount, sentenceSize } from "./og-card-layout";
 
 /**
@@ -19,7 +20,7 @@ import { CARD_TEXT_WIDTH, OG_REPORT_CARD_FOOT, OG_REPORT_CARD_PADDING, OG_REPORT
 
 export const OG_SIZE = { width: 1200, height: 630 } as const;
 export const OG_CONTENT_TYPE = "image/png";
-export const OG_REPORT_SUBHEAD_MAX_CHARACTERS = 300;
+export { OG_REPORT_SUBHEAD_MAX_CHARACTERS };
 /** The bands the card keeps free of text, defined beside its text width (lib/og-card-layout.ts). */
 export { OG_REPORT_CARD_PADDING };
 
