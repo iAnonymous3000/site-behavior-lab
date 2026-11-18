@@ -431,3 +431,15 @@ test("the printed report's visit heading joins its label with a colon, never a l
   assert.match(renderer, /<h2>\{arm \? armDisplayLabel\(reportView, arm\) : "Recorded visit"\}: evidence<\/h2>/);
   assert.doesNotMatch(renderer, /[\u2013\u2014] evidence</);
 });
+
+test("the status page scopes its exclusion rule to request evidence, and the export never calls snapshots lower bounds", () => {
+  const status = source("app/status/status-evidence.tsx");
+  assert.match(
+    status,
+    /A site whose request evidence was cut short, by the request cap or a censored request family, is counted as covered and never as measured\. A site with other censored evidence still counts toward request metrics\. Coverage also includes visits in other cohorts\./
+  );
+  assert.doesNotMatch(status, /whose evidence was cut short, by a request cap or a censored family/);
+  const exportNote = source("lib/corpus-export.ts");
+  assert.match(exportNote, /Request and event counts are lower bounds; cookie and storage figures are end-of-visit snapshots, which an incomplete visit can leave higher or lower, so they are not lower bounds\./);
+  assert.doesNotMatch(exportNote, /consent comparisons\) and are lower bounds\./);
+});
