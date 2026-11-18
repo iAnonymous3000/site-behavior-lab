@@ -26,7 +26,8 @@
 // fails as a block; later ones (24.22.1 and 26.13.0) exit 1 on one. All exit
 // 0 on a test marked expectFailure whose body throws and on a todo block
 // with no test in it. The events show all three, and a run with any of them
-// is refused here by name, whatever the lane said.
+// is refused here by name, whatever the lane said. The image's Node is
+// 26.13.1 from its v1.65.1-noble base; its exit on such a block was not read.
 //
 // Why a run of its own, and not a stage of test:unit. These suites already run
 // in test:unit, which is what gates a change. Running them a second time there

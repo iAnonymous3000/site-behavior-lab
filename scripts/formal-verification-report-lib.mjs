@@ -361,6 +361,8 @@ export function formalVerificationReportTotals(report) {
 // give the exit status, the counts and the failing lines 24.22.1 gives. So
 // the reading holds on all three versions for every fixture that file has.
 // The events were not compared field by field beyond what its tests read.
+// The v1.65.1-noble base moves the image to Node 26.13.1, where that file
+// passed whole too (52 tests, linux/arm64 only, 2026-11-17).
 //
 // A later Node may differ again. When the pinned version moves, run
 // scripts/formal-verification-report.test.mjs on it before trusting a

@@ -587,7 +587,8 @@ test("a passing run is written whole for the exact commit: node's counts, each t
 //
 // 26.13.0, the image's Node from the v1.65.0-noble base, does in both what 24.22.1 does (the
 // same exit status, counts and failing lines for these two fixtures, 2026-11-10), and this file
-// passes whole on it.
+// passes whole on it. From the v1.65.1-noble base the image's Node is 26.13.1, and this file
+// passes whole on it too (linux/arm64, 2026-11-17).
 //
 // On every Node the run is refused and no report is written. On the pinned Node the reasons
 // are these exactly. On any other, each row says what must still hold of them: for the first,

@@ -538,6 +538,25 @@ public API or a 1.0 release.
 
 ### Changed
 
+- The privacy-policy cross-check reads a direct PDF policy with pdf.js
+  6.5.438 and fetches it with undici 8.12.4, where it used 6.3.289 and
+  8.12.3, so it moves to `policy-text-cross-check@14` and the registry to
+  `node-detectors-v27`, recomputed from the kernel. pdf.js 6.5.438 moves its
+  optional native dependency `@napi-rs/canvas` from 1.0.6 to 1.1.1, which the
+  runtime image loads in the policy PDF worker. No other detector moves, and
+  no methodology, normalization, obligation, public string, catalog, list or
+  engine. The two live v33 rows close to frozen literals and two v34 rows
+  open; every earlier producer row is byte for byte unchanged. A temporal
+  comparison across the move refuses detector findings.
+- Three routine dependencies move: lucide-react 1.71.0 to 1.73.0,
+  `@cloudflare/workers-types` 5.20261110.1 to 5.20261113.1 and Wrangler
+  4.159.0 to 4.162.0 (with its nested miniflare 5.20261113.0-beta and workerd
+  1.20261113.1); the last two are each the newest release at least 72 hours
+  old. The go-live
+  runbook names the new Wrangler, and the options of every Wrangler command
+  the scripts call are unchanged. The same landing anchors the current
+  transparency-log head. The packages a report's identity names do not move,
+  and nothing a scan records changes.
 - Hosted CI runs the unit suite as six legs on separate machines, and once
   more on the image's Node in six legs from one exact source image, built
   once. The release image is built from that source image, named by its
@@ -3540,6 +3559,19 @@ public API or a 1.0 release.
 
 ### Brave Shields lists
 
+- The Shields simulation uses the Brave default filter lists fetched
+  2026-11-16 (31 lists, manifest `b7bf174e`), adopted from the weekly refresh
+  proposal as a fresh commit on main, so the status page's snapshot is
+  current again. The October 19 snapshot stays readable as a closed producer
+  identity: the node-detectors-v26 list row is closed to its exact literals
+  as `node-v33-detectors-v26-active-lists-2026-10-19`, byte for byte what
+  `3f78df9d` produced, and the new active list row is
+  `node-v33-detectors-v26-active-lists-2026-11-16`. The no-list row, the
+  methodology, the normalization, the detectors and the engine do not move,
+  corpus cohorts do not key on the lists, and reports production wrote with
+  the October 19 lists read as before. The adoption count found no
+  committed report under the outgoing list identity (0 of 63 r2 reports;
+  0 of 966 v1 reports, a floor, since v1 records no manifest).
 - The Shields simulation uses the Brave default filter lists fetched
   2026-10-19 (31 lists, manifest `25bef053`), adopted from the weekly refresh
   proposal, so the status page's snapshot stays current past October 26. The

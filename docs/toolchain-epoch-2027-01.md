@@ -220,6 +220,10 @@ Read back after it, and again in a read-only inventory:
 
 Not done when this record was committed: the bucket step. The staging bucket is not emptied or deleted, and this record does not claim it. It is to be added here when it is done.
 
+## The investigation runner's lag
+
+The investigation runner does not move with this epoch. It stays at Playwright 1.65.0: its S5c fixture image installs the packages of its own steps lock (`investigation/runner/s5/steps/package-lock-1.65.0.json`: playwright and playwright-core 1.65.0, tldts and tldts-core 7.4.16, undici 8.12.3), and its steps guard (`investigation/runner/s5/steps/check-and-transpile.cjs`) refuses to build that image while the commit's `package-lock.json` holds another version, resolved URL or integrity for any of those packages. The repository lock has differed in undici since `6d9ec912` (8.12.4), and with this epoch it also differs in Playwright (1.65.1) and tldts (7.5.4). So the S5c fixture image does not build at the commit to be released until the runner's steps move; S5f is the step that moves them.
+
 ## Publication
 
 To be filled after the live readback.
