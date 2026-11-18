@@ -26,11 +26,7 @@ import {
   SCANNER_EGRESS_READER_PHRASES,
   SCRIPTED_CHOICE_CLAUSES,
   TYPED_FIELDS_DISCLOSURE,
-  TYPING_REQUESTS_INCLUDED_ENDINGS,
-  TYPING_REQUESTS_OMITTED_ENDING,
   VISIT_CHECK_LABELS,
-  typingProbeRecord,
-  type TypingProbeRecord,
   buildReportVisitSummary,
   visitLimitText,
   type ReportVisitSummary
@@ -501,28 +497,6 @@ test("the clauses the summary restates are the scanner's admitted words", () => 
     "Read the site's privacy policy (https://example.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     POLICY_READ_DISCLOSURE
   );
-});
-
-test("a typing disclosure's ending says whether the probe's requests are in the log, for every form the sanitizer admits", () => {
-  const omitted = (fields: number) =>
-    `${typingDisclosure(fields).split(" Observed requests during typing")[0]} ${TYPING_REQUESTS_OMITTED_ENDING}`;
-  const legacyOmitted = (fields: number) => `${legacyTypingDisclosure(fields)} ${TYPING_REQUESTS_OMITTED_ENDING}`;
-  const legacyIncluded = (fields: number) => `${legacyTypingDisclosure(fields)} ${TYPING_REQUESTS_INCLUDED_ENDINGS[1]}`;
-  const cases: Array<[string, TypingProbeRecord]> = [
-    [typingDisclosure(1), { fields: 1, requests: "included" }],
-    [typingDisclosure(4), { fields: 4, requests: "included" }],
-    [legacyIncluded(2), { fields: 2, requests: "included" }],
-    [omitted(3), { fields: 3, requests: "omitted" }],
-    [legacyOmitted(1), { fields: 1, requests: "omitted" }],
-    [legacyTypingDisclosure(2), { fields: 2, requests: "unstated" }]
-  ];
-  for (const [disclosure, expected] of cases) {
-    // Only a sentence the sanitizer admits as written is a sentence a report can carry.
-    const [published] = (redactScanResultV1(v1Result([disclosure])).report as ScanResult).warnings;
-    assert.equal(published, disclosure, "the sanitizer admits the disclosure as written");
-    assert.deepEqual(typingProbeRecord({ warnings: [OBSERVE_LIMITS, published] }), expected, disclosure);
-  }
-  assert.equal(typingProbeRecord({ warnings: [OBSERVE_LIMITS, OBSERVE_COUNTS] }), null);
 });
 
 test("where a visit ran from is named in words for every admitted egress label", () => {

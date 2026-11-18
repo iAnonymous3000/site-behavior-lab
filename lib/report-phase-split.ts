@@ -58,8 +58,8 @@ export type CrossSitePhaseSplit = {
  * consent mode); this module never parses warning text.
  */
 export type UnphasedActions = {
-  /** The typing disclosure's ending: whether the probe's requests are in the counts. */
-  typingRequests: "included" | "omitted" | "unstated" | null;
+  /** The visit typed into the page and its disclosure does not say the probe's requests were left out of the counts. */
+  typingCounted: boolean;
   /** The scanner clicked a consent control in this visit. */
   consentClick: boolean;
 };
@@ -121,10 +121,7 @@ export function crossSitePhaseSplit(
   }
 
   const total = counted.length;
-  const unphasedActionRecorded =
-    input.unphased.consentClick ||
-    input.unphased.typingRequests === "included" ||
-    input.unphased.typingRequests === "unstated";
+  const unphasedActionRecorded = input.unphased.consentClick || input.unphased.typingCounted;
   const state: CrossSitePhaseState =
     total === 0
       ? "no-rows"

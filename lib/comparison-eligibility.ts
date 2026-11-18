@@ -70,7 +70,9 @@ const KEYSTROKE_PROBE_NAVIGATION_STOPPED_WARNING_FRAGMENT =
 // The closing sentence of the typed-field disclosure the probe adds when the
 // page left the recorded site after it typed. Both admitted generations of the
 // disclosure end with it; the retained form, which opens the same way, does not.
-const KEYSTROKE_PROBE_REQUESTS_OMITTED_WARNING_FRAGMENT =
+// Exported for lib/typing-disclosure.ts, which classifies the same ending for
+// the report readers; the sentence is held once, here.
+export const KEYSTROKE_PROBE_REQUESTS_OMITTED_WARNING_FRAGMENT =
   "Requests from this incomplete probe were omitted from the recorded request log and counts.";
 // Not the opening: the probe's subject line also opens "The page left the
 // recorded site".

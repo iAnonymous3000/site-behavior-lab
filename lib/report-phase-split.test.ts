@@ -7,7 +7,7 @@ import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { viewFromV1Report, viewFromV2, type RunView } from "./scan-report-views";
 import type { ScanResult, TrackerMatch } from "./types";
 
-const NO_ACTION: UnphasedActions = { typingRequests: null, consentClick: false };
+const NO_ACTION: UnphasedActions = { typingCounted: false, consentClick: false };
 
 type Row = { domain: string; thirdParty: boolean; entity?: string; phase: PhaseKind };
 
@@ -136,10 +136,8 @@ test("a visit without phases is unknown only when its records show a scanner act
   assert.ok(run.evidence.requests.some((request) => request.thirdParty), "the v1 fixture counts cross-site rows");
   const stateFor = (unphased: UnphasedActions) =>
     crossSitePhaseSplit(run, { requestsCensored: false, unphased }).state;
-  assert.equal(stateFor({ typingRequests: "included", consentClick: false }), "unknown-after-action");
-  assert.equal(stateFor({ typingRequests: "unstated", consentClick: false }), "unknown-after-action");
-  assert.equal(stateFor({ typingRequests: null, consentClick: true }), "unknown-after-action");
-  // An incomplete probe's requests were left out of the counts, so it is no action on them.
-  assert.equal(stateFor({ typingRequests: "omitted", consentClick: false }), "no-action-recorded");
+  assert.equal(stateFor({ typingCounted: true, consentClick: false }), "unknown-after-action");
+  assert.equal(stateFor({ typingCounted: false, consentClick: true }), "unknown-after-action");
+  // No typing, or an incomplete probe whose requests were left out of the counts.
   assert.equal(stateFor(NO_ACTION), "no-action-recorded");
 });
