@@ -93,3 +93,18 @@ test("a missing semantic field cannot silently pass the failed-document presenta
     assert.ok(qualificationPresentationProblems('incomplete-coverage', headline).length);
   }
 });
+
+test("the single visit's headline must record that its cross-site requests all came during the typing probe", async () => {
+  const { qualificationPresentationProblems } = await import('./v1-qualification-lib.mjs');
+  assert.deepEqual(qualificationPresentationProblems('single-observation', { semantic: { story: 'unidentified-cross-site', reassuring: false, phase: 'all-after-action' } }), []);
+  for (const semantic of [
+    { story: 'unidentified-cross-site', reassuring: false, phase: 'mixed' },
+    { story: 'unidentified-cross-site', reassuring: false, phase: 'page-load-only' },
+    { story: 'unidentified-cross-site', reassuring: false },
+    { story: 'quiet', reassuring: true, phase: 'all-after-action' }
+  ]) {
+    assert.ok(qualificationPresentationProblems('single-observation', { semantic }).length, JSON.stringify(semantic));
+  }
+  // The other cases keep their own rule and no other.
+  assert.deepEqual(qualificationPresentationProblems('gpc-intervention', { semantic: { story: 'comparison', reassuring: false } }), []);
+});

@@ -120,7 +120,17 @@ export function referenceProblems(id, report, events) {
 
 export function qualificationPresentationProblems(id, headline) {
   if (typeof headline?.semantic?.reassuring !== "boolean") return ["headline meaning is unavailable"];
-  return id === "incomplete-coverage" &&
-    (headline.semantic.story !== "load-failure" || headline.semantic.reassuring !== false)
-    ? ["failed document does not render an explicit non-reassuring load failure"] : [];
+  if (id === "incomplete-coverage") {
+    return headline.semantic.story !== "load-failure" || headline.semantic.reassuring !== false
+      ? ["failed document does not render an explicit non-reassuring load failure"] : [];
+  }
+  // The single visit's cross-site requests are all the fixture's input beacon,
+  // which only the scanner's typing sets off, so its headline must record that
+  // every counted cross-site row came during a scanner action. Read from the
+  // headline's meaning, never its words.
+  if (id === "single-observation") {
+    return headline.semantic.phase !== "all-after-action" || headline.semantic.reassuring !== false
+      ? ["single visit does not record that its cross-site requests were all recorded during the scanner's typing probe"] : [];
+  }
+  return [];
 }
