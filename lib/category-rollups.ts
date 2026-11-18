@@ -43,17 +43,17 @@ export type CategoryRollup = {
   shieldsIncreased: number;
 };
 
-/** Integer median of a list of counts. Empty list -> 0. */
+/**
+ * Median of a list of counts. Empty list -> 0. An even-length list's median is
+ * the midpoint of its two middle values, which can be a half: it is published
+ * as such (62.5, or "0.5 fewer"), never rounded, since the pages label it a
+ * median with no rounding note and a rounded half read as a whole request.
+ */
 export function median(values: number[]): number {
   if (values.length === 0) return 0;
   const sorted = [...values].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
-  const value = sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
-  // Half-values round away from zero. Math.round alone rounds toward +Infinity
-  // (+2.5 -> 3 but -2.5 -> -2), which on SIGNED shields deltas biased an
-  // even-count median toward zero on exactly one side, quietly understating
-  // negative medians relative to positive ones.
-  return Math.sign(value) * Math.round(Math.abs(value));
+  return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
 }
 
 /**

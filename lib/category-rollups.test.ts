@@ -6,11 +6,15 @@ test("median handles empty, odd, and even lengths", () => {
   assert.equal(median([]), 0);
   assert.equal(median([5]), 5);
   assert.equal(median([3, 1, 2]), 2);
-  assert.equal(median([1, 2, 3, 4]), 3); // (2+3)/2 = 2.5 -> rounds to 3
-  // Signed deltas round half AWAY from zero on both sides. Math.round alone
-  // sent -2.5 to -2, biasing even-count negative medians toward zero.
-  assert.equal(median([-1, -2, -3, -4]), -3);
+  // An even count's median is the midpoint, published with its half (owner
+  // packet A-32): a rounded half read as a whole request.
+  assert.equal(median([1, 2, 3, 4]), 2.5);
+  assert.equal(median([-1, -2, -3, -4]), -2.5);
+  assert.equal(median([-1, 0]), -0.5);
   assert.equal(median([-5]), -5);
+  // The pages print it with toLocaleString, which shows the half as written.
+  assert.equal((62.5).toLocaleString("en-US"), "62.5");
+  assert.equal(Math.abs(-0.5).toLocaleString("en-US"), "0.5");
 });
 
 function site(partial: Partial<RollupSite>): RollupSite {
