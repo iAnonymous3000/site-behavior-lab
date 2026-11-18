@@ -31,6 +31,7 @@ import {
 } from "@/lib/report-facts";
 import {
   buildEvidenceHash,
+  evidenceTargetForPrintedVisit,
   parseEvidenceHash,
   type EvidenceAttributionPair,
   type EvidenceRequestSignal,
@@ -880,7 +881,9 @@ function useEvidenceTarget(section: EvidenceSection): EvidenceTarget | null {
     };
   }, [section]);
 
-  return target;
+  // On paper both visits' logs listen for the same fragment.
+  const printVisit = usePrintVisit();
+  return evidenceTargetForPrintedVisit(target, printVisit);
 }
 
 function revealEvidenceSection(details: HTMLDetailsElement | null) {

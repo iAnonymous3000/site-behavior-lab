@@ -5,8 +5,10 @@ import test from "node:test";
 import {
   buildEvidenceHash,
   domainRequestDeltas,
+  evidenceTargetForPrintedVisit,
   findingEvidenceLink,
   parseEvidenceHash,
+  printedVisitArm,
   requestTimingSummary
 } from "./report-evidence-navigation";
 import { pixelEventLabel } from "./report-insights";
@@ -271,3 +273,27 @@ test("an attribution pair round-trips, and a half-specified one is refused", () 
   assert.equal(parsed?.pair?.destination.length, 500);
 });
 
+
+test("a printed visit's evidence links and targets name that visit's arm", () => {
+  assert.equal(printedVisitArm("baseline"), "baseline");
+  assert.equal(printedVisitArm("variant"), "variant");
+  assert.equal(printedVisitArm(""), undefined, "on screen no arm is printed");
+  const variantOnly = parseEvidenceHash("#evidence=requests&arm=variant&signal=third-party");
+  const armless = parseEvidenceHash("#evidence=requests&signal=third-party");
+  assert.equal(evidenceTargetForPrintedVisit(variantOnly, "baseline"), null, "the baseline log ignores a variant link");
+  assert.deepEqual(evidenceTargetForPrintedVisit(variantOnly, "variant"), variantOnly);
+  assert.deepEqual(evidenceTargetForPrintedVisit(armless, "baseline"), armless, "an armless link still applies on paper");
+  assert.deepEqual(evidenceTargetForPrintedVisit(variantOnly, ""), variantOnly, "on screen every target applies");
+});
+
+test("the request timeline's log link and the request log's target both go through the printed arm", () => {
+  const root = process.cwd();
+  const overview = readFileSync(path.join(root, "app", "_components", "report-overview.tsx"), "utf8");
+  const tables = readFileSync(path.join(root, "app", "_components", "report-tables.tsx"), "utf8");
+  const timeline = overview.slice(requireIndex(overview, "function RequestTimeline("), requireIndex(overview, "</a>", "RequestTimeline", requireIndex(overview, "function RequestTimeline(")));
+  assert.match(timeline, /const printVisit = usePrintVisit\(\);/);
+  assert.match(timeline, /const arm = printedVisitArm\(printVisit\);/);
+  assert.match(timeline, /buildEvidenceHash\(\{ section: "requests", \.\.\.\(arm \? \{ arm \} : \{\}\) \}\)/);
+  const hook = tables.slice(requireIndex(tables, "function useEvidenceTarget("));
+  assert.match(hook.slice(0, hook.indexOf("\nfunction ")), /return evidenceTargetForPrintedVisit\(target, printVisit\);/);
+});

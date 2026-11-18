@@ -76,6 +76,29 @@ const REQUEST_SIGNALS = new Set<EvidenceRequestSignal>([
 ]);
 
 /**
+ * The arm a printed visit's evidence belongs to, or undefined on screen. The
+ * print route renders each visit of a pair under its own arm label, and the
+ * empty string everywhere else.
+ */
+export function printedVisitArm(printVisit: string): EvidenceArm | undefined {
+  return printVisit === "baseline" || printVisit === "variant" ? printVisit : undefined;
+}
+
+/**
+ * The evidence target one printed visit's log applies. A fragment that names
+ * the other visit's arm is not this log's target: applied to both printed
+ * logs, one link filtered the visit it did not name. On screen (no printed
+ * arm) every target applies, as before.
+ */
+export function evidenceTargetForPrintedVisit(
+  target: EvidenceTarget | null,
+  printVisit: string
+): EvidenceTarget | null {
+  const arm = printedVisitArm(printVisit);
+  return target && arm && target.arm && target.arm !== arm ? null : target;
+}
+
+/**
  * A same-page, reload-free report evidence link. The target is deliberately
  * encoded in the fragment: freshly produced reports on the scanner page may
  * not have a permalink yet, so changing the query string would discard their

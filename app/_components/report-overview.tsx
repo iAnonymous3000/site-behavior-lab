@@ -1,5 +1,5 @@
 "use client";
-import { useEvidenceIds, usePrintComplete } from "./print-mode";
+import { useEvidenceIds, usePrintComplete, usePrintVisit } from "./print-mode";
 
 import {
   AlertOctagon,
@@ -38,6 +38,7 @@ import {
 } from "@/lib/report-facts";
 import {
   buildEvidenceHash,
+  printedVisitArm,
   renderedEvidenceArm,
   requestTimingSummary,
   type EvidenceArm
@@ -648,17 +649,23 @@ function RequestTimeline({ requests, spanMs, lanes = null }: {
   spanMs?: number;
   lanes?: typeof LANE_LABELS | null;
 }) {
+  // On paper each visit's evidence is printed under its own arm, and the PDF
+  // turns this link into one to the saved report page, which without an arm
+  // opens its default visit: a printed variant section linked to the baseline
+  // log. On screen the context is empty and the link keeps the selected visit.
+  const printVisit = usePrintVisit();
   if (requests.length === 0) return null;
   const { marks, maxTime } = buildRequestTimelineModel(requests, undefined, spanMs);
   const timingSummary = requestTimingSummary(requests);
   const width = 1000;
   const height = 44;
+  const arm = printedVisitArm(printVisit);
 
   return (
     <div className="timeline">
       <p className="muted">
         {timingSummary}{" "}
-        <a href={buildEvidenceHash({ section: "requests" })}>Open the request log for exact timing and request details.</a>
+        <a href={buildEvidenceHash({ section: "requests", ...(arm ? { arm } : {}) })}>Open the request log for exact timing and request details.</a>
       </p>
       {lanes && (
         <div className="timeline-lanes" aria-hidden="true">
