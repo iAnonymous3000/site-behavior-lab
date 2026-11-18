@@ -486,7 +486,7 @@ type RolloutCase = {
   pages: string;
   /** Minutes since the pinned revision was promoted. */
   age: number;
-  /** The checkout already holds B, A's child on main (else B landed after it). */
+  /** The checkout already holds B, A's child on main, and G, A's child off it (else both landed after it). */
   bKnown?: boolean;
   /** Where origin's production branch points while the step polls. */
   production?: "A" | "B" | "F";
@@ -522,6 +522,10 @@ function rolloutFixture(dir: string) {
   const checkouts = { withoutB: path.join(dir, "checkout-without-b"), withB: path.join(dir, "checkout-with-b") };
   runFixtureGit(dir, ["clone", "-q", "--no-local", "--branch", "production", origin, checkouts.withoutB]);
   shas.B = commit("B");
+  // G descends from the pin but sits off B's line: promoted by nothing.
+  runFixtureGit(origin, ["checkout", "-q", "-b", "side", shas.A]);
+  shas.G = commit("G");
+  runFixtureGit(origin, ["checkout", "-q", "main"]);
   runFixtureGit(dir, ["clone", "-q", "--no-local", "--branch", "production", origin, checkouts.withB]);
   for (const [name, body] of Object.entries(ROLLOUT_SHIMS)) {
     writeFileSync(path.join(shims, name), `#!/usr/bin/env bash\nset -euo pipefail\n${body}\n`);
@@ -616,6 +620,14 @@ test("production health defers to a production revision that advanced during its
     { name: "Pages on a fork while production advanced", scanner: "Z", pages: "F", age: 3, bKnown: true, production: "B", expected: stale },
     { name: "the scanner on a fork while production advanced", scanner: "F", pages: "B", age: 3, bKnown: true, production: "B", expected: stale },
     { name: "an advance past the pin's budget", scanner: "Z", pages: "B", age: 60, bKnown: true, production: "B", expected: stale },
+    // Past the budget only a surface OLDER than the pin is stale. A scheduled
+    // run pins a revision hours old, and a healthy successor deploy must not
+    // fail it.
+    { name: "the pin and the advance past the pin's budget", scanner: "A", pages: "B", age: 60, bKnown: true, production: "B", expected: advanced },
+    { name: "both serve the advance past the pin's budget", scanner: "B", pages: "B", age: 60, bKnown: true, production: "B", expected: advanced },
+    { name: "the advance reached after an unreadable first poll, past the budget", scanner: "-,B", pages: "A,B", age: 60, bKnown: true, production: "B", expected: advanced },
+    { name: "Pages on the pin's child that production never held, past the budget", scanner: "A", pages: "G", age: 60, bKnown: true, production: "B", expected: stale },
+    { name: "the scanner on the pin's child that production never held, past the budget", scanner: "G", pages: "B", age: 60, bKnown: true, production: "B", expected: stale },
     { name: "production force-moved onto a fork", scanner: "Z", pages: "F", age: 3, production: "F", expected: stale }
   ];
   const fixture = rolloutFixture(mkdtempSync(path.join(tmpdir(), "production-rollout-")));

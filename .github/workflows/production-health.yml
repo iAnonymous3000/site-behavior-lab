@@ -220,18 +220,27 @@ jobs:
               # is not its ancestor: calling that stale failed the run and
               # reopened the canonical issue for an ordinary deploy. Re-read the
               # authoritative ref and accept only a fast-forward of the pin that
-              # both live revisions equal or precede, inside the pin's budget; a
-              # forked, force-moved or unpromoted revision still fails. The
-              # checks below were derived from the pinned config, so they are
-              # deferred to the runs the newer revision's deploys request
+              # both live revisions equal or precede; a forked, force-moved or
+              # unpromoted revision still fails.
+              # The pin's budget limits only a surface still on a revision OLDER
+              # than the pin. A surface that serves the pin or a later promoted
+              # revision has deployed it, however old the pin is: a scheduled
+              # run pins a revision hours old, and calling that surface stale
+              # failed a healthy promotion. So past the budget each surface must
+              # sit between the pin and the re-read production, inclusive.
+              # The checks below were derived from the pinned config, so they
+              # are deferred to the runs the newer revision's deploys request
               # rather than re-pinned mid-run.
-              if [[ -n "$scanner" && -n "$pages" ]] && (( age_minutes < ROLLOUT_BUDGET_MINUTES )) &&
+              if [[ -n "$scanner" && -n "$pages" ]] &&
                 git fetch --quiet --no-tags origin "+refs/heads/production:refs/remotes/origin/production" 2>/dev/null; then
                 latest=$(git rev-parse --verify --quiet "refs/remotes/origin/production^{commit}" || true)
                 if [[ -n "$latest" && "$latest" != "$EXPECTED_PRODUCTION_SHA" ]] &&
                   git merge-base --is-ancestor "$EXPECTED_PRODUCTION_SHA" "$latest" 2>/dev/null &&
                   git merge-base --is-ancestor "$scanner" "$latest" 2>/dev/null &&
-                  git merge-base --is-ancestor "$pages" "$latest" 2>/dev/null; then
+                  git merge-base --is-ancestor "$pages" "$latest" 2>/dev/null &&
+                  { (( age_minutes < ROLLOUT_BUDGET_MINUTES )) ||
+                    { git merge-base --is-ancestor "$EXPECTED_PRODUCTION_SHA" "$scanner" 2>/dev/null &&
+                      git merge-base --is-ancestor "$EXPECTED_PRODUCTION_SHA" "$pages" 2>/dev/null; }; }; then
                   echo "pending=true" >> "$GITHUB_OUTPUT"
                   echo "::warning title=Production advanced during the probe::pinned ${EXPECTED_PRODUCTION_SHA}, production is now ${latest}; scanner serves ${scanner}, Pages serves ${pages}. The newer revision's deploys request their own production health runs."
                   {
