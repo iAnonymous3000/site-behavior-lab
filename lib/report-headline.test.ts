@@ -391,7 +391,7 @@ test("a GPC comparison that pulled back keeps its number but never reassures ove
   assert.equal(headline.tone, "info");
   assert.equal(
     headline.headline,
-    "respectful.example made 100% fewer off-site requests in the visit configured with a privacy signal."
+    "respectful.example made 100% fewer off-site requests (100 → 0) in the visit configured with a privacy signal."
   );
   assert.match(headline.subhead, /not proof the site honors or received the signal/);
   assert.match(headline.subhead, /The visit without the signal still made off-site requests/);
@@ -426,7 +426,7 @@ test("a large GPC reduction over a still-loud pair is not reassuring", () => {
 
   const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
   // The measured reduction is still reported; only the reassurance is withheld.
-  assert.match(headline.headline, /made 75% fewer off-site requests in the visit configured with a privacy signal\./);
+  assert.match(headline.headline, /made 75% fewer off-site requests \(400 → 100\) in the visit configured with a privacy signal\./);
   assert.equal(headline.tone, "info");
   assert.equal(headline.semantic.reassuring, false);
   assert.match(headline.subhead, /Both visits still recorded review-worthy activity of their own/);
@@ -1997,4 +1997,21 @@ test("a subhead that opens with a censored count opens in upper case", () => {
   // request log and no evaluated-request count.
   const pair = buildReportHeadline(ledgerPinnedReportView("20260721-4273aca23e2843746c105fea36a8ebee"));
   assert.match(pair.subhead, /^At least 2 retained requests matched while loading normally\. This run records no evaluated-request count/);
+});
+
+test("a GPC pair with requests left never reads 100% fewer, and its lead carries the counts", () => {
+  const visit = (count: number) =>
+    makeResult({
+      firstPartyDomain: "example.com",
+      domains: count > 0 ? [makeTrackerDomain("cdn.example.org", count, "Example Hosting", "cdn / hosting")] : [],
+      thirdPartyRequests: count,
+      thirdPartyDomains: count > 0 ? 1 : 0
+    });
+  const lead = (before: number, after: number) => buildReportHeadline(viewFromV1Report(gpcPair(visit(before), visit(after))));
+  const capped = lead(250, 1);
+  assert.equal(capped.headline, "example.com made 99% fewer off-site requests (250 → 1) in the visit configured with a privacy signal.");
+  assert.match(capped.subhead, /^In the visit configured with Global Privacy Control, off-site requests were 99% lower \(250 → 1\)\./);
+  assert.ok(capped.shareText.startsWith(capped.headline), "the share text travels with the counts");
+  assert.match(lead(200, 1).headline, /made 99% fewer off-site requests \(200 → 1\)/);
+  assert.match(lead(100, 0).headline, /made 100% fewer off-site requests \(100 → 0\)/);
 });

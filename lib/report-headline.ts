@@ -743,7 +743,9 @@ function buildUncorrectedReportHeadline(
   if (rawCountDeltasUsable && arms && axis === "gpc") {
     const before = arms.baseline.counts.thirdPartyRequests;
     const after = arms.variant.counts.thirdPartyRequests;
-    const reductionPct = before > 0 ? Math.round(((before - after) / before) * 100) : 0;
+    // Rounded, a pair with requests left can read "100% fewer" (250 to 1 is
+    // 99.6%). The cap keeps 100 for a visit that made none.
+    const reductionPct = before > 0 ? Math.min(after > 0 ? 99 : 100, Math.round(((before - after) / before) * 100)) : 0;
 
     // This story is about the GPC-ON visit, so every number and name in it,
     // including the stat chips and share text, must come from the variant run.
@@ -843,7 +845,8 @@ function buildUncorrectedReportHeadline(
         "info",
         // "${domain} made", never "requests to ${domain}": the count is of
         // requests the page made to other sites, not requests the site got.
-        `${domain} made ${reductionPct}% fewer off-site requests in the visit configured with a privacy signal.`,
+        // The counts travel with the percentage: a pair-scope share text quotes no chips.
+        `${domain} made ${reductionPct}% fewer off-site requests (${n(before)} → ${n(after)}) in the visit configured with a privacy signal.`,
         `In the visit configured with Global Privacy Control, off-site requests were ${reductionPct}% lower (${n(before)} → ${n(after)}). An observed difference for this pair of visits, not proof the site honors or received the signal.${reviewSignalNote}`,
         undefined,
         undefined,
