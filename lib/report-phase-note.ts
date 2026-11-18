@@ -49,9 +49,14 @@ function consentPhrase(mode: ConsentMode | null): string | null {
  * or both, in phase order. A post-choice reload belongs to the click; its
  * requests are not recorded at all.
  */
-function whenRecorded(actions: readonly ScannerActionPhase[], consentMode: ConsentMode | null): string | null {
+function whenRecorded(actions: readonly ScannerActionPhase[], consentMode: ConsentMode | null, clickedControl: boolean): string | null {
   const parts: string[] = [];
-  const clicked = consentPhrase(consentMode);
+  // "After the scanner clicked" only where the record shows the click; rows
+  // from a consent phase whose control was never activated get no wording.
+  const clicked = clickedControl ? consentPhrase(consentMode) : null;
+  if ((actions.includes("consent-interaction") || actions.includes("post-choice-reload")) && !clicked && actions.every((action) => action === "consent-interaction" || action === "post-choice-reload")) {
+    return null;
+  }
   if ((actions.includes("consent-interaction") || actions.includes("post-choice-reload")) && clicked) parts.push(`after ${clicked}`);
   if (actions.includes("active-probe")) parts.push(parts.length > 0 ? "during its typing probe" : "during the scanner's typing probe");
   if (actions.includes("policy-analysis")) {
@@ -84,7 +89,7 @@ export function phaseNote(
     return actions ? `This older report does not record which requests came during the scanner's ${actions}.` : null;
   }
   if (split.state !== "mixed" && split.state !== "all-after-action") return null;
-  const when = whenRecorded(split.actions, input.consentMode);
+  const when = whenRecorded(split.actions, input.consentMode, input.recorded.consentClick);
   if (!when) return null;
   const { total, afterAction } = split.requests;
   if (split.requestsCensored) {

@@ -160,22 +160,25 @@ export type RecordedScannerActions = UnphasedActions & {
 /**
  * What a visit's own record says the scanner did on the page: its consent and
  * typing phases on r2, or on a report without phases its typing disclosure
- * (read by lib/typing-disclosure.ts) and its consent mode. A typing probe
+ * (read by lib/typing-disclosure.ts) and whether its consent control was
+ * activated. A typing probe
  * whose disclosure says its requests were left out of the counts is not
  * listed, since it changed nothing the counts show.
  *
  * The one reader of this question: the phase split's input for a visit with
  * no phases, and the comparison caveat, both read it.
  */
-export function recordedScannerActions(
-  run: Pick<RunView, "phases" | "warnings"> & { conditions: Pick<RunView["conditions"], "consentMode"> }
-): RecordedScannerActions {
+export function recordedScannerActions(run: Pick<RunView, "phases" | "warnings" | "consent">): RecordedScannerActions {
   const typing = typingProbeRecord(run);
   const typingCounted = typing !== null && !typing.requestsOmitted;
-  const consentClick = run.conditions.consentMode === "accept-all" || run.conditions.consentMode === "reject-all";
+  // The click, not the request for one: a choice run whose control was never
+  // activated did not click anything.
+  const consentClick = run.consent?.controlActivated === true;
   const kinds: RecordedScannerAction[] = [];
   if (run.phases) {
-    if (run.phases.some((phase) => phase.kind === "consent-interaction")) kinds.push("consent click");
+    // The consent phase opens before the scanner tries the banner, so the
+    // phase alone does not show a click.
+    if (run.phases.some((phase) => phase.kind === "consent-interaction") && consentClick) kinds.push("consent click");
     if (run.phases.some((phase) => phase.kind === "active-probe") && !typing?.requestsOmitted) kinds.push("typing probe");
   } else {
     if (consentClick) kinds.push("consent click");

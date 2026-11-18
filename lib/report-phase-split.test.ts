@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { crossSitePhaseSplit, type CrossSitePhaseSplit, type UnphasedActions } from "./report-phase-split";
+import { crossSitePhaseSplit, recordedScannerActions, type CrossSitePhaseSplit, type UnphasedActions } from "./report-phase-split";
 import type { PhaseKind } from "./scan-report-v2";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
@@ -140,4 +140,20 @@ test("a visit without phases is unknown only when its records show a scanner act
   assert.equal(stateFor({ typingCounted: false, consentClick: true }), "unknown-after-action");
   // No typing, or an incomplete probe whose requests were left out of the counts.
   assert.equal(stateFor(NO_ACTION), "no-action-recorded");
+});
+
+test("a v1 consent visit asked to accept whose control was not clicked records no consent action", () => {
+  const visit = (clicked: boolean) => {
+    const result = makeScanReportV1() as ScanResult;
+    result.conditions.consentMode = "accept-all";
+    result.consentInteraction = { mode: "accept-all", clicked };
+    return viewFromV1Report(result).runs[0];
+  };
+  const notClicked = recordedScannerActions(visit(false));
+  // The requested choice is not a click: the record's control state decides.
+  assert.equal(notClicked.consentClick, false, "a requested choice with no activated control is no click");
+  assert.deepEqual(notClicked.kinds, [], "a requested choice with no activated control records no consent action");
+  const clicked = recordedScannerActions(visit(true));
+  assert.equal(clicked.consentClick, true);
+  assert.deepEqual(clicked.kinds, ["consent click"]);
 });

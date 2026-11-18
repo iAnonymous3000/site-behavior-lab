@@ -56,9 +56,10 @@ test("the notes of the packet's examples are the approved sentences", () => {
     runPhaseNotes(shownFacts(frozenReportView("20261019-68fc891fdaf08f25d4e0478d54513a06"))).note,
     "This older report does not record which requests came during the scanner's typing probe."
   );
+  // This visit was asked to accept, but its record shows no control was activated, so only the typing probe is named.
   assert.equal(
     runPhaseNotes(shownFacts(ledgerPinnedReportView("20260702-72d984851fe81e61aa12211b8347cbab"))).note,
-    "This older report does not record which requests came during the scanner's consent click or typing probe."
+    "This older report does not record which requests came during the scanner's typing probe."
   );
 });
 
@@ -177,4 +178,18 @@ test("the recorded actions of a visit come from its own record", () => {
   assert.deepEqual(recordedScannerActions(run).kinds, ["typing probe"]);
   const pageOnly = phasedRun(["passive-load"], [{ domain: "a.example.net", thirdParty: true, phase: "passive-load" }]);
   assert.deepEqual(recordedScannerActions(pageOnly).kinds, []);
+});
+
+test("a consent click is named only where the record shows the control was activated", () => {
+  const clicked = { typingCounted: false, consentClick: true, kinds: ["consent click"] } as const;
+  const notClicked = { typingCounted: false, consentClick: false, kinds: [] } as const;
+  const run = phasedRun(["passive-load", "consent-interaction"], [
+    { domain: "a.example.net", thirdParty: true, phase: "passive-load" },
+    { domain: "b.example.net", thirdParty: true, phase: "consent-interaction" }
+  ]);
+  const note = (recorded: RecordedScannerActions) =>
+    phaseNote(crossSitePhaseSplit(run, { requestsCensored: false, unphased: recorded }), { noun: CROSS_SITE_REQUESTS, consentMode: "reject-all", recorded });
+  assert.equal(note({ ...clicked, kinds: [...clicked.kinds] }), "Recorded after the scanner clicked Reject all: 1 of the 2 cross-site requests. A phase records timing, not cause or content.");
+  // The consent phase opens before the scanner tries the banner: without a click, its rows get no wording.
+  assert.equal(note({ ...notClicked, kinds: [] }), null);
 });
