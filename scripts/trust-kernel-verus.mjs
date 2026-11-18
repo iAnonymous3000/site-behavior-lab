@@ -4,7 +4,10 @@
 //   install --into <dir>   download the release for this platform, refuse it
 //                          unless its size and sha256 are the pinned ones,
 //                          and unpack it
-//   verify --verus <dir>   check tools/trust-kernel with it
+//   verify --verus <dir> [--receipt <file>]
+//                          check tools/trust-kernel with it and, when every
+//                          step held, write the run's receipt to <file>
+//                          (scripts/trust-kernel-verus-receipt.mjs)
 //
 // A green verifier run alone can mean that nothing was asked, so `verify`
 // does six things and fails on the first that does not hold:
@@ -50,6 +53,7 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, 
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildReceipt, checkoutSource, treeClean, writeReceipt } from "./trust-kernel-verus-receipt.mjs";
 
 const ROOT = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const WORKSPACE = path.join(ROOT, "tools/trust-kernel");
@@ -980,7 +984,8 @@ function largestFunction(report, within = "") {
     .reduce((largest, entry) => (largest === null || entry.rlimit > largest.rlimit ? entry : largest), null);
 }
 
-function verify(verusDirectory) {
+function verify(verusDirectory, receiptFile = null) {
+  const treeCleanBefore = treeClean();
   if (!existsSync(path.join(verusDirectory, "cargo-verus"))) {
     throw new Error(`no cargo-verus in ${verusDirectory}; run install first`);
   }
@@ -1045,6 +1050,31 @@ function verify(verusDirectory) {
         `Largest function of ${ADDRESS}: ${largestOfAddress?.function} used ${largestOfAddress?.rlimit}.\n` +
         `Verus refused all ${refused.length} broken copies:\n${refused.join("\n")}`
     );
+    if (receiptFile !== null) {
+      // Written only here, after every step above held. The counts are the
+      // run's own; the receipt rule refuses one that shows less than a pass.
+      const receipt = buildReceipt({
+        source: checkoutSource(),
+        workspace: WORKSPACE,
+        pins: PINS,
+        checkedFiles: CHECKED_FILES,
+        specifications: SPECIFICATIONS,
+        run: {
+          verifiedItems: results.verified,
+          pinnedItems: VERIFIED_ITEMS,
+          errors: results.errors,
+          rlimitFloor: RLIMIT_FLOOR,
+          statementsNamed: CHECKED_FILES.reduce((sum, file) => sum + STATEMENTS[file].length, 0),
+          guardMutationsRefused: guardsFired,
+          cargoTestsPassed: tests,
+          verusMutationsRefused: refused.length,
+          treeCleanBefore,
+          treeCleanAfter: treeClean()
+        }
+      });
+      writeReceipt(receiptFile, receipt, PINS);
+      console.log(`Receipt written to ${receiptFile}.`);
+    }
     return { verified: results.verified, seconds: Number(defaultSeconds) + Number(floorSeconds), largest, largestOfAddress, refused };
   } finally {
     rmSync(scratch, { recursive: true, force: true });
@@ -1060,10 +1090,11 @@ function main() {
   if (command === "verify") {
     const directory = path.resolve(option(rest, "--verus"));
     if (!statSync(directory).isDirectory()) throw new Error(`${directory} is not a directory`);
-    verify(directory);
+    const at = rest.indexOf("--receipt");
+    verify(directory, at === -1 ? null : path.resolve(option(rest, "--receipt")));
     return;
   }
-  throw new Error("Usage: trust-kernel-verus.mjs install --into <dir> | verify --verus <dir>");
+  throw new Error("Usage: trust-kernel-verus.mjs install --into <dir> | verify --verus <dir> [--receipt <file>]");
 }
 
 try {
