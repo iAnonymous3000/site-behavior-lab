@@ -8,14 +8,14 @@ import { displayHost } from "./text-format";
 import type { RunView } from "./scan-report-views";
 import type { NetworkRequestRecord } from "./types";
 
-/** Which recorded provenance field named the actor, so no surface has to guess. */
-
 /**
  * What the live-scan attribution panel says about dedicated workers' requests.
  * The panel and docs/capabilities.md state it, so both read this one value
  * (the docs by a test). Its wording is the owner's to change.
  */
 export const DEDICATED_WORKER_ATTRIBUTION_SENTENCE = "Requests made by dedicated workers are not observed.";
+
+/** Which recorded provenance field named the actor, so no surface has to guess. */
 export type AttributionActorRole = "script" | "initiator" | "injector" | "mixed";
 
 export type AttributionMapEdge = {
