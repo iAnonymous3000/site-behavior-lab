@@ -5,15 +5,24 @@ import { buildReportHeadline, type ReportHeadline } from "./report-headline";
 import type { ReportView } from "./scan-report-views";
 import type { CorpusStats } from "./corpus-stats";
 
-export type ReportConsistencyRuleId =
-  | "fingerprint-asserted-without-events"
-  | "cookie-absence-with-recorded-cookie"
-  | "quiet-copy-over-loud-finding"
-  | "identity-conflict"
-  | "unsafe-categorical-title-under-incomplete-evidence"
-  | "unscoped-absence-lead-under-incomplete-evidence"
-  | "error-page-signals-attributed-to-site"
-  | "headline-describes-another-visit";
+/**
+ * Every rule this gate can report, in one runtime list. The rule id type is
+ * derived from it, so a rule cannot be emitted without being listed, and the
+ * required walk in lib/fv-report-consistency.test.ts holds exactly this list,
+ * so a listed rule cannot be left out of the walk.
+ */
+export const REPORT_CONSISTENCY_RULES = [
+  "fingerprint-asserted-without-events",
+  "cookie-absence-with-recorded-cookie",
+  "quiet-copy-over-loud-finding",
+  "identity-conflict",
+  "unsafe-categorical-title-under-incomplete-evidence",
+  "unscoped-absence-lead-under-incomplete-evidence",
+  "error-page-signals-attributed-to-site",
+  "headline-describes-another-visit"
+] as const;
+
+export type ReportConsistencyRuleId = (typeof REPORT_CONSISTENCY_RULES)[number];
 
 export type ReportConsistencyViolation = {
   id: ReportConsistencyRuleId;

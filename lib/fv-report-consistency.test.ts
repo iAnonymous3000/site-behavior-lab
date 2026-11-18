@@ -7,7 +7,12 @@ import {
   createTemporalComparisonReport
 } from "./compare-reports";
 import { assertCaughtBy, holds, loadVariant, type SourceEdit } from "./finite-check";
-import { reportConsistencyViolations, validateReportPresentation, type ReportConsistencyRuleId } from "./report-consistency";
+import {
+  REPORT_CONSISTENCY_RULES,
+  reportConsistencyViolations,
+  validateReportPresentation,
+  type ReportConsistencyRuleId
+} from "./report-consistency";
 import { renderedEvidenceArm } from "./report-evidence-navigation";
 import * as productionFacts from "./report-facts";
 import * as productionFindings from "./report-findings";
@@ -67,16 +72,9 @@ type FactsModule = typeof productionFacts;
 type HeadlineModule = typeof productionHeadline;
 type FindingsModule = typeof productionFindings;
 
-const RULES: readonly ReportConsistencyRuleId[] = [
-  "fingerprint-asserted-without-events",
-  "cookie-absence-with-recorded-cookie",
-  "quiet-copy-over-loud-finding",
-  "identity-conflict",
-  "unsafe-categorical-title-under-incomplete-evidence",
-  "unscoped-absence-lead-under-incomplete-evidence",
-  "error-page-signals-attributed-to-site",
-  "headline-describes-another-visit"
-];
+// The gate's own runtime list, never a copy of it: the walk and the seeded
+// faults below then cover every rule the gate can report.
+const RULES: readonly ReportConsistencyRuleId[] = REPORT_CONSISTENCY_RULES;
 const QUIET_OVER_LOUD: ReportConsistencyRuleId = "quiet-copy-over-loud-finding";
 
 // ---------------------------------------------------------------------------------------

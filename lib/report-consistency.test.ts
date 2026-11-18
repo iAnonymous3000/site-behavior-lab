@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
+  REPORT_CONSISTENCY_RULES,
   reportConsistencyViolations,
   validateReportPresentation,
   type ReportConsistencyRuleId
@@ -91,6 +93,16 @@ function reportWithHttpError(): ScanResult {
   report.summary.status = 404;
   return report;
 }
+
+test("the rule list names exactly the rules the gate can report", () => {
+  // Read the module that is actually loaded, so a change to the list or to an
+  // emitting call in the running code is what this compares.
+  const source = readFileSync(require.resolve("./report-consistency"), "utf8");
+  const emitted = new Set([...source.matchAll(/\badd\(\s*"([a-z0-9-]+)"/g)].map((match) => match[1]));
+  assert.ok(emitted.size > 0, "no emitting call was found, so this comparison would hold vacuously");
+  assert.deepEqual([...emitted].sort(), [...REPORT_CONSISTENCY_RULES].sort());
+  assert.equal(new Set(REPORT_CONSISTENCY_RULES).size, REPORT_CONSISTENCY_RULES.length, "a rule is listed twice");
+});
 
 test("the valid renderer path has no semantic consistency violations", () => {
   const presentation = validateReportPresentation(
