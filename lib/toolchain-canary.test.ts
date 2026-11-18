@@ -735,9 +735,9 @@ test("a receipt holds each scan once: a repeated run id or wire digest, a repeti
   // Untouched, the pair compares.
   const pair = await freshPair();
   assert.equal(h.compareReceipts(pair.baseline, pair.candidate, panel, digest).outcome, "pass");
-  // The fourteen committed receipts hold fifteen scans of their own each.
+  // The eighteen committed receipts hold fifteen scans of their own each.
   // Their replay, tested below, runs them through the same check.
-  assert.equal(EVERY_COMMITTED_RECEIPT.length, 14);
+  assert.equal(EVERY_COMMITTED_RECEIPT.length, 18);
   for (const file of EVERY_COMMITTED_RECEIPT) {
     const receipt = committedReceipt(file);
     assert.equal(receipt.runs.length, 15, file);
@@ -1252,7 +1252,41 @@ const RECEIPT_SHA256_2026_12: Record<string, string> = {
   "toolchain-epoch-2026-12/round-2-candidate-receipt.json": "1112f1020687da49702eb6e3092e24e03c70cbf949ade85f8d17a56c87c557e5"
 };
 const RECEIPTS_2026_12 = REFUSED_PAIRS_2026_12.flatMap(([baselineFile, candidateFile]) => [baselineFile, candidateFile]);
-const EVERY_COMMITTED_RECEIPT = [...COMMITTED_PAIRS.flatMap(([baselineFile, candidateFile]) => [baselineFile, candidateFile]), ...RECEIPTS_2026_12];
+// The two rounds of the 2027-01 epoch, captured on panel version 2. Round 1
+// is inconclusive on three guardian metrics, with three capture losses noted;
+// round 2 is refused on a consent-banner loss before any median is judged.
+const BASELINE_2027_01 = "7ad4bd5b97324b4ea1e5b8e38f34426933c9f907";
+const CANDIDATE_2027_01 = "c088b0205ce6681989d9291de6dd5290bf9beb63";
+const BUILDS_2027_01 = `${BASELINE_2027_01} -> ${CANDIDATE_2027_01}`;
+const ROUND_1_2027_01 = ["toolchain-epoch-2027-01/round-1-baseline-receipt.json", "toolchain-epoch-2027-01/round-1-candidate-receipt.json"] as const;
+const ROUND_2_2027_01 = ["toolchain-epoch-2027-01/round-2-baseline-receipt.json", "toolchain-epoch-2027-01/round-2-candidate-receipt.json"] as const;
+const ROUND_1_2027_01_STDOUT = [
+  "RULE median-with-within-arm-spread-v2",
+  "NOTED github: detector-output/truncated/keystroke-probe-capture capture loss on 3 of 3 baseline and 3 of 3 candidate runs; recorded, not compared: its family feeds no canary metric",
+  "NOTED guardian: detector-output/dropped/consent-banner capture loss on 2 of 3 baseline and 1 of 3 candidate runs; recorded, not compared: its family feeds no canary metric",
+  "NOTED guardian: detector-output/dropped/policy-visit capture loss on 3 of 3 baseline and 3 of 3 candidate runs; recorded, not compared: its family feeds no canary metric"
+];
+const ROUND_1_2027_01_METRICS = [
+  inconclusiveLine("guardian.knownTrackerRequests", "baseline runs 16, 16, 16 (spread 0), candidate runs 27, 16, 16 (spread 11), tolerance 4.8", "16 -> 16"),
+  inconclusiveLine("guardian.thirdPartyDomains", "baseline runs 25, 25, 25 (spread 0), candidate runs 34, 26, 26 (spread 8), tolerance 6.25", "25 -> 26"),
+  inconclusiveLine("guardian.shieldsBlockedRequests", "baseline runs 48, 47, 47 (spread 1), candidate runs 77, 48, 49 (spread 29), tolerance 14.1", "47 -> 49")
+];
+const ROUND_1_2027_01_SHARE = "3 of 45";
+const ROUND_1_2027_01_NAMED = "guardian.knownTrackerRequests, guardian.thirdPartyDomains, guardian.shieldsBlockedRequests";
+const ROUND_2_2027_01_REFUSAL =
+  "Capture loss detector-output/dropped/consent-banner differs systematically between the builds on guardian: 0 of 3 baseline runs vs 2 of 3 candidate runs.";
+const RECEIPT_SHA256_2027_01: Record<string, string> = {
+  "toolchain-epoch-2027-01/round-1-baseline-receipt.json": "53f58dc008b5106bf8cf4ee9643d3cfa8fd9aa4a07149f1211751d94adce95f9",
+  "toolchain-epoch-2027-01/round-1-candidate-receipt.json": "22adc03a65050dc42ee0398f81dd27c77bf3bc4c9ad843fe89094d1c1e6f3096",
+  "toolchain-epoch-2027-01/round-2-baseline-receipt.json": "bf376323c2745c6549cf08f9a8a41fb1ee982a2b88d3ef17cd2c5edb80f80e83",
+  "toolchain-epoch-2027-01/round-2-candidate-receipt.json": "2c2e7a641f1e3f0e1ea0ddd755ccdcc9ba3a9bd829092fed05f4ab2c4397859a"
+};
+const RECEIPTS_2027_01 = [...ROUND_1_2027_01, ...ROUND_2_2027_01];
+const EVERY_COMMITTED_RECEIPT = [
+  ...COMMITTED_PAIRS.flatMap(([baselineFile, candidateFile]) => [baselineFile, candidateFile]),
+  ...RECEIPTS_2026_12,
+  ...RECEIPTS_2027_01
+];
 
 test("the replay CLI reads each committed pair on the committed panel it carries, names that panel on its first line, marks its result line as a replay, and exits 2", async () => {
   const h = await helpers;
@@ -1441,7 +1475,7 @@ const PANEL_V2_FILE = path.join(COMMITTED_PANELS, "monthly-toolchain-canary-v2.j
 const PANEL_V2_DIGEST = "51f0ebcb7997559738a8891256a10d25d5783730b1b6238f8d3ec478682df376";
 const PANEL_V2_NAMED = `REPLAY on committed panel monthly-toolchain-canary-v2 (version 2, sha256 ${PANEL_V2_DIGEST}, scripts/fixtures/toolchain-canary-panels/monthly-toolchain-canary-v2.json), the panel both receipts carry.`;
 
-test("the receipts committed under docs/toolchain-epoch-* are exactly the fourteen these tests read: ten on panel version 1 and four on panel version 2", async () => {
+test("the receipts committed under docs/toolchain-epoch-* are exactly the eighteen these tests read: ten on panel version 1 and eight on panel version 2", async () => {
   const docs = path.join(process.cwd(), "docs");
   const onDisk = readdirSync(docs, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && entry.name.startsWith("toolchain-epoch-"))
@@ -1450,9 +1484,10 @@ test("the receipts committed under docs/toolchain-epoch-* are exactly the fourte
   assert.deepEqual(onDisk, [...EVERY_COMMITTED_RECEIPT].sort());
   assert.equal(COMMITTED_RECEIPTS.length, 10);
   assert.equal(RECEIPTS_2026_12.length, 4);
+  assert.equal(RECEIPTS_2027_01.length, 4);
   const byPanel = (file: string) => committedReceipt(file).panel.panelId;
   assert.deepEqual([...new Set(COMMITTED_RECEIPTS.map(byPanel))], ["monthly-toolchain-canary-v1"]);
-  assert.deepEqual([...new Set(RECEIPTS_2026_12.map(byPanel))], ["monthly-toolchain-canary-v2"]);
+  assert.deepEqual([...new Set([...RECEIPTS_2026_12, ...RECEIPTS_2027_01].map(byPanel))], ["monthly-toolchain-canary-v2"]);
 });
 
 // The repetitions of one case that carry a capture-loss signature, as the
@@ -1557,6 +1592,112 @@ test("both rounds of the committed 2026-12 receipts are refused on capture loss 
   for (const receipt of [round1Baseline, round1Candidate, round2Baseline, round2Candidate]) {
     const elsewhere = (receipt.runs as Receipt[]).filter((entry) => entry.caseId !== "guardian" && entry.qualityFacts.captureLoss.some((loss: Loss) => h.METRIC_FEEDING_FAMILIES.includes(loss.family)));
     assert.deepEqual(elsewhere, []);
+  }
+});
+
+test("the committed 2027-01 receipts are the bytes their record names, carry panel version 2, and record the two builds, browsers, Playwright pins and public-suffix engines of that epoch", async () => {
+  const h = await helpers;
+  const { committed } = await panelsOnDisk();
+  const v2 = committed.find((entry) => entry.panel.panelVersion === 2);
+  assert.ok(v2);
+  assert.equal(v2.digest, PANEL_V2_DIGEST);
+  assert.deepEqual(Object.keys(RECEIPT_SHA256_2027_01).sort(), [...RECEIPTS_2027_01].sort());
+  const arms: Array<[string, string, string, string, string, string]> = [
+    ["baseline", "forward", BASELINE_2027_01, "158.0.8127.18", "adblock-rust-0.13.5-request-method-v1-playwright-1.65.0+", "+tldts@7.4.16+"],
+    ["candidate", "reverse", CANDIDATE_2027_01, "159.0.8154.6", "adblock-rust-0.13.5-request-method-v1-playwright-1.65.1+", "+tldts@7.5.4+"]
+  ];
+  const sharedIdentity = new Set<string>();
+  for (const file of RECEIPTS_2027_01) {
+    assert.equal(createHash("sha256").update(readFileSync(path.join(process.cwd(), "docs", file))).digest("hex"), RECEIPT_SHA256_2027_01[file], file);
+    const receipt = committedReceipt(file);
+    const arm = arms.find(([name]) => file.includes(`-${name}-`));
+    assert.ok(arm, file);
+    const [, order, build, browser, methodology, engine] = arm;
+    assert.equal(receipt.panelDigest, PANEL_V2_DIGEST, file);
+    assert.deepEqual(receipt.panel, v2.panel, file);
+    assert.equal(receipt.order, order, file);
+    assert.equal(receipt.expectedBuild, build, file);
+    assert.equal(receipt.runs.length, 15, file);
+    assert.match(receipt.createdAt, /^2026-11-17T2[0-2]:/, file);
+    for (const entry of receipt.runs as Receipt[]) {
+      const label = `${file} ${entry.caseId}:${entry.repetition}`;
+      assert.equal(entry.provenance.buildCommit, build, label);
+      assert.equal(entry.conditions.browser.version, browser, label);
+      assert.ok(entry.provenance.methodologyVersion.includes(methodology), label);
+      assert.ok(entry.toolchain.normalizationVersion.includes(engine), label);
+      assert.equal(entry.toolchain.adblock.engineVersion, "adblock-rust-0.13.5", label);
+      assert.equal(entry.conditions.egress.region, "WNAM/pdx03/US", label);
+      assert.equal(entry.quality.run.outcome, "complete", label);
+      assert.equal(entry.qualityFacts.status, 200, label);
+      sharedIdentity.add(h.stableCompareJson([entry.provenance.detectorRegistry, entry.toolchain.trackerCatalog, entry.toolchain.adblock.manifestDigest]));
+    }
+  }
+  // What the epoch does not move is one value over all 60 runs: the detector
+  // registry, the tracker catalog and the list manifest. The normalization
+  // moves with the public-suffix engine, so it is held per arm above.
+  assert.equal(sharedIdentity.size, 1);
+  assert.match([...sharedIdentity][0], /"version":"node-detectors-v27"/);
+});
+
+test("round 1 of the committed 2027-01 receipts is inconclusive on three guardian metrics and round 2 is refused on a consent-banner loss: by the library, by a replay, and by a release comparison in a tree whose current panel is version 2", async () => {
+  const h = await helpers;
+  const disk = await panelsOnDisk();
+  const v2Text = readFileSync(path.join(process.cwd(), PANEL_V2_FILE), "utf8");
+  const tree = canaryTree(v2Text, [
+    { name: "monthly-toolchain-canary-v1.json", text: readFileSync(path.join(process.cwd(), PANEL_V1_FILE), "utf8") },
+    { name: "monthly-toolchain-canary-v2.json", text: v2Text }
+  ]);
+  const docsFiles = (pair: readonly [string, string]): [string, string] => [path.join("docs", pair[0]), path.join("docs", pair[1])];
+  try {
+    // Round 1: nothing fails, three metrics are inconclusive, exit 2.
+    {
+      const baseline = committedReceipt(ROUND_1_2027_01[0]);
+      const candidate = committedReceipt(ROUND_1_2027_01[1]);
+      const selection = h.selectComparisonPanel({ replay: true, baseline, candidate, ...disk });
+      assert.equal(selection.digest, PANEL_V2_DIGEST);
+      assert.equal(h.compareReceipts(baseline, candidate, selection.panel, selection.digest).outcome, "inconclusive");
+      const release = compareFiles(...docsFiles(ROUND_1_2027_01), "compare", tree);
+      assert.equal(release.status, 2, release.stderr);
+      assert.deepEqual(printed(release.stdout), ROUND_1_2027_01_STDOUT);
+      assert.deepEqual(printed(release.stderr), [...ROUND_1_2027_01_METRICS, inconclusiveResult(BUILDS_2027_01, ROUND_1_2027_01_SHARE, ROUND_1_2027_01_NAMED)]);
+      const again = compareFiles(...docsFiles(ROUND_1_2027_01), "replay");
+      assert.equal(again.status, 2, again.stderr);
+      const stdout = printed(again.stdout);
+      assert.ok(stdout[0].startsWith(`${PANEL_V2_NAMED} `));
+      assert.deepEqual(stdout.slice(1), ROUND_1_2027_01_STDOUT.map(replayed));
+      assert.deepEqual(printed(again.stderr), [...ROUND_1_2027_01_METRICS.map(replayed), replayInconclusiveResult(BUILDS_2027_01, ROUND_1_2027_01_SHARE, ROUND_1_2027_01_NAMED)]);
+    }
+    // Round 2: one FAIL line, no RULE line, exit 1.
+    {
+      const baseline = committedReceipt(ROUND_2_2027_01[0]);
+      const candidate = committedReceipt(ROUND_2_2027_01[1]);
+      const selection = h.selectComparisonPanel({ replay: true, baseline, candidate, ...disk });
+      assert.equal(selection.digest, PANEL_V2_DIGEST);
+      assert.throws(() => h.compareReceipts(baseline, candidate, selection.panel, selection.digest), { message: ROUND_2_2027_01_REFUSAL });
+      const release = compareFiles(...docsFiles(ROUND_2_2027_01), "compare", tree);
+      assert.equal(release.status, 1);
+      assert.equal(release.stdout, "");
+      assert.deepEqual(printed(release.stderr), [`FAIL ${ROUND_2_2027_01_REFUSAL}`]);
+      const again = compareFiles(...docsFiles(ROUND_2_2027_01), "replay");
+      assert.equal(again.status, 1);
+      const stdout = printed(again.stdout);
+      assert.equal(stdout.length, 1);
+      assert.ok(stdout[0].startsWith(`${PANEL_V2_NAMED} `));
+      assert.deepEqual(printed(again.stderr), [`REPLAY FAIL ${ROUND_2_2027_01_REFUSAL}`]);
+    }
+  } finally {
+    rmSync(tree, { recursive: true, force: true });
+  }
+  // The runs behind both results. The consent banner is dropped on guardian
+  // in both builds, 2 of 6 baseline runs and 3 of 6 candidate runs over the
+  // two rounds, and never on a capture's first repetition.
+  const receipts = RECEIPTS_2027_01.map(committedReceipt);
+  const consent = "detector-output/dropped/consent-banner";
+  assert.deepEqual(receipts.map((receipt) => repetitionsWithLoss(receipt, "guardian", consent)), [[2, 3], [2], [], [2, 3]]);
+  // No run carries a loss in a family a canary metric is counted from.
+  for (const receipt of receipts) {
+    const feeding = (receipt.runs as Receipt[]).filter((entry) => entry.qualityFacts.captureLoss.some((loss: Loss) => h.METRIC_FEEDING_FAMILIES.includes(loss.family)));
+    assert.deepEqual(feeding, []);
   }
 });
 
