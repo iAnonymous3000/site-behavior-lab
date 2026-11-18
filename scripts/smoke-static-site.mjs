@@ -1022,6 +1022,8 @@ async function main() {
     pass("a finding's evidence link opens its rows under its claim, the report stays with one board, and the rows link the request log");
     await assertLookCloserViewsLand(context, baseUrl, manifest);
     pass("a consent-banner view opens the request log at its catalog matches, and a cookie card's history view, the same in the explorer, lands on the site's report table");
+    await assertSectionLinksLand(context, baseUrl, manifest);
+    pass("a copied section link to the request log, cookies or conditions opens the explorer and lands on its section, cold, on reload and on back");
 
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
     const exploreEvidence = page.getByRole("button", { name: "Explore full evidence" });
@@ -2162,6 +2164,45 @@ async function assertLookCloserMarkup(manifest) {
  * server can make it, points where the report's own "View site history" does,
  * and lands on that page's report table with the table on screen.
  */
+/**
+ * A section anchor only the evidence explorer renders (lib/report-section-ids.ts)
+ * must land on its section when it arrives cold, on reload and on back: the
+ * explorer mounts on request, so before the fix the page showed the summary
+ * with nothing open and no scroll. Checked by where the section is on screen,
+ * not by whether the explorer exists.
+ */
+async function assertSectionLinksLand(context, baseUrl, manifest) {
+  const report = manifest.reports[0];
+  const page = await context.newPage();
+  const onScreen = async (section, how) => {
+    try {
+      await page.waitForFunction((id) => {
+        const top = document.getElementById(id)?.getBoundingClientRect().top;
+        return top !== undefined && top >= 0 && top < window.innerHeight;
+      }, section, { timeout: 10_000 });
+    } catch {
+      fail(`report ${report.id}: #${section} did not land on its section ${how}`);
+    }
+  };
+  try {
+    for (const section of ["request-evidence", "cookies", "conditions"]) {
+      const url = `${baseUrl}/reports/${report.id}/#${section}`;
+      await page.goto(url, { waitUntil: "networkidle" });
+      await page.locator(".report-focus-target").waitFor();
+      await onScreen(section, "on a cold load");
+      await page.reload({ waitUntil: "networkidle" });
+      await page.locator(".report-focus-target").waitFor();
+      await onScreen(section, "on reload");
+      await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+      await page.goBack({ waitUntil: "networkidle" });
+      await page.locator(".report-focus-target").waitFor();
+      await onScreen(section, "on back");
+    }
+  } finally {
+    await page.close();
+  }
+}
+
 async function assertLookCloserViewsLand(context, baseUrl, manifest) {
   const firstOffering = async (variant) => {
     for (const report of manifest.reports) {
