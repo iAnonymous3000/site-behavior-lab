@@ -109,6 +109,15 @@ export function retainedRowPositions<T extends object>(rows: readonly T[]): Read
   return new Map(rows.map((row, index) => [row, index + 1]));
 }
 
+/**
+ * The line a printed request log carries when a filter is on: the paper says
+ * the log is filtered and that each reference still names its stored row,
+ * since the count badge alone did not say which rows were left out.
+ */
+export function printedFilterLine(shown: number, total: number): string {
+  return `This printed log is filtered and shows ${shown.toLocaleString("en-US")} of ${total.toLocaleString("en-US")} retained rows; each reference still names its row in the stored JSON.`;
+}
+
 /** A printed request reference: the visit's letter (B, V, or S for a single visit) and the row's position. */
 export function printedRequestRef(printVisit: string, position: number): string {
   return `${printVisit ? printVisit[0].toUpperCase() : "S"}:R${String(position).padStart(4, "0")}`;

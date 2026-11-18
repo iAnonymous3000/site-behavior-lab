@@ -33,6 +33,7 @@ import {
   buildEvidenceHash,
   evidenceTargetForPrintedVisit,
   parseEvidenceHash,
+  printedFilterLine,
   printedRequestRef,
   retainedRowPositions,
   type EvidenceAttributionPair,
@@ -541,6 +542,7 @@ function RequestTable({
           </p>
         )}
       {printComplete && <p className="print-row-key">Request references name this visit's retained JSON rows in order (B = baseline, V = variant, S = single). R0001 is the first request row.</p>}
+      {printComplete && filtersActive && <p className="print-row-key">{printedFilterLine(shown.length, requests.length)}</p>}
       <div
         className={`table-wrap request-table${hasPhases ? " has-phase-column" : ""}`}
         role="region"

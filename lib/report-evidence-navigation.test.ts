@@ -8,6 +8,7 @@ import {
   evidenceTargetForPrintedVisit,
   findingEvidenceLink,
   parseEvidenceHash,
+  printedFilterLine,
   printedRequestRef,
   printedVisitArm,
   requestTimingSummary,
@@ -323,4 +324,14 @@ test("the request log prints each reference from the stored log's positions, nev
   assert.match(tables, /const positions = useMemo\(\(\) => retainedRowPositions\(requests\), \[requests\]\);/);
   assert.match(tables, /printedRequestRef\(printVisit, positions\.get\(request\) \?\? Number\.NaN\)/);
   assert.doesNotMatch(tables, /:R\$\{String\(index \+ 1\)/, "a reference from the row's index in the shown list");
+});
+
+test("a filtered printed log says so, and that each reference still names its stored row", () => {
+  assert.equal(
+    printedFilterLine(14, 122),
+    "This printed log is filtered and shows 14 of 122 retained rows; each reference still names its row in the stored JSON."
+  );
+  assert.equal(printedFilterLine(1, 1234), "This printed log is filtered and shows 1 of 1,234 retained rows; each reference still names its row in the stored JSON.");
+  const tables = readFileSync(path.join(process.cwd(), "app", "_components", "report-tables.tsx"), "utf8");
+  assert.match(tables, /\{printComplete && filtersActive && <p className="print-row-key">\{printedFilterLine\(shown\.length, requests\.length\)\}<\/p>\}/);
 });
