@@ -179,8 +179,9 @@ is not qualification. No person has reviewed scan outcomes against
 independent references, and 1.0 does not require it. There is no stable
 public API and no npm package.
 
-**Retention.** The public instance keeps saved reports for seven days or 500
-reports, whichever prunes first. Operators may allow up to 936 reports, never
+**Retention.** The public instance keeps a saved report's link for seven days,
+and keeps the newest 500 reports, though a report less than 75 minutes old is
+never pruned to make room. Operators may allow up to 936 reports, never
 more than seven days. The committed corpus under `public/reports/` is the
 currently retained research corpus, with its own rules, and reports cited by the corrections ledger are retention-pinned. Published reports are never
 rewritten in place. Corrections go through the append-only

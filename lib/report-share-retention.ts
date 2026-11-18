@@ -20,3 +20,12 @@ export const DEFAULT_REPORT_MAX_AGE_DAYS = 7;
  * state it beside the age, for the same reason the age lives here.
  */
 export const DEFAULT_REPORT_MAX_COUNT = 500;
+
+/**
+ * How long the reference deployment keeps every share before count pruning
+ * may remove it, in minutes (its SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS in
+ * wrangler.container.jsonc, and the durable-job default in
+ * lib/report-store.ts). The privacy page and README state it; a test holds
+ * both settings to this one value.
+ */
+export const REFERENCE_REPORT_MIN_SURVIVAL_MINUTES = 75;

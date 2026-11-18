@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS } from "./report-store";
+import { DEFAULT_REPORT_MAX_COUNT, REFERENCE_REPORT_MIN_SURVIVAL_MINUTES } from "./report-share-retention";
 
 const root = process.cwd();
 
@@ -749,21 +751,22 @@ test("the share retention a reader is told comes from the store's own defaults",
     [
       "app/not-found.tsx",
       [
-        /Shared links to live scan reports expire after about \{DEFAULT_REPORT_MAX_AGE_DAYS\} days on the reference\s+deployment, and sooner once \{DEFAULT_REPORT_MAX_COUNT\} newer shares have been saved\./
+        /Shared links to live scan reports expire after about \{DEFAULT_REPORT_MAX_AGE_DAYS\} days on the reference\s+deployment, and can be removed sooner once \{DEFAULT_REPORT_MAX_COUNT\} newer shares have been saved\./
       ]
     ],
     [
       "app/privacy/page.tsx",
       [
         /expire after about \{DEFAULT_REPORT_MAX_AGE_DAYS\} days<\/strong> on the reference deployment/,
-        /A share\s+can also be deleted sooner: the reference deployment keeps only the newest \{DEFAULT_REPORT_MAX_COUNT\} shares,\s+so once that many newer ones have been saved, the oldest are deleted to make room\./
+        /An expired report&apos;s link stops working\. Its stored copy\s+is deleted when it is next read or at a later routine cleanup\./,
+        /keeps only\s+the newest \{DEFAULT_REPORT_MAX_COUNT\} shares and deletes the oldest to make room\. It never deletes a share\s+less than \{REFERENCE_REPORT_MIN_SURVIVAL_MINUTES\} minutes old this way, so a burst of saves can briefly\s+hold more than \{DEFAULT_REPORT_MAX_COUNT\}\./
       ]
     ]
   ] as const) {
     const contents = source(file);
     assert.match(
       contents,
-      /import \{ DEFAULT_REPORT_MAX_AGE_DAYS, DEFAULT_REPORT_MAX_COUNT \} from "@\/lib\/report-share-retention";/,
+      /import \{ DEFAULT_REPORT_MAX_AGE_DAYS, DEFAULT_REPORT_MAX_COUNT(?:, REFERENCE_REPORT_MIN_SURVIVAL_MINUTES)? \} from "@\/lib\/report-share-retention";/,
       file
     );
     for (const sentence of sentences) assert.match(contents, sentence, file);
@@ -893,4 +896,19 @@ test("category chips name what their count counts", () => {
   const directory = source("app/directory/directory-index.tsx");
   assert.match(directory, /\{category\.label\}\{" "\}/);
   assert.match(directory, /\{category\.sites\.length\}\s*<span className="visually-hidden"> sites<\/span>/);
+});
+
+test("the share survival time the privacy page and README state is the reference deployment's one setting", () => {
+  const minutes = REFERENCE_REPORT_MIN_SURVIVAL_MINUTES;
+  const deployed = /"SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS": "(\d+)"/.exec(source("wrangler.container.jsonc"));
+  assert.ok(deployed, "the reference deployment sets its survival time");
+  assert.equal(Number(deployed[1]), minutes * 60_000, "the deployment's survival time");
+  assert.equal(DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS, minutes * 60_000, "the durable-job default");
+  const readme = source("README.md").replace(/\s+/g, " ");
+  assert.ok(
+    readme.includes(`keeps the newest ${DEFAULT_REPORT_MAX_COUNT} reports, though a report less than ${minutes} minutes old is never pruned to make room.`),
+    "README states the survival time and the count from the shared values"
+  );
+  assert.doesNotMatch(readme, /whichever prunes first/, "README restates the count as a firm ceiling");
+  assert.doesNotMatch(source("app/privacy/page.tsx"), /less than \d+ minutes/, "the privacy page states the survival time by hand");
 });

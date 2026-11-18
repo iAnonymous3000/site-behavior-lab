@@ -1,5 +1,5 @@
 import { publicPageMetadata } from "@/lib/seo-metadata";
-import { DEFAULT_REPORT_MAX_AGE_DAYS, DEFAULT_REPORT_MAX_COUNT } from "@/lib/report-share-retention";
+import { DEFAULT_REPORT_MAX_AGE_DAYS, DEFAULT_REPORT_MAX_COUNT, REFERENCE_REPORT_MIN_SURVIVAL_MINUTES } from "@/lib/report-share-retention";
 import { SiteChrome } from "../_components/site-chrome";
 import "@/app/_design/reading-imports";
 
@@ -114,10 +114,11 @@ export default function PrivacyPage() {
           </li>
           <li>
             Live share reports <strong>expire after about {DEFAULT_REPORT_MAX_AGE_DAYS} days</strong> on the reference deployment
-            (configurable by whoever runs the instance): an expired report&apos;s link stops working, any read of it
-            removes the stored copy, and routine cleanup deletes expired copies that were never read again. A share
-            can also be deleted sooner: the reference deployment keeps only the newest {DEFAULT_REPORT_MAX_COUNT} shares,
-            so once that many newer ones have been saved, the oldest are deleted to make room.
+            (configurable by whoever runs the instance). An expired report&apos;s link stops working. Its stored copy
+            is deleted when it is next read or at a later routine cleanup. The reference deployment also keeps only
+            the newest {DEFAULT_REPORT_MAX_COUNT} shares and deletes the oldest to make room. It never deletes a share
+            less than {REFERENCE_REPORT_MIN_SURVIVAL_MINUTES} minutes old this way, so a burst of saves can briefly
+            hold more than {DEFAULT_REPORT_MAX_COUNT}.
           </li>
           <li>
             A separate, deliberately published research corpus appears in the public directory. Those curated

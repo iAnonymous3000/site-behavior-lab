@@ -34,7 +34,7 @@ export default function NotFound() {
         </p>
         <p>
           Shared links to live scan reports expire after about {DEFAULT_REPORT_MAX_AGE_DAYS} days on the reference
-          deployment, and sooner once {DEFAULT_REPORT_MAX_COUNT} newer shares have been saved.
+          deployment, and can be removed sooner once {DEFAULT_REPORT_MAX_COUNT} newer shares have been saved.
         </p>
         <div className="route-state-actions">
           <a className="primary-button" href={staticAssetPath("/")}>Scan a site</a>
