@@ -43,6 +43,7 @@
   "lib/policy-pdf.test.ts": "asserts event loop gaps, thread CPU time and elapsed time against a deadline",
   "lib/print-stylesheet.test.ts": "launches Chromium and serializes functions into the page",
   "lib/production-synthetic-smoke.test.ts": "gives child requests 100 to 3000 ms deadlines",
+  "lib/production-synthetic-watch-scan.test.ts": "launches Chromium through the scanner's shared browser and scans the GPC worker watch page on the loopback under a 90 s timeout",
   "lib/public-scan-proxy.test.ts": "runs under a 2000 ms test timeout",
   "lib/r2-delete-canary-runtime-integration.test.ts": "boots a wrangler bundle in Miniflare under a 30 s test timeout",
   "lib/redact-scan-report-v1.test.ts": "asserts a ReDoS input completes in under 1000 ms",
