@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { generateKeyPairSync } from "node:crypto";
 import {
   chmodSync,
@@ -7,6 +8,7 @@ import {
   mkdtempSync,
   readFileSync,
   readdirSync,
+  rmSync,
   statSync,
   writeFileSync
 } from "node:fs";
@@ -2268,3 +2270,74 @@ function crc32(contents) {
   }
   return (crc ^ 0xffffffff) >>> 0;
 }
+
+// The workflow's own steps, run as Actions would run them.
+const CALIBRATION_WORKFLOW = () => readFileSync(path.join(process.cwd(), ".github", "workflows", "calibration-study.yml"), "utf8");
+
+function workflowJob(workflow, id) {
+  const start = workflow.indexOf(`\n  ${id}:\n`);
+  assert.ok(start >= 0, `the workflow has no job ${id}`);
+  const next = workflow.slice(start + 1).search(/\n  [a-z-]+:\n/);
+  return next === -1 ? workflow.slice(start) : workflow.slice(start, start + 1 + next + 1);
+}
+
+function workflowStep(job, name) {
+  const start = job.indexOf(`      - name: ${name}\n`);
+  assert.ok(start >= 0, `the job has no step named ${name}`);
+  const next = job.indexOf("\n      - name: ", start + 1);
+  return next === -1 ? job.slice(start) : job.slice(start, next + 1);
+}
+
+function workflowStepRun(step) {
+  const at = step.indexOf("\n        run: |\n");
+  assert.ok(at >= 0, "the step runs no block");
+  const body = [];
+  for (const line of step.slice(at + "\n        run: |\n".length).split("\n")) {
+    if (line.trim() !== "" && !line.startsWith("          ")) break;
+    body.push(line.slice(10));
+  }
+  return body.join("\n");
+}
+
+function runStepBash(script, env) {
+  const result = spawnSync("bash", ["-c", script], { encoding: "utf8", env, timeout: 60_000, killSignal: "SIGKILL" });
+  assert.ok(result.error === undefined && result.signal === null, `the step did not exit on its own: ${result.error ?? result.signal}`);
+  return result;
+}
+
+test("the prepared commit takes every governed file the assembler writes, artifacts included, and refuses any other path", () => {
+  const workflow = CALIBRATION_WORKFLOW();
+  const step = workflowStep(workflowJob(workflow, "prepare"), "Commit the prepared evidence without its future attestation");
+  const root = "calibration/s1.v2";
+  const governed = [
+    "study", "analysis", "runtime-receipt", "artifact-manifest", "labels-manifest",
+    "label-roster-authorization", "roster-selection-ledger", "acquisition-attempt-ledger"
+  ].map((name) => `${root}/${name}.json`);
+  const artifacts = [`${root}/artifacts/case-a/condition.json`, `${root}/artifacts/case-a/source-report.json`, `${root}/artifacts/case-b/label.json`];
+  const commit = (paths) => {
+    const temp = mkdtempSync(path.join(tmpdir(), "sbl-calibration-commit-step-"));
+    try {
+      writeFileSync(path.join(temp, "porcelain"), paths.map((file) => `?? ${file}\n`).join(""));
+      writeFileSync(path.join(temp, "output"), "");
+      const git = `git() { case "$1" in status) if [ "$2" = "--porcelain=v1" ]; then cat "$PORCELAIN"; fi ;; rev-parse) echo ${"9".repeat(40)} ;; *) : ;; esac; }`;
+      const result = runStepBash(`${git}\n${workflowStepRun(step)}`, {
+        PATH: process.env.PATH ?? "",
+        PORCELAIN: path.join(temp, "porcelain"),
+        GITHUB_OUTPUT: path.join(temp, "output"),
+        CALIBRATION_STUDY_ID: "s1.v2"
+      });
+      return { ...result, output: readFileSync(path.join(temp, "output"), "utf8") };
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  };
+  const kept = commit([...governed, ...artifacts]);
+  assert.equal(kept.status, 0, `the governed set with its artifacts was refused: ${kept.stdout}${kept.stderr}`);
+  assert.equal(kept.output, `prepared_commit=${"9".repeat(40)}\n`);
+  for (const stray of [`${root}/notes.txt`, `${root}/artifacts/case-a/notes.txt`, `${root}/artifacts/case-a/deeper/label.json`, `${root}/artifacts/top.json`, "calibration/other/study.json", "lib/scanner.ts"]) {
+    const refused = commit([...governed, ...artifacts, stray]);
+    assert.notEqual(refused.status, 0, `${stray}: an ungoverned path was committed`);
+    assert.match(refused.stdout, /::error::Calibration assembly changed paths outside its governed evidence set\./, stray);
+    assert.ok(refused.stdout.split("\n").includes(stray), `${stray}: the refusal does not name the path`);
+  }
+});
