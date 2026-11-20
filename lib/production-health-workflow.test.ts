@@ -400,6 +400,10 @@ test("production health only closes its canonical issue when it re-ran every lan
   assert.match(workflow, /SYNTHETIC_OUTCOME: \$\{\{ steps\.synthetic_run\.outcome \}\}/);
   assert.match(workflow, /R2_DELETE_CANARY_OUTCOME: \$\{\{ steps\.r2_delete_canary_run\.outcome \}\}/);
   assert.match(workflow, /POSTURE_OUTCOME: \$\{\{ steps\.posture\.outcome \}\}/);
+  // The activation steps' own outcomes feed the lanes too: the issue replay
+  // below executes the lane logic, and these pins hold its inputs to the steps.
+  assert.match(workflow, /SYNTHETIC_ACTIVATION_OUTCOME: \$\{\{ steps\.synthetic_monitor\.outcome \}\}/);
+  assert.match(workflow, /R2_DELETE_CANARY_ACTIVATION_OUTCOME: \$\{\{ steps\.r2_delete_canary\.outcome \}\}/);
   assert.match(workflow, /echo "coverage=\$\{coverage\}" >> "\$GITHUB_OUTPUT"/);
   assert.match(workflow, /COVERAGE_MARKER_PREFIX: "<!-- site-behavior-lab:production-health-required-lanes: "/);
   assert.match(workflow, /covers_required_lanes\(\)/);
@@ -673,4 +677,211 @@ test("production health never cancels a delivered probe and never alerts on a ca
   assert.match(workflow, /if \[\[ "\$HEALTH_JOB_STATUS" == "cancelled" \]\]; then/);
   assert.match(workflow, /echo "failed=cancelled" >> "\$GITHUB_OUTPUT"/);
   assert.match(workflow, /if \[\[ "\$HEALTH_FAILED" == "cancelled" \]\]; then\n\s+echo "The run was cancelled; leaving the canonical issue untouched\."/);
+});
+
+/** The literal shell of one named workflow step, as the runner executes it. */
+function workflowStepShell(name: string): string {
+  const start = requireIndex(workflow, `- name: ${name}\n`, WORKFLOW);
+  const next = workflow.indexOf("\n      - name: ", start + 1);
+  const end = next === -1 ? workflow.length : next;
+  const run = requireIndex(workflow, "run: |\n", WORKFLOW, start);
+  assert.ok(run < end, `${name} must carry a literal shell block`);
+  const shell = workflow
+    .slice(run + "run: |\n".length, end)
+    .split("\n")
+    .map((line) => line.replace(/^ {10}/, ""))
+    .join("\n");
+  assert.ok(shell.startsWith("set -euo pipefail\n"), `${name}: the extracted block must be the whole step`);
+  return shell;
+}
+
+/**
+ * A stand-in for `gh` that keeps the canonical issue in a JSON file, so a
+ * sequence of monitor runs can be replayed against one issue. It answers only
+ * the calls the reconcile step makes and refuses anything else.
+ */
+const ISSUE_GH_SHIM = `#!${process.execPath}
+const fs = require("node:fs");
+const path = require("node:path");
+const state = path.join(process.env.SHIM_STATE, "issues.json");
+const log = path.join(process.env.SHIM_STATE, "gh.log");
+const args = process.argv.slice(2);
+const issues = fs.existsSync(state) ? JSON.parse(fs.readFileSync(state, "utf8")) : [];
+const save = () => fs.writeFileSync(state, JSON.stringify(issues));
+const option = (name) => { const index = args.indexOf(name); return index === -1 ? undefined : args[index + 1]; };
+fs.appendFileSync(log, args.slice(0, 2).join(" ") + "\\n");
+if (args[0] === "api" && args.includes("--silent") && /\\/labels\\//.test(args.join(" "))) process.exit(0);
+if (args[0] === "api" && args.some((arg) => arg.includes("/issues?state=all"))) {
+  process.stdout.write(JSON.stringify([issues]));
+  process.exit(0);
+}
+if (args[0] === "issue") {
+  const number = Number(args[2]);
+  const issue = issues.find((candidate) => candidate.number === number);
+  if (args[1] === "create") {
+    issues.push({
+      number: issues.length + 1,
+      state: "open",
+      title: option("--title"),
+      labels: [{ name: option("--label") }],
+      user: { login: "github-actions[bot]", type: "Bot" },
+      body: fs.readFileSync(option("--body-file"), "utf8")
+    });
+  } else if (issue && args[1] === "edit") {
+    if (option("--body-file")) issue.body = fs.readFileSync(option("--body-file"), "utf8");
+  } else if (issue && args[1] === "close") {
+    issue.state = "closed";
+  } else if (issue && args[1] === "reopen") {
+    issue.state = "open";
+  } else {
+    process.stderr.write("unexpected gh " + args.join(" ") + "\\n");
+    process.exit(2);
+  }
+  save();
+  process.exit(0);
+}
+process.stderr.write("unexpected gh " + args.join(" ") + "\\n");
+process.exit(2);
+`;
+
+/** Step outcomes of one monitor run, as GitHub reports them ("" for a step that never ran). */
+type MonitorRun = {
+  jobStatus: "success" | "failure";
+  pending?: "true";
+  posture?: string;
+  syntheticActivation?: string;
+  synthetic?: string;
+  canaryActivation?: string;
+  canary?: string;
+};
+
+/**
+ * Run the alert preparer and the issue reconciler, the two real step shells,
+ * for each run in order against one issue store. Returns the issue's state and
+ * the lanes its body says it waits on after each run.
+ */
+function replayMonitorRuns(runs: MonitorRun[]): Array<{ state: string; waitingOn: string }> {
+  const prepare = workflowStepShell("Prepare public-safe production-health alert");
+  const reconcile = workflowStepShell("Reconcile the production-health issue");
+  const dir = mkdtempSync(path.join(tmpdir(), "production-health-issue-"));
+  try {
+    const shims = path.join(dir, "bin");
+    mkdirSync(shims);
+    writeFileSync(path.join(shims, "gh"), ISSUE_GH_SHIM);
+    chmodSync(path.join(shims, "gh"), 0o755);
+    const prefix = "<!-- site-behavior-lab:production-health-required-lanes: ";
+    return runs.map((run, index) => {
+      const output = path.join(dir, `run-${index}-output`);
+      const report = path.join(dir, `run-${index}-report.md`);
+      writeFileSync(output, "");
+      const common = {
+        PATH: `${shims}:${process.env.PATH ?? ""}`,
+        SHIM_STATE: dir,
+        GITHUB_OUTPUT: output,
+        GITHUB_STEP_SUMMARY: path.join(dir, "summary"),
+        GITHUB_SERVER_URL: "https://github.com",
+        GITHUB_REPOSITORY: "fixture/site-behavior-lab",
+        GITHUB_RUN_ID: String(100 + index),
+        GITHUB_RUN_ATTEMPT: "1",
+        HEALTH_REPORT_FILE: report
+      };
+      const prepared = spawnSyncBounded("bash", ["--noprofile", "--norc", "-e", "-c", prepare], {
+        encoding: "utf8",
+        env: {
+          ...common,
+          HEALTH_JOB_STATUS: run.jobStatus,
+          ROLLOUT_PENDING: run.pending ?? "",
+          POSTURE_OUTCOME: run.posture ?? "",
+          SYNTHETIC_ACTIVATION_OUTCOME: run.syntheticActivation ?? "",
+          SYNTHETIC_OUTCOME: run.synthetic ?? "",
+          R2_DELETE_CANARY_ACTIVATION_OUTCOME: run.canaryActivation ?? "",
+          R2_DELETE_CANARY_OUTCOME: run.canary ?? ""
+        }
+      });
+      assert.equal(prepared.status, 0, `run ${index}: the alert preparer must succeed\n${prepared.stderr}`);
+      const outputs = Object.fromEntries(
+        readFileSync(output, "utf8")
+          .split("\n")
+          .filter(Boolean)
+          .map((line) => line.split("=", 2) as [string, string])
+      );
+      const reconciled = spawnSyncBounded("bash", ["--noprofile", "--norc", "-e", "-c", reconcile], {
+        encoding: "utf8",
+        env: {
+          ...common,
+          GH_TOKEN: "fixture",
+          ISSUE_TITLE: "Repair the production health monitor",
+          MANAGED_ISSUE_LABEL: "site-behavior-lab-production-health",
+          HEALTH_FAILED: outputs.failed ?? "",
+          HEALTH_COVERAGE: outputs.coverage ?? "",
+          COVERAGE_MARKER_PREFIX: prefix
+        }
+      });
+      assert.equal(reconciled.status, 0, `run ${index}: the issue reconciler must succeed\n${reconciled.stderr}`);
+      const issues = JSON.parse(readFileSync(path.join(dir, "issues.json"), "utf8")) as Array<{ state: string; body: string }>;
+      assert.equal(issues.length, 1, `run ${index}: one canonical issue`);
+      const marker = issues[0].body.split("\n").find((line) => line.startsWith(prefix)) ?? "";
+      return { state: issues[0].state, waitingOn: marker.slice(prefix.length).replace(/ -->$/, "") };
+    });
+  } finally {
+    removeFixtureTree(dir);
+  }
+}
+
+const SHALLOW_PASS: MonitorRun = { jobStatus: "success", posture: "success", syntheticActivation: "skipped", synthetic: "skipped", canaryActivation: "skipped", canary: "skipped" };
+const ROLLOUT_PENDING_PASS: MonitorRun = { jobStatus: "success", pending: "true", posture: "skipped", syntheticActivation: "skipped", synthetic: "skipped", canaryActivation: "skipped", canary: "skipped" };
+const DEEP_PASS: MonitorRun = { jobStatus: "success", posture: "success", syntheticActivation: "success", synthetic: "success", canaryActivation: "success", canary: "success" };
+
+test("a run that executed no production check never closes the production-health issue", () => {
+  // A failure before the posture step (a stale rollout, the contract fetch,
+  // the ingress probe) records no lane. The next run that only found a rollout
+  // in progress skipped every check and still succeeded; it used to close the
+  // issue as recovered, re-running nothing.
+  const runs = replayMonitorRuns([
+    { jobStatus: "failure", posture: "skipped", syntheticActivation: "skipped", synthetic: "skipped", canaryActivation: "skipped", canary: "skipped" },
+    ROLLOUT_PENDING_PASS,
+    SHALLOW_PASS
+  ]);
+  assert.equal(runs[0].state, "open", "the pre-posture failure files the issue");
+  assert.equal(runs[1].state, "open", "a rollout-pending pass executed no check and must not close the issue");
+  assert.equal(runs[2].state, "closed", "a posture pass re-ran every step the failure stopped in");
+});
+
+test("a synthetic or canary activation failure is a lane the issue waits on", () => {
+  // The resolve step fails when the monitor is required and its credential is
+  // missing; the synthetic itself is then skipped. That lane used to go
+  // unrecorded, so the next shallow run, which never resolves the synthetic,
+  // closed the issue.
+  const synthetic = replayMonitorRuns([
+    { jobStatus: "failure", posture: "success", syntheticActivation: "failure", synthetic: "skipped", canaryActivation: "skipped", canary: "skipped" },
+    SHALLOW_PASS,
+    DEEP_PASS
+  ]);
+  assert.equal(synthetic[0].state, "open");
+  assert.equal(synthetic[0].waitingOn, "posture,synthetic", "the failed synthetic activation is recorded as the synthetic lane");
+  assert.equal(synthetic[1].state, "open", "a shallow pass never re-checked the synthetic activation");
+  assert.equal(synthetic[2].state, "closed", "a deep pass re-ran it");
+
+  const canary = replayMonitorRuns([
+    { jobStatus: "failure", posture: "success", syntheticActivation: "success", synthetic: "success", canaryActivation: "failure", canary: "skipped" },
+    SHALLOW_PASS,
+    DEEP_PASS
+  ]);
+  assert.equal(canary[0].waitingOn, "posture,synthetic,r2-delete", "the failed canary activation is recorded as the r2-delete lane");
+  assert.equal(canary[1].state, "open", "a shallow pass never re-checked the canary activation");
+  assert.equal(canary[2].state, "closed", "a deep pass re-ran it");
+});
+
+test("the issue replay keeps the existing lane rules: a shallow pass closes a posture failure, not a deep one", () => {
+  const posture = replayMonitorRuns([
+    { jobStatus: "failure", posture: "failure", syntheticActivation: "skipped", synthetic: "skipped", canaryActivation: "skipped", canary: "skipped" },
+    SHALLOW_PASS
+  ]);
+  assert.deepEqual(posture.map((run) => run.state), ["open", "closed"]);
+  const deep = replayMonitorRuns([
+    { jobStatus: "failure", posture: "success", syntheticActivation: "success", synthetic: "failure", canaryActivation: "success", canary: "success" },
+    SHALLOW_PASS,
+    DEEP_PASS
+  ]);
+  assert.deepEqual(deep.map((run) => run.state), ["open", "open", "closed"]);
 });

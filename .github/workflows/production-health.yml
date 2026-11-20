@@ -597,7 +597,9 @@ jobs:
           HEALTH_REPORT_FILE: ${{ runner.temp }}/production-health-alert.md
           ROLLOUT_PENDING: ${{ steps.rollout.outputs.pending }}
           POSTURE_OUTCOME: ${{ steps.posture.outcome }}
+          SYNTHETIC_ACTIVATION_OUTCOME: ${{ steps.synthetic_monitor.outcome }}
           SYNTHETIC_OUTCOME: ${{ steps.synthetic_run.outcome }}
+          R2_DELETE_CANARY_ACTIVATION_OUTCOME: ${{ steps.r2_delete_canary.outcome }}
           R2_DELETE_CANARY_OUTCOME: ${{ steps.r2_delete_canary_run.outcome }}
         run: |
           set -euo pipefail
@@ -607,8 +609,12 @@ jobs:
           # step that never ran at all reports the empty string.
           lanes=()
           [[ "$POSTURE_OUTCOME" == "success" || "$POSTURE_OUTCOME" == "failure" ]] && lanes+=("posture")
-          [[ "$SYNTHETIC_OUTCOME" == "success" || "$SYNTHETIC_OUTCOME" == "failure" ]] && lanes+=("synthetic")
-          [[ "$R2_DELETE_CANARY_OUTCOME" == "success" || "$R2_DELETE_CANARY_OUTCOME" == "failure" ]] && lanes+=("r2-delete")
+          # A required synthetic or canary whose activation step failed (its
+          # credential is missing) never reaches its run step, but that failure
+          # IS the lane: unrecorded, the next shallow run, which never resolves
+          # either one, closed the issue.
+          [[ "$SYNTHETIC_OUTCOME" == "success" || "$SYNTHETIC_OUTCOME" == "failure" || "$SYNTHETIC_ACTIVATION_OUTCOME" == "failure" ]] && lanes+=("synthetic")
+          [[ "$R2_DELETE_CANARY_OUTCOME" == "success" || "$R2_DELETE_CANARY_OUTCOME" == "failure" || "$R2_DELETE_CANARY_ACTIVATION_OUTCOME" == "failure" ]] && lanes+=("r2-delete")
           [[ "$ROLLOUT_PENDING" == "true" ]] && lanes+=("rollout-pending")
           coverage="$(IFS=,; echo "${lanes[*]:-none}")"
           echo "coverage=${coverage}" >> "$GITHUB_OUTPUT"
@@ -731,6 +737,10 @@ jobs:
             # lanes, so without this a shallow pass would retract a synthetic or
             # canary alarm it never re-measured.
             local required="$1" executed="$2" lane
+            # A run that executed no check (a rollout still in progress skips
+            # them all) re-measured nothing, so it never closes the issue, even
+            # one that waits on no named lane because it failed before posture.
+            [[ ",${executed}," == *",posture,"* || ",${executed}," == *",synthetic,"* || ",${executed}," == *",r2-delete,"* ]] || return 1
             [[ -z "$required" ]] && return 0
             IFS=',' read -ra required_lanes <<< "$required"
             for lane in "${required_lanes[@]}"; do
