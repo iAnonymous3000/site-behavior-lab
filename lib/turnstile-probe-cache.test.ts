@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { TURNSTILE_CONFIGURATION_PROBE_TIMEOUT_MS } from "./edge-scan-gate";
 import {
+  TURNSTILE_PROBE_SETTLED_TTL_MS,
   createTurnstileProbeCache,
   type TurnstileProbeResult
 } from "./turnstile-probe-cache";
@@ -65,30 +67,57 @@ test("an unavailable result is retried after seconds, not held for a minute", as
   assert.equal(await retry, "verified");
 });
 
-test("no more than two probes run at once, so the unauthenticated route still bounds Siteverify calls", async () => {
+test("a cold isolate with three or more concurrent callers gives every caller a real probe answer", async () => {
+  // With nothing settled for the secret there is no answer to fall back on,
+  // so the cap does not apply: a caller turned away here would read
+  // "unavailable" though no probe failed, and Production Health would file
+  // that as an incident.
+  const { probe, pending, calls } = manualProbe();
+  const cache = createTurnstileProbeCache({ probe, now: () => 0 });
+  const callers = [cache.get("secret"), cache.get("secret"), cache.get("secret"), cache.get("secret")];
+  assert.equal(calls(), 4, "every caller on a cold isolate runs its own probe");
+  pending.forEach((resolve) => resolve("verified"));
+  assert.deepEqual(await Promise.all(callers), ["verified", "verified", "verified", "verified"], "no caller reads an unavailable that no probe returned");
+});
+
+test("with a settled answer, no more than two probes run at once and an overflow caller reads it", async () => {
   let clock = 0;
   const { probe, pending, calls } = manualProbe();
   const cache = createTurnstileProbeCache({ probe, now: () => clock });
-  // Every probe is settled before any result is awaited, so a wrong cache
-  // fails these assertions instead of leaving the test waiting.
-  const one = cache.get("secret");
-  const two = cache.get("secret");
-  const overflow = cache.get("secret");
-  assert.equal(calls(), 2, "the third request starts no probe");
-  pending.forEach((resolve) => resolve("verified"));
-  assert.equal(await overflow, "unavailable", "with two probes in flight and nothing settled, a third reads unavailable");
-  await Promise.all([one, two]);
+  const first = cache.get("secret");
+  pending[0]("verified");
+  assert.equal(await first, "verified");
 
-  // With a settled result past its window and two probes in flight, a third
-  // request reads that last result instead of starting another probe.
-  clock = 61_000;
+  // Past the hold, two probes in flight: a third caller starts no probe and
+  // reads the settled answer, still inside the overflow bound.
+  clock = TURNSTILE_PROBE_SETTLED_TTL_MS + 1_000;
+  const two = cache.get("secret");
   const three = cache.get("secret");
-  const four = cache.get("secret");
-  const stale = cache.get("secret");
-  assert.equal(calls(), 4, "the third request starts no probe");
-  pending.slice(2).forEach((resolve) => resolve("misconfigured"));
-  assert.equal(await stale, "verified", "the third request reads the last settled result");
-  await Promise.all([three, four]);
+  const overflow = cache.get("secret");
+  assert.equal(calls(), 3, "the third request starts no probe");
+  pending.slice(1).forEach((resolve) => resolve("misconfigured"));
+  assert.equal(await overflow, "verified", "the overflow caller reads the settled answer");
+  await Promise.all([two, three]);
+});
+
+test("an overflow caller never receives an answer older than the hold time plus one probe deadline", async () => {
+  // An old "verified" handed to an overflow caller could hide a broken
+  // configuration for as long as probes stay busy. Past the bound the caller
+  // runs its own probe instead.
+  let clock = 0;
+  const { probe, pending, calls } = manualProbe();
+  const cache = createTurnstileProbeCache({ probe, now: () => clock });
+  const first = cache.get("secret");
+  pending[0]("verified");
+  await first;
+  clock = TURNSTILE_PROBE_SETTLED_TTL_MS + TURNSTILE_CONFIGURATION_PROBE_TIMEOUT_MS + 1;
+  const two = cache.get("secret");
+  const three = cache.get("secret");
+  const late = cache.get("secret");
+  assert.equal(calls(), 4, "past the bound the overflow caller runs its own probe");
+  pending.slice(1).forEach((resolve) => resolve("misconfigured"));
+  assert.equal(await late, "misconfigured", "it reads its own probe's answer, not the old one");
+  await Promise.all([two, three]);
 });
 
 test("a result for one secret is never reused for another", async () => {
