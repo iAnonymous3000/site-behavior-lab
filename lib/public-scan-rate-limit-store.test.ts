@@ -4,6 +4,7 @@ import { test } from "node:test";
 import {
   AUTHENTICATED_SCAN_GLOBAL_RATE_LIMIT_PER_MINUTE,
   DURABLE_SCAN_JOB_READ_GLOBAL_RATE_LIMIT_PER_MINUTE,
+  PUBLIC_INGRESS_PREFLIGHT_RATE_LIMIT_PER_MINUTE,
   PUBLIC_SCAN_GLOBAL_RATE_LIMIT_PER_MINUTE,
   PUBLIC_SCAN_RATE_LIMIT_CLEANUP_MAX_ROWS,
   SCAN_ADMISSION_RECOVERY_GLOBAL_RATE_LIMIT_PER_MINUTE,
@@ -11,6 +12,7 @@ import {
   chargePublicScanRateLimit,
   chargeDurableScanJobReadRateLimit,
   chargeEncryptedWatchReadRateLimit,
+  chargePublicIngressPreflightRateLimit,
   chargeReportReadRateLimit,
   chargeScanAdmissionRecoveryRateLimit,
   commitPublicScanRateLimitedOperation,
@@ -522,6 +524,40 @@ function authenticatedRateLimitRows(
       cost: Number(row.cost)
     }));
 }
+
+test("the ingress preflight takes one charge per request, per client", () => {
+  withDatabase((_database, sql) => {
+    const now = 60_001;
+    for (let attempt = 0; attempt < PUBLIC_INGRESS_PREFLIGHT_RATE_LIMIT_PER_MINUTE; attempt += 1) {
+      assert.deepEqual(chargePublicIngressPreflightRateLimit(sql, clientHashFor(1), now), { allowed: true });
+    }
+    assert.deepEqual(
+      chargePublicIngressPreflightRateLimit(sql, clientHashFor(1), now),
+      { allowed: false, retryAfterSeconds: 60 },
+      "the request past the per-client ceiling is refused with the window's wait"
+    );
+    assert.deepEqual(chargePublicIngressPreflightRateLimit(sql, clientHashFor(2), now), { allowed: true }, "another client is not charged for it");
+    assert.deepEqual(chargePublicIngressPreflightRateLimit(sql, clientHashFor(1), 120_000), { allowed: true }, "the next window starts afresh");
+  });
+});
+
+test("the ingress preflight charges no world bucket, so many addresses cannot refuse the monitor", () => {
+  // A world bucket on the monitor's own route would let a client with many
+  // addresses spend it, refuse Production Health's preflight and file a false
+  // alarm. Every client is held to its own ceiling and nothing else.
+  withDatabase((database, sql) => {
+    const now = 60_001;
+    for (let client = 0; client < 5_000; client += 1) {
+      assert.deepEqual(chargePublicIngressPreflightRateLimit(sql, clientHashFor(client), now), { allowed: true }, `client ${client}`);
+    }
+    const buckets = database.prepare("SELECT bucket FROM public_scan_rate_limits").all() as Array<{ bucket: string }>;
+    assert.equal(
+      buckets.filter((row) => !row.bucket.startsWith("public-ingress-preflight/")).length,
+      0,
+      "only per-client preflight buckets are written"
+    );
+  });
+});
 
 function clientHashFor(index: number): string {
   return index.toString(16).padStart(64, "0");

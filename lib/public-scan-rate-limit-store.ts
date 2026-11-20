@@ -20,6 +20,7 @@ export const ENCRYPTED_WATCH_READ_RATE_LIMIT_PER_MINUTE = 120;
 export const ENCRYPTED_WATCH_READ_GLOBAL_RATE_LIMIT_PER_MINUTE = 600;
 export const SCAN_ADMISSION_RECOVERY_RATE_LIMIT_PER_MINUTE = 30;
 export const SCAN_ADMISSION_RECOVERY_GLOBAL_RATE_LIMIT_PER_MINUTE = 300;
+export const PUBLIC_INGRESS_PREFLIGHT_RATE_LIMIT_PER_MINUTE = 30;
 export const PUBLIC_SCAN_RATE_LIMIT_CLEANUP_MAX_ROWS = 64;
 
 export type PublicScanRateLimitCharge = Readonly<{
@@ -169,6 +170,28 @@ export function chargeEncryptedWatchReadRateLimit(
     global: ENCRYPTED_WATCH_READ_GLOBAL_RATE_LIMIT_PER_MINUTE,
     now
   }).result;
+}
+
+/**
+ * Bound the public-ingress preflight per client, and deliberately with NO
+ * world bucket. The route is the production monitor's own readiness check: a
+ * world bucket there would let a client with many addresses spend it and
+ * refuse the monitor, which then files a false alarm. Each client is held to
+ * its own minute window. What the route can cost Siteverify is bounded
+ * separately, by the probe cache (lib/turnstile-probe-cache.ts).
+ */
+export function chargePublicIngressPreflightRateLimit(
+  sql: DurableScanJobStoreSql,
+  clientHash: string,
+  now: number
+): PublicScanRateLimitResult {
+  const { clientWindow } = minuteReadWindows(sql, {
+    namespace: "public-ingress-preflight",
+    clientHash,
+    perClient: PUBLIC_INGRESS_PREFLIGHT_RATE_LIMIT_PER_MINUTE,
+    now
+  });
+  return evaluateFixedWindows(sql, [clientWindow], now, true, 1);
 }
 
 /**
@@ -402,6 +425,35 @@ function chargeBoundedReadRateLimit(
     now: number;
   }>
 ): { result: PublicScanRateLimitResult; worldSpent: boolean } {
+  const { clientWindow: client, windowId, expiresAt, retryAfterSeconds } = minuteReadWindows(sql, input);
+  const world: FixedWindow = {
+    bucket: `${input.globalNamespace ?? input.namespace}-global/${windowId}`,
+    limit: input.global,
+    expiresAt,
+    retryAfterSeconds
+  };
+  // Whether the world window is among those that refused. A caller that
+  // tells its reader why needs it; the others drop it.
+  let worldSpent = false;
+  const result = evaluateFixedWindows(sql, [world, client], input.now, true, 1, (window) => {
+    if (window === world) worldSpent = true;
+  });
+  return { result, worldSpent };
+}
+
+/**
+ * The current minute's per-client window for a public read, after the input
+ * checks, the store setup and the bounded cleanup every read charge needs.
+ */
+function minuteReadWindows(
+  sql: DurableScanJobStoreSql,
+  input: Readonly<{
+    namespace: "durable-status" | "encrypted-watch-read" | "public-ingress-preflight" | PublicReportReadQuota;
+    clientHash: string;
+    perClient: number;
+    now: number;
+  }>
+): { clientWindow: FixedWindow; windowId: number; expiresAt: number; retryAfterSeconds: number } {
   if (!/^[a-f0-9]{64}$/.test(input.clientHash)) {
     throw new Error("Invalid public read-rate-limit client hash.");
   }
@@ -414,25 +466,17 @@ function chargeBoundedReadRateLimit(
   const windowId = Math.floor(input.now / durationMs);
   const expiresAt = (windowId + 1) * durationMs;
   const retryAfterSeconds = Math.max(1, Math.ceil((expiresAt - input.now) / 1_000));
-  const world: FixedWindow = {
-    bucket: `${input.globalNamespace ?? input.namespace}-global/${windowId}`,
-    limit: input.global,
+  return {
+    clientWindow: {
+      bucket: `${input.namespace}/${windowId}/${input.clientHash}`,
+      limit: input.perClient,
+      expiresAt,
+      retryAfterSeconds
+    },
+    windowId,
     expiresAt,
     retryAfterSeconds
   };
-  const client: FixedWindow = {
-    bucket: `${input.namespace}/${windowId}/${input.clientHash}`,
-    limit: input.perClient,
-    expiresAt,
-    retryAfterSeconds
-  };
-  // Whether the world window is among those that refused. A caller that
-  // tells its reader why needs it; the others drop it.
-  let worldSpent = false;
-  const result = evaluateFixedWindows(sql, [world, client], input.now, true, 1, (window) => {
-    if (window === world) worldSpent = true;
-  });
-  return { result, worldSpent };
 }
 
 function ensurePublicScanRateLimitStore(sql: DurableScanJobStoreSql): void {

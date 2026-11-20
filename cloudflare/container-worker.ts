@@ -62,6 +62,7 @@ import { requireContainerR2Bucket } from "../lib/container-r2-bucket";
 import { assertDurableAdmittedAtWithinSkew, DurableAdmittedAtSkewError } from "../lib/durable-admission-clock";
 import { publicErrorBody, publicErrorHeaders, toPublicError } from "../lib/public-errors";
 import { createTurnstileProbeCache } from "../lib/turnstile-probe-cache";
+import { publicIngressPreflightRefusal } from "../lib/public-ingress-preflight";
 import {
   enforcePublicReportRouteEdge,
   type PublicReportReadDecision,
@@ -221,6 +222,7 @@ import {
   assertPublicScanRateLimitCharge,
   chargeDurableScanJobReadRateLimit as chargeDurableScanJobReadRateLimitInStore,
   chargeEncryptedWatchReadRateLimit as chargeEncryptedWatchReadRateLimitInStore,
+  chargePublicIngressPreflightRateLimit as chargePublicIngressPreflightRateLimitInStore,
   chargeReportReadRateLimit as chargeReportReadRateLimitInStore,
   chargePublicScanRateLimit as chargePublicScanRateLimitInStore,
   commitPublicScanRateLimitedOperation,
@@ -944,6 +946,13 @@ export class ScannerContainer extends Container<Env> {
     const now = Date.now();
     return this.ctx.storage.transactionSync(() =>
       chargeEncryptedWatchReadRateLimitInStore(this.ctx.storage.sql, input.clientHash, now)
+    );
+  }
+
+  chargePublicIngressPreflightRateLimit(input: { clientHash: string }): PublicScanRateLimitResult {
+    const now = Date.now();
+    return this.ctx.storage.transactionSync(() =>
+      chargePublicIngressPreflightRateLimitInStore(this.ctx.storage.sql, input.clientHash, now)
     );
   }
 
@@ -2896,6 +2905,8 @@ export default {
     // solved CAPTCHA, a monitor bypass, a scan submission, or quota consumption.
     // It is intentionally not folded into the operator synthetic's result.
     if (request.method === "GET" && url.pathname === "/api/health/public-ingress" && !url.search) {
+      const refused = await chargePublicIngressPreflight(request, env);
+      if (refused) return refused;
       return publicIngressPreflightResponse(request, env);
     }
 
@@ -4783,6 +4794,26 @@ function frontDoorOrigin(env: Env): string | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Charge one ingress preflight to its client (lib/public-scan-rate-limit-store.ts,
+ * per client only). A refusal is the gate's ordinary 429 with Retry-After.
+ * When the charge itself cannot be taken, the preflight is answered anyway:
+ * its own quota peek reads the same store and reports it unavailable, so the
+ * answer stays true without a second refusal sentence for the same fault.
+ */
+async function chargePublicIngressPreflight(request: Request, env: Env): Promise<Response | null> {
+  let charge: PublicScanRateLimitResult;
+  try {
+    const clientHash = await publicClientHash(request.headers);
+    charge = await getContainer(env.SCANNER).chargePublicIngressPreflightRateLimit({ clientHash });
+  } catch (error) {
+    console.error("Could not charge the public ingress preflight.", error);
+    return null;
+  }
+  const refusal = publicIngressPreflightRefusal(charge);
+  return refusal ? gateErrorResponse(refusal, request, env) : null;
 }
 
 async function publicIngressPreflightResponse(request: Request, env: Env): Promise<Response> {
