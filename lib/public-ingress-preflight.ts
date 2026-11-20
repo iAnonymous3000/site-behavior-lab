@@ -2,8 +2,8 @@ import { EdgeScanGateError } from "./edge-scan-gate";
 import type { PublicScanRateLimitResult } from "./public-scan-rate-limit-store";
 
 /**
- * The refusal for a client over the ingress preflight's per-client ceiling.
- * Placeholder wording, held in this one constant, pending the owner's word.
+ * The refusal for a client over the ingress preflight's per-client ceiling,
+ * held in this one constant.
  */
 export const PUBLIC_INGRESS_PREFLIGHT_REFUSAL = "Too many health check requests. Try again shortly.";
 
