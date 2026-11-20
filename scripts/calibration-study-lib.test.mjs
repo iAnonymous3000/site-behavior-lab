@@ -2458,7 +2458,7 @@ test("the prepared commit takes every governed file the assembler writes, artifa
   const kept = commit([...governed, ...artifacts]);
   assert.equal(kept.status, 0, `the governed set with its artifacts was refused: ${kept.stdout}${kept.stderr}`);
   assert.equal(kept.output, `prepared_commit=${"9".repeat(40)}\n`);
-  for (const stray of [`${root}/notes.txt`, `${root}/artifacts/case-a/notes.txt`, `${root}/artifacts/case-a/deeper/label.json`, `${root}/artifacts/top.json`, "calibration/other/study.json", "lib/scanner.ts"]) {
+  for (const stray of [`${root}/notes.txt`, `${root}/artifacts/case-a/notes.txt`, `${root}/artifacts/case-a/deeper/label.json`, `${root}/artifacts/top.json`, "calibration/other/study.json", "calibration/s1xv2/study.json", "lib/scanner.ts"]) {
     const refused = commit([...governed, ...artifacts, stray]);
     assert.notEqual(refused.status, 0, `${stray}: an ungoverned path was committed`);
     assert.match(refused.stdout, /::error::Calibration assembly changed paths outside its governed evidence set\./, stray);
@@ -2518,5 +2518,32 @@ test("the propose job reads the prepared commit as data, and refuses one that is
       assert.match(refused.stdout, /::error::the prepare job named no full prepared commit/, `${name}: ${JSON.stringify(value)}`);
       assert.equal(refused.acted, false, `${name}: ${JSON.stringify(value)}: the step acted before it refused the value`);
     }
+  }
+});
+
+test("the propose job's diff check and the prepare job's commit check read one definition of the governed paths", () => {
+  const root = "calibration/s1.v2";
+  const governed = [
+    "study", "analysis", "runtime-receipt", "artifact-manifest", "labels-manifest",
+    "label-roster-authorization", "roster-selection-ledger", "acquisition-attempt-ledger"
+  ].map((name) => `${root}/${name}.json`);
+  const artifacts = [`${root}/artifacts/case-a/condition.json`, `${root}/artifacts/case-b/label.json`];
+  const kept = runProposeStep(PROPOSE_STEPS[0], "f".repeat(40), [...governed, ...artifacts]);
+  assert.equal(kept.status, 0, `the propose job refused the governed set with its artifacts: ${kept.stdout}${kept.stderr}`);
+  for (const stray of [`${root}/notes.txt`, `${root}/artifacts/case-a/notes.txt`, `${root}/artifacts/case-a/deeper/label.json`, `${root}/artifacts/top.json`, "calibration/s1xv2/study.json", "lib/scanner.ts"]) {
+    const refused = runProposeStep(PROPOSE_STEPS[0], "f".repeat(40), [...governed, ...artifacts, stray]);
+    assert.notEqual(refused.status, 0, `${stray}: the propose job admitted an ungoverned path`);
+    assert.ok(refused.stdout.split("\n").includes(stray), `${stray}: the propose job's refusal does not name the path`);
+  }
+  // The prepare job's check runs in its own test above; both read the one
+  // script, and neither restates the paths.
+  const workflow = CALIBRATION_WORKFLOW();
+  const checks = [
+    workflowStepRun(workflowStep(workflowJob(workflow, "prepare"), "Commit the prepared evidence without its future attestation")),
+    workflowStepRun(workflowStep(workflowJob(workflow, "propose"), "Materialize only the governed prepared JSON diff"))
+  ];
+  for (const check of checks) {
+    assert.match(check, /\| node scripts\/calibration-governed-paths\.mjs "\$CALIBRATION_STUDY_ID"\)"/, "a check does not read the shared definition");
+    assert.doesNotMatch(check, /grep -v -E/, "a check restates the governed paths");
   }
 });

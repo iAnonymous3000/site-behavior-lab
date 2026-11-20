@@ -500,7 +500,8 @@ jobs:
           set -euo pipefail
           study_root="calibration/$CALIBRATION_STUDY_ID"
           git status --short
-          unexpected="$(git status --porcelain=v1 --untracked-files=all | awk '{print $2}' | grep -v -E "^(${study_root}/(study|analysis|runtime-receipt|artifact-manifest|labels-manifest|label-roster-authorization|roster-selection-ledger|acquisition-attempt-ledger)\\.json|${study_root}/artifacts/[^/]+/[^/]+\\.json)$" || true)"
+          # One definition of the governed paths, which the propose job reads too.
+          unexpected="$(git status --porcelain=v1 --untracked-files=all | awk '{print $2}' | node scripts/calibration-governed-paths.mjs "$CALIBRATION_STUDY_ID")"
           if [[ -n "$unexpected" ]]; then
             echo "::error::Calibration assembly changed paths outside its governed evidence set."
             printf '%s\n' "$unexpected"
@@ -693,7 +694,8 @@ jobs:
           git fetch "$bundle" refs/heads/prepared-calibration-evidence
           test "$(git rev-parse FETCH_HEAD)" = "$PREPARED_COMMIT"
           test "$(git rev-parse FETCH_HEAD^)" = "$GITHUB_SHA"
-          unexpected="$(git diff --name-only "$GITHUB_SHA" FETCH_HEAD | grep -v -E "^calibration/${CALIBRATION_STUDY_ID}/((study|analysis|runtime-receipt|artifact-manifest|labels-manifest|label-roster-authorization|roster-selection-ledger|acquisition-attempt-ledger)\\.json|artifacts/)" || true)"
+          # The same definition the prepare job's commit check reads.
+          unexpected="$(git diff --name-only "$GITHUB_SHA" FETCH_HEAD | node scripts/calibration-governed-paths.mjs "$CALIBRATION_STUDY_ID")"
           if [[ -n "$unexpected" ]]; then
             echo "::error::Prepared calibration commit changes paths outside its governed evidence set."
             printf '%s\n' "$unexpected"

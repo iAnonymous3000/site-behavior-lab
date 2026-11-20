@@ -37,6 +37,7 @@ const ROSTER_PRODUCER_CLOSURE_PATHS = [
   "package.json",
   "scripts/calibration-acquisition-authorization-lib.mjs",
   "scripts/calibration-acquisition-authorization.mjs",
+  "scripts/calibration-governed-paths.mjs",
   "scripts/calibration-label-batch-build.mjs",
   "scripts/calibration-label-roster-build.mjs",
   "scripts/calibration-label-roster-lib.mjs",
