@@ -372,6 +372,10 @@ jobs:
     timeout-minutes: 60
     outputs:
       prepared_commit: ${{ steps.commit_prepared.outputs.prepared_commit }}
+      # The attempt whose artifacts this job kept. A rerun of failed jobs
+      # alone runs later jobs as a later attempt and reuses this job's
+      # outputs and artifacts, so they name its artifacts by this value.
+      attempt: ${{ github.run_attempt }}
     permissions:
       contents: read
       actions: read
@@ -456,6 +460,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           CALIBRATION_LABEL_REVEAL_PRIVATE_KEY: ${{ secrets.CALIBRATION_LABEL_REVEAL_PRIVATE_KEY }}
+          # Values reach the script as data, never spliced into its text.
+          LABELS_COMMIT: ${{ steps.labels_lane.outputs.labels_commit }}
+          LABELS_TREE: ${{ steps.labels_lane.outputs.labels_tree }}
+          RUNNER_LABEL: ${{ needs.preflight.outputs.runner_label }}
+          RUNNER_LABEL_SHA256: ${{ needs.preflight.outputs.runner_label_sha256 }}
+          EGRESS_IDENTITY: ${{ needs.preflight.outputs.egress_identity }}
+          EGRESS_REGION_SHA256: ${{ needs.preflight.outputs.egress_region_sha256 }}
         run: |
           set -euo pipefail
           test ! -e "$RUNNER_TEMP/calibration-acquisition"
@@ -470,18 +481,18 @@ jobs:
             --archive "$RUNNER_TEMP/calibration-acquisition.zip" \
             --extracted-dir "$RUNNER_TEMP/calibration-acquisition" \
             --labels-dir "$RUNNER_TEMP/calibration-labels-lane/calibration-labels/$CALIBRATION_STUDY_ID" \
-            --labels-commit "${{ steps.labels_lane.outputs.labels_commit }}" \
-            --labels-tree "${{ steps.labels_lane.outputs.labels_tree }}" \
+            --labels-commit "$LABELS_COMMIT" \
+            --labels-tree "$LABELS_TREE" \
             --labels-path "calibration-labels/$CALIBRATION_STUDY_ID" \
             --run-id "$ACQUISITION_RUN_ID" \
             --run-attempt "$ACQUISITION_RUN_ATTEMPT" \
             --artifact-id "$ACQUISITION_ARTIFACT_ID" \
             --artifact-name "$ARTIFACT_NAME" \
             --archive-sha256 "$ACQUISITION_ARTIFACT_DIGEST" \
-            --runner-label "${{ needs.preflight.outputs.runner_label }}" \
-            --runner-label-sha256 "${{ needs.preflight.outputs.runner_label_sha256 }}" \
-            --egress-identity "${{ needs.preflight.outputs.egress_identity }}" \
-            --egress-region-sha256 "${{ needs.preflight.outputs.egress_region_sha256 }}"
+            --runner-label "$RUNNER_LABEL" \
+            --runner-label-sha256 "$RUNNER_LABEL_SHA256" \
+            --egress-identity "$EGRESS_IDENTITY" \
+            --egress-region-sha256 "$EGRESS_REGION_SHA256"
 
       - name: Commit the prepared evidence without its future attestation
         id: commit_prepared
@@ -548,6 +559,10 @@ jobs:
     if: inputs.mode == 'assemble'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    outputs:
+      # The attempt whose attestation bundle this job kept, for the job after
+      # it; see the prepare job's attempt output.
+      attempt: ${{ github.run_attempt }}
     permissions:
       contents: read
       actions: read
@@ -558,7 +573,7 @@ jobs:
       - name: Download only the exact prepared runtime receipt
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: calibration-runtime-receipt-${{ github.run_id }}-${{ github.run_attempt }}
+          name: calibration-runtime-receipt-${{ github.run_id }}-${{ needs.prepare.outputs.attempt }}
           path: ${{ runner.temp }}/calibration-runtime-receipt
 
       - name: Validate the isolated attestation subject
@@ -660,7 +675,7 @@ jobs:
       - name: Download the exact prepared commit bundle
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: calibration-prepared-commit-${{ github.run_id }}-${{ github.run_attempt }}
+          name: calibration-prepared-commit-${{ github.run_id }}-${{ needs.prepare.outputs.attempt }}
           path: ${{ runner.temp }}/calibration-prepared
 
       - name: Materialize only the governed prepared JSON diff
@@ -683,7 +698,7 @@ jobs:
       - name: Download only the exact attestation bundle
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: calibration-runtime-attestation-${{ github.run_id }}-${{ github.run_attempt }}
+          name: calibration-runtime-attestation-${{ github.run_id }}-${{ needs.attest-receipt.outputs.attempt }}
           path: ${{ runner.temp }}/calibration-runtime-attestation
 
       - name: Finalize the attested binding

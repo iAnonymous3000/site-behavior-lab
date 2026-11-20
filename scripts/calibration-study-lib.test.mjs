@@ -2271,7 +2271,10 @@ function crc32(contents) {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
-// The workflow's own steps, run as Actions would run them.
+// The workflow's own steps, run as Actions would run them. A model fills the
+// `${{ }}` expressions of a job from the context of its attempt: a job output
+// that is not set reads as empty, as on GitHub, and any other name the model
+// does not know fails the test rather than guess.
 const CALIBRATION_WORKFLOW = () => readFileSync(path.join(process.cwd(), ".github", "workflows", "calibration-study.yml"), "utf8");
 
 function workflowJob(workflow, id) {
@@ -2299,11 +2302,132 @@ function workflowStepRun(step) {
   return body.join("\n");
 }
 
+function workflowExpand(template, context) {
+  return template.replace(/\$\{\{ ([A-Za-z0-9_.-]+) \}\}/g, (_, name) => {
+    if (name in context) return context[name];
+    if (/^needs\.[a-z-]+\.outputs\./.test(name)) return "";
+    throw new Error(`the model does not know ${name}`);
+  });
+}
+
+function workflowJobOutputs(job, context) {
+  const block = /\n {4}outputs:\n((?: {6}[^\n]*\n)+)/.exec(job);
+  const outputs = {};
+  for (const line of (block?.[1] ?? "").split("\n")) {
+    const match = /^ {6}([a-z_]+): (.*)$/.exec(line);
+    if (match) outputs[match[1]] = workflowExpand(match[2], context);
+  }
+  return outputs;
+}
+
+function workflowStepEnv(step) {
+  const at = step.indexOf("\n        env:\n");
+  const env = {};
+  if (at === -1) return env;
+  for (const line of step.slice(at + "\n        env:\n".length).split("\n")) {
+    if (/^ {10}#/.test(line)) continue;
+    const match = /^ {10}([A-Z0-9_]+): (.*)$/.exec(line);
+    if (!match) break;
+    env[match[1]] = match[2];
+  }
+  return env;
+}
+
+const artifactName = (step, context) => {
+  const match = /\n {10}name: ([^\n]+)\n/.exec(step);
+  assert.ok(match, "the step names no artifact");
+  return workflowExpand(match[1], context);
+};
+
 function runStepBash(script, env) {
   const result = spawnSync("bash", ["-c", script], { encoding: "utf8", env, timeout: 60_000, killSignal: "SIGKILL" });
   assert.ok(result.error === undefined && result.signal === null, `the step did not exit on its own: ${result.error ?? result.signal}`);
   return result;
 }
+
+test("each calibration job finds the artifacts of the attempt that kept them, on a first run, a full rerun and a rerun of failed jobs alone", () => {
+  const workflow = CALIBRATION_WORKFLOW();
+  const prepare = workflowJob(workflow, "prepare");
+  const attest = workflowJob(workflow, "attest-receipt");
+  const propose = workflowJob(workflow, "propose");
+  // [prepare attempt, attest-receipt attempt, propose attempt]. A rerun of
+  // failed jobs alone reruns the failed job and the jobs after it, and
+  // reuses the outputs and artifacts of the jobs before it.
+  for (const [prepareAttempt, attestAttempt, proposeAttempt] of [[1, 1, 1], [2, 2, 2], [1, 1, 2], [1, 2, 2], [1, 3, 3]]) {
+    const what = `prepare ${prepareAttempt}, attest ${attestAttempt}, propose ${proposeAttempt}`;
+    const base = { "github.run_id": "7001", "inputs.study_id": "s1", "runner.temp": "/runner/temp" };
+    const prepareContext = { ...base, "github.run_attempt": String(prepareAttempt), "steps.commit_prepared.outputs.prepared_commit": "a".repeat(40) };
+    const prepareOutputs = Object.fromEntries(Object.entries(workflowJobOutputs(prepare, prepareContext)).map(([key, value]) => [`needs.prepare.outputs.${key}`, value]));
+    const attestContext = { ...base, ...prepareOutputs, "github.run_attempt": String(attestAttempt) };
+    const attestOutputs = Object.fromEntries(Object.entries(workflowJobOutputs(attest, attestContext)).map(([key, value]) => [`needs.attest-receipt.outputs.${key}`, value]));
+    const proposeContext = { ...base, ...prepareOutputs, ...attestOutputs, "github.run_attempt": String(proposeAttempt) };
+    assert.equal(
+      artifactName(workflowStep(attest, "Download only the exact prepared runtime receipt"), attestContext),
+      artifactName(workflowStep(prepare, "Upload the exact runtime receipt for isolated attestation"), prepareContext),
+      `${what}: the signing job downloads another runtime receipt`
+    );
+    assert.equal(
+      artifactName(workflowStep(propose, "Download the exact prepared commit bundle"), proposeContext),
+      artifactName(workflowStep(prepare, "Upload the exact prepared commit bundle"), prepareContext),
+      `${what}: the proposal job downloads another prepared commit`
+    );
+    assert.equal(
+      artifactName(workflowStep(propose, "Download only the exact attestation bundle"), proposeContext),
+      artifactName(workflowStep(attest, "Upload the attestation bundle for finalization"), attestContext),
+      `${what}: the proposal job downloads another attestation bundle`
+    );
+  }
+});
+
+test("the assemble step hands the preflight's runner label and egress values to the assembler as data, never as shell text", () => {
+  const workflow = CALIBRATION_WORKFLOW();
+  const step = workflowStep(workflowJob(workflow, "prepare"), "Authenticate archive and assemble governed study");
+  const temp = mkdtempSync(path.join(tmpdir(), "sbl-calibration-assemble-step-"));
+  const pwned = path.join(temp, "pwned");
+  // Text a shell would run if it were spliced into the script.
+  const label = `runner "a" $(touch '${pwned}') \`touch '${pwned}'\` ; touch '${pwned}'`;
+  const context = {
+    "github.token": "unused",
+    "secrets.CALIBRATION_LABEL_REVEAL_PRIVATE_KEY": "unused",
+    "steps.labels_lane.outputs.labels_commit": "1".repeat(40),
+    "steps.labels_lane.outputs.labels_tree": "2".repeat(40),
+    "needs.preflight.outputs.runner_label": label,
+    "needs.preflight.outputs.runner_label_sha256": "3".repeat(64),
+    "needs.preflight.outputs.egress_identity": `egress "b" $(touch '${pwned}')`,
+    "needs.preflight.outputs.egress_region_sha256": "4".repeat(64)
+  };
+  const recorder = path.join(temp, "npm-args");
+  const stepEnv = Object.fromEntries(Object.entries(workflowStepEnv(step)).map(([key, value]) => [key, workflowExpand(value, context)]));
+  const result = runStepBash(`npm() { printf '%s\\0' "$@" > "$RECORDER"; }\n${workflowExpand(workflowStepRun(step), context)}`, {
+    PATH: process.env.PATH ?? "",
+    RECORDER: recorder,
+    RUNNER_TEMP: temp,
+    GITHUB_SHA: "5".repeat(40),
+    CALIBRATION_STUDY_ID: "s1",
+    CALIBRATION_DETECTOR: "pixel-events",
+    CALIBRATION_CANDIDATE_COMMIT: "6".repeat(40),
+    ACQUISITION_RUN_ID: "7001",
+    ACQUISITION_RUN_ATTEMPT: "1",
+    ACQUISITION_ARTIFACT_ID: "8001",
+    ACQUISITION_ARTIFACT_DIGEST: "7".repeat(64),
+    ARTIFACT_NAME: "site-behavior-calibration-s1-7001-1",
+    ...stepEnv
+  });
+  try {
+    assert.equal(existsSync(pwned), false, "a preflight value ran as shell text");
+    assert.equal(result.status, 0, `the assemble step failed: ${result.stderr}`);
+    const args = readFileSync(recorder, "utf8").split("\0").slice(0, -1);
+    const value = (flag) => args[args.indexOf(flag) + 1];
+    assert.equal(value("--runner-label"), label, "the assembler was given another runner label");
+    assert.equal(value("--egress-identity"), context["needs.preflight.outputs.egress_identity"], "the assembler was given another egress identity");
+    assert.equal(value("--labels-commit"), "1".repeat(40));
+    assert.equal(value("--labels-tree"), "2".repeat(40));
+    assert.equal(value("--runner-label-sha256"), "3".repeat(64));
+    assert.equal(value("--egress-region-sha256"), "4".repeat(64));
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+});
 
 test("the prepared commit takes every governed file the assembler writes, artifacts included, and refuses any other path", () => {
   const workflow = CALIBRATION_WORKFLOW();
