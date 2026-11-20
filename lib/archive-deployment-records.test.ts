@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -31,6 +32,8 @@ type Helpers = {
   archivePaths(run: Run): { record: string; bundle: string };
   recordAttestationArgs(file: string, commit: string): string[];
   collectDeploymentRecords(input: { runIds: number[]; root: string; gh: Gh; verifier: Gh }): string[];
+  recordBundleProblems(recordBytes: Buffer, bundleText: string): string[];
+  keptRecordProblems(root: string): { records: number; names: string[]; problems: string[] };
 };
 type RecordLib = {
   DEPLOYMENT_RECORD_FILE: string;
@@ -217,4 +220,81 @@ test("the workflow is started only by hand from main, passes the run ids through
   assert.match(workflow, /PROPOSAL_BRANCH: automation\/production-deployments-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}\n/);
   assert.doesNotMatch(workflow, /id-token|secrets\.|npm ci|--force/);
   assert.match(workflow, /git add research\/production-deployments\n/);
+});
+
+// A bundle line of the shape GitHub's artifact attestation writes: a DSSE
+// envelope whose payload is an in-toto statement with SLSA provenance v1.
+// The shape follows GitHub's documented workflow build type; the first real
+// kept record is the first bundle of this repository it is read against.
+function bundleLine(recordBytes: Buffer, change: (statement: Record<string, any>) => void = () => {}): string {
+  const statement: Record<string, any> = {
+    _type: "https://in-toto.io/Statement/v1",
+    subject: [{ name: "production-container-readback.json", digest: { sha256: createHash("sha256").update(recordBytes).digest("hex") } }],
+    predicateType: "https://slsa.dev/provenance/v1",
+    predicate: {
+      buildDefinition: {
+        buildType: "https://actions.github.io/buildtypes/workflow/v1",
+        externalParameters: { workflow: { ref: "refs/heads/production", repository: "https://github.com/iAnonymous3000/site-behavior-lab", path: ".github/workflows/deploy-container.yml" } },
+        resolvedDependencies: [{ uri: "git+https://github.com/iAnonymous3000/site-behavior-lab@refs/heads/production", digest: { gitCommit: COMMIT } }]
+      }
+    }
+  };
+  change(statement);
+  return `${JSON.stringify({
+    mediaType: "application/vnd.dev.sigstore.bundle.v0.3+json",
+    dsseEnvelope: { payloadType: "application/vnd.in-toto+json", payload: Buffer.from(JSON.stringify(statement)).toString("base64"), signatures: [{ sig: "c2ln" }] }
+  })}\n`;
+}
+
+test("a kept bundle names its record offline by digest, signer workflow, ref, repository and commit", async () => {
+  const { recordBundleProblems } = await helpers;
+  const state = await world([101]);
+  const bytes = Buffer.from(state.records.get(101)!);
+  assert.deepEqual(recordBundleProblems(bytes, bundleLine(bytes)), []);
+  const cases: [string, Buffer, string][] = [
+    ["a record changed after signing", Buffer.from(bytes.toString().replace("production-app", "other-app")), bundleLine(bytes)],
+    ["another workflow", bytes, bundleLine(bytes, (s) => { s.predicate.buildDefinition.externalParameters.workflow.path = ".github/workflows/ci.yml"; })],
+    ["the main branch", bytes, bundleLine(bytes, (s) => { s.predicate.buildDefinition.externalParameters.workflow.ref = "refs/heads/main"; })],
+    ["a fork", bytes, bundleLine(bytes, (s) => { s.predicate.buildDefinition.externalParameters.workflow.repository = "https://github.com/someone/site-behavior-lab"; })],
+    ["another commit", bytes, bundleLine(bytes, (s) => { s.predicate.buildDefinition.resolvedDependencies[0].digest.gitCommit = "2".repeat(40); })],
+    ["another predicate", bytes, bundleLine(bytes, (s) => { s.predicateType = "https://example.invalid/other"; })]
+  ];
+  for (const [what, record, bundle] of cases) {
+    const problems = recordBundleProblems(record, bundle);
+    assert.ok(problems.some((problem) => /no statement in the bundle names this record/.test(problem)), `${what}: ${JSON.stringify(problems)}`);
+  }
+  assert.deepEqual(recordBundleProblems(bytes, "not json\n"), ["the bundle holds a line that is no in-toto statement"]);
+});
+
+test("a kept folder refuses a record without its bundle, a bundle without its record, and a stray file", async () => {
+  const { keptRecordProblems, ARCHIVE_DIRECTORY } = await helpers;
+  const state = await world([101]);
+  const bytes = Buffer.from(state.records.get(101)!);
+  const target = scratchRoot();
+  try {
+    const directory = path.join(target, ARCHIVE_DIRECTORY);
+    mkdirSync(directory, { recursive: true });
+    writeFileSync(path.join(directory, ".gitkeep"), "");
+    writeFileSync(path.join(directory, "101-1.json"), bytes);
+    writeFileSync(path.join(directory, "101-1.bundle.jsonl"), bundleLine(bytes));
+    assert.deepEqual(keptRecordProblems(target), { records: 1, names: [".gitkeep", "101-1.bundle.jsonl", "101-1.json"], problems: [] });
+    writeFileSync(path.join(directory, "102-1.bundle.jsonl"), bundleLine(bytes));
+    writeFileSync(path.join(directory, "103-1.json"), bytes);
+    writeFileSync(path.join(directory, "notes.txt"), "x");
+    const { problems } = keptRecordProblems(target);
+    for (const expected of [/^103-1\.json has no bundle beside it$/, /^102-1\.bundle\.jsonl has no record beside it$/, /^notes\.txt is neither a record, a bundle nor \.gitkeep$/]) {
+      assert.ok(problems.some((problem) => expected.test(problem)), `${expected}: ${JSON.stringify(problems)}`);
+    }
+  } finally {
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("every kept deployment record binds to its bundle, and with none kept the folder holds only .gitkeep", async () => {
+  const { keptRecordProblems } = await helpers;
+  const kept = keptRecordProblems(root);
+  if (kept.records === 0) {
+    assert.deepEqual(kept.names, [".gitkeep"], "no record is kept yet, so the folder holds only .gitkeep");
+  }
+  assert.deepEqual(kept.problems, []);
 });

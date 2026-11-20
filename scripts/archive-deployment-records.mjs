@@ -21,6 +21,7 @@
 // with the record's image, and nothing shows that a scan ran in it.
 
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { constants as fsConstants, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -68,6 +69,92 @@ export const recordArtifactName = (run) => `production-container-readback-${run.
 export function archivePaths(run) {
   const stem = `${ARCHIVE_DIRECTORY}/${run.id}-${run.run_attempt}`;
   return { record: `${stem}.json`, bundle: `${stem}.bundle.jsonl` };
+}
+
+export const PROVENANCE_PREDICATE = "https://slsa.dev/provenance/v1";
+const KEPT_RECORD = /^([1-9][0-9]{0,15})-([1-9][0-9]{0,3})\.json$/;
+
+function decodedStatement(line) {
+  try {
+    const bundle = JSON.parse(line);
+    const envelope = bundle?.dsseEnvelope;
+    if (envelope?.payloadType !== "application/vnd.in-toto+json" || typeof envelope.payload !== "string") return null;
+    return JSON.parse(Buffer.from(envelope.payload, "base64").toString("utf8"));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Every way a kept bundle fails to name a kept record, offline: no line of
+ * the bundle is a provenance statement whose subject is the record's exact
+ * bytes, made by the deploy workflow of this repository on the production
+ * branch at the record's commit. The signature itself is checked when the
+ * record is proposed (recordAttestationArgs); this reads what it signed.
+ */
+export function recordBundleProblems(recordBytes, bundleText) {
+  const digest = createHash("sha256").update(recordBytes).digest("hex");
+  let record;
+  try {
+    record = JSON.parse(recordBytes.toString("utf8"));
+  } catch {
+    return ["the record is not JSON"];
+  }
+  const statements = String(bundleText).split("\n").filter((line) => line.trim() !== "").map(decodedStatement);
+  if (statements.length === 0 || statements.some((statement) => statement === null)) return ["the bundle holds a line that is no in-toto statement"];
+  const binds = (statement) => {
+    const workflow = statement?.predicate?.buildDefinition?.externalParameters?.workflow;
+    const dependencies = statement?.predicate?.buildDefinition?.resolvedDependencies;
+    return statement?.predicateType === PROVENANCE_PREDICATE &&
+      Array.isArray(statement.subject) && statement.subject.some((subject) => subject?.digest?.sha256 === digest) &&
+      workflow?.path === DEPLOY_WORKFLOW && workflow?.ref === "refs/heads/production" &&
+      workflow?.repository === `https://github.com/${REPOSITORY}` &&
+      Array.isArray(dependencies) && dependencies.some((dependency) => dependency?.digest?.gitCommit === record?.sourceCommit);
+  };
+  if (!statements.some(binds)) {
+    return [`no statement in the bundle names this record (sha256 ${digest}) as made by ${DEPLOY_WORKFLOW} on refs/heads/production at ${record?.sourceCommit}`];
+  }
+  return [];
+}
+
+/** Every way the kept records under `root` fall short, and how many there are. */
+export function keptRecordProblems(root) {
+  const directory = path.join(root, ARCHIVE_DIRECTORY);
+  const names = existsSync(directory) ? readdirSync(directory).sort() : [];
+  const problems = [];
+  let records = 0;
+  for (const name of names) {
+    if (name === ".gitkeep" || name.endsWith(".bundle.jsonl")) continue;
+    const kept = KEPT_RECORD.exec(name);
+    if (kept === null) {
+      problems.push(`${name} is neither a record, a bundle nor .gitkeep`);
+      continue;
+    }
+    records += 1;
+    const bundleName = name.replace(/\.json$/, ".bundle.jsonl");
+    if (!names.includes(bundleName)) {
+      problems.push(`${name} has no bundle beside it`);
+      continue;
+    }
+    const bytes = readFileSync(path.join(directory, name));
+    let record = null;
+    try {
+      record = JSON.parse(bytes.toString("utf8"));
+    } catch {
+      problems.push(`${name} is not JSON`);
+      continue;
+    }
+    for (const problem of deploymentRecordProblems(record, { commit: record?.sourceCommit, deployRunId: Number(kept[1]), deployRunAttempt: Number(kept[2]) })) {
+      problems.push(`${name}: ${problem}`);
+    }
+    for (const problem of recordBundleProblems(bytes, readFileSync(path.join(directory, bundleName), "utf8"))) {
+      problems.push(`${name}: ${problem}`);
+    }
+  }
+  for (const name of names.filter((entry) => entry.endsWith(".bundle.jsonl"))) {
+    if (!names.includes(name.replace(/\.bundle\.jsonl$/, ".json"))) problems.push(`${name} has no record beside it`);
+  }
+  return { records, names, problems };
 }
 
 /** The arguments that verify a record as signed by the deploy workflow at its commit on the production branch. */
