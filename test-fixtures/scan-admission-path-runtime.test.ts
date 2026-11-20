@@ -1,7 +1,12 @@
 import { DurableObject } from "cloudflare:workers";
 import worker from "../cloudflare/container-worker";
 import { chargeAdmissionAttempt } from "../lib/admission-attempt-limit";
-import { chargePublicScanRateLimit, type PublicScanRateLimitCharge } from "../lib/public-scan-rate-limit-store";
+import {
+  chargePublicIngressPreflightRateLimit,
+  chargePublicScanRateLimit,
+  peekPublicScanRateLimit,
+  type PublicScanRateLimitCharge
+} from "../lib/public-scan-rate-limit-store";
 
 // Real public Worker routing and scan gate, with only the container-owning DO
 // replaced. The DO runs the real attempt and quota ledgers on its own SQLite
@@ -20,6 +25,20 @@ export class ScanAdmissionPathHarness extends DurableObject {
   chargePublicScanRateLimit(input: PublicScanRateLimitCharge) {
     return this.ctx.storage.transactionSync(() =>
       chargePublicScanRateLimit(this.ctx.storage.sql, input, Date.now())
+    );
+  }
+
+  // The ingress preflight's per-client charge and its non-consuming quota
+  // peek, on the same real store.
+  chargePublicIngressPreflightRateLimit({ clientHash }: { clientHash: string }) {
+    return this.ctx.storage.transactionSync(() =>
+      chargePublicIngressPreflightRateLimit(this.ctx.storage.sql, clientHash, Date.now())
+    );
+  }
+
+  peekPublicScanRateLimit(input: PublicScanRateLimitCharge) {
+    return this.ctx.storage.transactionSync(() =>
+      peekPublicScanRateLimit(this.ctx.storage.sql, input, Date.now())
     );
   }
 

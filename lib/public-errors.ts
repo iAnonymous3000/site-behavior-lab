@@ -87,12 +87,19 @@ export function publicErrorBody(publicError: ReturnType<typeof toPublicError>): 
 }
 
 /**
- * The headers that go with that body. A refusal whose body carries a wait
- * also sends it as Retry-After, from the same field, so the two cannot
- * disagree. The browser's status poller honors only the header: without it a
- * fixed-minute quota refusal left the poller three short backoffs that ended
- * inside the same minute, and it gave up while the wait still ran.
+ * The headers that go with that body. Every error is sent uncached and
+ * unsniffed: a refusal answered at the edge never passes next.config's /api
+ * headers, so these travel with the body instead. A refusal whose body
+ * carries a wait also sends it as Retry-After, from the same field, so the
+ * two cannot disagree. The browser's status poller honors only that header:
+ * without it a fixed-minute quota refusal left the poller three short
+ * backoffs that ended inside the same minute, and it gave up while the wait
+ * still ran.
  */
 export function publicErrorHeaders(publicError: ReturnType<typeof toPublicError>): Record<string, string> {
-  return publicError.retryAfterSeconds === undefined ? {} : { "Retry-After": String(publicError.retryAfterSeconds) };
+  return {
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    ...(publicError.retryAfterSeconds === undefined ? {} : { "Retry-After": String(publicError.retryAfterSeconds) })
+  };
 }

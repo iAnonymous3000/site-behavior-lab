@@ -4883,7 +4883,8 @@ async function publicIngressPreflightResponse(request: Request, env: Env): Promi
     headers: {
       ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),
       "content-type": "application/json; charset=utf-8",
-      "cache-control": "no-store"
+      "cache-control": "no-store",
+      "x-content-type-options": "nosniff"
     }
   });
 }
@@ -5501,8 +5502,10 @@ function gateErrorResponse(error: unknown, request: Request, env: Env): Response
   // The Worker and the Node route are two producers of one contract. Both emit
   // `cause` from the same `toPublicError`, so the client has a single shape to
   // read and neither side can drift into its own error vocabulary. The body is
-  // built by `publicErrorBody`, which also carries a quota refusal's wait, and
-  // `publicErrorHeaders` sends that same wait as Retry-After.
+  // built by `publicErrorBody`, which also carries a quota refusal's wait.
+  // `publicErrorHeaders` sends that same wait as Retry-After, and marks every
+  // refusal no-store and nosniff, since an edge answer never passes
+  // next.config's /api headers.
   return new Response(JSON.stringify(publicErrorBody(publicError)), {
     status: publicError.status,
     headers: {

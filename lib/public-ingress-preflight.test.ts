@@ -19,7 +19,11 @@ test("the ceiling refuses with the gate's existing shape and a Retry-After", () 
     error: PUBLIC_INGRESS_PREFLIGHT_REFUSAL,
     retryAfterSeconds: 37
   }, "the body is the gate's existing refusal shape, without a cause");
-  assert.deepEqual(publicErrorHeaders(publicError), { "Retry-After": "37" });
+  assert.deepEqual(
+    publicErrorHeaders(publicError),
+    { "Cache-Control": "no-store", "Retry-After": "37", "X-Content-Type-Options": "nosniff" },
+    "the refusal's headers are the shared error headers"
+  );
 });
 
 test("Production Health's preflights stay far under the per-client ceiling", () => {

@@ -94,10 +94,40 @@ test("a quota refusal carries its wait as data, and every other body keeps its e
 
 test("a refusal that carries a wait also sends it as Retry-After, and no other body gains the header", () => {
   const withWait = toPublicError(new PublicScanError("Too many report requests. Try again in about 37 seconds.", 429, undefined, 37));
-  assert.deepEqual(publicErrorHeaders(withWait), { "Retry-After": "37" });
+  assert.equal(publicErrorHeaders(withWait)["Retry-After"], "37");
   assert.equal(publicErrorBody(withWait).retryAfterSeconds, 37, "the header and the body carry the same wait");
 
-  assert.deepEqual(publicErrorHeaders(toPublicError(new PublicScanError("Refused.", 429))), {});
-  assert.deepEqual(publicErrorHeaders(toPublicError(new PublicScanError("Refused.", 429, undefined, 0))), {}, "no wait of 0");
-  assert.deepEqual(publicErrorHeaders(toPublicError(new Error("unexpected"))), {});
+  assert.equal(publicErrorHeaders(toPublicError(new PublicScanError("Refused.", 429)))["Retry-After"], undefined);
+  assert.equal(
+    publicErrorHeaders(toPublicError(new PublicScanError("Refused.", 429, undefined, 0)))["Retry-After"],
+    undefined,
+    "no wait of 0"
+  );
+  assert.equal(publicErrorHeaders(toPublicError(new Error("unexpected")))["Retry-After"], undefined);
+});
+
+test("every public error is sent uncached and unsniffed, and gains no other header", () => {
+  // The Worker's gate refusals are answered at the edge, so next.config's
+  // /api headers never reach them. These two travel with the body instead.
+  const errors: Array<[string, ReturnType<typeof toPublicError>]> = [
+    ["a refusal with a wait", toPublicError(new PublicScanError("Refused.", 429, undefined, 37))],
+    ["a refusal without a wait", toPublicError(new PublicScanError("Refused.", 429))],
+    ["a caused refusal", toPublicError(new PublicScanError("Refused.", 400, "invalid-url"))],
+    ["an unexpected error", toPublicError(new Error("unexpected"))]
+  ];
+  for (const [label, publicError] of errors) {
+    const headers = publicErrorHeaders(publicError);
+    assert.equal(headers["Cache-Control"], "no-store", `${label} is never cached`);
+    assert.equal(headers["X-Content-Type-Options"], "nosniff", `${label} is never sniffed`);
+  }
+  assert.deepEqual(
+    publicErrorHeaders(errors[0][1]),
+    { "Cache-Control": "no-store", "Retry-After": "37", "X-Content-Type-Options": "nosniff" },
+    "a refusal with a wait gains exactly these headers"
+  );
+  assert.deepEqual(
+    publicErrorHeaders(errors[1][1]),
+    { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" },
+    "a refusal without a wait gains exactly these headers"
+  );
 });
