@@ -312,7 +312,9 @@ function buildUncorrectedReportHeadline(
   const crossSiteState = phaseNotes.crossSite.state;
   // A visit with no phases that did act on the page: its lead names its log,
   // not what the site "contacted" (owner packet H-A5.3). A truncated log keeps
-  // its own "retained log includes" lead.
+  // its own "retained log includes" lead. A visit with phases never reaches
+  // this state: one with an untagged cross-site row is "untagged-rows", which
+  // takes no phase lead and no note.
   const unknownLead = (claim: string): string | null =>
     crossSiteState === "unknown-after-action" && requestState !== "censored"
       ? unknownPhaseLead(domain, extrasVisitLabel, phaseNotes.recorded.kinds, claim)

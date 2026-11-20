@@ -27,11 +27,15 @@ export type ScannerActionPhase = Exclude<PhaseKind, "passive-load">;
  * - `page-load-only`: every counted row was recorded in page load.
  * - `mixed`: some in page load, some after a scanner action.
  * - `all-after-action`: none in page load.
- * - `unknown-after-action`: the report records no phases (or a counted row
- *   carries none), and the visit recorded a scanner action whose requests are
- *   in the counts, so the split cannot be stated.
+ * - `unknown-after-action`: the report records no phases, and the visit
+ *   recorded a scanner action whose requests are in the counts, so the split
+ *   cannot be stated.
  * - `no-action-recorded`: the report records no phases and no scanner action
  *   whose requests are in the counts.
+ * - `untagged-rows`: the report records phases, but a cross-site row of the
+ *   visit (or a row the claim counts) carries none. Nothing is stated: not a
+ *   split read from the tagged rows alone, and not the note for a report
+ *   without phases, whose wording is for reports without phases only.
  */
 export type CrossSitePhaseState =
   | "no-rows"
@@ -39,7 +43,8 @@ export type CrossSitePhaseState =
   | "mixed"
   | "all-after-action"
   | "unknown-after-action"
-  | "no-action-recorded";
+  | "no-action-recorded"
+  | "untagged-rows";
 
 export type CrossSitePhaseSplit = {
   state: CrossSitePhaseState;
@@ -124,6 +129,11 @@ export function crossSitePhaseSplit(
 
   const total = counted.length;
   const unphasedActionRecorded = input.unphased.consentClick || input.unphased.typingCounted;
+  // Decided for the whole visit, not for the claim's rows alone: a claim whose
+  // own rows all carry a phase still states nothing when another cross-site
+  // row of the same visit carries none.
+  const untagged =
+    kindById !== null && (unknownRows > 0 || run.evidence.requests.some((request) => request.thirdParty && kindOf(request) === null));
   const state: CrossSitePhaseState =
     total === 0
       ? "no-rows"
@@ -131,8 +141,8 @@ export function crossSitePhaseSplit(
         ? unphasedActionRecorded
           ? "unknown-after-action"
           : "no-action-recorded"
-        : unknownRows > 0
-          ? "unknown-after-action"
+        : untagged
+          ? "untagged-rows"
           : afterAction === 0
             ? "page-load-only"
             : afterAction === total

@@ -115,7 +115,8 @@ test("actions are listed in phase order, consent before the probe", () => {
 test("a phased visit with a counted row that carries no phase is never called page-load-only", () => {
   const run = phasedRun(PROBE, [{ domain: "a.example.net", thirdParty: true, phase: "passive-load" }]);
   delete (run.evidence.requests[0] as { phaseId?: number }).phaseId;
-  assert.equal(crossSitePhaseSplit(run, { requestsCensored: false, unphased: NO_ACTION }).state, "unknown-after-action");
+  // Nor called unknown: that state, and its note, are for a report with no phases.
+  assert.equal(crossSitePhaseSplit(run, { requestsCensored: false, unphased: NO_ACTION }).state, "untagged-rows");
 });
 
 test("a visit with no counted row has no split to state", () => {
