@@ -885,3 +885,19 @@ test("the issue replay keeps the existing lane rules: a shallow pass closes a po
   ]);
   assert.deepEqual(deep.map((run) => run.state), ["open", "open", "closed"]);
 });
+
+test("posture is skipped only while a rollout is pending, which is what the issue close rule relies on", () => {
+  // The close rule treats "posture executed" as "this passing run executed a
+  // check". That holds only while a rollout in progress is the one way a
+  // passing run can skip posture. A second exit that skips it must fail here,
+  // so whoever adds one also revisits the close rule.
+  const start = requireIndex(workflow, "- name: Validate availability and production posture\n", WORKFLOW);
+  const step = workflow.slice(start, workflow.indexOf("\n      - name: ", start + 1));
+  assert.match(step, /\n {8}id: posture\n/);
+  const gates = step.match(/^ {8}if: .*$/gm) ?? [];
+  assert.deepEqual(
+    gates,
+    ["        if: steps.rollout.outputs.pending != 'true'"],
+    "posture must be gated only by the rollout-pending output"
+  );
+});
