@@ -82,7 +82,7 @@ The takeover session provisioned staging on 2026-11-17 from a clean clone of the
 
 Each of these departs from the playbook or the runbook, and each is stated here so that a reader can weigh the rounds with it.
 
-- The R2 key values of the staging token went through a chat: the owner pasted them there when the token was created. The key was treated as exposed from then. The owner chose to use it for the session rather than replace it first, and revokes it after the session; its revocation is recorded with the bucket step, which this record does not yet include.
+- The R2 key values of the staging token went through a chat: the owner pasted them there when the token was created. The key was treated as exposed from then. The owner chose to use it for the session rather than replace it first, and revoked it after the session, on 2026-11-18. A readback of the account's R2 API tokens in the dashboard at 01:32 UTC that day no longer listed the staging token; the account token for the production bucket remained.
 - The account-name field of Wrangler's identity check was not printed.
 - No capture-only retry was used, and no arm was rerun.
 - Round 1's two captures are about 70 minutes apart: the baseline's scans started between 20:45 and 20:49 UTC and the candidate's between 21:55 and 21:59 UTC. Round 2's are about 8 minutes apart.
@@ -220,10 +220,25 @@ Read back after it, and again in a read-only inventory:
 
 Not done when this record was committed: the bucket step. The staging bucket is not emptied or deleted, and this record does not claim it. It is to be added here when it is done.
 
+Later, on 2026-11-18 at 23:41 UTC, the bucket's count read 0 objects: its 1-day lifecycle rule had expired the 90. A count can lag the bucket's listing, so the bucket is deleted only after the owner reads an empty listing in the dashboard. That step is still to be added here.
+
 ## The investigation runner's lag
 
 The investigation runner does not move with this epoch. It stays at Playwright 1.65.0: its S5c fixture image installs the packages of its own steps lock (`investigation/runner/s5/steps/package-lock-1.65.0.json`: playwright and playwright-core 1.65.0, tldts and tldts-core 7.4.16, undici 8.12.3), and its steps guard (`investigation/runner/s5/steps/check-and-transpile.cjs`) refuses to build that image while the commit's `package-lock.json` holds another version, resolved URL or integrity for any of those packages. The repository lock has differed in undici since `6d9ec912` (8.12.4), and with this epoch it also differs in Playwright (1.65.1) and tldts (7.5.4). So the S5c fixture image does not build at the commit to be released until the runner's steps move; S5f is the step that moves them.
 
 ## Publication
 
-To be filled after the live readback.
+Added on 2026-11-20 after the live readback. Everything above this section is as it was committed before the promotion, except the token sentence under Deviations and the later paragraph under Staging teardown.
+
+Release 3 is `587e2a80`: the staged candidate `c088b020` and four commits that change only this record, its receipts, their tests, the changelog and notes, none of them scanner source, the Dockerfile, a dependency or a lockfile.
+
+- `main` was fast-forwarded from `7ad4bd5b` to `587e2a80` at 09:00:45 UTC on 2026-11-18, after the tldts 7.5.4 minimum age, with `main` and `production` both read at `7ad4bd5b`.
+- CI run [44271944079](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/44271944079) succeeded on its first attempt, and `production` moved to `587e2a80` at 09:18:35 UTC. Both deploys then failed twice: the deploy resolver reads the job list of the run's attempt, and attempt 1's list still held a Docker job that GitHub left queued and never ran, beside the one that did. A full rerun, attempt 2, succeeded at 09:58:43 UTC with 21 jobs, and both deploys succeeded on their third attempt (Pages 10:00:44 UTC, container 10:04:50 UTC).
+- The image production runs is the one CI attempt 2 built and attested, `site-behavior-lab-scanner@sha256:4cef21ec51230b9f37337895998ed3711ab428e97591bd6d325952e11676c65a`, as [Deploy Tested Container](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/44274689360) attempt 3 read it back from the provider. It is not the staged candidate's image (`83adcc04…`): CI builds its own image from the source, which is why the exception says nothing about the image main CI builds.
+- Live readback at 10:06:49 UTC: the scanner and Pages both report `587e2a80`, status ok, no warnings, and the health endpoint reports the ad-block engine `adblock-rust-0.13.5`. The governed Production Health run [44281964551](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/44281964551) concluded success.
+
+What this publication evidence does not show:
+
+- No production report was read for the browser version it records. That production runs Chromium 159.0.8154.6 rests on the image CI built and tested, whose build fails unless the base's browser is that Chrome for Testing build, and on the deploy of that image.
+- By the playbook this epoch is published without a completed A/B gate, under the owner's decision recorded above. Round 1 stays INCONCLUSIVE and round 2 stays FAIL.
+- The staging bucket remained when this section was written.
