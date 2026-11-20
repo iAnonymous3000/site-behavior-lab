@@ -1315,7 +1315,7 @@ report facts, and RC-A holds the activity slice with them in it.
   - `lib/fv-report-consistency.test.ts`: "RC: no rule fires on any pair whose two visits carry each typing disclosure, over each design"
   - `lib/fv-report-consistency.test.ts`: "RC: no rule fires on a visit whose counted rows were recorded in page load, partly or wholly during the typing probe"
 - **Variants:** none: the faults that break the phase note and the caveat are members of the family RC cites, names beginning "RC catches a variant", which held tests before this row's commit and so is cited by RC alone.
-- **Commit:** a8ac2e4558a79e356800e85d374eed082a1c19d9
+- **Commit:** 7f632fa7fefcd3b4e68894f38f777a9a91091741
 
 ### RC-A. The activity slice, with the classes the walk first found
 
