@@ -45,7 +45,7 @@ function consentPhrase(mode: ConsentMode | null): string | null {
 }
 
 /**
- * "during the scanner's typing probe", "after the scanner clicked Reject all",
+ * "during the scanner's typing test", "after the scanner clicked Reject all",
  * or both, in phase order. A post-choice reload belongs to the click; its
  * requests are not recorded at all.
  */
@@ -58,18 +58,25 @@ function whenRecorded(actions: readonly ScannerActionPhase[], consentMode: Conse
     return null;
   }
   if ((actions.includes("consent-interaction") || actions.includes("post-choice-reload")) && clicked) parts.push(`after ${clicked}`);
-  if (actions.includes("active-probe")) parts.push(parts.length > 0 ? "during its typing probe" : "during the scanner's typing probe");
+  if (actions.includes("active-probe")) parts.push(parts.length > 0 ? "during its typing test" : "during the scanner's typing test");
   if (actions.includes("policy-analysis")) {
     parts.push(parts.length > 0 ? "while it read the privacy policy" : "while the scanner read the privacy policy");
   }
   return parts.length > 0 ? parts.join(" or ") : null;
 }
 
-function unknownActionsText(kinds: readonly RecordedScannerAction[]): string | null {
-  if (kinds.includes("consent click") && kinds.includes("typing probe")) return "consent click or typing probe";
-  if (kinds.includes("consent click")) return "consent click";
-  if (kinds.includes("typing probe")) return "typing probe";
-  return null;
+/**
+ * The note for a report without phases whose record shows a scanner action
+ * in its counts. The typing form is the owner's sentence word for word
+ * (2026-11-20); the consent forms follow it with the reader's term for the
+ * click. Only a report that records no phases reaches it: a report with
+ * phases states its split, or states nothing (lib/report-phase-split.ts).
+ */
+function unphasedNote(kinds: readonly RecordedScannerAction[]): string | null {
+  const when: string[] = [];
+  if (kinds.includes("consent click")) when.push("after the consent click");
+  if (kinds.includes("typing test")) when.push("during the typing test");
+  return when.length > 0 ? `This report does not record which requests came ${when.join(" or ")}.` : null;
 }
 
 /** The entity clause of a mixed note: the claim's own named set, counted by its own split. */
@@ -77,17 +84,15 @@ export type NoteEntities = { split: CrossSitePhaseSplit; total: number; noun: No
 
 /**
  * The note for one split, or null where there is nothing to say (page load
- * only, no rows, no action recorded). The unknown note has one sentence and
- * no timing sentence: it states that no phase was recorded.
+ * only, no rows, no action recorded, or a report with phases whose cross-site
+ * rows are not all tagged). The unknown note has one sentence and no timing
+ * sentence: it states that no phase was recorded.
  */
 export function phaseNote(
   split: CrossSitePhaseSplit,
   input: { noun: NoteNoun; consentMode: ConsentMode | null; recorded: RecordedScannerActions; entities?: NoteEntities }
 ): string | null {
-  if (split.state === "unknown-after-action") {
-    const actions = unknownActionsText(input.recorded.kinds);
-    return actions ? `This report does not record which requests came during the scanner's ${actions}.` : null;
-  }
+  if (split.state === "unknown-after-action") return unphasedNote(input.recorded.kinds);
   if (split.state !== "mixed" && split.state !== "all-after-action") return null;
   const when = whenRecorded(split.actions, input.consentMode, input.recorded.consentClick);
   if (!when) return null;
@@ -113,12 +118,12 @@ export function phaseNote(
  */
 export function unknownPhaseLead(site: string, visitLabel: string | null, kinds: readonly RecordedScannerAction[], claim: string): string | null {
   const included =
-    kinds.includes("consent click") && kinds.includes("typing probe")
-      ? "a consent click and a typing probe"
+    kinds.includes("consent click") && kinds.includes("typing test")
+      ? "a consent click and a typing test"
       : kinds.includes("consent click")
         ? "a consent click"
-        : kinds.includes("typing probe")
-          ? "a typing probe"
+        : kinds.includes("typing test")
+          ? "a typing test"
           : null;
   if (!included) return null;
   return visitLabel
@@ -147,7 +152,7 @@ export function pairActionCaveat(
     return `The two visits recorded different scanner actions; part of this difference may come from them, not ${setting}.`;
   }
   const [label, only] = onlyBaseline.length > 0 ? [labels.baseline, onlyBaseline] : [labels.variant, onlyVariant];
-  const action = only.length === 2 ? "the scanner's consent click and typing probe" : `the scanner's ${only[0]}`;
+  const action = only.length === 2 ? "the scanner's consent click and typing test" : `the scanner's ${only[0]}`;
   return `Only the visit labeled ${label} recorded ${action}; part of this difference may come from ${only.length === 2 ? "them" : "it"}, not ${setting}.`;
 }
 

@@ -753,7 +753,7 @@ const FAULTS: readonly Fault[] = [
     name: "a comparison carries a different-actions caveat whatever its visits recorded",
     rule: "pair-action-caveat", alsoFires: [], in: "headline",
     find: "? (0, report_phase_note_1.pairActionCaveat)(",
-    replace: "? \"Only the visit labeled No blocking recorded the scanner's typing probe; part of this difference may come from it, not blocking.\" ?? (0, report_phase_note_1.pairActionCaveat)("
+    replace: "? \"Only the visit labeled No blocking recorded the scanner's typing test; part of this difference may come from it, not blocking.\" ?? (0, report_phase_note_1.pairActionCaveat)("
   },
   {
     name: "the headline never leads with the consent comparison",

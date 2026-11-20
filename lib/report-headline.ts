@@ -319,7 +319,7 @@ function buildUncorrectedReportHeadline(
     crossSiteState === "unknown-after-action" && requestState !== "censored"
       ? unknownPhaseLead(domain, extrasVisitLabel, phaseNotes.recorded.kinds, claim)
       : null;
-  // Every row behind the lead's claim recorded during the typing probe, and
+  // Every row behind the lead's claim recorded during the typing test, and
   // none in page load: the lead says so instead of "contacted" (H-15.1).
   const allDuringProbe = (split: CrossSitePhaseSplit): boolean =>
     split.state === "all-after-action" &&
@@ -970,7 +970,7 @@ function buildUncorrectedReportHeadline(
             trackingEntities.filter((entity) => respondedEntities.has(entity.entity)).length
           )
         : receiptClause("Catalogued platform domains", platforms.length, answeredPlatforms.length);
-    // A named platform whose every row came during the typing probe, while
+    // A named platform whose every row came during the typing test, while
     // others' rows came in page load, is named apart (H-15.1, walgreens).
     const probeOnlyPlatforms = platforms.filter((platform) => {
       const split = phaseNotes.perPlatform.get(platform);
@@ -983,9 +983,9 @@ function buildUncorrectedReportHeadline(
         ? `${domain}'s retained request log includes catalogued ${joinNames(platforms)} domains.`
         : unknownLead(`catalogued ${joinNames(platforms)} domains`) ??
           (allDuringProbe(phaseNotes.platforms)
-            ? `${domain}'s requests to catalogued ${joinNames(platforms)} domains were all recorded during the scanner's typing probe.`
+            ? `${domain}'s requests to catalogued ${joinNames(platforms)} domains were all recorded during the scanner's typing test.`
             : probeOnlyPlatforms.length > 0 && pageLoadPlatforms.length > 0
-              ? `${domain} contacted catalogued ${joinNames(pageLoadPlatforms)} domains during ${visitPhrase}, and ${joinNames(probeOnlyPlatforms)} domains only during the scanner's typing probe.`
+              ? `${domain} contacted catalogued ${joinNames(pageLoadPlatforms)} domains during ${visitPhrase}, and ${joinNames(probeOnlyPlatforms)} domains only during the scanner's typing test.`
               : `${domain} contacted catalogued ${joinNames(platforms)} domains during ${visitPhrase}.`),
       withPhaseNote(`${clause} across ${retainedCountPhrase(
         run.counts.thirdPartyDomains,
@@ -1013,7 +1013,7 @@ function buildUncorrectedReportHeadline(
             ? `${domain}'s requests to ${plural(
                 trackingEntities.length,
                 "distinct catalogued tracking-related service"
-              )} were all recorded during the scanner's typing probe.`
+              )} were all recorded during the scanner's typing test.`
             : `${domain} contacted ${plural(
                 trackingEntities.length,
                 "distinct catalogued tracking-related service"
@@ -1063,7 +1063,7 @@ function buildUncorrectedReportHeadline(
               unphased: phaseNotes.recorded
             })
           )
-            ? `${domain}'s requests to catalogued services on separate ${sameOrganization} domains were all recorded during the scanner's typing probe.`
+            ? `${domain}'s requests to catalogued services on separate ${sameOrganization} domains were all recorded during the scanner's typing test.`
             : `${domain} contacted catalogued services on separate ${sameOrganization} domains.`),
       `${requestState === "censored" ? "At least " : ""}${plural(
         ownership.sameOrganizationDomainCount,
@@ -1221,7 +1221,7 @@ function buildUncorrectedReportHeadline(
           )} that the service catalog did not classify as tracking.`
         : unknownLead(`${plural(run.counts.thirdPartyDomains, "cross-site host")} that the service catalog did not classify as tracking`) ??
           (allDuringProbe(phaseNotes.crossSite)
-            ? `${domain}'s cross-site traffic was all recorded during the scanner's typing probe: ${plural(
+            ? `${domain}'s cross-site traffic was all recorded during the scanner's typing test: ${plural(
                 run.counts.thirdPartyDomains,
                 "host"
               )}, not classified as tracking.`

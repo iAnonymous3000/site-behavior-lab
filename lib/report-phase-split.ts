@@ -8,7 +8,7 @@ import { typingProbeRecord } from "./typing-disclosure";
  *
  * A request carries the phase that was open when the browser emitted it
  * (lib/measurement-kernel.ts tagRequest). That records timing, never cause:
- * a page timer that fires while the typing probe runs lands in the probe's
+ * a page timer that fires while the typing test runs lands in its
  * phase. So this module counts rows by phase and states nothing about why a
  * request was made. Every surface that quotes a cross-site count reads one
  * split from here, so the headline, its share text and the findings board
@@ -160,7 +160,7 @@ export function crossSitePhaseSplit(
 }
 
 /** A scanner action a visit's own record shows, in the reader's words. */
-export type RecordedScannerAction = "consent click" | "typing probe";
+export type RecordedScannerAction = "consent click" | "typing test";
 
 export type RecordedScannerActions = UnphasedActions & {
   /** The actions this visit recorded whose requests are in its counts, consent first. */
@@ -171,7 +171,7 @@ export type RecordedScannerActions = UnphasedActions & {
  * What a visit's own record says the scanner did on the page: its consent and
  * typing phases on r2, or on a report without phases its typing disclosure
  * (read by lib/typing-disclosure.ts) and whether its consent control was
- * activated. A typing probe
+ * activated. A typing test
  * whose disclosure says its requests were left out of the counts is not
  * listed, since it changed nothing the counts show.
  *
@@ -189,10 +189,10 @@ export function recordedScannerActions(run: Pick<RunView, "phases" | "warnings" 
     // The consent phase opens before the scanner tries the banner, so the
     // phase alone does not show a click.
     if (run.phases.some((phase) => phase.kind === "consent-interaction") && consentClick) kinds.push("consent click");
-    if (run.phases.some((phase) => phase.kind === "active-probe") && !typing?.requestsOmitted) kinds.push("typing probe");
+    if (run.phases.some((phase) => phase.kind === "active-probe") && !typing?.requestsOmitted) kinds.push("typing test");
   } else {
     if (consentClick) kinds.push("consent click");
-    if (typingCounted) kinds.push("typing probe");
+    if (typingCounted) kinds.push("typing test");
   }
   return { typingCounted, consentClick, kinds };
 }

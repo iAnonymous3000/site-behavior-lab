@@ -956,6 +956,14 @@ test("no sentence on a committed report's findings cards runs past 30 words", as
     const headline = buildReportHeadline(view, facts);
     const arm = renderedEvidenceArm(view, headline);
     const board = buildFindings(view, corpus, facts, arm);
+    // One term for the scanner's typing, no report called older, and the note
+    // for a report without phases never on a report with phases (owner, 2026-11-20).
+    const rendered = JSON.stringify({ headline, board });
+    assert.doesNotMatch(rendered, /typing probe/i, `${name}: a rendered sentence says typing probe`);
+    assert.doesNotMatch(rendered, /\bolder report\b/i, `${name}: a rendered sentence calls the report older`);
+    if (view.runs.some((candidate) => candidate.phases !== null)) {
+      assert.doesNotMatch(rendered, /does not record which requests came/, `${name}: a report with phases carries the note for one without`);
+    }
     const committedTarget = reportNewVisitTarget(view, false);
     const freshTarget = reportNewVisitTarget(view, true);
     // A committed report names no share; as if fresh, its own.

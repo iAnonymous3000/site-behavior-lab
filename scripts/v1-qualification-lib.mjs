@@ -130,7 +130,7 @@ export function qualificationPresentationProblems(id, headline) {
   // headline's meaning, never its words.
   if (id === "single-observation") {
     return headline.semantic.phase !== "all-after-action" || headline.semantic.reassuring !== false
-      ? ["single visit does not record that its cross-site requests were all recorded during the scanner's typing probe"] : [];
+      ? ["single visit does not record that its cross-site requests were all recorded during the scanner's typing test"] : [];
   }
   return [];
 }

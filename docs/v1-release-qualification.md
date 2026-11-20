@@ -262,7 +262,7 @@ it, compares JSON export with stored bytes, and evaluates presentation meaning.
 For the failed document, an explicit non-reassuring load-failure headline is
 required. For the single visit, whose cross-site requests all follow the
 scanner's typing, the headline must record that every one of them was recorded
-during the scanner's typing probe. The frozen `blockedByShields` field denotes a filter match in
+during the scanner's typing test. The frozen `blockedByShields` field denotes a filter match in
 classification mode; successful aborts are absent from delivered-request rows
 and counted in the explicit verification facts. The reference checks those
 meanings separately.
