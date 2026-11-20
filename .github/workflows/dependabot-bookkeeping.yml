@@ -17,7 +17,10 @@ name: Dependabot Bookkeeping
 # Cargo.lock, Cargo.toml and a filter-metadata file, and hashes them. The
 # triggers are `schedule` and `workflow_dispatch`, which GitHub always runs
 # from the DEFAULT branch's copy of this file, so a pushed branch cannot
-# rewrite the job that holds `contents: write`.
+# rewrite the job that holds `contents: write`. Nor can it supply the code
+# that job runs: each branch is read in a worktree of its own by main's
+# scripts, and the token is never stored in the checkout; git's remote calls
+# alone are given it, as an argument.
 
 on:
   schedule:
@@ -62,6 +65,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Use the repository's exact Node toolchain
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -77,24 +81,41 @@ jobs:
       - name: Repair derived manifests
         env:
           REQUESTED_BRANCH: ${{ inputs.branch }}
+          PUSH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
-          # Only ever act on Dependabot's own branch namespace.
+          # The token reaches git's remote calls as an argument and nothing
+          # else: it leaves the environment before any other process starts.
+          auth="http.https://github.com/.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 | tr -d '\n')"
+          unset PUSH_TOKEN
+          remote_git() { git -c "$auth" "$@"; }
+
+          # Only ever act on Dependabot's own branch namespace, one whole ref
+          # at a time: no whitespace, no glob, and a name git takes as a branch.
+          one_dependabot_branch() {
+            [[ "$1" =~ ^dependabot/[A-Za-z0-9._/+-]+$ ]] && git check-ref-format "refs/heads/$1"
+          }
+          branches=()
           if [ -n "${REQUESTED_BRANCH:-}" ]; then
-            case "$REQUESTED_BRANCH" in
-              dependabot/*) branches="$REQUESTED_BRANCH" ;;
-              *)
-                echo "::error title=Refused::${REQUESTED_BRANCH} is not a dependabot/* branch"
-                exit 1
-                ;;
-            esac
+            if ! one_dependabot_branch "$REQUESTED_BRANCH"; then
+              echo "::error title=Refused::the requested branch is not one dependabot/* branch"
+              exit 1
+            fi
+            branches=("$REQUESTED_BRANCH")
           else
-            branches="$(git ls-remote --heads origin 'refs/heads/dependabot/*' \
-              | sed 's#.*refs/heads/##' || true)"
+            listed="$(remote_git ls-remote --heads origin 'refs/heads/dependabot/*' | sed 's#.*refs/heads/##')"
+            while IFS= read -r branch; do
+              [ -n "$branch" ] || continue
+              if ! one_dependabot_branch "$branch"; then
+                echo "::error title=Refused::a listed branch is not one dependabot/* branch"
+                exit 1
+              fi
+              branches+=("$branch")
+            done <<< "$listed"
           fi
 
-          if [ -z "$branches" ]; then
+          if [ "${#branches[@]}" -eq 0 ]; then
             echo "No dependabot branches to repair."
             exit 0
           fi
@@ -102,15 +123,19 @@ jobs:
           git config user.name "iAnonymous3000"
           git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
 
+          # Each branch is read in a worktree of its own, from the remote ref
+          # the full checkout fetched. Main stays checked out here, so every
+          # script that runs is main's.
+          worktree="$RUNNER_TEMP/dependabot-repair"
           repaired=0
-          for branch in $branches; do
+          for branch in "${branches[@]}"; do
             echo "::group::$branch"
-            git checkout --force -B "repair/$branch" "origin/$branch"
+            git worktree add --force --detach "$worktree" "origin/$branch"
 
             # The lock root loses `packageManager` on every `npm install`, and
             # toolchain-provenance pins it. Restore it from package.json rather
             # than a literal so the two cannot drift.
-            node --input-type=module -e '
+            (cd "$worktree" && node --input-type=module -e '
               import { readFile, writeFile } from "node:fs/promises";
               const manifest = JSON.parse(await readFile("package.json", "utf8"));
               const declared = manifest.packageManager;
@@ -130,26 +155,29 @@ jobs:
               if (!("packageManager" in rebuilt)) rebuilt.packageManager = declared;
               lock.packages[""] = rebuilt;
               await writeFile("package-lock.json", `${JSON.stringify(lock, null, 2)}\n`);
-            '
+            ')
 
-            # Pure read-and-hash over declarative files. Never installs.
-            node scripts/third-party-inventory.mjs
+            # Pure read-and-hash over the branch's declarative files, by main's
+            # script. Never installs.
+            node scripts/third-party-inventory.mjs --root "$worktree"
 
-            if git diff --quiet -- package-lock.json THIRD_PARTY_INVENTORY.json; then
+            if git -C "$worktree" diff --quiet -- package-lock.json THIRD_PARTY_INVENTORY.json; then
               echo "already consistent"
+              git worktree remove --force "$worktree"
               echo "::endgroup::"
               continue
             fi
 
-            git add package-lock.json THIRD_PARTY_INVENTORY.json
+            git -C "$worktree" add package-lock.json THIRD_PARTY_INVENTORY.json
             # Separate -m paragraphs, not an embedded newline: a message body at
             # column 0 would be less indented than this YAML block scalar and
             # would end it mid-script.
-            git commit \
+            git -C "$worktree" commit \
               -m "Regenerate derived manifests for ${branch#dependabot/}" \
               -m "The third-party inventory is derived from package-lock.json, and the lock root loses packageManager on every npm install, so a dependency bump leaves both stale and the supply-chain gate refuses the branch for bookkeeping rather than for anything about the dependency. Regenerated here so the gate can report on the dependency itself." \
               -m "No dependency code was installed or executed to produce this commit."
-            git push origin "HEAD:$branch"
+            remote_git -C "$worktree" push origin "HEAD:refs/heads/$branch"
+            git worktree remove --force "$worktree"
             repaired=$((repaired + 1))
             echo "::endgroup::"
           done
