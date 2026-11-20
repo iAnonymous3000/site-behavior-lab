@@ -6,8 +6,9 @@
 //
 // For each named run of .github/workflows/deploy-container.yml it refuses
 // anything but a completed, successful run on the production branch; takes
-// the one record artifact of that run's attempt; holds the record to the
-// run's commit, id and attempt (scripts/production-deployment-record.mjs);
+// the run's one record artifact, named for the run's commit and the attempt
+// whose deploy job kept it; holds the record to the run's commit and id and
+// to that attempt (scripts/production-deployment-record.mjs);
 // requires GitHub's attestation of the record to verify as signed by that
 // workflow at that commit on refs/heads/production; and writes the record
 // and its attestation bundle beside each other. It never overwrites a file
@@ -62,12 +63,32 @@ export function deploymentRunProblems(run, runId) {
   return problems;
 }
 
-/** The name the deploy workflow gives the record artifact of a run's attempt. */
-export const recordArtifactName = (run) => `production-container-readback-${run.head_sha}-${run.run_attempt}`;
+export const RECORD_ARTIFACT_PREFIX = "production-container-readback-";
 
-/** Where a run's record and its bundle are kept, relative to the repository root. */
-export function archivePaths(run) {
-  const stem = `${ARCHIVE_DIRECTORY}/${run.id}-${run.run_attempt}`;
+/**
+ * The run's one record artifact and the attempt it names. The deploy job
+ * keeps its record under its own attempt, and a rerun of the failed signing
+ * job alone runs as a later attempt that keeps none, so the attempt is read
+ * from the artifact's name, never from the run's latest attempt. Throws when
+ * the run lists no such artifact, more than one, an expired one, one named
+ * for another commit or no attempt, or one of an attempt the run has not had.
+ */
+export function recordArtifact(run, artifacts) {
+  const own = new RegExp(`^${RECORD_ARTIFACT_PREFIX}${run.head_sha}-([1-9][0-9]{0,3})$`);
+  const named = artifacts.filter((artifact) => typeof artifact?.name === "string" && artifact.name.startsWith(RECORD_ARTIFACT_PREFIX));
+  const foreign = named.find((artifact) => !own.test(artifact.name));
+  if (foreign !== undefined) throw new Error(`run ${run.id} lists ${foreign.name}, which is not a record artifact of commit ${run.head_sha}`);
+  if (named.length === 0) throw new Error(`run ${run.id} has no record artifact`);
+  if (named.length > 1) throw new Error(`run ${run.id} has ${named.length} record artifacts, not one`);
+  if (named[0].expired !== false) throw new Error(`run ${run.id}'s record artifact ${named[0].name} has expired`);
+  const attempt = Number(own.exec(named[0].name)[1]);
+  if (attempt > run.run_attempt) throw new Error(`run ${run.id}'s record artifact is of attempt ${attempt}, after the run's latest attempt ${run.run_attempt}`);
+  return { name: named[0].name, attempt };
+}
+
+/** Where the record a run's deploy job kept at `attempt`, and its bundle, are kept, relative to the repository root. */
+export function archivePaths(run, attempt) {
+  const stem = `${ARCHIVE_DIRECTORY}/${run.id}-${attempt}`;
   return { record: `${stem}.json`, bundle: `${stem}.bundle.jsonl` };
 }
 
@@ -181,10 +202,8 @@ export function collectDeploymentRecords({ runIds, root, gh = defaultGh, verifie
       const run = JSON.parse(gh(["api", `repos/${REPOSITORY}/actions/runs/${runId}`]));
       const runProblems = deploymentRunProblems(run, runId);
       if (runProblems.length > 0) throw new Error(`run ${runId} is refused:\n- ${runProblems.join("\n- ")}`);
-      const name = recordArtifactName(run);
       const artifacts = JSON.parse(gh(["api", `repos/${REPOSITORY}/actions/runs/${runId}/artifacts?per_page=100`])).artifacts ?? [];
-      const matching = artifacts.filter((artifact) => artifact?.name === name);
-      if (matching.length !== 1 || matching[0].expired !== false) throw new Error(`run ${runId} has no single unexpired artifact ${name}`);
+      const { name, attempt } = recordArtifact(run, artifacts);
       const directory = path.join(scratch, String(runId));
       mkdirSync(directory);
       gh(["run", "download", String(runId), "--repo", REPOSITORY, "--name", name, "--dir", directory]);
@@ -192,7 +211,7 @@ export function collectDeploymentRecords({ runIds, root, gh = defaultGh, verifie
       if (!existsSync(recordFile) || readdirSync(directory).length !== 1) throw new Error(`run ${runId}'s artifact is not the one record file`);
       const bytes = readFileSync(recordFile);
       const problems = deploymentRecordProblems(JSON.parse(bytes.toString("utf8")), {
-        commit: run.head_sha, deployRunId: run.id, deployRunAttempt: run.run_attempt
+        commit: run.head_sha, deployRunId: run.id, deployRunAttempt: attempt
       });
       if (problems.length > 0) throw new Error(`run ${runId}'s record is refused:\n- ${problems.join("\n- ")}`);
       const results = JSON.parse(verifier(recordAttestationArgs(recordFile, run.head_sha)));
@@ -202,17 +221,17 @@ export function collectDeploymentRecords({ runIds, root, gh = defaultGh, verifie
       verifier(["attestation", "download", recordFile, "--repo", REPOSITORY], { cwd: bundles });
       const downloaded = readdirSync(bundles).filter((file) => file.endsWith(".jsonl"));
       if (downloaded.length !== 1) throw new Error(`run ${runId}'s record has ${downloaded.length} attestation bundle files, not one`);
-      return { run, bytes, bundle: path.join(bundles, downloaded[0]) };
+      return { run, attempt, bytes, bundle: path.join(bundles, downloaded[0]) };
     });
     const written = [];
-    for (const { run } of collected) {
-      for (const relative of Object.values(archivePaths(run))) {
+    for (const { run, attempt } of collected) {
+      for (const relative of Object.values(archivePaths(run, attempt))) {
         if (existsSync(path.join(root, relative))) throw new Error(`${relative} is already kept; nothing is overwritten`);
       }
     }
     mkdirSync(path.join(root, ARCHIVE_DIRECTORY), { recursive: true });
-    for (const { run, bytes, bundle } of collected) {
-      const paths = archivePaths(run);
+    for (const { run, attempt, bytes, bundle } of collected) {
+      const paths = archivePaths(run, attempt);
       writeFileSync(path.join(root, paths.record), bytes, { flag: "wx" });
       // A copy, not a rename: the scratch directory may be on another file system.
       copyFileSync(bundle, path.join(root, paths.bundle), fsConstants.COPYFILE_EXCL);
