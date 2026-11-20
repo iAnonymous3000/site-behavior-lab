@@ -1,0 +1,5788 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://pbskids.org/",
+  "scannedAt": "2026-11-18T18:10:01.571Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 2968,
+      "firstPartyDomain": "pbskids.org",
+      "totalRequests": 181,
+      "thirdPartyRequests": 5,
+      "knownTrackerRequests": 5,
+      "thirdPartyDomains": 3,
+      "cookies": 3,
+      "thirdPartyCookies": 0,
+      "storageEntries": 2,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://pbskids.org/",
+      "finalUrl": "https://pbskids.org/",
+      "scannedAt": "2026-11-18T18:10:04.597Z",
+      "chromiumVersion": "159.0.8154.6",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.8154.6 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-11-16T15:57:59.448Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.65.1 from github-actions-ubuntu with browser 159.0.8154.6, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://pbskids.org/",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 41
+      },
+      {
+        "id": 2,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 89
+      },
+      {
+        "id": 3,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 89
+      },
+      {
+        "id": 4,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 89
+      },
+      {
+        "id": 5,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 90
+      },
+      {
+        "id": 6,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 91
+      },
+      {
+        "id": 7,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 91
+      },
+      {
+        "id": 8,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 91
+      },
+      {
+        "id": 9,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 91
+      },
+      {
+        "id": 10,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 91
+      },
+      {
+        "id": 11,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 91
+      },
+      {
+        "id": 12,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 92
+      },
+      {
+        "id": 13,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 92
+      },
+      {
+        "id": 14,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 92
+      },
+      {
+        "id": 15,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 94
+      },
+      {
+        "id": 16,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 94
+      },
+      {
+        "id": 17,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 95
+      },
+      {
+        "id": 18,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 95
+      },
+      {
+        "id": 19,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 96
+      },
+      {
+        "id": 20,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 96
+      },
+      {
+        "id": 21,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 96
+      },
+      {
+        "id": 22,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 96
+      },
+      {
+        "id": 23,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 96
+      },
+      {
+        "id": 24,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 97
+      },
+      {
+        "id": 25,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 97
+      },
+      {
+        "id": 26,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 97
+      },
+      {
+        "id": 27,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 97
+      },
+      {
+        "id": 28,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 97
+      },
+      {
+        "id": 29,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 97
+      },
+      {
+        "id": 30,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 97
+      },
+      {
+        "id": 31,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 97
+      },
+      {
+        "id": 32,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 127
+      },
+      {
+        "id": 33,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 34,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 142
+      },
+      {
+        "id": 36,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 37,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 38,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 39,
+        "url": "https://www.googletagmanager.com/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 303
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 43,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 355
+      },
+      {
+        "id": 44,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 391
+      },
+      {
+        "id": 45,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 391
+      },
+      {
+        "id": 46,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 391
+      },
+      {
+        "id": 47,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 392
+      },
+      {
+        "id": 48,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 392
+      },
+      {
+        "id": 49,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 392
+      },
+      {
+        "id": 50,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 392
+      },
+      {
+        "id": 51,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 393
+      },
+      {
+        "id": 52,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 394
+      },
+      {
+        "id": 53,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 394
+      },
+      {
+        "id": 54,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 394
+      },
+      {
+        "id": 55,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 394
+      },
+      {
+        "id": 56,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 395
+      },
+      {
+        "id": 57,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 395
+      },
+      {
+        "id": 58,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 396
+      },
+      {
+        "id": 59,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 397
+      },
+      {
+        "id": 60,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 398
+      },
+      {
+        "id": 61,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 398
+      },
+      {
+        "id": 62,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 398
+      },
+      {
+        "id": 63,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 398
+      },
+      {
+        "id": 64,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 399
+      },
+      {
+        "id": 65,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 399
+      },
+      {
+        "id": 66,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 399
+      },
+      {
+        "id": 67,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 399
+      },
+      {
+        "id": 68,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 400
+      },
+      {
+        "id": 69,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 401
+      },
+      {
+        "id": 70,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 401
+      },
+      {
+        "id": 71,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 402
+      },
+      {
+        "id": 72,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 402
+      },
+      {
+        "id": 73,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 402
+      },
+      {
+        "id": 74,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 404
+      },
+      {
+        "id": 75,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 404
+      },
+      {
+        "id": 76,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 405
+      },
+      {
+        "id": 77,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 406
+      },
+      {
+        "id": 78,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 406
+      },
+      {
+        "id": 79,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 407
+      },
+      {
+        "id": 80,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 407
+      },
+      {
+        "id": 81,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 472
+      },
+      {
+        "id": 82,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 473
+      },
+      {
+        "id": 83,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 473
+      },
+      {
+        "id": 84,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 473
+      },
+      {
+        "id": 85,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 473
+      },
+      {
+        "id": 86,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 473
+      },
+      {
+        "id": 87,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 474
+      },
+      {
+        "id": 88,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 474
+      },
+      {
+        "id": 89,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 474
+      },
+      {
+        "id": 90,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 474
+      },
+      {
+        "id": 91,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 474
+      },
+      {
+        "id": 92,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 475
+      },
+      {
+        "id": 93,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 475
+      },
+      {
+        "id": 94,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 475
+      },
+      {
+        "id": 95,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 498
+      },
+      {
+        "id": 96,
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 506
+      },
+      {
+        "id": 97,
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 506
+      },
+      {
+        "id": 98,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 513
+      },
+      {
+        "id": 99,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 514
+      },
+      {
+        "id": 100,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 515
+      },
+      {
+        "id": 101,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 515
+      },
+      {
+        "id": 102,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 515
+      },
+      {
+        "id": 103,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 516
+      },
+      {
+        "id": 104,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 516
+      },
+      {
+        "id": 105,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 566
+      },
+      {
+        "id": 106,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 576
+      },
+      {
+        "id": 107,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 581
+      },
+      {
+        "id": 108,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 598
+      },
+      {
+        "id": 109,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 599
+      },
+      {
+        "id": 110,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 599
+      },
+      {
+        "id": 111,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 599
+      },
+      {
+        "id": 112,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 600
+      },
+      {
+        "id": 113,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 601
+      },
+      {
+        "id": 114,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 628
+      },
+      {
+        "id": 115,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 630
+      },
+      {
+        "id": 116,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 631
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.{label}.pbskids.org/",
+        "domain": "{label}.{label}.pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 646
+      },
+      {
+        "id": 118,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 693
+      },
+      {
+        "id": 119,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 749
+      },
+      {
+        "id": 120,
+        "url": "https://{label}.{label}.{label}.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.sentry.io",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 806
+      },
+      {
+        "id": 121,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 807
+      },
+      {
+        "id": 122,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 808
+      },
+      {
+        "id": 123,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 809
+      },
+      {
+        "id": 124,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 809
+      },
+      {
+        "id": 125,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 810
+      },
+      {
+        "id": 126,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 811
+      },
+      {
+        "id": 127,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 811
+      },
+      {
+        "id": 128,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 811
+      },
+      {
+        "id": 129,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 811
+      },
+      {
+        "id": 130,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 811
+      },
+      {
+        "id": 131,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 811
+      },
+      {
+        "id": 132,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 811
+      },
+      {
+        "id": 133,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 811
+      },
+      {
+        "id": 134,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 812
+      },
+      {
+        "id": 135,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 812
+      },
+      {
+        "id": 136,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 812
+      },
+      {
+        "id": 137,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 813
+      },
+      {
+        "id": 138,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 813
+      },
+      {
+        "id": 139,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 813
+      },
+      {
+        "id": 140,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 861
+      },
+      {
+        "id": 141,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 862
+      },
+      {
+        "id": 142,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 862
+      },
+      {
+        "id": 143,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 862
+      },
+      {
+        "id": 144,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 863
+      },
+      {
+        "id": 145,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 863
+      },
+      {
+        "id": 146,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 863
+      },
+      {
+        "id": 147,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 864
+      },
+      {
+        "id": 148,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 865
+      },
+      {
+        "id": 149,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 865
+      },
+      {
+        "id": 150,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 865
+      },
+      {
+        "id": 151,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 865
+      },
+      {
+        "id": 152,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 865
+      },
+      {
+        "id": 153,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 865
+      },
+      {
+        "id": 154,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 865
+      },
+      {
+        "id": 155,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 866
+      },
+      {
+        "id": 156,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 866
+      },
+      {
+        "id": 157,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 866
+      },
+      {
+        "id": 158,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 866
+      },
+      {
+        "id": 159,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 866
+      },
+      {
+        "id": 160,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 866
+      },
+      {
+        "id": 161,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 866
+      },
+      {
+        "id": 162,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 866
+      },
+      {
+        "id": 163,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 866
+      },
+      {
+        "id": 164,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 866
+      },
+      {
+        "id": 165,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 866
+      },
+      {
+        "id": 166,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 867
+      },
+      {
+        "id": 167,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 867
+      },
+      {
+        "id": 168,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 867
+      },
+      {
+        "id": 169,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 867
+      },
+      {
+        "id": 170,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 867
+      },
+      {
+        "id": 171,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 867
+      },
+      {
+        "id": 172,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 870
+      },
+      {
+        "id": 173,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 870
+      },
+      {
+        "id": 174,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 871
+      },
+      {
+        "id": 175,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 871
+      },
+      {
+        "id": 176,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 871
+      },
+      {
+        "id": 177,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 871
+      },
+      {
+        "id": 178,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 871
+      },
+      {
+        "id": 179,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 872
+      },
+      {
+        "id": 180,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 936
+      },
+      {
+        "id": 181,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 937
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.{label}.sentry.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "pbskids.org",
+        "requests": 169,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "image",
+          "script",
+          "fetch",
+          "other"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.pbskids.org",
+        "requests": 7,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".pbskids.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".pbskids.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".pbskids.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://pbskids.org/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [
+        "Google"
+      ],
+      "policyTextLength": 13188
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Read the site's privacy policy (https://pbskids.org/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 3017,
+      "firstPartyDomain": "pbskids.org",
+      "totalRequests": 176,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 1,
+      "thirdPartyCookies": 0,
+      "storageEntries": 2,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://pbskids.org/",
+      "finalUrl": "https://pbskids.org/",
+      "scannedAt": "2026-11-18T18:10:01.571Z",
+      "chromiumVersion": "159.0.8154.6",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.8154.6 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-11-16T15:57:59.448Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.65.1 from github-actions-ubuntu with browser 159.0.8154.6, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://pbskids.org/",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 46
+      },
+      {
+        "id": 2,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 92
+      },
+      {
+        "id": 3,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 93
+      },
+      {
+        "id": 4,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 93
+      },
+      {
+        "id": 5,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 94
+      },
+      {
+        "id": 6,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 94
+      },
+      {
+        "id": 7,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 94
+      },
+      {
+        "id": 8,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 95
+      },
+      {
+        "id": 9,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 95
+      },
+      {
+        "id": 10,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 96
+      },
+      {
+        "id": 11,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 96
+      },
+      {
+        "id": 12,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 96
+      },
+      {
+        "id": 13,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 96
+      },
+      {
+        "id": 14,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 96
+      },
+      {
+        "id": 15,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 99
+      },
+      {
+        "id": 16,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 99
+      },
+      {
+        "id": 17,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 99
+      },
+      {
+        "id": 18,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 99
+      },
+      {
+        "id": 19,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 99
+      },
+      {
+        "id": 20,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 99
+      },
+      {
+        "id": 21,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 100
+      },
+      {
+        "id": 22,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 23,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 24,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 25,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 26,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 27,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 28,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 29,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 102
+      },
+      {
+        "id": 30,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 102
+      },
+      {
+        "id": 31,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 102
+      },
+      {
+        "id": 32,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 148
+      },
+      {
+        "id": 33,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 148
+      },
+      {
+        "id": 34,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 151
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 151
+      },
+      {
+        "id": 36,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 151
+      },
+      {
+        "id": 37,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 151
+      },
+      {
+        "id": 38,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 152
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 370
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 370
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 371
+      },
+      {
+        "id": 43,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 372
+      },
+      {
+        "id": 44,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 410
+      },
+      {
+        "id": 45,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 410
+      },
+      {
+        "id": 46,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 411
+      },
+      {
+        "id": 47,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 411
+      },
+      {
+        "id": 48,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 412
+      },
+      {
+        "id": 49,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 429
+      },
+      {
+        "id": 50,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 429
+      },
+      {
+        "id": 51,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 429
+      },
+      {
+        "id": 52,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 429
+      },
+      {
+        "id": 53,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 430
+      },
+      {
+        "id": 54,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 430
+      },
+      {
+        "id": 55,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 430
+      },
+      {
+        "id": 56,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 430
+      },
+      {
+        "id": 57,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 430
+      },
+      {
+        "id": 58,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 430
+      },
+      {
+        "id": 59,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 430
+      },
+      {
+        "id": 60,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 430
+      },
+      {
+        "id": 61,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 430
+      },
+      {
+        "id": 62,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 430
+      },
+      {
+        "id": 63,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 431
+      },
+      {
+        "id": 64,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 431
+      },
+      {
+        "id": 65,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 431
+      },
+      {
+        "id": 66,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 431
+      },
+      {
+        "id": 67,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 431
+      },
+      {
+        "id": 68,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 431
+      },
+      {
+        "id": 69,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 431
+      },
+      {
+        "id": 70,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 434
+      },
+      {
+        "id": 71,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 434
+      },
+      {
+        "id": 72,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 434
+      },
+      {
+        "id": 73,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 435
+      },
+      {
+        "id": 74,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 435
+      },
+      {
+        "id": 75,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 435
+      },
+      {
+        "id": 76,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 435
+      },
+      {
+        "id": 77,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 435
+      },
+      {
+        "id": 78,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 435
+      },
+      {
+        "id": 79,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 435
+      },
+      {
+        "id": 80,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 435
+      },
+      {
+        "id": 81,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 481
+      },
+      {
+        "id": 82,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 482
+      },
+      {
+        "id": 83,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 483
+      },
+      {
+        "id": 84,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 483
+      },
+      {
+        "id": 85,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 483
+      },
+      {
+        "id": 86,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 484
+      },
+      {
+        "id": 87,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 486
+      },
+      {
+        "id": 88,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 487
+      },
+      {
+        "id": 89,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 487
+      },
+      {
+        "id": 90,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 487
+      },
+      {
+        "id": 91,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 490
+      },
+      {
+        "id": 92,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 491
+      },
+      {
+        "id": 93,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 491
+      },
+      {
+        "id": 94,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 492
+      },
+      {
+        "id": 95,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 516
+      },
+      {
+        "id": 96,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 524
+      },
+      {
+        "id": 97,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 524
+      },
+      {
+        "id": 98,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 524
+      },
+      {
+        "id": 99,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 525
+      },
+      {
+        "id": 100,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 526
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 528
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.{label}.pbskids.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 529
+      },
+      {
+        "id": 103,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 537
+      },
+      {
+        "id": 104,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 537
+      },
+      {
+        "id": 105,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 539
+      },
+      {
+        "id": 106,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 539
+      },
+      {
+        "id": 107,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 540
+      },
+      {
+        "id": 108,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 541
+      },
+      {
+        "id": 109,
+        "url": "https://pbskids.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 541
+      },
+      {
+        "id": 110,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 553
+      },
+      {
+        "id": 112,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 577
+      },
+      {
+        "id": 113,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 577
+      },
+      {
+        "id": 114,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 578
+      },
+      {
+        "id": 115,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 578
+      },
+      {
+        "id": 116,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 578
+      },
+      {
+        "id": 117,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 578
+      },
+      {
+        "id": 118,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 583
+      },
+      {
+        "id": 119,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 583
+      },
+      {
+        "id": 120,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 583
+      },
+      {
+        "id": 121,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 584
+      },
+      {
+        "id": 122,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 584
+      },
+      {
+        "id": 123,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 584
+      },
+      {
+        "id": 124,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 585
+      },
+      {
+        "id": 125,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 585
+      },
+      {
+        "id": 126,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 586
+      },
+      {
+        "id": 127,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 589
+      },
+      {
+        "id": 128,
+        "url": "https://{label}.{label}.pbskids.org/",
+        "domain": "{label}.{label}.pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 625
+      },
+      {
+        "id": 129,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 692
+      },
+      {
+        "id": 130,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 715
+      },
+      {
+        "id": 131,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 715
+      },
+      {
+        "id": 132,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 716
+      },
+      {
+        "id": 133,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 717
+      },
+      {
+        "id": 134,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 717
+      },
+      {
+        "id": 135,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 717
+      },
+      {
+        "id": 136,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 717
+      },
+      {
+        "id": 137,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 750
+      },
+      {
+        "id": 138,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 751
+      },
+      {
+        "id": 139,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 751
+      },
+      {
+        "id": 140,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 751
+      },
+      {
+        "id": 141,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 751
+      },
+      {
+        "id": 142,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 752
+      },
+      {
+        "id": 143,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 753
+      },
+      {
+        "id": 144,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 753
+      },
+      {
+        "id": 145,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 753
+      },
+      {
+        "id": 146,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 753
+      },
+      {
+        "id": 147,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 754
+      },
+      {
+        "id": 148,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 754
+      },
+      {
+        "id": 149,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 754
+      },
+      {
+        "id": 150,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 754
+      },
+      {
+        "id": 151,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 754
+      },
+      {
+        "id": 152,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 754
+      },
+      {
+        "id": 153,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 754
+      },
+      {
+        "id": 154,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 756
+      },
+      {
+        "id": 155,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 756
+      },
+      {
+        "id": 156,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 756
+      },
+      {
+        "id": 157,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 756
+      },
+      {
+        "id": 158,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 757
+      },
+      {
+        "id": 159,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 757
+      },
+      {
+        "id": 160,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 757
+      },
+      {
+        "id": 161,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 757
+      },
+      {
+        "id": 162,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 757
+      },
+      {
+        "id": 163,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 164,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 165,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 166,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 167,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 168,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 169,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 170,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 171,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 172,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 173,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 174,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 175,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 759
+      },
+      {
+        "id": 176,
+        "url": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://pbskids.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "pbskids.org"
+        },
+        "startedAtMs": 759
+      },
+      {
+        "id": 177,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 967
+      },
+      {
+        "id": 178,
+        "url": "https://pbskids.org/{seg}/{seg}",
+        "domain": "pbskids.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 967
+      }
+    ],
+    "domains": [
+      {
+        "domain": "pbskids.org",
+        "requests": 169,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "image",
+          "script",
+          "fetch",
+          "other"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.pbskids.org",
+        "requests": 7,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".pbskids.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://pbskids.org/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 13188
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Read the site's privacy policy (https://pbskids.org/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 181,
+      "after": 176,
+      "delta": -5
+    },
+    "thirdPartyRequests": {
+      "before": 5,
+      "after": 0,
+      "delta": -5
+    },
+    "knownTrackerRequests": {
+      "before": 5,
+      "after": 0,
+      "delta": -5
+    },
+    "thirdPartyDomains": {
+      "before": 3,
+      "after": 0,
+      "delta": -3
+    },
+    "cookies": {
+      "before": 3,
+      "after": 1,
+      "delta": -2
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.{label}.sentry.io",
+        "requests": 1,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 4,
+        "domains": 2
+      },
+      {
+        "entity": "Sentry",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_ga",
+        "domain": ".pbskids.org",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.{label}.sentry.io",
+        "requests": 1,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        },
+        "initiator": "pbskids.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "pbskids.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "pbskids.org",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 5,
+      "after": 2,
+      "delta": -3
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: Read the site's privacy policy (https://pbskids.org/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: Read the site's privacy policy (https://pbskids.org/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20261118-5345f1f80c7cbe34e9d038cb15dc458f",
+    "path": "/reports/20261118-5345f1f80c7cbe34e9d038cb15dc458f/",
+    "jsonPath": "/reports/20261118-5345f1f80c7cbe34e9d038cb15dc458f.json"
+  }
+}
