@@ -20,7 +20,7 @@ name: Dependabot Bookkeeping
 # rewrite the job that holds `contents: write`. Nor can it supply the code
 # that job runs: each branch is read in a worktree of its own by main's
 # scripts, and the token is never stored in the checkout; git's remote calls
-# alone are given it, as an argument.
+# alone are given it, through their environment.
 
 on:
   schedule:
@@ -85,11 +85,20 @@ jobs:
         run: |
           set -euo pipefail
 
-          # The token reaches git's remote calls as an argument and nothing
-          # else: it leaves the environment before any other process starts.
-          auth="http.https://github.com/.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 | tr -d '\n')"
+          # The token reaches git's remote calls alone, as a header in their
+          # own environment, never in an argument. Once unset here no later
+          # process inherits it; this shell's own starting environment still
+          # holds it for the life of the step. The runner masks the raw token
+          # in logs but not its base64 form, so that is masked first.
+          basic="$(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 | tr -d '\n')"
+          echo "::add-mask::$basic"
           unset PUSH_TOKEN
-          remote_git() { git -c "$auth" "$@"; }
+          remote_git() {
+            GIT_CONFIG_COUNT=1 \
+              GIT_CONFIG_KEY_0="http.https://github.com/.extraheader" \
+              GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $basic" \
+              git "$@"
+          }
 
           # Only ever act on Dependabot's own branch namespace, one whole ref
           # at a time: no whitespace, no glob, and a name git takes as a branch.
@@ -130,7 +139,7 @@ jobs:
           repaired=0
           for branch in "${branches[@]}"; do
             echo "::group::$branch"
-            git worktree add --force --detach "$worktree" "origin/$branch"
+            git worktree add --force --detach "$worktree" "refs/remotes/origin/$branch"
 
             # The lock root loses `packageManager` on every `npm install`, and
             # toolchain-provenance pins it. Restore it from package.json rather

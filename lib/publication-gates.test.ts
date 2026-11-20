@@ -258,12 +258,18 @@ test("the featured scan keeps the Chromium sandbox on and makes the runner suppo
 
 // The repair step of .github/workflows/dependabot-bookkeeping.yml, run as
 // Actions runs it: its own text in bash, with `git` and `node` replaced by
-// recorders on PATH. The recorders log every call with its working folder,
-// and record whether the job's token reached any process but git's own
-// remote calls, which take it only as an argument.
-type RepairCall = { tool: string; cwd: string; args: string[]; sawToken: boolean };
+// recorders on PATH. The recorders log every call with its working folder
+// into one log with the step's own output, in order, and record whether the
+// job's token, raw or as its base64 header, reached the process's
+// environment or arguments, and whether git was handed the header through
+// its configuration environment.
+type RepairCall = { tool: string; cwd: string; args: string[]; sawToken: boolean; headerEnv: boolean };
+type RepairEvent = { line: string; call?: RepairCall };
 
-function runRepairStep(requested: string, remoteBranches: string[] = []): { status: number | null; stdout: string; calls: RepairCall[]; workspace: string; runnerTemp: string } {
+const REPAIR_TOKEN = "ghs_fixtureTokenThatMustNotLeak0123456789";
+const REPAIR_HEADER = Buffer.from(`x-access-token:${REPAIR_TOKEN}`).toString("base64");
+
+function runRepairStep(requested: string, remoteBranches: string[] = []): { status: number | null; stdout: string; calls: RepairCall[]; events: RepairEvent[]; workspace: string; runnerTemp: string } {
   const workflow = readFileSync(path.join(process.cwd(), ".github", "workflows", "dependabot-bookkeeping.yml"), "utf8");
   const start = workflow.indexOf("      - name: Repair derived manifests\n");
   assert.ok(start >= 0, "the workflow has no repair step");
@@ -274,7 +280,7 @@ function runRepairStep(requested: string, remoteBranches: string[] = []): { stat
     if (line.trim() !== "" && !line.startsWith("          ")) break;
     body.push(line.slice(10));
   }
-  const token = "ghs_fixtureTokenThatMustNotLeak0123456789";
+  const token = REPAIR_TOKEN;
   const context: Record<string, string> = { "inputs.branch": requested, "github.token": token };
   const env: Record<string, string> = {};
   for (const match of step.slice(0, runAt).matchAll(/^ {10}([A-Z0-9_]+): \$\{\{ ([a-z.]+) \}\}$/gm)) {
@@ -287,14 +293,20 @@ function runRepairStep(requested: string, remoteBranches: string[] = []): { stat
   const bin = path.join(temp, "bin");
   for (const directory of [workspace, runnerTemp, bin]) mkdirSync(directory);
   writeFileSync(path.join(temp, "token"), token);
+  writeFileSync(path.join(temp, "header"), REPAIR_HEADER);
   writeFileSync(path.join(temp, "ls-remote"), remoteBranches.map((branch) => `${"a".repeat(40)}\trefs/heads/${branch}\n`).join(""));
   const realGit = spawnSyncBounded("bash", ["-c", "command -v git"], { encoding: "utf8" }).stdout.trim();
-  // Each call is one line: tool, working folder, token seen, then its
-  // arguments, all separated by the unit separator.
+  // Each call is one line: tool, working folder, token seen, header given
+  // through git's configuration environment, then its arguments, all
+  // separated by the unit separator.
   const recorder = (tool: string, act: string) => `#!/bin/bash
 seen=0
-if env | grep -qF -- "$(cat "$FIXTURE/token")"; then seen=1; fi
-{ printf '%s\\x1f%s\\x1f%s' ${tool} "$PWD" "$seen"; for argument in "$@"; do printf '\\x1f%s' "$argument"; done; printf '\\n'; } >> "$FIXTURE/calls"
+for secret in "$(cat "$FIXTURE/token")" "$(cat "$FIXTURE/header")"; do
+  if env | grep -qF -- "$secret" || printf '%s\\n' "$@" | grep -qF -- "$secret"; then seen=1; fi
+done
+header=0
+if [ "\${GIT_CONFIG_COUNT:-}" = "1" ] && [ "\${GIT_CONFIG_KEY_0:-}" = "http.https://github.com/.extraheader" ] && [ "\${GIT_CONFIG_VALUE_0:-}" = "AUTHORIZATION: basic $(cat "$FIXTURE/header")" ]; then header=1; fi
+{ printf '%s\\x1f%s\\x1f%s\\x1f%s' ${tool} "$PWD" "$seen" "$header"; for argument in "$@"; do printf '\\x1f%s' "$argument"; done; printf '\\n'; } >> "$FIXTURE/events"
 ${act}
 `;
   writeFileSync(path.join(bin, "node"), recorder("node", "exit 0"), { mode: 0o755 });
@@ -310,23 +322,28 @@ if [ "$1" = "worktree" ] && [ "$2" = "add" ]; then mkdir -p "\${@: -2:1}"; fi
 if [ "$1" = "worktree" ] && [ "$2" = "remove" ]; then rm -rf "\${@: -1}"; fi
 if [ "$1" = "checkout" ]; then :; fi
 exit 0`), { mode: 0o755 });
-  const result = spawnSyncBounded("bash", ["-c", body.join("\n")], {
+  // The step's own output goes to the same log, so its order against the
+  // calls is kept.
+  const result = spawnSyncBounded("bash", ["-c", `exec >>"$FIXTURE/events"\n${body.join("\n")}`], {
     encoding: "utf8",
     cwd: workspace,
     env: { PATH: `${bin}:${process.env.PATH ?? ""}`, FIXTURE: temp, RUNNER_TEMP: runnerTemp, GITHUB_WORKSPACE: workspace, ...env }
   });
-  const calls = existsSync(path.join(temp, "calls"))
-    ? readFileSync(path.join(temp, "calls"), "utf8").split("\n").filter((line) => line !== "").map((line) => {
-      const [tool, cwd, seen, ...args] = line.split("\x1f");
-      return { tool, cwd, args, sawToken: seen === "1" };
+  const events: RepairEvent[] = existsSync(path.join(temp, "events"))
+    ? readFileSync(path.join(temp, "events"), "utf8").split("\n").filter((line) => line !== "").map((line) => {
+      if (!line.includes("\x1f")) return { line };
+      const [tool, cwd, seen, header, ...args] = line.split("\x1f");
+      return { line, call: { tool, cwd, args, sawToken: seen === "1", headerEnv: header === "1" } };
     })
     : [];
   rmSync(temp, { recursive: true, force: true });
-  return { status: result.status, stdout: result.stdout, calls, workspace, runnerTemp };
+  const calls = events.flatMap((event) => (event.call ? [event.call] : []));
+  const stdout = events.filter((event) => !event.call).map((event) => event.line).join("\n");
+  return { status: result.status, stdout, calls, events, workspace, runnerTemp };
 }
 
 const pushes = (calls: RepairCall[]) => calls.filter((call) => call.tool === "git" && call.args.includes("push"));
-const authorized = (call: RepairCall) => call.args.some((argument) => argument.startsWith("http.https://github.com/.extraheader=AUTHORIZATION: basic "));
+const remoteCall = (call: RepairCall) => call.tool === "git" && (call.args.includes("push") || call.args.includes("ls-remote"));
 
 test("the Dependabot repair refuses any requested branch that is not exactly one dependabot/* branch, before it touches a branch", () => {
   for (const requested of [
@@ -374,13 +391,28 @@ test("the Dependabot repair runs only main's code on a branch's files, and hands
       expected.map((branch) => `HEAD:refs/heads/${branch}`),
       `${what}: the repair pushed to other branches`
     );
-    assert.ok(pushes(run.calls).every(authorized), `${what}: a push carries no token`);
+    assert.ok(pushes(run.calls).every((call) => call.headerEnv), `${what}: a push carries no token`);
+    // The runner masks the raw token in logs, not its base64 header, so the
+    // step masks the header before any git call can print it.
+    const mask = run.events.findIndex((event) => event.line === `::add-mask::${REPAIR_HEADER}`);
+    const firstGit = run.events.findIndex((event) => event.call?.tool === "git");
+    assert.ok(mask >= 0 && mask < firstGit, `${what}: the token's header is not masked before git runs`);
     for (const call of run.calls) {
-      assert.equal(call.sawToken, false, `${what}: ${call.tool} ${call.args.join(" ")} could read the token`);
-      if (call.tool === "git" && authorized(call)) {
-        assert.ok(call.args.includes("push") || call.args.includes("ls-remote"), `${what}: git ${call.args.join(" ")} was given the token`);
+      assert.ok(!call.args.some((argument) => argument.includes(REPAIR_TOKEN) || argument.includes(REPAIR_HEADER)), `${what}: the token appeared in the arguments of ${call.tool} ${call.args[0]}`);
+      if (remoteCall(call)) {
+        assert.ok(call.headerEnv, `${what}: git ${call.args.join(" ")} was not given the token`);
+        continue;
       }
+      assert.equal(call.headerEnv, false, `${what}: git ${call.args.join(" ")} was given the token`);
+      assert.equal(call.sawToken, false, `${what}: ${call.tool} ${call.args.join(" ")} could read the token`);
     }
+    // Each worktree reads exactly the branch's remote-tracking ref, never a
+    // short name git would resolve by its own rules.
+    assert.deepEqual(
+      run.calls.filter((call) => call.tool === "git" && call.args[0] === "worktree" && call.args[1] === "add").map((call) => call.args[call.args.length - 1]),
+      expected.map((branch) => `refs/remotes/origin/${branch}`),
+      `${what}: the worktree reads another ref than the branch's remote-tracking ref`
+    );
     const nodes = run.calls.filter((call) => call.tool === "node");
     assert.equal(nodes.length, expected.length * 2, `${what}: node ran another number of times`);
     for (const call of nodes) {
