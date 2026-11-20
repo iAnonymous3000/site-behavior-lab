@@ -336,6 +336,8 @@ test("the Dependabot repair refuses any requested branch that is not exactly one
     "production",
     "dependabot/*",
     "dependabot/npm_and_yarn/x;touch pwned",
+    // A name git takes as a branch that is still not one of Dependabot's.
+    "dependabot/npm_and_yarn/x;touch-pwned",
     "dependabot/../main",
     "dependabot/x..y",
     " dependabot/npm_and_yarn/x"
