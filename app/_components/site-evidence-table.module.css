@@ -426,16 +426,28 @@
   color: var(--a-carbon);
 }
 
+/* Under direction A the top bar scrolls away with the page, so the head parks
+   at the very top of the viewport, and it is opaque so the rows scroll under
+   it instead of through its labels. */
 :global(.da) .siteTable thead th {
   padding: 0 14px 8px 0;
   border: 0;
   border-bottom: 1.5px solid var(--a-carbon);
-  background: none;
+  background: var(--a-paper);
   color: var(--a-carbon);
   font: 600 var(--a-t-fine) / 1.35 var(--a-sans);
   text-transform: none;
   letter-spacing: 0;
   vertical-align: bottom;
+  top: 0;
+}
+
+/* The stuck head covers the top of the viewport, so a link that focus scrolls
+   into view (Shift+Tab back up the table) stops below it rather than under it.
+   The head measured 97px tall at 1440px and 116px at 1024px and 722px, where
+   its labels wrap; in rem so the margin grows with the text that sizes it. */
+:global(.da) .siteTable tbody a {
+  scroll-margin-top: 8rem;
 }
 
 :global(.da) .siteTable thead th button {

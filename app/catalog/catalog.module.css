@@ -594,11 +594,20 @@
   padding-top: 0;
   padding-bottom: 8px;
   border-bottom: 1.5px solid var(--a-carbon);
-  background: none;
+  /* Opaque, so the rows scrolling inside the box pass under the head's labels
+     instead of through them. */
+  background: var(--a-paper);
   color: var(--a-carbon);
   font: 600 var(--a-t-fine) / 1.35 var(--a-sans);
   text-transform: none;
   letter-spacing: 0;
+}
+
+/* The stuck head covers the top of the box, so a link that focus scrolls into
+   view stops below it rather than under it. The head measured 27px tall; in
+   rem so the margin grows with the text that sizes it. */
+:global(.da) .table tbody a {
+  scroll-margin-top: 3rem;
 }
 
 :global(.da) .table code,

@@ -442,6 +442,133 @@ test("the forced-colors cascade test can actually see a cancelling rule", () => 
   assert.deepEqual(forcedColorsOutlineSelectors(noneRule), []);
 });
 
+type TopLevelRule = { selectors: string[]; declarations: Array<[string, string]> };
+
+/**
+ * The rules of a stylesheet that sit outside any at-rule, in source order,
+ * each with its comma-separated selectors and its declarations. Rules inside
+ * `@media` and other at-rules are skipped: the sticky heads and their
+ * direction A overrides are all top-level, and the narrow-screen blocks hide
+ * or unstick the heads rather than restyle them.
+ */
+function topLevelRules(css: string): TopLevelRule[] {
+  const text = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  const rules: TopLevelRule[] = [];
+  let index = 0;
+  while (index < text.length) {
+    const open = text.indexOf("{", index);
+    if (open === -1) break;
+    const prelude = text.slice(index, open).trim();
+    let depth = 1;
+    let close = open + 1;
+    while (close < text.length && depth > 0) {
+      if (text[close] === "{") depth += 1;
+      if (text[close] === "}") depth -= 1;
+      close += 1;
+    }
+    if (!prelude.startsWith("@")) {
+      rules.push({
+        selectors: prelude.split(",").map((part) => part.trim().replace(/\s+/g, " ")),
+        declarations: text
+          .slice(open + 1, close - 1)
+          .split(";")
+          .map((declaration) => declaration.split(":"))
+          .filter((parts) => parts.length >= 2)
+          .map(([property, ...value]) => [property.trim(), value.join(":").trim()] as [string, string])
+      });
+    }
+    index = close;
+  }
+  return rules;
+}
+
+/** The value the cascade ends on for a property, from rules in source order. */
+function lastDeclared(rules: TopLevelRule[], properties: string[]): string | undefined {
+  let value: string | undefined;
+  for (const rule of rules) {
+    for (const [property, declared] of rule.declarations) {
+      if (properties.includes(property)) value = declared;
+    }
+  }
+  return value;
+}
+
+const DIRECTION_A = ":global(.da) ";
+const NAMED_STICKY_HEADS = [
+  { file: "app/_components/site-evidence-table.module.css", selector: ".siteTable thead th", table: ".siteTable" },
+  { file: "app/catalog/catalog.module.css", selector: ".table th", table: ".table" }
+];
+
+test("a sticky table head under direction A is opaque and does not wait for a top bar that scrolls away", () => {
+  // Under .da the top bar is not sticky (app/_design/base.css), so a head that
+  // parks at --topbar-h floats below an empty band, and a head with no
+  // background lets the rows it covers show through its labels. Both shipped
+  // once: a restyle removed the heads' background and kept their stickiness.
+  const moduleFiles = readdirSync(path.join(root, "app"), { recursive: true, encoding: "utf8" })
+    .filter((file) => file.endsWith(".module.css"))
+    .map((file) => path.posix.join("app", file.split(path.sep).join("/")));
+  const found: string[] = [];
+  for (const file of moduleFiles) {
+    const rules = topLevelRules(source(file));
+    const stickyHeads = rules
+      .filter((rule) => !rule.selectors.some((selector) => selector.includes(":global(.da)")))
+      .filter((rule) => rule.declarations.some(([property, value]) => property === "position" && value === "sticky"))
+      .flatMap((rule) => rule.selectors.filter((selector) => /(^|\s)th(\[[^\]]*\])?$/.test(selector)));
+    for (const selector of new Set(stickyHeads)) {
+      found.push(`${file} ${selector}`);
+      const base = rules.filter((rule) => rule.selectors.includes(selector));
+      const directionA = rules.filter((rule) => rule.selectors.includes(DIRECTION_A + selector));
+      // A .da rule outranks the base rule, so its last declaration wins when it has one.
+      const background =
+        lastDeclared(directionA, ["background", "background-color"]) ??
+        lastDeclared(base, ["background", "background-color"]);
+      assert.ok(
+        background !== undefined && !/^(none|transparent)\b/.test(background),
+        `${file} ${selector} is opaque under direction A (it ends on ${background ?? "no background"})`
+      );
+      const top = lastDeclared(directionA, ["top"]) ?? lastDeclared(base, ["top"]);
+      assert.ok(
+        top !== undefined && !top.includes("--topbar-h"),
+        `${file} ${selector} does not park under the top bar's height under direction A (it ends on ${top ?? "no top"})`
+      );
+    }
+  }
+  for (const head of NAMED_STICKY_HEADS) {
+    assert.ok(found.includes(`${head.file} ${head.selector}`), `the guard finds the named head ${head.file} ${head.selector}`);
+  }
+
+  // An opaque head at the top of the viewport covers whatever focus scrolls
+  // under it, so the links in each table's body ask the browser to stop short
+  // of the head when it scrolls them into view.
+  for (const head of NAMED_STICKY_HEADS) {
+    const margin = lastDeclared(
+      topLevelRules(source(head.file)).filter((rule) => rule.selectors.includes(`${DIRECTION_A}${head.table} tbody a`)),
+      ["scroll-margin-top", "scroll-margin-block-start"]
+    );
+    assert.ok(
+      margin !== undefined && !/^0(\.0+)?([a-z%]+)?$/.test(margin),
+      `the links in ${head.file}'s table body clear its stuck head when focus scrolls to them (scroll-margin-top is ${margin ?? "unset"})`
+    );
+  }
+});
+
+test("the sticky head guard reads the cascade in source order", () => {
+  const rules = topLevelRules(
+    [
+      ".t th { position: sticky; top: 0; background: red; }",
+      "@media (max-width: 1px) { :global(.da) .t th { background: blue; } }",
+      ":global(.da) .t th { background: none; }",
+      ":global(.da) .t th, :global(.da) .t td { background: var(--paper); }"
+    ].join("\n")
+  );
+  assert.equal(rules.length, 3, "a rule inside an at-rule is skipped");
+  assert.equal(
+    lastDeclared(rules.filter((rule) => rule.selectors.includes(":global(.da) .t th")), ["background"]),
+    "var(--paper)",
+    "a later grouped rule wins"
+  );
+});
+
 test("interactive controls draw their boundary with the 3:1 token, not the hairline one", () => {
   const css = source("app/globals.css");
 
