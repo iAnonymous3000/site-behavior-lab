@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import { frozenReportView, ledgerPinnedReportView } from "./pinned-reports";
 import { buildReportFacts, type RunFacts } from "./report-facts";
@@ -219,4 +221,36 @@ test("the note for a visit with no phases names what the visit included and neve
     "This report does not record which requests came during the scanner's consent click or typing probe."
   );
   assert.equal(note([]), null);
+});
+
+/** Source text with its comments removed, so a comment that explains older reports is not public text. */
+function withoutComments(source: string): string {
+  return source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1");
+}
+
+/** Non-test source files under the given roots: the code that writes what a reader sees. */
+function publicSources(...roots: string[]): string[] {
+  const found: string[] = [];
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(dir)) {
+      const full = path.join(dir, entry);
+      if (statSync(full).isDirectory()) walk(full);
+      else if (/\.(ts|tsx)$/.test(entry) && !/\.test\./.test(entry) && !entry.endsWith(".d.ts")) found.push(full);
+    }
+  };
+  for (const root of roots) walk(path.join(process.cwd(), root));
+  return found;
+}
+
+test("no public string calls a report an older report", () => {
+  // The singular is the claim about the report a reader has open. The plural
+  // ("Older reports may not contain ...") is a true statement about earlier
+  // reports and stays; comments, tests and docs are not public strings.
+  const files = publicSources("lib", "app");
+  const holders = files.filter((file) => /\bolder report\b/i.test(withoutComments(readFileSync(file, "utf8"))));
+  assert.deepEqual(holders.map((file) => path.relative(process.cwd(), file)), []);
+  // The scan reads the note's own template through the comment stripper, so it cannot pass vacuously.
+  const template = files.find((file) => file.endsWith(path.join("lib", "report-phase-note.ts")));
+  assert.ok(template, "the scan does not reach lib/report-phase-note.ts");
+  assert.match(withoutComments(readFileSync(template, "utf8")), /does not record which requests came during the scanner's \$\{actions\}/);
 });
