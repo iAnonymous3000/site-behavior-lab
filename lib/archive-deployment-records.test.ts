@@ -293,8 +293,10 @@ test("a kept folder refuses a record without its bundle, a bundle without its re
 test("every kept deployment record binds to its bundle, and with none kept the folder holds only .gitkeep", async () => {
   const { keptRecordProblems } = await helpers;
   const kept = keptRecordProblems(root);
+  // Problems first, so a stray or unpaired file is named by its own message
+  // even while no record is kept.
+  assert.deepEqual(kept.problems, []);
   if (kept.records === 0) {
     assert.deepEqual(kept.names, [".gitkeep"], "no record is kept yet, so the folder holds only .gitkeep");
   }
-  assert.deepEqual(kept.problems, []);
 });
