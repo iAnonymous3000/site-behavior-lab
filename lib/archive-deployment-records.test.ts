@@ -84,7 +84,7 @@ async function world(runIds: number[]): Promise<World> {
     state.runs.set(id, run);
     state.artifacts.set(id, [{ name: recordArtifactName(run), expired: false }, { name: "other-artifact", expired: false }]);
     const record = deploymentRecord(
-      { observedAt: "2026-11-18T10:04:50.123Z", sourceCommit: COMMIT, applicationId: "production-app", image: `${IMAGE_REPOSITORY}@sha256:${"4".repeat(64)}` },
+      { observedAt: "2026-11-18T10:04:50.123Z", sourceCommit: COMMIT, applicationId: "production-app", image: `${IMAGE_REPOSITORY}@sha256:d55f2bc766ef1dc722b08154902d636bf916474b69027b284739c394a9e55666` },
       { ciRunId: 44271944079, deployRunId: id, deployRunAttempt: 1 }
     );
     state.records.set(id, `${JSON.stringify(record, null, 2)}\n`);

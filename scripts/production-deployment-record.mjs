@@ -59,7 +59,12 @@ export function deploymentRecordProblems(value, { commit, deployRunId, deployRun
   const problems = [];
   if (value.schemaVersion !== 1 || value.kind !== DEPLOYMENT_RECORD_KIND) problems.push("the record is of another kind or version");
   if (!SHA.test(value.sourceCommit ?? "") || value.sourceCommit !== commit) problems.push(`the record names commit ${value.sourceCommit}, not ${commit}`);
-  if (typeof value.image !== "string" || !imagePattern.test(value.image)) problems.push("the record names no immutable image of the production repository");
+  if (typeof value.image !== "string" || !imagePattern.test(value.image)) {
+    problems.push("the record names no immutable image of the production repository");
+  } else if (/@sha256:([0-9a-f])\1{63}$/.test(value.image)) {
+    // A placeholder, never a digest a build gives.
+    problems.push("the record's image digest is one repeated digit");
+  }
   if (typeof value.applicationId !== "string" || value.applicationId.length === 0 || value.applicationId.length > 200) problems.push("the record names no application");
   if (typeof value.observedAt !== "string" || !INSTANT.test(value.observedAt) || new Date(value.observedAt).toISOString() !== value.observedAt) {
     problems.push("the record's observation time is not a canonical instant");

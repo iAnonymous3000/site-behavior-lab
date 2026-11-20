@@ -44,7 +44,7 @@ async function goodRecord(): Promise<DeploymentRecord> {
   const { deploymentRecord } = await helpers;
   const { IMAGE_REPOSITORY } = await imageLib;
   return deploymentRecord(
-    { observedAt: "2026-11-18T10:04:50.123Z", sourceCommit: COMMIT, applicationId: "production-app", image: `${IMAGE_REPOSITORY}@sha256:${"4".repeat(64)}` },
+    { observedAt: "2026-11-18T10:04:50.123Z", sourceCommit: COMMIT, applicationId: "production-app", image: `${IMAGE_REPOSITORY}@sha256:d55f2bc766ef1dc722b08154902d636bf916474b69027b284739c394a9e55666` },
     RUNS
   );
 }
@@ -66,6 +66,9 @@ test("a record is refused for each way it is not this deployment's", async () =>
     ["another kind", (r) => { r.kind = "site-behavior-lab-tla-checks-receipt"; }, /another kind or version/],
     ["a mutable tag", (r) => { r.image = r.image.replace(/@sha256:[0-9a-f]+$/, ":latest"); }, /no immutable image/],
     ["another repository", (r) => { r.image = r.image.replace("site-behavior-lab-scanner", "other-scanner"); }, /no immutable image/],
+    // A digest no build gives: a placeholder of zeros, or any one digit repeated.
+    ["an all-zero digest", (r) => { r.image = r.image.replace(/@sha256:[0-9a-f]{64}$/, `@sha256:${"0".repeat(64)}`); }, /one repeated digit/],
+    ["a single-digit digest", (r) => { r.image = r.image.replace(/@sha256:[0-9a-f]{64}$/, `@sha256:${"4".repeat(64)}`); }, /one repeated digit/],
     ["no application", (r) => { r.applicationId = ""; }, /names no application/],
     ["a loose time", (r) => { r.observedAt = "2026-11-18T10:04:50Z"; }, /not a canonical instant/],
     // A text no date reads is refused, not thrown on: toISOString would throw on it.
