@@ -30,7 +30,7 @@ type Helpers = {
   deploymentRunProblems(run: unknown, runId: number): string[];
   archivePaths(run: Run, attempt: number): { record: string; bundle: string };
   recordAttestationArgs(file: string, commit: string): string[];
-  collectDeploymentRecords(input: { runIds: number[]; root: string; gh: Gh; verifier: Gh }): string[];
+  collectDeploymentRecords(input: { runIds: number[]; root: string; gh: Gh; verifier: Gh }): { written: string[]; expired: string[] };
   recordBundleProblems(recordBytes: Buffer, bundleText: string): string[];
   keptRecordProblems(root: string): { records: number; names: string[]; problems: string[] };
 };
@@ -83,7 +83,8 @@ function keptArtifactName(attempt: number): string {
 
 type World = {
   runs: Map<number, Run>;
-  records: Map<number, string>;
+  /** Record text by "<run>-<attempt>". */
+  records: Map<string, string>;
   artifacts: Map<number, { name: string; expired: boolean }[]>;
   verified: unknown;
   bundles: number;
@@ -102,15 +103,17 @@ async function recordText(id: number, attempt: number): Promise<string> {
 }
 
 /**
- * Runs whose deploy job kept its record at `deployAttempt` and whose latest
- * attempt is `latestAttempt`: later when only the signing job was rerun.
+ * Runs whose deploy job kept a record at each of `deployAttempts` and whose
+ * latest attempt is `latestAttempt`. A full rerun deploys again and keeps
+ * another record; a rerun of the failed signing job alone keeps none, so the
+ * latest attempt can be later than every kept one.
  */
-async function world(runIds: number[], deployAttempt = 1, latestAttempt = deployAttempt): Promise<World> {
+async function world(runIds: number[], deployAttempts = [1], latestAttempt = Math.max(...deployAttempts)): Promise<World> {
   const state: World = { runs: new Map(), records: new Map(), artifacts: new Map(), verified: [{ verificationResult: {} }], bundles: 1, calls: [] };
   for (const id of runIds) {
     state.runs.set(id, await goodRun(id, latestAttempt));
-    state.artifacts.set(id, [{ name: keptArtifactName(deployAttempt), expired: false }, { name: "other-artifact", expired: false }]);
-    state.records.set(id, await recordText(id, deployAttempt));
+    state.artifacts.set(id, [...deployAttempts.map((attempt) => ({ name: keptArtifactName(attempt), expired: false })), { name: "other-artifact", expired: false }]);
+    for (const attempt of deployAttempts) state.records.set(`${id}-${attempt}`, await recordText(id, attempt));
   }
   return state;
 }
@@ -124,9 +127,11 @@ function fakes(state: World, recordFile: string): { gh: Gh; verifier: Gh } {
     if (args[0] === "api" && artifactsPath) return JSON.stringify({ artifacts: state.artifacts.get(Number(artifactsPath[1])) });
     if (args[0] === "run" && args[1] === "download") {
       const name = args[args.indexOf("--name") + 1];
-      if (!(state.artifacts.get(Number(args[2])) ?? []).some((artifact) => artifact.name === name)) throw new Error(`run ${args[2]} lists no artifact ${name}`);
+      const listed = (state.artifacts.get(Number(args[2])) ?? []).find((artifact) => artifact.name === name);
+      if (listed === undefined) throw new Error(`run ${args[2]} lists no artifact ${name}`);
+      if (listed.expired) throw new Error(`artifact ${name} has expired and cannot be downloaded`);
       const directory = args[args.indexOf("--dir") + 1];
-      writeFileSync(path.join(directory, recordFile), state.records.get(Number(args[2])) ?? "");
+      writeFileSync(path.join(directory, recordFile), state.records.get(`${args[2]}-${/-([0-9]+)$/.exec(name)![1]}`) ?? "");
       return "";
     }
     throw new Error(`unexpected gh ${args.join(" ")}`);
@@ -154,11 +159,12 @@ test("a batch of good runs is kept as one record and one bundle each, byte for b
   const state = await world([101, 102]);
   const target = scratchRoot();
   try {
-    const written = collectDeploymentRecords({ runIds: [101, 102], root: target, ...fakes(state, DEPLOYMENT_RECORD_FILE) });
+    const { written, expired } = collectDeploymentRecords({ runIds: [101, 102], root: target, ...fakes(state, DEPLOYMENT_RECORD_FILE) });
+    assert.deepEqual(expired, []);
     const expected = [101, 102].flatMap((id) => Object.values(archivePaths(state.runs.get(id)!, 1)));
     assert.deepEqual(written, expected);
     assert.deepEqual(readdirSync(path.join(target, ARCHIVE_DIRECTORY)).sort(), ["101-1.bundle.jsonl", "101-1.json", "102-1.bundle.jsonl", "102-1.json"]);
-    assert.equal(readFileSync(path.join(target, ARCHIVE_DIRECTORY, "101-1.json"), "utf8"), state.records.get(101));
+    assert.equal(readFileSync(path.join(target, ARCHIVE_DIRECTORY, "101-1.json"), "utf8"), state.records.get("101-1"));
     // Each record's signature is checked before anything is written.
     assert.equal(state.calls.filter((call) => call === "verifier attestation verify").length, 2);
   } finally {
@@ -175,16 +181,20 @@ test("a batch with one refused run writes nothing at all", async () => {
     ["a failed run", (s) => { s.runs.get(102)!.conclusion = "failure"; }, /did not complete successfully/],
     ["a pull request event", (s) => { s.runs.get(102)!.event = "pull_request"; }, /started by pull_request/],
     ["a fork", (s) => { s.runs.get(102)!.head_repository = { full_name: "someone/site-behavior-lab" }; }, /not of this repository/],
-    ["an expired record", (s) => { s.artifacts.get(102)![0].expired = true; }, /: run 102's record artifact production-container-readback-1{40}-1 has expired$/],
     ["no record artifact", (s) => { s.artifacts.set(102, [{ name: "other-artifact", expired: false }]); }, /: run 102 has no record artifact$/],
-    // A rerun of all jobs deploys again and keeps a second record; which one
-    // to keep is not this script's to choose.
-    ["two record artifacts", (s) => { s.runs.get(102)!.run_attempt = 2; s.artifacts.get(102)!.push({ name: keptArtifactName(2), expired: false }); }, /: run 102 has 2 record artifacts, not one$/],
+    ["two record artifacts of one attempt", (s) => { s.artifacts.get(102)!.push({ name: keptArtifactName(1), expired: false }); }, /: run 102 lists two record artifacts of attempt 1$/],
     ["a record artifact of another commit", (s) => { s.artifacts.get(102)!.push({ name: keptArtifactName(1).replace(COMMIT, "2".repeat(40)), expired: false }); }, /: run 102 lists production-container-readback-2{40}-1, which is not a record artifact of commit 1{40}$/],
     ["a record artifact of attempt 0", (s) => { s.artifacts.set(102, [{ name: keptArtifactName(0), expired: false }]); }, /: run 102 lists production-container-readback-1{40}-0, which is not a record artifact of commit 1{40}$/],
-    ["a record artifact after the run's latest attempt", (s) => { s.artifacts.set(102, [{ name: keptArtifactName(2), expired: false }]); }, /: run 102's record artifact is of attempt 2, after the run's latest attempt 1$/],
-    ["a record of another attempt than its artifact", (s) => { s.runs.get(102)!.run_attempt = 2; s.artifacts.set(102, [{ name: keptArtifactName(2), expired: false }]); }, /not of deployment run 102 attempt 2/],
-    ["a record of another commit", (s) => { s.records.set(102, s.records.get(102)!.replaceAll(COMMIT, "2".repeat(40))); }, /names commit 2+, not 1+/],
+    ["a record artifact after the run's latest attempt", (s) => {
+      s.artifacts.set(102, [{ name: keptArtifactName(2), expired: false }]);
+      s.records.set("102-2", s.records.get("102-1")!.replace('"attempt": 1', '"attempt": 2'));
+    }, /: run 102's record artifact production-container-readback-1{40}-2 is of attempt 2, after the run's latest attempt 1$/],
+    ["a record of another attempt than its artifact", (s) => {
+      s.runs.get(102)!.run_attempt = 2;
+      s.artifacts.set(102, [{ name: keptArtifactName(2), expired: false }]);
+      s.records.set("102-2", s.records.get("102-1")!);
+    }, /not of deployment run 102 attempt 2/],
+    ["a record of another commit", (s) => { s.records.set("102-1", s.records.get("102-1")!.replaceAll(COMMIT, "2".repeat(40))); }, /names commit 2+, not 1+/],
     ["no verified attestation", (s) => { s.verified = []; }, /no verified attestation/],
     ["two bundles", (s) => { s.bundles = 2; }, /2 attestation bundle files, not one/]
   ];
@@ -201,23 +211,45 @@ test("a batch with one refused run writes nothing at all", async () => {
   }
 });
 
-test("the record the deploy job kept is archived by its own attempt, on a first run, a full rerun and a rerun of the signing job alone", async () => {
+test("every record a run's deploy job kept is archived by its own attempt, on a first run, a full rerun and a rerun of the signing job alone", async () => {
   const { collectDeploymentRecords, keptRecordProblems, ARCHIVE_DIRECTORY } = await helpers;
   const { DEPLOYMENT_RECORD_FILE } = await recordLib;
-  // [deploy attempt, the run's latest attempt]. On a full rerun only the
-  // rerun's record is listed here; with both listed the run is refused above.
-  for (const [deployAttempt, latestAttempt] of [[1, 1], [2, 2], [1, 2], [1, 3]]) {
-    const what = `deploy attempt ${deployAttempt}, latest attempt ${latestAttempt}`;
-    const state = await world([101], deployAttempt, latestAttempt);
+  // [attempts whose deploy job kept a record, the run's latest attempt].
+  const runs: [number[], number][] = [[[1], 1], [[1, 2], 2], [[1], 2], [[1], 3], [[2], 2]];
+  for (const [deployAttempts, latestAttempt] of runs) {
+    const what = `deploy attempts ${deployAttempts.join(",")}, latest attempt ${latestAttempt}`;
+    const state = await world([101], deployAttempts, latestAttempt);
     const target = scratchRoot();
     try {
-      let written: string[] = [];
-      assert.doesNotThrow(() => { written = collectDeploymentRecords({ runIds: [101], root: target, ...fakes(state, DEPLOYMENT_RECORD_FILE) }); }, `${what}: the archive refused the kept record`);
-      assert.deepEqual(written, [`${ARCHIVE_DIRECTORY}/101-${deployAttempt}.json`, `${ARCHIVE_DIRECTORY}/101-${deployAttempt}.bundle.jsonl`], `${what}: the record is kept under another attempt`);
-      assert.deepEqual(keptRecordProblems(target).problems, [], `${what}: the kept record does not hold to its name`);
+      let result = { written: [] as string[], expired: [] as string[] };
+      assert.doesNotThrow(() => { result = collectDeploymentRecords({ runIds: [101], root: target, ...fakes(state, DEPLOYMENT_RECORD_FILE) }); }, `${what}: the archive refused the run`);
+      assert.deepEqual(
+        result.written,
+        deployAttempts.flatMap((attempt) => [`${ARCHIVE_DIRECTORY}/101-${attempt}.json`, `${ARCHIVE_DIRECTORY}/101-${attempt}.bundle.jsonl`]),
+        `${what}: the kept records are not one per deploying attempt, each under its own attempt`
+      );
+      assert.deepEqual(result.expired, [], `${what}: an attempt was reported expired`);
+      assert.deepEqual(keptRecordProblems(target).problems, [], `${what}: a kept record does not hold to its name`);
     } finally {
       rmSync(target, { recursive: true, force: true });
     }
+  }
+});
+
+test("an expired record of one attempt is named as not kept, and the run's other attempts are kept", async () => {
+  const { collectDeploymentRecords, keptRecordProblems, ARCHIVE_DIRECTORY } = await helpers;
+  const { DEPLOYMENT_RECORD_FILE } = await recordLib;
+  const state = await world([101], [1, 2]);
+  state.artifacts.get(101)![0].expired = true;
+  const target = scratchRoot();
+  try {
+    let result = { written: [] as string[], expired: [] as string[] };
+    assert.doesNotThrow(() => { result = collectDeploymentRecords({ runIds: [101], root: target, ...fakes(state, DEPLOYMENT_RECORD_FILE) }); }, "an expired earlier attempt: the archive refused the run");
+    assert.deepEqual(result.written, [`${ARCHIVE_DIRECTORY}/101-2.json`, `${ARCHIVE_DIRECTORY}/101-2.bundle.jsonl`], "an expired earlier attempt: the later attempt is not the one record kept");
+    assert.deepEqual(result.expired, [`run 101's record artifact ${keptArtifactName(1)} has expired and is not kept`], "an expired earlier attempt: the expired attempt is not named");
+    assert.deepEqual(keptRecordProblems(target).problems, []);
+  } finally {
+    rmSync(target, { recursive: true, force: true });
   }
 });
 
@@ -297,7 +329,7 @@ function bundleLine(recordBytes: Buffer, change: (statement: Record<string, any>
 test("a kept bundle names its record offline by digest, signer workflow, ref, repository and commit", async () => {
   const { recordBundleProblems } = await helpers;
   const state = await world([101]);
-  const bytes = Buffer.from(state.records.get(101)!);
+  const bytes = Buffer.from(state.records.get("101-1")!);
   assert.deepEqual(recordBundleProblems(bytes, bundleLine(bytes)), []);
   const cases: [string, Buffer, string][] = [
     ["a record changed after signing", Buffer.from(bytes.toString().replace("production-app", "other-app")), bundleLine(bytes)],
@@ -317,7 +349,7 @@ test("a kept bundle names its record offline by digest, signer workflow, ref, re
 test("a kept folder refuses a record without its bundle, a bundle without its record, and a stray file", async () => {
   const { keptRecordProblems, ARCHIVE_DIRECTORY } = await helpers;
   const state = await world([101]);
-  const bytes = Buffer.from(state.records.get(101)!);
+  const bytes = Buffer.from(state.records.get("101-1")!);
   const target = scratchRoot();
   try {
     const directory = path.join(target, ARCHIVE_DIRECTORY);

@@ -6,13 +6,15 @@
 //
 // For each named run of .github/workflows/deploy-container.yml it refuses
 // anything but a completed, successful run on the production branch; takes
-// the run's one record artifact, named for the run's commit and the attempt
-// whose deploy job kept it; holds the record to the run's commit and id and
-// to that attempt (scripts/production-deployment-record.mjs);
-// requires GitHub's attestation of the record to verify as signed by that
-// workflow at that commit on refs/heads/production; and writes the record
-// and its attestation bundle beside each other. It never overwrites a file
-// already there. .github/workflows/archive-deployment-records.yml runs it
+// each of the run's record artifacts, one per attempt whose deploy job kept
+// one, named for the run's commit and that attempt; holds each record to the
+// run's commit and id and to its attempt
+// (scripts/production-deployment-record.mjs); requires GitHub's attestation
+// of each record to verify as signed by that workflow at that commit on
+// refs/heads/production; and writes each record and its attestation bundle
+// beside each other, as <run>-<attempt>. A record whose artifact has expired
+// is named as not kept, and the run's other records are still kept. It
+// never overwrites a file already there. .github/workflows/archive-deployment-records.yml runs it
 // and proposes what it wrote.
 //
 // A record says what the provider reported the application runs and what
@@ -66,24 +68,33 @@ export function deploymentRunProblems(run, runId) {
 export const RECORD_ARTIFACT_PREFIX = "production-container-readback-";
 
 /**
- * The run's one record artifact and the attempt it names. The deploy job
- * keeps its record under its own attempt, and a rerun of the failed signing
- * job alone runs as a later attempt that keeps none, so the attempt is read
- * from the artifact's name, never from the run's latest attempt. Throws when
- * the run lists no such artifact, more than one, an expired one, one named
- * for another commit or no attempt, or one of an attempt the run has not had.
+ * The run's record artifacts, one per attempt whose deploy job kept one, in
+ * attempt order: those still to be had in `kept`, and a sentence naming each
+ * expired one in `expired`. Each full attempt deployed and kept its own
+ * record, and a rerun of the failed signing job alone runs as a later
+ * attempt that keeps none, so each attempt is read from its artifact's name,
+ * never from the run's latest attempt. Throws when the run lists no record
+ * artifact, two of one attempt, one named for another commit or no attempt,
+ * or one of an attempt the run has not had.
  */
-export function recordArtifact(run, artifacts) {
+export function recordArtifacts(run, artifacts) {
   const own = new RegExp(`^${RECORD_ARTIFACT_PREFIX}${run.head_sha}-([1-9][0-9]{0,3})$`);
   const named = artifacts.filter((artifact) => typeof artifact?.name === "string" && artifact.name.startsWith(RECORD_ARTIFACT_PREFIX));
   const foreign = named.find((artifact) => !own.test(artifact.name));
   if (foreign !== undefined) throw new Error(`run ${run.id} lists ${foreign.name}, which is not a record artifact of commit ${run.head_sha}`);
   if (named.length === 0) throw new Error(`run ${run.id} has no record artifact`);
-  if (named.length > 1) throw new Error(`run ${run.id} has ${named.length} record artifacts, not one`);
-  if (named[0].expired !== false) throw new Error(`run ${run.id}'s record artifact ${named[0].name} has expired`);
-  const attempt = Number(own.exec(named[0].name)[1]);
-  if (attempt > run.run_attempt) throw new Error(`run ${run.id}'s record artifact is of attempt ${attempt}, after the run's latest attempt ${run.run_attempt}`);
-  return { name: named[0].name, attempt };
+  const byAttempt = new Map();
+  for (const artifact of named) {
+    const attempt = Number(own.exec(artifact.name)[1]);
+    if (attempt > run.run_attempt) throw new Error(`run ${run.id}'s record artifact ${artifact.name} is of attempt ${attempt}, after the run's latest attempt ${run.run_attempt}`);
+    if (byAttempt.has(attempt)) throw new Error(`run ${run.id} lists two record artifacts of attempt ${attempt}`);
+    byAttempt.set(attempt, artifact);
+  }
+  const ordered = [...byAttempt].sort(([a], [b]) => a - b);
+  return {
+    kept: ordered.filter(([, artifact]) => artifact.expired === false).map(([attempt, artifact]) => ({ name: artifact.name, attempt })),
+    expired: ordered.filter(([, artifact]) => artifact.expired !== false).map(([, artifact]) => `run ${run.id}'s record artifact ${artifact.name} has expired and is not kept`)
+  };
 }
 
 /** Where the record a run's deploy job kept at `attempt`, and its bundle, are kept, relative to the repository root. */
@@ -198,30 +209,35 @@ const defaultGh = (args, options = {}) => execFileSync("gh", args, { encoding: "
 export function collectDeploymentRecords({ runIds, root, gh = defaultGh, verifier = defaultGh }) {
   const scratch = mkdtempSync(path.join(os.tmpdir(), "sbl-deployment-records-"));
   try {
-    const collected = runIds.map((runId) => {
+    const expired = [];
+    const collected = runIds.flatMap((runId) => {
       const run = JSON.parse(gh(["api", `repos/${REPOSITORY}/actions/runs/${runId}`]));
       const runProblems = deploymentRunProblems(run, runId);
       if (runProblems.length > 0) throw new Error(`run ${runId} is refused:\n- ${runProblems.join("\n- ")}`);
       const artifacts = JSON.parse(gh(["api", `repos/${REPOSITORY}/actions/runs/${runId}/artifacts?per_page=100`])).artifacts ?? [];
-      const { name, attempt } = recordArtifact(run, artifacts);
-      const directory = path.join(scratch, String(runId));
-      mkdirSync(directory);
-      gh(["run", "download", String(runId), "--repo", REPOSITORY, "--name", name, "--dir", directory]);
-      const recordFile = path.join(directory, DEPLOYMENT_RECORD_FILE);
-      if (!existsSync(recordFile) || readdirSync(directory).length !== 1) throw new Error(`run ${runId}'s artifact is not the one record file`);
-      const bytes = readFileSync(recordFile);
-      const problems = deploymentRecordProblems(JSON.parse(bytes.toString("utf8")), {
-        commit: run.head_sha, deployRunId: run.id, deployRunAttempt: attempt
+      const found = recordArtifacts(run, artifacts);
+      expired.push(...found.expired);
+      return found.kept.map(({ name, attempt }) => {
+        const label = `run ${runId} attempt ${attempt}`;
+        const directory = path.join(scratch, `${runId}-${attempt}`);
+        mkdirSync(directory);
+        gh(["run", "download", String(runId), "--repo", REPOSITORY, "--name", name, "--dir", directory]);
+        const recordFile = path.join(directory, DEPLOYMENT_RECORD_FILE);
+        if (!existsSync(recordFile) || readdirSync(directory).length !== 1) throw new Error(`${label}'s artifact is not the one record file`);
+        const bytes = readFileSync(recordFile);
+        const problems = deploymentRecordProblems(JSON.parse(bytes.toString("utf8")), {
+          commit: run.head_sha, deployRunId: run.id, deployRunAttempt: attempt
+        });
+        if (problems.length > 0) throw new Error(`${label}'s record is refused:\n- ${problems.join("\n- ")}`);
+        const results = JSON.parse(verifier(recordAttestationArgs(recordFile, run.head_sha)));
+        if (!Array.isArray(results) || results.length === 0) throw new Error(`${label}'s record has no verified attestation`);
+        const bundles = path.join(scratch, `${runId}-${attempt}-bundle`);
+        mkdirSync(bundles);
+        verifier(["attestation", "download", recordFile, "--repo", REPOSITORY], { cwd: bundles });
+        const downloaded = readdirSync(bundles).filter((file) => file.endsWith(".jsonl"));
+        if (downloaded.length !== 1) throw new Error(`${label}'s record has ${downloaded.length} attestation bundle files, not one`);
+        return { run, attempt, bytes, bundle: path.join(bundles, downloaded[0]) };
       });
-      if (problems.length > 0) throw new Error(`run ${runId}'s record is refused:\n- ${problems.join("\n- ")}`);
-      const results = JSON.parse(verifier(recordAttestationArgs(recordFile, run.head_sha)));
-      if (!Array.isArray(results) || results.length === 0) throw new Error(`run ${runId}'s record has no verified attestation`);
-      const bundles = path.join(scratch, `${runId}-bundle`);
-      mkdirSync(bundles);
-      verifier(["attestation", "download", recordFile, "--repo", REPOSITORY], { cwd: bundles });
-      const downloaded = readdirSync(bundles).filter((file) => file.endsWith(".jsonl"));
-      if (downloaded.length !== 1) throw new Error(`run ${runId}'s record has ${downloaded.length} attestation bundle files, not one`);
-      return { run, attempt, bytes, bundle: path.join(bundles, downloaded[0]) };
     });
     const written = [];
     for (const { run, attempt } of collected) {
@@ -237,7 +253,7 @@ export function collectDeploymentRecords({ runIds, root, gh = defaultGh, verifie
       copyFileSync(bundle, path.join(root, paths.bundle), fsConstants.COPYFILE_EXCL);
       written.push(paths.record, paths.bundle);
     }
-    return written;
+    return { written, expired };
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }
@@ -257,11 +273,14 @@ if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(path.reso
     const pinnedGh = execFileSync(process.execPath, [path.join(root, "scripts/ensure-gh-attestation-verifier.mjs")], {
       cwd: root, encoding: "utf8", timeout: 120_000
     }).trim();
-    const written = collectDeploymentRecords({
+    const { written, expired } = collectDeploymentRecords({
       runIds: parseRunIds(option(rest, "--runs")),
       root,
       verifier: (args, options = {}) => execFileSync(pinnedGh, args, { encoding: "utf8", timeout: 120_000, maxBuffer: 8 * 1024 * 1024, ...options })
     });
+    // What was written goes to standard output, which the workflow counts and
+    // proposes; an attempt not kept is named in the run's log.
+    for (const line of expired) console.error(line);
     console.log(written.join("\n"));
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
