@@ -158,7 +158,7 @@ import {
   findDurableScanJob,
   recordAcceptedScanJob,
   registerDurableScanJob,
-  scanJobIdFromPath,
+  parseScanJobPath,
   type DurableScanJobRegistration
 } from "../lib/durable-scan-job-registry";
 import {
@@ -2945,11 +2945,20 @@ export default {
     ) {
       return durableUnavailableResponse(request, env);
     }
+    // Every reading of a scan job path below goes through the decoding parser,
+    // because Next decodes route segments: an encoded spelling of the id is
+    // the same job, and a literal-only match let it reach Node past the
+    // charge, the access check and the HEAD refusal. An id segment that will
+    // not decode is refused here rather than handed to Node.
+    const scanJobPath = parseScanJobPath(url.pathname);
+    if (scanJobPath?.kind === "malformed") {
+      return malformedScanJobPathResponse(request, env);
+    }
     // A job is polled with GET and cancelled with DELETE, and both settle
     // below under the job's edge controls. A HEAD would be forwarded past
     // them, and Next answers a HEAD by running the route's GET handler, so it
     // is answered here instead.
-    if (request.method === "HEAD" && scanJobIdFromPath(url.pathname)) {
+    if (request.method === "HEAD" && scanJobPath?.kind === "job") {
       return new Response(null, {
         status: 405,
         headers: {
@@ -2960,7 +2969,7 @@ export default {
       });
     }
     const scanJobId =
-      request.method === "GET" || request.method === "DELETE" ? scanJobIdFromPath(url.pathname) : null;
+      (request.method === "GET" || request.method === "DELETE") && scanJobPath?.kind === "job" ? scanJobPath.jobId : null;
 
     const durableRestartEvidenceJobId = parseDurableRestartEvidencePath(
       url.pathname
@@ -4422,6 +4431,17 @@ function durableReconciliationOutcome(
     return record.outcome;
   }
   return "retryable";
+}
+
+/** An empty 400: the path names no job either side could agree on, and no body adds a sentence. */
+function malformedScanJobPathResponse(request: Request, env: Env): Response {
+  return new Response(null, {
+    status: 400,
+    headers: {
+      ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),
+      "cache-control": "no-store"
+    }
+  });
 }
 
 function privateRouteNotFound(): Response {

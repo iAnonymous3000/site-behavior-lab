@@ -825,3 +825,23 @@ test("the status and admission-recovery quota refusals carry their wait, and eve
   const gate = sliceBetween(source, "function gateErrorResponse(", "function refuseDurableAdmittedAtSkew(", "source");
   assert.match(gate, /\.\.\.publicErrorHeaders\(publicError\)/, "gateErrorResponse must send the wait as Retry-After");
 });
+
+test("the edge reads scan job paths through the decoding parser and refuses a malformed one before forwarding", async () => {
+  // The HEAD refusal, the job controls and the forward all key on the parsed
+  // path, so an encoded spelling cannot route around them, and a path whose id
+  // will not decode is answered here rather than handed to Node.
+  const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
+  const routing = sliceBetween(source, "const isScan = request.method === \"POST\"", "const durableRestartEvidenceJobId", "source");
+  assert.match(routing, /const scanJobPath = parseScanJobPath\(url\.pathname\);/);
+  assert.match(
+    routing,
+    /if \(scanJobPath\?\.kind === "malformed"\) \{\s*return malformedScanJobPathResponse\(request, env\);\s*\}/,
+    "a malformed scan job path must be refused at the edge"
+  );
+  assert.match(routing, /request\.method === "HEAD" && scanJobPath\?\.kind === "job"/);
+  assert.match(
+    routing,
+    /\(request\.method === "GET" \|\| request\.method === "DELETE"\) && scanJobPath\?\.kind === "job" \? scanJobPath\.jobId : null/
+  );
+  assert.doesNotMatch(routing, /scanJobIdFromPath\(/, "the edge must not keep a second, literal-only reading");
+});

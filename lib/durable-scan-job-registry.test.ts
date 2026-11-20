@@ -9,6 +9,7 @@ import {
   findDurableScanJob,
   recordAcceptedScanJob,
   registerDurableScanJob,
+  parseScanJobPath,
   scanJobIdFromPath,
   type DurableScanJobRegistration,
   type DurableScanJobSql
@@ -237,6 +238,29 @@ test("scan status paths accept only canonical bearer job ids", () => {
   assert.equal(scanJobIdFromPath(`/api/scans/${JOB_ID}`), JOB_ID);
   assert.equal(scanJobIdFromPath(`/api/scans/${JOB_ID}/extra`), null);
   assert.equal(scanJobIdFromPath("/api/scans/../reports/x"), null);
+});
+
+test("a percent-encoded spelling of a scan status path is the same job, as Next decodes it", () => {
+  // WHATWG URL parsing leaves %66 encoded, Next decodes route segments, and
+  // the edge matched only the literal spelling: an encoded id reached Node
+  // past the edge's charge, access check and HEAD refusal.
+  const encodedId = `${JOB_ID.slice(0, -1)}%${JOB_ID.charCodeAt(JOB_ID.length - 1).toString(16)}`;
+  assert.notEqual(encodedId, JOB_ID);
+  assert.equal(scanJobIdFromPath(`/api/scans/${encodedId}`), JOB_ID, "an encoded id character");
+  assert.equal(scanJobIdFromPath(`/%61pi/%73cans/${JOB_ID}`), JOB_ID, "encoded route segments");
+  assert.equal(scanJobIdFromPath(`/api/scans/${JOB_ID}/`), JOB_ID, "a trailing slash");
+  assert.deepEqual(parseScanJobPath(`/api/scans/${encodedId}`), { kind: "job", jobId: JOB_ID });
+});
+
+test("a scan status path whose id segment cannot be decoded is malformed, not forwarded as unknown", () => {
+  for (const segment of [`${JOB_ID.slice(0, 20)}%2F${JOB_ID.slice(20)}`, `${JOB_ID}%`, `${JOB_ID}%E0%A4%A`, "%ZZ"]) {
+    assert.deepEqual(parseScanJobPath(`/api/scans/${segment}`), { kind: "malformed" }, segment);
+    assert.equal(scanJobIdFromPath(`/api/scans/${segment}`), null, segment);
+  }
+  // A well-formed id that is not a job id is not a status path at all.
+  assert.equal(parseScanJobPath("/api/scans/not-an-id"), null);
+  assert.equal(parseScanJobPath(`/api/scans/${JOB_ID}/extra`), null);
+  assert.equal(parseScanJobPath(`/api/reports/${JOB_ID}`), null);
 });
 
 function registration(overrides: Partial<DurableScanJobRegistration> = {}): DurableScanJobRegistration {

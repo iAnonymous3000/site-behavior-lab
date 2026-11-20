@@ -2,6 +2,7 @@ import { edgeClientIdentity } from "./client-identity";
 import { scanCorsHeaders } from "./cors";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import { sha256Hex } from "./sha256";
+import { decodePathSegment } from "./edge-path-segment";
 
 export const REPORT_READ_RATE_LIMIT_PER_MINUTE = 120;
 export const REPORT_READ_GLOBAL_RATE_LIMIT_PER_MINUTE = 1_200;
@@ -294,14 +295,3 @@ function reportRouteMethodNotAllowedResponse(allow: string, corsHeaders: Record<
   });
 }
 
-function decodePathSegment(value: string): string | null {
-  try {
-    const decoded = decodeURIComponent(value);
-    // Next decodes route segments but does not treat an encoded slash as a
-    // segment boundary. Reject it explicitly so edge and application routing
-    // can never disagree about the canonical resource being charged.
-    return decoded.includes("/") ? null : decoded;
-  } catch {
-    return null;
-  }
-}

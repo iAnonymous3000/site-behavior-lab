@@ -1,4 +1,5 @@
 import { parseStrictJson } from "./strict-json";
+import { decodePathSegment } from "./edge-path-segment";
 
 const JOB_ID_PATTERN = /^[0-9]{8}-[0-9a-f]{32}$/;
 
@@ -219,10 +220,32 @@ export async function recordAcceptedScanJob(
   }
 }
 
+export type ScanJobPath = { kind: "job"; jobId: string } | { kind: "malformed" };
+
+/**
+ * The scan job a status path names, read the way Next routes it: every
+ * segment percent-decoded and a trailing slash allowed, the same reading as
+ * the report routes (lib/report-read-edge.ts). Matching only the literal
+ * spelling let an encoded id reach Node past the edge's charge, access check
+ * and HEAD refusal. "malformed" is a path under /api/scans whose id segment
+ * cannot be decoded or holds an encoded slash; the edge refuses it rather than
+ * hand Node a path the two could read differently.
+ */
+export function parseScanJobPath(pathname: string): ScanJobPath | null {
+  const raw = pathname.split("/");
+  if (raw[0] !== "") return null;
+  const segments = raw.slice(1);
+  if (segments.at(-1) === "") segments.pop();
+  if (segments.length !== 3) return null;
+  if (decodePathSegment(segments[0]) !== "api" || decodePathSegment(segments[1]) !== "scans") return null;
+  const jobId = decodePathSegment(segments[2]);
+  if (jobId === null) return { kind: "malformed" };
+  return JOB_ID_PATTERN.test(jobId) ? { kind: "job", jobId } : null;
+}
+
 export function scanJobIdFromPath(pathname: string): string | null {
-  const match = /^\/api\/scans\/([^/]+)$/.exec(pathname);
-  const id = match?.[1] ?? "";
-  return JOB_ID_PATTERN.test(id) ? id : null;
+  const parsed = parseScanJobPath(pathname);
+  return parsed?.kind === "job" ? parsed.jobId : null;
 }
 
 function totalRunsFromScanBody(body: string): 1 | 2 {
