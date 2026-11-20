@@ -3075,11 +3075,18 @@ export function verifyHostedEvidenceAttestation(request) {
   return { status: "verified-by-gh-attestation", results: verified.length };
 }
 
+/**
+ * Verifies a hosted evidence archive. `rootDir` is the root the archive sits
+ * under at its digest-addressed path. `toolingRoot`, when given, is the
+ * repository checkout whose verifier script and git history the checks run
+ * from; without it they run from `rootDir`, which must then be that checkout.
+ */
 export function verifyHostedEvidenceDirectory(input) {
   const issues = [];
   let result = null;
   try {
     const { root, resolved } = safeDirectory(input.rootDir, input.directory);
+    const toolingRoot = realpathSync(path.resolve(input.toolingRoot ?? root));
     const contextBytes = readRegularNoFollow(
       path.join(resolved, HOSTED_EVIDENCE_CONTEXT_FILE),
       MAX_API_JSON_BYTES,
@@ -3103,7 +3110,7 @@ export function verifyHostedEvidenceDirectory(input) {
       resolved === expectedDirectory,
       "hosted evidence directory is not its digest-addressed canonical path"
     );
-    const raw = verifyRawDirectory(resolved, context, root);
+    const raw = verifyRawDirectory(resolved, context, toolingRoot);
     const bundleBytes = readRegularNoFollow(
       path.join(resolved, HOSTED_EVIDENCE_BUNDLE_FILE),
       MAX_BUNDLE_BYTES,
@@ -3123,7 +3130,7 @@ export function verifyHostedEvidenceDirectory(input) {
       input.attestationVerifier ??
       ((request) => verifyHostedEvidenceAttestation(request));
     const attestation = verifier({
-      rootDir: root,
+      rootDir: toolingRoot,
       contextPath: path.join(resolved, HOSTED_EVIDENCE_CONTEXT_FILE),
       bundlePath: path.join(resolved, HOSTED_EVIDENCE_BUNDLE_FILE),
       expectedArchiverCommit: input.expectedArchiverCommit

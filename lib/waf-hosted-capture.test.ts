@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import {
+  cpSync,
   mkdtempSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   realpathSync,
   rmSync,
@@ -13,6 +15,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
+import { spawnSyncBounded } from "./bounded-spawn";
 import { runFixtureGit } from "./git-fixture";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1318,6 +1321,81 @@ test("hosted WAF archive executes semantic validation with exact producer closur
       fixture.candidateCommit
     );
   } finally {
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+});
+
+// The proposal job of .github/workflows/archive-hosted-evidence.yml verifies
+// the downloaded archive twice: first in a bare folder under RUNNER_TEMP,
+// which holds the archive and nothing of the repository, then again once it
+// is copied into the checkout. The checkout is the only place the verifier
+// script and the git history the producer closure is read from exist. This
+// runs that step's own text in bash, with `node` replaced by a recorder, and
+// gives each command line it ran to the CLI's own reader and then to the
+// real verifier, with only the signature check stood in for.
+test("the archive workflow's proposal step verifies the archive in a bare folder and in the checkout, with the checkout as its tooling and git root", async () => {
+  const fixture = await wafArchiveFixture();
+  const cli = await script("archive-hosted-evidence.mjs");
+  const runnerTemp = realpathSync(mkdtempSync(path.join(os.tmpdir(), "sbl-hosted-runner-temp-")));
+  try {
+    const created = fixture.create();
+    writeFileSync(path.join(fixture.outputDirectory, fixture.provenance.HOSTED_EVIDENCE_BUNDLE_FILE), '{"mediaType":"application/vnd.dev.sigstore.bundle.v0.3+json"}\n');
+    // The attested handoff holds the archive's files; the checkout does not
+    // hold the archive yet.
+    cpSync(fixture.outputDirectory, path.join(runnerTemp, "hosted-handoff"), { recursive: true });
+    rmSync(fixture.outputDirectory, { recursive: true });
+    const relativePath = path.relative(fixture.root, fixture.outputDirectory).split(path.sep).join("/");
+
+    const workflow = readFileSync(path.join(process.cwd(), ".github", "workflows", "archive-hosted-evidence.yml"), "utf8");
+    const start = workflow.indexOf("      - name: Reconstruct and verify the canonical archive\n");
+    assert.ok(start >= 0, "the proposal job has no verify step");
+    const step = workflow.slice(start, workflow.indexOf("\n      - name: ", start + 1) + 1);
+    const env = new Map([...step.matchAll(/^ {10}([A-Z0-9_]+): (.*)$/gm)].map((match) => [match[1], match[2]]));
+    assert.deepEqual([...env.keys()], ["GH_TOKEN", "RELATIVE_PATH", "SUBJECT_SHA256", "ARCHIVER_COMMIT", "HOSTED_PROFILE", "SUBJECT_PATH", "SUBJECT_COMMIT"]);
+    const runAt = step.indexOf("\n        run: |\n");
+    assert.ok(runAt >= 0, "the verify step runs no block");
+    const body: string[] = [];
+    for (const line of step.slice(runAt + "\n        run: |\n".length).split("\n")) {
+      if (line.trim() !== "" && !line.startsWith("          ")) break;
+      body.push(line.slice(10));
+    }
+    const recorder = path.join(runnerTemp, "node-calls");
+    mkdirSync(recorder);
+    const run = spawnSyncBounded("bash", ["-c", `node() { n=$(( \${n:-0} + 1 )); printf '%s\\0' "$@" > "$RECORDER/$n"; }\n${body.join("\n")}`], {
+      encoding: "utf8",
+      env: {
+        PATH: process.env.PATH ?? "",
+        RECORDER: recorder,
+        RUNNER_TEMP: runnerTemp,
+        GITHUB_WORKSPACE: fixture.root,
+        GH_TOKEN: "unused",
+        RELATIVE_PATH: relativePath,
+        SUBJECT_SHA256: created.subjectSha256,
+        ARCHIVER_COMMIT: fixture.candidateCommit,
+        HOSTED_PROFILE: "waf-ceilings",
+        SUBJECT_PATH: "research/ops-evidence/waf-ceilings.json",
+        SUBJECT_COMMIT: fixture.candidateCommit
+      }
+    });
+    assert.equal(run.status, 0, `the verify step failed: ${run.stderr}`);
+    const calls = readdirSync(recorder).sort().map((name) => readFileSync(path.join(recorder, name), "utf8").split("\0").slice(0, -1));
+    assert.equal(calls.length, 2, "the verify step does not verify twice");
+    const places = ["in the bare folder", "in the checkout"];
+    calls.forEach((call, index) => {
+      assert.equal(call[0], "scripts/archive-hosted-evidence.mjs");
+      const roots: string[] = [];
+      const verified = fixture.provenance.verifyHostedEvidenceDirectory({
+        ...cli.hostedEvidenceVerifyInput(call.slice(1)),
+        attestationVerifier: (request: { rootDir: string }) => {
+          roots.push(request.rootDir);
+          return { status: "verified-by-gh-attestation" };
+        }
+      });
+      assert.equal(verified.ok, true, `the archive does not verify ${places[index]}: ${verified.issues.join("; ")}`);
+      assert.deepEqual(roots, [fixture.root], `the signature is checked ${places[index]} with tooling from another root`);
+    });
+  } finally {
+    rmSync(runnerTemp, { recursive: true, force: true });
     rmSync(fixture.root, { recursive: true, force: true });
   }
 });

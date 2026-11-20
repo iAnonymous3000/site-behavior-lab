@@ -232,9 +232,12 @@ jobs:
           verify_directory="${verify_root}/${RELATIVE_PATH}"
           install -d -m 700 "$verify_directory"
           cp -R "$RUNNER_TEMP/hosted-handoff/." "$verify_directory/"
+          # The bare folder holds the archive only; the verifier script and
+          # the git history the checks read are the checkout's.
           node scripts/archive-hosted-evidence.mjs \
             --verify \
             --root "$verify_root" \
+            --tooling-root "$GITHUB_WORKSPACE" \
             --directory "$verify_directory" \
             --profile "$HOSTED_PROFILE" \
             --subject-path "$SUBJECT_PATH" \
@@ -247,6 +250,7 @@ jobs:
           node scripts/archive-hosted-evidence.mjs \
             --verify \
             --root "$GITHUB_WORKSPACE" \
+            --tooling-root "$GITHUB_WORKSPACE" \
             --directory "$GITHUB_WORKSPACE/$RELATIVE_PATH" \
             --profile "$HOSTED_PROFILE" \
             --subject-path "$SUBJECT_PATH" \

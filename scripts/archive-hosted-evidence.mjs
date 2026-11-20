@@ -222,18 +222,25 @@ export async function collectHostedEvidenceSources(taskFactories, control) {
   }
 }
 
-export async function main(args = process.argv.slice(2)) {
+/** What verifyHostedEvidenceDirectory is given for a `--verify` command line. */
+export function hostedEvidenceVerifyInput(args) {
   const options = parseOptions(args);
-  if (options.mode === "verify") {
-    const result = verifyHostedEvidenceDirectory({
-      rootDir: options.rootDir,
-      directory: options.directory,
-      expectedProfile: options.profile,
-      expectedSubjectPath: options.subjectPath,
-      expectedSubjectSha256: options.subjectSha256,
-      expectedSubjectCommit: options.subjectCommit,
-      expectedArchiverCommit: options.archiverCommit
-    });
+  if (options.mode !== "verify") throw new Error(usage());
+  return {
+    rootDir: options.rootDir,
+    toolingRoot: options.toolingRoot,
+    directory: options.directory,
+    expectedProfile: options.profile,
+    expectedSubjectPath: options.subjectPath,
+    expectedSubjectSha256: options.subjectSha256,
+    expectedSubjectCommit: options.subjectCommit,
+    expectedArchiverCommit: options.archiverCommit
+  };
+}
+
+export async function main(args = process.argv.slice(2)) {
+  if (args[0] === "--verify") {
+    const result = verifyHostedEvidenceDirectory(hostedEvidenceVerifyInput(args));
     if (!result.ok) throw new Error(result.issues.join("; "));
     process.stdout.write(
       `${JSON.stringify({
@@ -247,7 +254,7 @@ export async function main(args = process.argv.slice(2)) {
     );
     return;
   }
-  await collect(options);
+  await collect(parseOptions(args));
 }
 
 async function collect(input) {
@@ -857,10 +864,16 @@ function parseOptions(args) {
       "--subject-commit",
       "--archiver-commit"
     ];
-    exactOptionSet(values, required);
+    // Without --tooling-root the checks run from --root, which must then be
+    // the repository checkout, as it is for the release and candidate checks.
+    const toolingRoot = values.has("--tooling-root")
+      ? absolute(values.get("--tooling-root"), "--tooling-root")
+      : undefined;
+    exactOptionSet(values, toolingRoot === undefined ? required : [...required, "--tooling-root"]);
     return {
       mode: "verify",
       rootDir: absolute(values.get("--root"), "--root"),
+      toolingRoot,
       directory: absolute(values.get("--directory"), "--directory"),
       profile: boundedToken(values.get("--profile"), "--profile"),
       subjectPath: repositoryPath(
@@ -941,7 +954,7 @@ function usage() {
   return [
     "Usage:",
     "  archive-hosted-evidence.mjs --collect --profile PROFILE --subject-file ABS --subject-path PATH --subject-commit SHA --sources ABS --output-root ABS",
-    "  archive-hosted-evidence.mjs --verify --root ABS --directory ABS --profile PROFILE --subject-path PATH --subject-sha256 SHA256 --subject-commit SHA --archiver-commit SHA"
+    "  archive-hosted-evidence.mjs --verify --root ABS [--tooling-root ABS] --directory ABS --profile PROFILE --subject-path PATH --subject-sha256 SHA256 --subject-commit SHA --archiver-commit SHA"
   ].join("\n");
 }
 
