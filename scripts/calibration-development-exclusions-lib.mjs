@@ -313,6 +313,7 @@ export const NOT_DEVELOPMENT_VISIT_RECORDS = Object.freeze({
   "research/calibration-censoring/": "analysis code and findings over public/reports, which is read",
   "research/measurement-candidate/": "policy and definition artifacts; no site list",
   "research/ops-evidence/": "operations notes; no site list",
+  "research/production-deployments/": "signed records of this project's own scanner deployments; no site",
   "research/ops-receipts/r2-lifecycle-readback.json": "storage lifecycle receipt; no site",
   "research/ops-receipts/durable-replay/": "durable-job replay receipts; no site",
   "research/ops-receipts/release-tag-governance/": "release governance receipt; no site",
