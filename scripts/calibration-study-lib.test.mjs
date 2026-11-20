@@ -2465,3 +2465,58 @@ test("the prepared commit takes every governed file the assembler writes, artifa
     assert.ok(refused.stdout.split("\n").includes(stray), `${stray}: the refusal does not name the path`);
   }
 });
+
+// The propose job's two steps that read the prepared commit the prepare job
+// handed on: `git` and `npm` recorded, a bundle and an attestation present.
+function runProposeStep(name, preparedCommit, diffPaths = []) {
+  const workflow = CALIBRATION_WORKFLOW();
+  const step = workflowStep(workflowJob(workflow, "propose"), name);
+  const temp = mkdtempSync(path.join(tmpdir(), "sbl-calibration-propose-step-"));
+  const fetched = "f".repeat(40);
+  const producer = "e".repeat(40);
+  mkdirSync(path.join(temp, "calibration-prepared"));
+  writeFileSync(path.join(temp, "calibration-prepared", "calibration-prepared.bundle"), "bundle");
+  mkdirSync(path.join(temp, "calibration-runtime-attestation"));
+  writeFileSync(path.join(temp, "calibration-runtime-attestation", "runtime-receipt.sigstore.json"), "{}");
+  writeFileSync(path.join(temp, "diff"), diffPaths.map((file) => `${file}\n`).join(""));
+  const context = { "needs.prepare.outputs.prepared_commit": preparedCommit };
+  const stepEnv = Object.fromEntries(Object.entries(workflowStepEnv(step)).map(([key, value]) => [key, workflowExpand(value, context)]));
+  const stubs = `git() {
+  case "$1" in
+    rev-parse) case "$2" in FETCH_HEAD|HEAD) echo ${fetched} ;; *) echo ${producer} ;; esac ;;
+    diff) cat "$RUNNER_TEMP/diff" ;;
+    checkout) echo checkout >> "$RUNNER_TEMP/acted" ;;
+  esac
+}
+npm() { echo npm >> "$RUNNER_TEMP/acted"; }`;
+  try {
+    const result = runStepBash(`${stubs}\n${workflowExpand(workflowStepRun(step), context)}`, {
+      PATH: process.env.PATH ?? "",
+      RUNNER_TEMP: temp,
+      GITHUB_SHA: producer,
+      CALIBRATION_STUDY_ID: "s1.v2",
+      CALIBRATION_DETECTOR: "pixel-events",
+      CALIBRATION_CANDIDATE_COMMIT: "6".repeat(40),
+      ...stepEnv
+    });
+    return { ...result, ran: existsSync(path.join(temp, "pwned")), acted: existsSync(path.join(temp, "acted")), fetched };
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}
+
+const PROPOSE_STEPS = ["Materialize only the governed prepared JSON diff", "Finalize the attested binding"];
+
+test("the propose job reads the prepared commit as data, and refuses one that is not a full commit before using it", () => {
+  for (const name of PROPOSE_STEPS) {
+    const kept = runProposeStep(name, "f".repeat(40));
+    assert.equal(kept.status, 0, `${name}: the step refused the prepared commit: ${kept.stdout}${kept.stderr}`);
+    for (const value of ["$(touch \"$RUNNER_TEMP/pwned\")", `${"f".repeat(40)}" ] || touch "$RUNNER_TEMP/pwned" || [ "`, "", "F".repeat(40), "f".repeat(39), `${"f".repeat(40)}\n`]) {
+      const refused = runProposeStep(name, value);
+      assert.equal(refused.ran, false, `${name}: a prepared commit value ran as shell text`);
+      assert.notEqual(refused.status, 0, `${name}: ${JSON.stringify(value)}: the step accepted a prepared commit that is not a full commit`);
+      assert.match(refused.stdout, /::error::the prepare job named no full prepared commit/, `${name}: ${JSON.stringify(value)}`);
+      assert.equal(refused.acted, false, `${name}: ${JSON.stringify(value)}: the step acted before it refused the value`);
+    }
+  }
+});

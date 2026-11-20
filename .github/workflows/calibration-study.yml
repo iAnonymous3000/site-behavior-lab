@@ -679,13 +679,19 @@ jobs:
           path: ${{ runner.temp }}/calibration-prepared
 
       - name: Materialize only the governed prepared JSON diff
+        env:
+          PREPARED_COMMIT: ${{ needs.prepare.outputs.prepared_commit }}
         run: |
           set -euo pipefail
+          if [[ ! "$PREPARED_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::the prepare job named no full prepared commit"
+            exit 1
+          fi
           bundle="$RUNNER_TEMP/calibration-prepared/calibration-prepared.bundle"
           test -s "$bundle"
           git bundle verify "$bundle"
           git fetch "$bundle" refs/heads/prepared-calibration-evidence
-          test "$(git rev-parse FETCH_HEAD)" = "${{ needs.prepare.outputs.prepared_commit }}"
+          test "$(git rev-parse FETCH_HEAD)" = "$PREPARED_COMMIT"
           test "$(git rev-parse FETCH_HEAD^)" = "$GITHUB_SHA"
           unexpected="$(git diff --name-only "$GITHUB_SHA" FETCH_HEAD | grep -v -E "^calibration/${CALIBRATION_STUDY_ID}/((study|analysis|runtime-receipt|artifact-manifest|labels-manifest|label-roster-authorization|roster-selection-ledger|acquisition-attempt-ledger)\\.json|artifacts/)" || true)"
           if [[ -n "$unexpected" ]]; then
@@ -702,9 +708,15 @@ jobs:
           path: ${{ runner.temp }}/calibration-runtime-attestation
 
       - name: Finalize the attested binding
+        env:
+          PREPARED_COMMIT: ${{ needs.prepare.outputs.prepared_commit }}
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "${{ needs.prepare.outputs.prepared_commit }}"
+          if [[ ! "$PREPARED_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::the prepare job named no full prepared commit"
+            exit 1
+          fi
+          test "$(git rev-parse HEAD)" = "$PREPARED_COMMIT"
           test "$(git rev-parse HEAD^)" = "$GITHUB_SHA"
           test -s "$RUNNER_TEMP/calibration-runtime-attestation/runtime-receipt.sigstore.json"
           npm run calibration:finalize -- \
