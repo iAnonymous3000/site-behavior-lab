@@ -36,6 +36,7 @@ import {
 import {
   buildCalibrationAcquisitionAuthorizationIdentity
 } from "./calibration-acquisition-authorization-lib.mjs";
+import { finalizeCalibrationStudy } from "./calibration-study-finalize.mjs";
 import {
   authenticatedCalibrationCommitmentSummaries,
   calibrationLabelRosterRunName,
@@ -588,7 +589,9 @@ test("a prediction is censored when its own causal inputs were cut, and only the
   );
 });
 
-test("acquisition contains no labels; assembly accepts exact separate labels and emits all governed roles", () => {
+// One pixel-events study taken through acquisition, label assembly and
+// study assembly, for the tests of what is bound and finalized from it.
+function assembledPixelStudy() {
   const fixture = candidateFixture("pixel-events");
   const caseInputs = validateCalibrationCaseInputs({
     candidate: fixture.candidate,
@@ -750,6 +753,11 @@ test("acquisition contains no labels; assembly accepts exact separate labels and
     custody: custody.files,
     assembledAt: "2026-08-20T01:00:00.000Z"
   });
+  return { fixture, labels, assembled };
+}
+
+test("acquisition contains no labels; assembly accepts exact separate labels and emits all governed roles", () => {
+  const { fixture, labels, assembled } = assembledPixelStudy();
   assert.deepEqual(
     assembled.artifactManifest.artifacts.map((entry) => entry.role),
     [
@@ -824,6 +832,60 @@ test("acquisition contains no labels; assembly accepts exact separate labels and
     ).isFile(),
     true
   );
+});
+
+// The propose job of calibration-study.yml finalizes the prepared commit
+// with scripts/calibration-study-finalize.mjs; these run that code over an
+// assembled study written as the assemble step writes it.
+function preparedPixelStudy() {
+  const { fixture, assembled } = assembledPixelStudy();
+  writeJson(path.join(fixture.root, CALIBRATION_BINDING_PATH), {
+    candidateCommit: CANDIDATE,
+    calibrationPolicy: {
+      id: CALIBRATION_CENSORING_POLICY_ID,
+      policyArtifactPath: CALIBRATION_CENSORING_POLICY_PATH,
+      policyArtifactSha256: fixture.candidate.policySha256
+    },
+    calibrationStudies: []
+  });
+  writeAssembledCalibration(fixture.root, assembled);
+  const bundleSource = path.join(fixture.root, "attestation", "runtime-receipt.sigstore.json");
+  writeJson(bundleSource, { mediaType: "application/vnd.dev.sigstore.bundle.v0.3+json" });
+  const finalize = () => finalizeCalibrationStudy({
+    rootDir: fixture.root,
+    studyId: fixture.studyId,
+    detector: "pixel-events",
+    candidateCommit: CANDIDATE,
+    bundleSource,
+    producerCommit: CARRIER
+  });
+  return { fixture, assembled, finalize };
+}
+
+const CUSTODY_FILES = [
+  ["labelRosterAuthorization", "label-roster-authorization.json"],
+  ["rosterSelectionLedger", "roster-selection-ledger.json"],
+  ["acquisitionAttemptLedger", "acquisition-attempt-ledger.json"]
+];
+
+test("finalization binds every governed file of an assembled study, the three custody files with the rest", () => {
+  const { fixture, finalize } = preparedPixelStudy();
+  let entry;
+  assert.doesNotThrow(() => { entry = finalize(); }, "finalization refused the assembled study");
+  for (const [field, file] of CUSTODY_FILES) {
+    const text = readFileSync(path.join(fixture.root, "calibration", fixture.studyId, file), "utf8");
+    assert.equal(entry[`${field}Sha256`], sha256Hex(text), `finalization bound another ${file}`);
+  }
+});
+
+test("finalization refuses a custody file that is not the one the study binds", () => {
+  for (const [, file] of CUSTODY_FILES) {
+    const { fixture, finalize } = preparedPixelStudy();
+    const target = path.join(fixture.root, "calibration", fixture.studyId, file);
+    const value = JSON.parse(readFileSync(target, "utf8"));
+    writeFileSync(target, canonicalPrettyJson({ ...value, studyId: "another-study" }));
+    assert.throws(finalize, new RegExp(`${file.replace(".", "\\.")} is not the one the study binds`), file);
+  }
 });
 
 test("Actions metadata and raw ZIP are authenticated before trusted per-member extraction", () => {
