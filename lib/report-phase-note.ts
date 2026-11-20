@@ -86,7 +86,7 @@ export function phaseNote(
 ): string | null {
   if (split.state === "unknown-after-action") {
     const actions = unknownActionsText(input.recorded.kinds);
-    return actions ? `This older report does not record which requests came during the scanner's ${actions}.` : null;
+    return actions ? `This report does not record which requests came during the scanner's ${actions}.` : null;
   }
   if (split.state !== "mixed" && split.state !== "all-after-action") return null;
   const when = whenRecorded(split.actions, input.consentMode, input.recorded.consentClick);

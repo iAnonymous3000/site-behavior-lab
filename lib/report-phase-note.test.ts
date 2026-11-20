@@ -12,7 +12,7 @@ import {
   unknownPhaseLead,
   withNoteAfterFirstSentence
 } from "./report-phase-note";
-import { crossSitePhaseSplit, recordedScannerActions, type RecordedScannerActions } from "./report-phase-split";
+import { crossSitePhaseSplit, recordedScannerActions, type CrossSitePhaseSplit, type RecordedScannerActions } from "./report-phase-split";
 import type { PhaseKind } from "./scan-report-v2";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { viewFromV2, type ReportView } from "./scan-report-views";
@@ -25,7 +25,8 @@ function shownFacts(view: ReportView): RunFacts {
   return headline.focusArm && facts.arms ? facts.arms[headline.focusArm] : facts.display;
 }
 
-// The approved owner packet (2026-11-18), word for word, on reports a test may read.
+// The approved owner packet (2026-11-18), word for word, on reports a test may read,
+// except that the note for a visit with no phases no longer calls the report older.
 test("the notes of the packet's examples are the approved sentences", () => {
   const coolmath = runPhaseNotes(shownFacts(ledgerPinnedReportView("20260814-209d4cf900b7d1a05d779187d7270297")));
   assert.equal(
@@ -54,12 +55,12 @@ test("the notes of the packet's examples are the approved sentences", () => {
   );
   assert.equal(
     runPhaseNotes(shownFacts(frozenReportView("20261019-68fc891fdaf08f25d4e0478d54513a06"))).note,
-    "This older report does not record which requests came during the scanner's typing probe."
+    "This report does not record which requests came during the scanner's typing probe."
   );
   // This visit was asked to accept, but its record shows no control was activated, so only the typing probe is named.
   assert.equal(
     runPhaseNotes(shownFacts(ledgerPinnedReportView("20260702-72d984851fe81e61aa12211b8347cbab"))).note,
-    "This older report does not record which requests came during the scanner's typing probe."
+    "This report does not record which requests came during the scanner's typing probe."
   );
 });
 
@@ -110,7 +111,7 @@ test("every state prints its template, and a censored log never states an absenc
 
 test("no note or caveat says the scanner caused a request or that a request carried what was typed", () => {
   const sentences = [
-    "This older report does not record which requests came during the scanner's typing probe.",
+    "This report does not record which requests came during the scanner's typing probe.",
     pairActionCaveat({ baseline: TYPED, variant: { typingCounted: false, consentClick: false, kinds: [] } }, { baseline: "No blocking", variant: "Brave-list blocking" }, "shields")!,
     phaseNote(
       crossSitePhaseSplit(phasedRun(PROBE, [{ domain: "b.example.net", thirdParty: true, phase: "active-probe" }]), { requestsCensored: false, unphased: TYPED }),
@@ -192,4 +193,30 @@ test("a consent click is named only where the record shows the control was activ
   assert.equal(note({ ...clicked, kinds: [...clicked.kinds] }), "Recorded after the scanner clicked Reject all: 1 of the 2 cross-site requests. A phase records timing, not cause or content.");
   // The consent phase opens before the scanner tries the banner: without a click, its rows get no wording.
   assert.equal(note({ ...notClicked, kinds: [] }), null);
+});
+
+/** A split from a visit that records no phases, so the note can say only what the visit included. */
+const UNPHASED: CrossSitePhaseSplit = {
+  state: "unknown-after-action",
+  requestsCensored: false,
+  actions: [],
+  requests: { total: 2, afterAction: 0 },
+  hosts: { total: 1, onlyAfterAction: [] },
+  entities: { total: 0, onlyAfterAction: [] }
+};
+
+test("the note for a visit with no phases names what the visit included and never calls the report older", () => {
+  const note = (kinds: RecordedScannerActions["kinds"]) =>
+    phaseNote(UNPHASED, {
+      noun: CROSS_SITE_REQUESTS,
+      consentMode: "accept-all",
+      recorded: { typingCounted: kinds.includes("typing probe"), consentClick: kinds.includes("consent click"), kinds: [...kinds] }
+    });
+  assert.equal(note(["typing probe"]), "This report does not record which requests came during the scanner's typing probe.");
+  assert.equal(note(["consent click"]), "This report does not record which requests came during the scanner's consent click.");
+  assert.equal(
+    note(["consent click", "typing probe"]),
+    "This report does not record which requests came during the scanner's consent click or typing probe."
+  );
+  assert.equal(note([]), null);
 });
