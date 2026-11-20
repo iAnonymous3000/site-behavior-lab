@@ -61,6 +61,7 @@ import { forwardContainerResponseWithinDeadline } from "../lib/container-forward
 import { requireContainerR2Bucket } from "../lib/container-r2-bucket";
 import { assertDurableAdmittedAtWithinSkew, DurableAdmittedAtSkewError } from "../lib/durable-admission-clock";
 import { publicErrorBody, publicErrorHeaders, toPublicError } from "../lib/public-errors";
+import { createTurnstileProbeCache } from "../lib/turnstile-probe-cache";
 import {
   enforcePublicReportRouteEdge,
   type PublicReportReadDecision,
@@ -347,15 +348,11 @@ const DURABLE_RESTART_RUN_ID_HEADER =
 const DURABLE_RESTART_AUTHORIZATION_HEADER =
   "x-site-behavior-lab-durable-restart-authorization";
 const PUBLIC_INGRESS_PREFLIGHT_CLIENT_HASH = "0".repeat(64);
-const TURNSTILE_CONFIGURATION_PROBE_CACHE_MS = 60_000;
-
-let turnstileConfigurationProbeCache:
-  | {
-      expiresAt: number;
-      result: Promise<"verified" | "misconfigured" | "unavailable">;
-      secret: string;
-    }
-  | undefined;
+// Holds only settled answers and a count of probes in flight, never a
+// pending promise: see lib/turnstile-probe-cache.ts.
+const turnstileConfigurationProbes = createTurnstileProbeCache({
+  probe: (secret) => probeTurnstileConfiguration({ secret })
+});
 
 const MAX_BODY_BYTES = 4_096;
 const MAX_COORDINATOR_BODY_BYTES = 32_768;
@@ -4801,7 +4798,7 @@ async function publicIngressPreflightResponse(request: Request, env: Env): Promi
     acceptNoTurnstileRisk: env.SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK
   });
   const turnstileConfiguration = gate.turnstile
-    ? await cachedTurnstileConfigurationProbe(env.TURNSTILE_SECRET_KEY?.trim() ?? "")
+    ? await turnstileConfigurationProbes.get(env.TURNSTILE_SECRET_KEY?.trim() ?? "")
     : "misconfigured";
 
   let quotaReadiness: "ready" | "unavailable" = "unavailable";
@@ -4860,25 +4857,6 @@ async function publicIngressPreflightResponse(request: Request, env: Env): Promi
   });
 }
 
-function cachedTurnstileConfigurationProbe(
-  secret: string
-): Promise<"verified" | "misconfigured" | "unavailable"> {
-  const now = Date.now();
-  if (
-    turnstileConfigurationProbeCache &&
-    turnstileConfigurationProbeCache.secret === secret &&
-    turnstileConfigurationProbeCache.expiresAt > now
-  ) {
-    return turnstileConfigurationProbeCache.result;
-  }
-  const result = probeTurnstileConfiguration({ secret });
-  turnstileConfigurationProbeCache = {
-    expiresAt: now + TURNSTILE_CONFIGURATION_PROBE_CACHE_MS,
-    result,
-    secret
-  };
-  return result;
-}
 
 async function handleContainerHealthRequest(request: Request, env: Env): Promise<Response> {
   try {

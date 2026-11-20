@@ -386,8 +386,12 @@ test("production health keeps the public ingress preflight separate from the ope
   assert.match(preflight, /scanSubmitted: false/);
   assert.doesNotMatch(preflight, /SYNTHETIC_MONITOR_TOKEN_HEADER|SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN/);
   assert.doesNotMatch(preflight, /chargePublicScanRateLimit/);
-  assert.match(preflight, /turnstileConfigurationProbeCache\.secret === secret/);
-  assert.match(preflight, /result,\s*secret\s*\};/);
+  // The Turnstile probe is read through the settled-answer cache
+  // (lib/turnstile-probe-cache.ts, tested there), never a pending promise
+  // shared across requests.
+  assert.match(preflight, /await turnstileConfigurationProbes\.get\(/, "the preflight must read the settled-answer cache");
+  assert.match(containerWorker, /const turnstileConfigurationProbes = createTurnstileProbeCache\(/);
+  assert.doesNotMatch(containerWorker, /turnstileConfigurationProbeCache|result: Promise<"verified"/, "no module-level pending probe may remain");
 });
 
 test("production health only closes its canonical issue when it re-ran every lane the issue is waiting on", () => {
