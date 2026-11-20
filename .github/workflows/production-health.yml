@@ -740,7 +740,9 @@ jobs:
             # A run that executed no check (a rollout still in progress skips
             # them all) re-measured nothing, so it never closes the issue, even
             # one that waits on no named lane because it failed before posture.
-            [[ ",${executed}," == *",posture,"* || ",${executed}," == *",synthetic,"* || ",${executed}," == *",r2-delete,"* ]] || return 1
+            # Posture is the check every passing run executes before either
+            # deep lane, so a passing run without it executed none.
+            [[ ",${executed}," == *",posture,"* ]] || return 1
             [[ -z "$required" ]] && return 0
             IFS=',' read -ra required_lanes <<< "$required"
             for lane in "${required_lanes[@]}"; do
