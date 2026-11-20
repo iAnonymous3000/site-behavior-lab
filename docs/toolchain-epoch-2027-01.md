@@ -220,7 +220,7 @@ Read back after it, and again in a read-only inventory:
 
 Not done when this record was committed: the bucket step. The staging bucket is not emptied or deleted, and this record does not claim it. It is to be added here when it is done.
 
-Later, on 2026-11-18 at 23:41 UTC, the bucket's count read 0 objects: its 1-day lifecycle rule had expired the 90. A count can lag the bucket's listing, so the bucket is deleted only after the owner reads an empty listing in the dashboard. That step is still to be added here.
+Later, on 2026-11-18 at 23:41 UTC, the bucket's count read 0 objects: its 1-day lifecycle rule had expired the 90. A count can lag the bucket's listing, so the bucket was deleted only after the owner read an empty listing in the dashboard, on 2026-11-20. It was deleted at 04:53 UTC that day: its lock rules read none and its count 0 before the delete, and it read absent (code 10006) after it. The production bucket was not touched, and Wrangler was logged out after this step.
 
 ## The investigation runner's lag
 
@@ -241,4 +241,4 @@ What this publication evidence does not show:
 
 - No production report was read for the browser version it records. That production runs Chromium 159.0.8154.6 rests on the image CI built and tested, whose build fails unless the base's browser is that Chrome for Testing build, and on the deploy of that image.
 - By the playbook this epoch is published without a completed A/B gate, under the owner's decision recorded above. Round 1 stays INCONCLUSIVE and round 2 stays FAIL.
-- The staging bucket remained when this section was written.
+- The staging bucket was deleted on 2026-11-20, as recorded under Staging teardown.
