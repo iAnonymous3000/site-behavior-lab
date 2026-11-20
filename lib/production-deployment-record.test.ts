@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { test } from "node:test";
+import { spawnSyncBounded } from "./bounded-spawn";
 
 // The record a production container deployment leaves, and the job that
 // signs it. scripts/production-deployment-record.mjs says what a record is;
@@ -123,7 +125,6 @@ test("the deploy workflow writes the record from the readback step and signs it 
   // rather than left to the repository's default.
   assert.match(deployJob, /path: \$\{\{ runner\.temp \}\}\/production-container-readback\.json\n {10}if-no-files-found: error\n {10}retention-days: 90\n/);
   assert.equal(kept[2], DEPLOYMENT_RECORD_FILE);
-  assert.ok(attestJob.includes(`name: ${kept[1]}\n`), "the signing job downloads another artifact");
   assert.ok(attestJob.includes(`subject-path: \${{ runner.temp }}/production-deployment-record/${DEPLOYMENT_RECORD_FILE}\n`), "the signing job signs another file");
 
   // The resolver writes the output the readback step reads.
@@ -133,4 +134,145 @@ test("the deploy workflow writes the record from the readback step and signs it 
   const script = source("scripts/verify-deployed-container.mjs");
   assert.match(script, /from "\.\/production-deployment-record\.mjs"/);
   assert.match(script, /deploymentRecordProblems\(record, \{ commit: process\.env\.GITHUB_SHA, \.\.\.runs \}\)/);
+});
+
+// A small model of how Actions fills a job's `${{ }}` expressions, enough for
+// the names and values these two jobs pass each other. A job output the
+// deploy job does not set reads as empty, as it does on GitHub; any other
+// name this model does not know fails the test rather than guess.
+function expand(template: string, context: Record<string, string>): string {
+  return template.replace(/\$\{\{ ([A-Za-z0-9_.-]+) \}\}/g, (_, name: string) => {
+    if (name in context) return context[name];
+    if (name.startsWith("needs.deploy.outputs.")) return "";
+    throw new Error(`the model does not know ${name}`);
+  });
+}
+
+/** The text of one step of a job, from its `- name:` line to the next step. */
+function stepText(job: string, name: string): string {
+  const start = job.indexOf(`      - name: ${name}\n`);
+  assert.ok(start >= 0, `the job has no step named ${name}`);
+  const next = job.indexOf("\n      - name: ", start + 1);
+  return job.slice(start, next === -1 ? undefined : next + 1);
+}
+
+/** The `env:` map of a step, as written. */
+function stepEnv(step: string): Record<string, string> {
+  const at = step.indexOf("\n        env:\n");
+  if (at === -1) return {};
+  const env: Record<string, string> = {};
+  for (const line of step.slice(at + "\n        env:\n".length).split("\n")) {
+    const match = /^ {10}([A-Z0-9_]+): (.*)$/.exec(line);
+    if (!match) break;
+    env[match[1]] = match[2];
+  }
+  return env;
+}
+
+/** The `run: |` block of a step, dedented. */
+function stepRun(step: string): string {
+  const at = step.indexOf("\n        run: |\n");
+  assert.ok(at >= 0, "the step runs no block");
+  const body: string[] = [];
+  for (const line of step.slice(at + "\n        run: |\n".length).split("\n")) {
+    if (line.trim() !== "" && !line.startsWith("          ")) break;
+    body.push(line.slice(10));
+  }
+  return body.join("\n");
+}
+
+const DEPLOY_RUN_ID = 44274689360;
+const SHA = "3".repeat(40);
+
+/**
+ * One run of the signing job at `signingAttempt`, after the deploy job ran
+ * and kept its record at `deployAttempt`. `recordAttempt` is the attempt the
+ * kept record names, which the deploy job writes from its own attempt.
+ */
+async function signingRun(deployAttempt: number, signingAttempt: number, recordAttempt = deployAttempt, handedOn?: string) {
+  const { deploymentRecord, DEPLOYMENT_RECORD_FILE } = await helpers;
+  const { IMAGE_REPOSITORY } = await imageLib;
+  const workflow = source(".github/workflows/deploy-container.yml");
+  const [deployJob, attestJob] = workflow.split(/^  attest-deployment:\n/m);
+  assert.ok(attestJob !== undefined, "no job signs the deployment record");
+
+  // The deploy job, at its own attempt: the outputs it hands on and the name
+  // under which it kept the record.
+  const deployContext = { "github.sha": SHA, "github.run_attempt": String(deployAttempt), "steps.candidate.outputs.current": "true" };
+  const outputsBlock = /\n {4}outputs:\n((?: {6}[^\n]*\n)+)/.exec(deployJob);
+  assert.ok(outputsBlock, "the deploy job hands on no outputs");
+  const outputs: Record<string, string> = {};
+  for (const line of outputsBlock[1].split("\n")) {
+    const match = /^ {6}([a-z_]+): (.*)$/.exec(line);
+    if (match) outputs[`needs.deploy.outputs.${match[1]}`] = expand(match[2], deployContext);
+  }
+  // A deploy job that handed on no attempt, for the refusal below; the
+  // artifact is still found by the attempt it kept.
+  const signingOutputs = handedOn === undefined ? outputs : { ...outputs, "needs.deploy.outputs.attempt": handedOn };
+  const keptName = /name: (production-container-readback-[^\n]+)\n {10}path: \$\{\{ runner\.temp \}\}\/production-container-readback\.json\n/.exec(deployJob);
+  assert.ok(keptName, "the deploy job keeps no record artifact");
+  const uploaded = expand(keptName[1], deployContext);
+
+  // The signing job, at its own attempt, reading what the deploy job handed on.
+  const temp = mkdtempSync(path.join(os.tmpdir(), "sbl-attest-deployment-"));
+  try {
+    const attestContext = { ...signingOutputs, "github.sha": SHA, "github.run_attempt": String(signingAttempt), "runner.temp": temp };
+    const download = stepText(attestJob, "Download the deployment record");
+    const downloadName = /\n {10}name: ([^\n]+)\n/.exec(download);
+    assert.ok(downloadName, "the signing job names no artifact");
+    const downloaded = expand(downloadName[1], attestContext);
+    const into = /\n {10}path: ([^\n]+)\n/.exec(download);
+    assert.ok(into, "the signing job downloads to no folder");
+    mkdirSync(expand(into[1], attestContext), { recursive: true });
+    const record = deploymentRecord(
+      { observedAt: "2026-11-18T10:04:50.123Z", sourceCommit: SHA, applicationId: "production-app", image: `${IMAGE_REPOSITORY}@sha256:d55f2bc766ef1dc722b08154902d636bf916474b69027b284739c394a9e55666` },
+      { ciRunId: 44271944079, deployRunId: DEPLOY_RUN_ID, deployRunAttempt: recordAttempt }
+    );
+    writeFileSync(path.join(expand(into[1], attestContext), DEPLOYMENT_RECORD_FILE), `${JSON.stringify(record, null, 2)}\n`);
+
+    const hold = stepText(attestJob, "Hold the deployment record to this commit and run");
+    const script = stepRun(hold);
+    assert.ok(script.includes("node -e '") && !script.includes("${{"), "the hold step's script was not read whole");
+    const env = Object.fromEntries(Object.entries(stepEnv(hold)).map(([key, value]) => [key, expand(value, attestContext)]));
+    const result = spawnSyncBounded("bash", ["-c", script], {
+      encoding: "utf8",
+      env: { PATH: process.env.PATH ?? "", GITHUB_SHA: SHA, GITHUB_RUN_ID: String(DEPLOY_RUN_ID), GITHUB_RUN_ATTEMPT: String(signingAttempt), ...env }
+    });
+    return { uploaded, downloaded, status: result.status, stderr: result.stderr };
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
+}
+
+test("the signing job finds and holds the record the deploy job kept, on a first run, a full rerun, and a rerun of the signing job alone", async () => {
+  // [deploy attempt, signing attempt]. A rerun of the failed signing job
+  // alone keeps the deploy job's attempt, its outputs and its artifact, and
+  // runs as a later attempt.
+  for (const [deployAttempt, signingAttempt] of [[1, 1], [2, 2], [1, 2], [1, 3]]) {
+    const run = await signingRun(deployAttempt, signingAttempt);
+    assert.equal(run.downloaded, run.uploaded, `deploy attempt ${deployAttempt}, signing attempt ${signingAttempt}: the signing job downloads another artifact`);
+    assert.equal(run.status, 0, `deploy attempt ${deployAttempt}, signing attempt ${signingAttempt}: the hold step refused the kept record: ${run.stderr}`);
+  }
+});
+
+test("the signing job refuses a record of another attempt than the one the deploy job names", async () => {
+  const cases: [string, number, number, number, RegExp][] = [
+    // [what, deploy attempt, signing attempt, record attempt, message]
+    ["a record of an earlier attempt", 2, 2, 1, /the record is of another deployment run/],
+    ["a record of the signing attempt, not the deploying one", 1, 2, 2, /the record is of another deployment run/]
+  ];
+  for (const [what, deployAttempt, signingAttempt, recordAttempt, message] of cases) {
+    const run = await signingRun(deployAttempt, signingAttempt, recordAttempt);
+    assert.notEqual(run.status, 0, `${what}: the hold step accepted it`);
+    assert.match(run.stderr, message, what);
+  }
+});
+
+test("the signing job refuses an attempt the deploy job did not hand on, or one later than its own", async () => {
+  const { stderr: none, status: noneStatus } = await signingRun(1, 1, 1, "");
+  assert.notEqual(noneStatus, 0, "an empty deploy attempt was accepted");
+  assert.match(none, /the deploy job names no attempt of this run: ""/);
+  const { stderr: later, status: laterStatus } = await signingRun(3, 2, 3);
+  assert.notEqual(laterStatus, 0, "a deploy attempt later than the signing attempt was accepted");
+  assert.match(later, /the deploy job names no attempt of this run: "3"/);
 });
