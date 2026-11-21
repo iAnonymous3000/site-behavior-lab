@@ -556,8 +556,11 @@ export async function reportStoreRetentionStatus(): Promise<ReportStoreRetention
  * and whether a publication would be refused, decided from this pass by the
  * same rules the commit path applies to its own: the retention rule, and the
  * capacity check for one publication made after this pass.
- * This also actively proves marker creation and deletion permissions instead
- * of treating an empty readable ledger as sufficient evidence.
+ * It proves the store can be read. It writes the maintenance marker only when
+ * the marker's state changes, and deletes only what retention has come due,
+ * so a pass over a clean ledger with nothing due makes no write at all and
+ * proves no write or delete permission: a store that refuses every mutation
+ * passes it. A report's own publication is what proves a write.
  */
 export async function maintainReportStoreRetention(): Promise<ReportStoreMaintenanceStatus> {
   const pass = await runRetentionPass(Date.now());
