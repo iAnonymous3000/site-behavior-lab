@@ -6,6 +6,7 @@ import {
   type DevtoolsEvent
 } from "./devtools-worker-channel";
 import {
+  MAX_FOREIGN_DETACH_RECORDS,
   SHARED_WORKER_ENDED_AT_ONCE_MS,
   SharedWorkerAttacher,
   inProcessAttacherTransportForTests,
@@ -345,6 +346,29 @@ test("a shared worker of a context no visit registered is detached in its attach
   assert.deepEqual(detach.map((frame) => [frame.sessionId, frame.params]), [[undefined, { sessionId: "foreign-1" }]]);
   assert.deepEqual(visit.workers(), [], "the visit never hears of it");
   assert.equal(attacher.foreignDetachesForTests()[0].browserContextId, "context-of-another-scan");
+});
+
+test("every foreign shared worker is detached, and the record of them stays bounded", async (t) => {
+  // The attacher lives as long as the shared browser, and the record exists
+  // only for these tests, so it must not grow by one entry for every other
+  // scan's shared worker for the browser's whole life.
+  const { browser, attacher } = await scriptedAttacher(t);
+  const installer = new FingerprintWorkerRealmInstaller("127.0.0.1");
+  await registerVisit(attacher, installer);
+  const foreign = MAX_FOREIGN_DETACH_RECORDS + 6;
+  for (let index = 0; index < foreign; index += 1) {
+    sharedAttach(browser, `foreign-${index}`, { contextId: `context-of-scan-${index}` });
+  }
+  await until(
+    () => browser.sent.filter((frame) => frame.method === "Target.detachFromTarget").length === foreign,
+    5_000
+  );
+  assert.equal(
+    attacher.foreignDetachesForTests().length,
+    MAX_FOREIGN_DETACH_RECORDS,
+    "the record of foreign detaches stays bounded"
+  );
+  assert.equal(attacher.foreignDetachesForTests()[0].browserContextId, "context-of-scan-0", "the first ones are the ones kept");
 });
 
 test("a pause at the main script runs the installer's commands while held, then removes the breakpoint and turns the debugger off", async (t) => {

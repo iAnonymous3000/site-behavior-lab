@@ -140,6 +140,14 @@ const DEFAULT_COMMAND_TIMEOUT_MS = 5_000;
 const DEFAULT_HOLD_TIMEOUT_MS = 3_000;
 const DEFAULT_READY_TIMEOUT_MS = 5_000;
 const DEFAULT_REGISTER_TIMEOUT_MS = 5_000;
+/**
+ * How many foreign detaches the attacher remembers. Only the tests read the
+ * record, and the attacher lives as long as the shared browser, so an
+ * unbounded record grew by one entry per other scan's shared worker for the
+ * browser's whole life. Every detach still happens; past this many, none is
+ * recorded.
+ */
+export const MAX_FOREIGN_DETACH_RECORDS = 64;
 /** The only command the main thread may send to a shared worker: the readout's barrier. */
 const MAIN_THREAD_COMMANDS: readonly string[] = ["Runtime.getIsolateId"];
 
@@ -957,7 +965,7 @@ export class SharedWorkerAttacher {
     { resolve: (documentsWatched: boolean) => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> }
   >();
   private readonly replies = new Map<number, { resolve: (result: Record<string, unknown>) => void; reject: (error: Error) => void }>();
-  private readonly foreignDetaches: { browserContextId: string | null; targetId: unknown; detachSentAfterMs: number }[] = [];
+  private readonly foreignDetaches: { browserContextId: string | null; detachSentAfterMs: number }[] = [];
   private nextRequestId = 1;
   private lostReason: string | null = null;
   private readonly registerTimeoutMs: number;
@@ -1019,7 +1027,7 @@ export class SharedWorkerAttacher {
 
   /** Every other context's shared worker the thread detached at once, for the scope tests. */
   foreignDetachesForTests(): readonly { browserContextId: string | null; detachSentAfterMs: number }[] {
-    return this.foreignDetaches.map(({ browserContextId, detachSentAfterMs }) => ({ browserContextId, detachSentAfterMs }));
+    return this.foreignDetaches.map((record) => ({ ...record }));
   }
 
   /**
@@ -1134,11 +1142,12 @@ export class SharedWorkerAttacher {
       return;
     }
     if (message.type === "foreign") {
-      this.foreignDetaches.push({
-        browserContextId: typeof message.browserContextId === "string" ? message.browserContextId : null,
-        targetId: message.targetId,
-        detachSentAfterMs: typeof message.detachSentAfterMs === "number" ? message.detachSentAfterMs : Number.NaN
-      });
+      if (this.foreignDetaches.length < MAX_FOREIGN_DETACH_RECORDS) {
+        this.foreignDetaches.push({
+          browserContextId: typeof message.browserContextId === "string" ? message.browserContextId : null,
+          detachSentAfterMs: typeof message.detachSentAfterMs === "number" ? message.detachSentAfterMs : Number.NaN
+        });
+      }
       return;
     }
     const contextId = typeof message.contextId === "string" ? message.contextId : null;
