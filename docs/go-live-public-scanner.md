@@ -1138,6 +1138,10 @@ Cloudchamber, and Workers Scripts Edit plus Account Settings Read on this accoun
 and Memberships and User Details Read. It has no zone permissions; the current
 deployment config does not manage routes or certificates.
 It must not grant unrelated AI, database, queue, or R2 bucket administration.
+The CI publish step uses a separate publisher token,
+`CLOUDFLARE_CONTAINER_PUBLISH_TOKEN`, with Containers and Cloudchamber Edit,
+Account Settings Read, and Memberships and User Details Read, and no Workers
+Scripts, Pages, or zone permission.
 Before retiring a formerly shared token, identify and migrate its other users.
 The scanner's runtime R2 object credential is separate and stays bucket-scoped.
 

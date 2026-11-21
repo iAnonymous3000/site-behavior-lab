@@ -45,19 +45,32 @@ accelerate deployment. See [Cloudflare's rollout lifecycle](https://developers.c
 ### One-time cutover
 
 1. Store a dedicated Cloudflare API token as the repository Actions secret
-   `CLOUDFLARE_CONTAINER_DEPLOY_TOKEN`. Use the proven six-permission scope:
-   Containers, Cloudchamber, and Workers Scripts Edit; Account Settings Read;
-   User Memberships and User Details Read. Account permissions must select only
-   account `dea2502fea1fef952043925374196ae9`; no zone permissions. Keep the
-   existing Workers Builds token available until cutover succeeds.
-2. Push the validated deployment change to main and require CI, registry publication,
+   `CLOUDFLARE_CONTAINER_PUBLISH_TOKEN`. Only the publish step of the CI docker
+   job reads it. Give it these five permissions: Containers Edit, Cloudchamber
+   Edit, Account Settings Read, User Memberships Read, and User Details Read.
+   Do not give it Workers Scripts, Pages, or zone permissions. Account
+   permissions must select only account `dea2502fea1fef952043925374196ae9`.
+   A token with Containers Edit can still change the running container
+   application, so this token narrows the publisher's reach but may not close
+   it. The first publish under this token shows if the five permissions are
+   enough. If that publish is refused, revert on main the change that moved
+   the publish step to this token. Then add the one permission that the error
+   names, and push the change again. A refused publish deploys nothing.
+2. Store a dedicated Cloudflare API token as the repository Actions secret
+   `CLOUDFLARE_CONTAINER_DEPLOY_TOKEN`. The two deploy jobs read it. Use the
+   proven six-permission scope: Containers, Cloudchamber, and Workers Scripts
+   Edit; Account Settings Read; User Memberships and User Details Read. Account
+   permissions must select only account `dea2502fea1fef952043925374196ae9`; no
+   zone permissions. Keep the existing Workers Builds token available until
+   cutover succeeds.
+3. Push the validated deployment change to main and require CI, registry publication,
    attestation, and production promotion to succeed. A missing token or failed
    push fails CI and blocks promotion. The deployment switch initially stays
    off, so the existing Workers Builds route continues during preparation.
-3. Disable the scanner's automatic Workers Builds production deployments and
+4. Disable the scanner's automatic Workers Builds production deployments and
    ensure no old build remains queued or running. The separate Pages handoff
    below controls its deployment writer; both keep `production` as their branch.
-4. Set repository variable `SITE_BEHAVIOR_LAB_PREBUILT_CONTAINER_DEPLOY=1`, then
+5. Set repository variable `SITE_BEHAVIOR_LAB_PREBUILT_CONTAINER_DEPLOY=1`, then
    dispatch `deploy-container.yml` with `--ref production`. Require provider
    digest readback, exact live revisions, and the deep Production Health result.
    Future production pushes trigger this deployment workflow automatically.

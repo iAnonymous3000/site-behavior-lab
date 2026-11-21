@@ -11,7 +11,7 @@ assert.equal(process.env.GITHUB_REPOSITORY, REPOSITORY);
 assert.equal(process.env.GITHUB_REF, "refs/heads/main");
 assert.ok(["push", "workflow_dispatch"].includes(process.env.GITHUB_EVENT_NAME));
 assert.equal(process.env.CLOUDFLARE_ACCOUNT_ID, ACCOUNT_ID);
-assert.ok(process.env.CLOUDFLARE_API_TOKEN, "Configure CLOUDFLARE_CONTAINER_DEPLOY_TOKEN before enabling publication");
+assert.ok(process.env.CLOUDFLARE_API_TOKEN, "Configure CLOUDFLARE_CONTAINER_PUBLISH_TOKEN before enabling publication");
 const run = (bin, args, capture = true) => execFileSync(bin, args, {
   encoding: "utf8", stdio: capture ? ["ignore", "pipe", "inherit"] : "inherit",
   timeout: 600_000, maxBuffer: 4 * 1024 * 1024
