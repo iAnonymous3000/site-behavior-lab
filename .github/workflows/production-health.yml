@@ -16,6 +16,17 @@ on:
     - cron: "7 * * * *"
     - cron: "22,37,52 * * * *"
   workflow_dispatch:
+    inputs:
+      # Set by the two deployers. Optional: scheduled and hand-dispatched runs
+      # leave them empty and pin production as before.
+      expected_sha:
+        description: The production revision the requesting deploy run deployed
+        required: false
+        default: ""
+      deploy_run:
+        description: The deploy run that requested this verification
+        required: false
+        default: ""
   # An independent scheduler may dispatch this event when tighter delivery
   # guarantees are required than GitHub's best-effort cron provides.
   repository_dispatch:
@@ -139,6 +150,38 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_ENV, `EXPECTED_CONTAINER_SHARD_COUNT=${shardCountWire}\n`);
           fs.appendFileSync(process.env.GITHUB_ENV, `EXPECTED_ENCRYPTED_WATCHES=${watchMatches[0][1]}\n`);
           NODE
+
+      # A deploy's request can reach a run that pins a newer production: a
+      # later promotion landed first. This run still verifies the pin, so it
+      # names the deploy it was asked about and says it was superseded, rather
+      # than leaving that deploy's verification unrecorded. A requested
+      # revision production does not contain is an error.
+      - name: Record which deploy requested this run
+        env:
+          REQUESTED_SHA: ${{ inputs.expected_sha }}
+          REQUESTED_BY_RUN: ${{ inputs.deploy_run }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${REQUESTED_SHA:-}" ]]; then
+            echo "No deploy run named a revision for this run."
+            exit 0
+          fi
+          run_id="${REQUESTED_BY_RUN:-}"
+          [[ "$run_id" =~ ^[0-9]+$ ]] || run_id="unknown"
+          if [[ ! "$REQUESTED_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error title=Invalid deploy request::the requested revision is not a full commit SHA (deploy run ${run_id})."
+            exit 1
+          fi
+          if [[ "$REQUESTED_SHA" == "$EXPECTED_PRODUCTION_SHA" ]]; then
+            echo "- Requested by deploy run ${run_id} for \`${REQUESTED_SHA}\`, the revision this run verifies" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if ! git merge-base --is-ancestor "$REQUESTED_SHA" HEAD 2>/dev/null; then
+            echo "::error title=Deploy request outside production::deploy run ${run_id} asked to verify ${REQUESTED_SHA}, which production ${EXPECTED_PRODUCTION_SHA} does not contain."
+            exit 1
+          fi
+          echo "::notice title=Deploy superseded::deploy run ${run_id} asked to verify ${REQUESTED_SHA}; production had already advanced to ${EXPECTED_PRODUCTION_SHA}, which this run verifies instead."
+          echo "- Deploy run ${run_id} for \`${REQUESTED_SHA}\`: **superseded** by production \`${EXPECTED_PRODUCTION_SHA}\`, which this run verifies" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Wait for exact scanner and Pages revisions
         id: rollout

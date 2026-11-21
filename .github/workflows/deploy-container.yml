@@ -101,7 +101,11 @@ jobs:
         if: steps.candidate.outputs.current == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run production-health.yml --ref production
+        # The run names the deploy that asked for it, so a health run that
+        # finds production already advanced records this deploy as superseded.
+        run: >-
+          gh workflow run production-health.yml --ref production
+          -f expected_sha="$GITHUB_SHA" -f deploy_run="$GITHUB_RUN_ID"
 
   # This job never checks out or executes the promoted code and holds no
   # Cloudflare secret. It signs the deployment record the job above wrote:
