@@ -558,6 +558,17 @@ function armViolationsR2(arm: ArmVerification, run: ScanRunV2R2, axis: Intervent
   return violations;
 }
 
+/**
+ * A declared execution order holds only when the runs' start times say so in
+ * that direction: AB needs the baseline strictly first, BA the variant
+ * strictly first. Two runs that started at the same instant support neither
+ * order. Reading `!==` of one comparison let an equal pair pass as BA, which
+ * the r1 evaluator never allowed (scan-report-v2-evaluators.ts).
+ */
+function orderAgreesWithChronology(order: "AB" | "BA", baselineStartedAt: string, variantStartedAt: string): boolean {
+  return order === "AB" ? baselineStartedAt < variantStartedAt : variantStartedAt < baselineStartedAt;
+}
+
 function supportingPairViolations(
   experiment: InterventionExperimentR2,
   primaryBaseline: ScanRunV2R2,
@@ -615,8 +626,7 @@ function supportingPairViolations(
       violations.push(`${label}: runs do not differ on exactly the experiment axis`);
     }
 
-    const chronological = pair.baseline.startedAt < pair.variant.startedAt;
-    if ((pair.order === "AB") !== chronological) {
+    if (!orderAgreesWithChronology(pair.order, pair.baseline.startedAt, pair.variant.startedAt)) {
       violations.push(`${label}: declared order ${pair.order} disagrees with the runs' chronology`);
     }
     if (!subjectsMatch(pair.baseline, primaryBaseline) || !subjectsMatch(pair.variant, primaryBaseline)) {
@@ -708,8 +718,7 @@ export function scanReportV2R2SemanticViolations(report: PublicScanReportV2R2): 
       ...armViolationsR2(experiment.verification.baseline, report.baseline, experiment.axis, "baseline arm"),
       ...armViolationsR2(experiment.verification.variant, report.variant, experiment.axis, "variant arm")
     );
-    const chronological = report.baseline.startedAt < report.variant.startedAt;
-    if ((experiment.order === "AB") !== chronological) {
+    if (!orderAgreesWithChronology(experiment.order, report.baseline.startedAt, report.variant.startedAt)) {
       violations.push("experiment: declared order disagrees with the runs' chronology");
     }
     violations.push(...supportingPairViolations(experiment, report.baseline, report.variant));

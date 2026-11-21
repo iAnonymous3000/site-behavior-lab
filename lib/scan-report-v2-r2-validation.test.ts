@@ -485,6 +485,43 @@ test("Shields verification facts reconcile only against their declared passive p
   assert.deepEqual(violationsOf(laterPhaseFlag), []);
 });
 
+test("runs that started at the same instant support neither declared order", () => {
+  const tiedPrimary = mutate(makeShieldsInterventionReportV2R2(), (draft) => {
+    if (draft.experiment.kind !== "intervention") throw new Error("the fixture is an intervention");
+    draft.experiment.order = "BA";
+    draft.variant.startedAt = draft.baseline.startedAt;
+  });
+  assert.equal(
+    violationsOf(tiedPrimary).some((entry) => entry.includes("experiment: declared order disagrees with the runs' chronology")),
+    true,
+    "a tied primary pair declared BA is refused"
+  );
+  const tiedPrimaryAB = mutate(tiedPrimary, (draft) => {
+    if (draft.experiment.kind === "intervention") draft.experiment.order = "AB";
+  });
+  assert.equal(
+    violationsOf(tiedPrimaryAB).some((entry) => entry.includes("experiment: declared order disagrees with the runs' chronology")),
+    true,
+    "a tied primary pair declared AB is refused"
+  );
+
+  const tiedPair = mutate(makeSupportingPairInterventionReportV2R2(), (draft) => {
+    if (draft.experiment.kind !== "intervention") throw new Error("the fixture is an intervention");
+    const pair = draft.experiment.supportingPairs![0];
+    assert.equal(pair.order, "BA");
+    pair.variant.startedAt = pair.baseline.startedAt;
+  });
+  assert.equal(
+    violationsOf(tiedPair).some((entry) => entry.includes("supporting pair 0: declared order BA disagrees with the runs' chronology")),
+    true,
+    "a tied supporting pair declared BA is refused"
+  );
+
+  // The orders the runs really support still pass.
+  assert.deepEqual(violationsOf(makeShieldsInterventionReportV2R2()), [], "AB with the baseline first passes");
+  assert.deepEqual(violationsOf(makeSupportingPairInterventionReportV2R2()), [], "BA with the variant first passes");
+});
+
 test("supporting-pair gates: chronology, identity, fingerprints, and evidence derivation", () => {
   const base = makeSupportingPairInterventionReportV2R2;
 
