@@ -1158,25 +1158,30 @@ function legacyClaims(report: Extract<ScanReport, { reportType: "comparison" }>)
  * complete cases says nothing about a run whose evidence was truncated. v1
  * reports contribute nothing here, because a missing ledger cannot establish
  * that any detector completed.
+ *
+ * On a comparison the page shows both runs, so a rate applies only where
+ * EVERY run's ledger says `complete`: complete on one arm and partial on the
+ * other is the truncated case on the other arm. A run with no ledger leaves
+ * nothing applicable, for the same reason as v1.
  */
 export function reportDetectorScope(view: ReportView): {
   qualified: DetectorId[];
   rateApplicable: DetectorId[];
 } {
-  const complete = new Set<string>();
   const ran = new Set<string>();
   let ledgerRecorded = false;
   for (const run of view.runs) {
     if (!run.detectors) continue;
     ledgerRecorded = true;
     for (const [id, entry] of Object.entries(run.detectors)) {
-      if (entry.status === "complete") complete.add(id);
       if (entry.status === "complete" || entry.status === "partial") ran.add(id);
     }
   }
+  const completeOnEveryRun = (id: DetectorId) =>
+    view.runs.length > 0 && view.runs.every((run) => run.detectors?.[id]?.status === "complete");
   return {
     qualified: ledgerRecorded ? DETECTOR_IDS.filter((id) => ran.has(id)) : [...DETECTOR_IDS],
-    rateApplicable: DETECTOR_IDS.filter((id) => complete.has(id))
+    rateApplicable: DETECTOR_IDS.filter(completeOnEveryRun)
   };
 }
 
