@@ -374,7 +374,9 @@ test("GPC facts without an observed eligible first-party navigation reject", () 
 
 test("a consent-mode run without a consent-interaction phase rejects", () => {
   const violations = violationsOf(singleWith(makeConsentWithoutInteractionPhaseMutantR2()));
-  assertSingleViolationPath(violations, "no consent-interaction phase", "missing consent-interaction phase");
+  // Two readers state this one defect: the consent evaluator, and the Node
+  // phase plan the producer enforces (lib/node-r2-phase-plan.ts).
+  assertSingleViolationPath(violations, "consent-interaction phase", "missing consent-interaction phase");
 });
 
 test("a supporting pair with an incomplete run rejects via the completeness gate", () => {
@@ -456,6 +458,11 @@ test("Shields facts enforce nonzero exercise, toolchain agreement, and summary d
 test("Shields verification facts reconcile only against their declared passive phase", () => {
   const laterPhaseFlag = mutate(singleWith(makeShieldsInterventionReportV2R2().baseline), (draft) => {
     const run = draft.run;
+    // An active-probe phase as the producer writes one: the probe declared and
+    // its detector executed (lib/node-r2-phase-plan.ts).
+    run.conditions.probes.keystroke = true;
+    run.detectors["keystroke-exfiltration"] = { version: run.detectors["keystroke-exfiltration"].version, status: "complete" };
+    run.fingerprints = buildFingerprints({ conditions: run.conditions, provenance: run.provenance, toolchain: run.toolchain, detectors: run.detectors });
     run.phases.push({ phaseId: 1, kind: "active-probe", startedAtMs: 5000, endedAtMs: 5500 });
     run.evidence.requests.push({
       id: 2,
@@ -487,6 +494,10 @@ test("Shields verification facts reconcile only against their declared passive p
 
 /** The flagged straggler shape used by the tests below, in a phase of its own. */
 function addLaterPhaseFlag(run: AnyRecord): void {
+  // An active-probe phase as the producer writes one (lib/node-r2-phase-plan.ts).
+  run.conditions.probes.keystroke = true;
+  run.detectors["keystroke-exfiltration"] = { version: run.detectors["keystroke-exfiltration"].version, status: "complete" };
+  run.fingerprints = buildFingerprints({ conditions: run.conditions, provenance: run.provenance, toolchain: run.toolchain, detectors: run.detectors });
   run.phases.push({ phaseId: 1, kind: "active-probe", startedAtMs: 5000, endedAtMs: 5500 });
   run.evidence.requests.push({
     id: 2,

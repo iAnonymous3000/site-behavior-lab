@@ -18,7 +18,7 @@ import {
   WEBGL_PARAMETERS,
   WEBGL_READ_APIS
 } from "./measurement-kernel";
-import { phaseOmissionExplainedByDetector } from "./detector-phase-omission";
+import { nodeR2PhasePlanViolations } from "./node-r2-phase-plan";
 import { captureLossDetailAllowsFamily } from "./capture-loss-detail-contract";
 import {
   REDACTION_VERSION,
@@ -525,111 +525,10 @@ function assertPhasePlan(
   detectors: DetectorLedger,
   consent: ConsentFactsR2 | undefined
 ): void {
-  for (const [index, phase] of phases.entries()) {
-    if (
-      phase.phaseId !== index ||
-      !Number.isSafeInteger(phase.startedAtMs) ||
-      !Number.isSafeInteger(phase.endedAtMs) ||
-      phase.startedAtMs < 0 ||
-      phase.endedAtMs < phase.startedAtMs
-    ) {
-      throw new Error("Node measurement phases require sequential IDs and nonnegative integer spans.");
-    }
-  }
-  const kinds = phases.map((phase) => phase.kind);
-  if (kinds[0] !== "passive-load") throw new Error("A Node r2 phase plan must start with passive-load.");
-  if (new Set(kinds).size !== kinds.length) throw new Error("A Node r2 phase plan cannot repeat a phase kind.");
-  const order = new Map([
-    ["passive-load", 0],
-    ["consent-interaction", 1],
-    ["post-choice-reload", 2],
-    ["active-probe", 3],
-    ["policy-analysis", 4]
-  ] as const);
-  for (let index = 1; index < kinds.length; index += 1) {
-    if ((order.get(kinds[index - 1]) ?? -1) >= (order.get(kinds[index]) ?? -1)) {
-      throw new Error("A Node r2 phase plan is out of order.");
-    }
-  }
-
-  const hasConsent = kinds.includes("consent-interaction");
-  const hasReload = kinds.includes("post-choice-reload");
-  if (conditions.consent === "observe" && (hasConsent || hasReload)) {
-    throw new Error("Observe-mode runs cannot carry consent interaction or reload phases.");
-  }
-  if (conditions.consent !== "observe" && !hasConsent) {
-    // A bot wall, a failed navigation, or a probe that ran out of budget means
-    // the interaction never happened, so there is no phase to record. That is
-    // representable only if the run says so on BOTH channels: the detector
-    // accountably explains the absence and the consent facts claim no attempt
-    // and no activation. Otherwise a consent-mode run really is missing a
-    // phase it should have, which stays a hard refusal. This mirrors the
-    // phase-omission rule the keystroke and policy probes already use.
-    const phaseOmissionExplained =
-      phaseOmissionExplainedByDetector(detectors["consent-banner"]) &&
-      consent !== undefined &&
-      consent.interactionAttempted === false &&
-      consent.controlActivated === false;
-    if (!phaseOmissionExplained) {
-      throw new Error("Consent-mode runs require a consent-interaction phase.");
-    }
-  }
-  if (hasReload && !hasConsent) throw new Error("A post-choice reload requires a consent-interaction phase.");
-  const hasActiveProbe = kinds.includes("active-probe");
-  if (hasActiveProbe && !conditions.probes.keystroke) {
-    throw new Error("An active-probe phase requires the declared keystroke probe condition.");
-  }
-  if (conditions.probes.keystroke && !hasActiveProbe && !phaseOmissionExplainedByDetector(detectors["keystroke-exfiltration"])) {
-    throw new Error("A skipped active probe requires a keystroke detector outcome that explains the omission.");
-  }
-  if (
-    hasActiveProbe &&
-    !executedDetector(detectors["keystroke-exfiltration"]) &&
-    !phaseOmissionExplainedByDetector(detectors["keystroke-exfiltration"])
-  ) {
-    // The scanner opens the active-probe phase BEFORE it knows whether any
-    // field can be typed, so a page that navigates away mid-search (delayed
-    // redirect, SPA route change, auto-submitting form) legitimately ends with
-    // an existing phase and `keystroke-exfiltration: skipped/load-failed`.
-    // Refusing that combination made the r2 producer throw on an ordinary real
-    // page instead of publishing an honest report. An unaccountable skip
-    // (`not-requested`, `probe-disabled`) is still refused, because those
-    // reasons are deliberately absent from the phase-omission vocabulary.
-    throw new Error("An active-probe phase requires an executed or accountably skipped keystroke detector outcome.");
-  }
-  if (!hasActiveProbe && executedDetector(detectors["keystroke-exfiltration"])) {
-    throw new Error("An executed keystroke detector requires an active-probe phase.");
-  }
-  const hasPolicy = kinds.includes("policy-analysis");
-  if (hasPolicy && !conditions.probes.policyVisit) {
-    throw new Error("A policy-analysis phase requires the declared policy-visit condition.");
-  }
-  if (conditions.probes.policyVisit && !hasPolicy && !phaseOmissionExplainedByDetector(detectors["privacy-policy"])) {
-    throw new Error("A skipped policy visit requires a privacy-policy detector outcome that explains the omission.");
-  }
-  if (hasPolicy && !executedDetector(detectors["privacy-policy"])) {
-    throw new Error("A policy-analysis phase requires an executed privacy-policy detector outcome.");
-  }
-  // A failed outcome explains a missing phase (detector-phase-omission): the
-  // scanner records a link read that failed before any visit as
-  // `failed/scan-failed` with no phase, and the obligation registry admits it.
-  // Only an outcome that reports activity needs the phase it reports from.
-  // The explanation needs the declared probe: a run that never declared a
-  // policy visit has no link read to fail.
-  if (
-    !hasPolicy &&
-    executedDetector(detectors["privacy-policy"]) &&
-    !(conditions.probes.policyVisit && phaseOmissionExplainedByDetector(detectors["privacy-policy"]))
-  ) {
-    throw new Error("An executed privacy-policy detector requires a policy-analysis phase.");
-  }
-
-  for (const id of ["fingerprint-heuristics", "cname-uncloaking", "pixel-events", "consent-banner"] as const) {
-    const entry = detectors[id];
-    if (entry.status === "skipped" && (entry.reason === "not-requested" || entry.reason === "probe-disabled")) {
-      throw new Error(`Always-on detector ${id} cannot remain in its default unrequested state.`);
-    }
-  }
+  // One rule for the producer and the reader (lib/node-r2-phase-plan.ts). The
+  // first violation is the one this function always threw first.
+  const [first] = nodeR2PhasePlanViolations(conditions, phases, detectors, consent);
+  if (first !== undefined) throw new Error(first);
 }
 
 function assertPhaseEvidence(
@@ -657,9 +556,6 @@ function assertPhaseEvidence(
   }
 }
 
-function executedDetector(entry: DetectorLedger[keyof DetectorLedger]): boolean {
-  return entry.status === "complete" || entry.status === "partial" || entry.status === "failed";
-}
 
 function sanitizeEvidence(
   source: Omit<RunEvidenceR2, "consent">,

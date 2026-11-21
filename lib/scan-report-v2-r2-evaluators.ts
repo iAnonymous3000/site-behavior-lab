@@ -13,6 +13,7 @@
  * for historical reports in both dimensions.
  */
 import { phaseOmissionExplainedByDetector } from "./detector-phase-omission";
+import { nodeR2PhasePlanViolations } from "./node-r2-phase-plan";
 import {
   axisStateFor,
   type ArmVerification,
@@ -724,8 +725,22 @@ function runR2Violations(run: ScanRunV2R2, label: string): string[] {
     ...scanRunCoreViolations(run, label, { skipShieldsSummary: run.verificationFacts?.shields !== undefined }),
     ...consentViolationsR2(run, label),
     ...factsViolationsR2(run, label),
-    ...shieldsFlagViolationsR2(run, label)
+    ...shieldsFlagViolationsR2(run, label),
+    ...nodePhasePlanViolationsR2(run, label)
   ];
+}
+
+/**
+ * A Node run is held to the phase plan its producer enforces, read from the
+ * one module both use, so a plan the scanner could never have written (an
+ * observe run whose only phase is a consent interaction, say) is refused
+ * here too. PageGraph imports keep their own rule.
+ */
+function nodePhasePlanViolationsR2(run: ScanRunV2R2, label: string): string[] {
+  if (run.provenance.observer !== "node-playwright") return [];
+  return nodeR2PhasePlanViolations(run.conditions, run.phases, run.detectors, run.evidence.consent).map(
+    (violation) => `${label}: ${violation}`
+  );
 }
 
 export function scanReportV2R2SemanticViolations(report: PublicScanReportV2R2): string[] {
