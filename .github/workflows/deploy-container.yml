@@ -45,15 +45,16 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24.14.1
-          cache: npm
 
       - name: Verify exact Node and npm runtime
         run: |
           test "$(node --version)" = "v24.14.1"
           test "$(npm --version)" = "11.11.0"
 
+      # This job holds the deploy token, so it runs no install script and
+      # restores no package cache that a script-running job could have written.
       - name: Install deployment tools
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Resolve the gated main image
         id: candidate
