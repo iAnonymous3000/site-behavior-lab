@@ -243,14 +243,20 @@ export function reportCorrections(
       event.state !== "privacy-superseded" &&
       event.reportIds.includes(privacyReplacementOf))
   );
-  const currentSubjectEvent = subjectEvents.at(-1) ?? null;
+  // A disposition that is not active (corrected, superseded, withdrawn, or an
+  // original's own privacy removal) stands once published. A later active
+  // event is a clarification: it may sit beside a correction, but it never
+  // lifts one, and no event state does. So the current event is the latest
+  // disposition still standing, and the latest event only when there is none.
+  // scripts/static-report-corrections.mjs restates this rule for the static
+  // smoke; lib/report-correction-surfaces.test.ts holds the two to one answer.
+  const standingDisposition = subjectEvents.filter((event) => event.state !== "active").at(-1) ?? null;
+  const currentSubjectEvent = standingDisposition ?? subjectEvents.at(-1) ?? null;
   return {
     subjectEvents,
     replacementEvents,
     currentSubjectEvent,
-    suppressIndexing:
-      currentSubjectEvent !== null &&
-      currentSubjectEvent.state !== "active",
+    suppressIndexing: standingDisposition !== null,
     ...(privacyReplacementOf === undefined ? {} : { privacyReplacementOf })
   };
 }

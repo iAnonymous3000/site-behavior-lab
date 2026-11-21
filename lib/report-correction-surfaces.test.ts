@@ -197,3 +197,45 @@ test("the static smoke expects every report's correction context the site gives 
   assert.equal(smoke.reportCorrectionSuppressesIndexing(later, replacementId), true);
   agree(later, new Set(named));
 });
+
+test("a later clarification never lifts a correction, on the site or in the smoke", async () => {
+  // The latest event alone used to decide: an active clarification appended
+  // after a correction, for any reason, put the corrected report back in the
+  // sitemap, the corpus and the findings board. A disposition stands until
+  // something lifts it, and no event does.
+  const smoke = (await nativeImport(
+    pathToFileURL(path.join(process.cwd(), "scripts", "static-report-corrections.mjs")).href
+  )) as StaticReportCorrections;
+  const published = ledger.entries.find(event => event.state === "active")!.reportIds[0];
+  assert.equal(reportCorrections(parseCorrectionsLedger(ledger), published).suppressIndexing, false);
+  const last = ledger.entries.at(-1)!;
+  const year = new Date(Date.parse(last.publishedAt) + 1_000).toISOString().slice(0, 4);
+  let sequence = last.eventId.startsWith(`SBL-CORR-${year}-`)
+    ? Number(last.eventId.slice(last.eventId.lastIndexOf("-") + 1))
+    : 0;
+  const appended = (offsetMs: number, state: "corrected" | "active", summary: string) => {
+    sequence += 1;
+    return {
+      eventId: `SBL-CORR-${year}-${String(sequence).padStart(3, "0")}`,
+      publishedAt: new Date(Date.parse(last.publishedAt) + offsetMs).toISOString(),
+      state,
+      reportIds: [published],
+      summary,
+      detailsUrl: "https://sitebehavior.org/corrections/"
+    };
+  };
+  const correction = appended(1_000, "corrected", "A correction of one claim in this report.");
+  const clarification = appended(2_000, "active", "A clarification about a different finding.");
+  const later = { ...ledger, entries: [...ledger.entries, correction, clarification] };
+  const site = reportCorrections(parseCorrectionsLedger(later), published);
+  assert.deepEqual(
+    {
+      suppressIndexing: site.suppressIndexing,
+      current: site.currentSubjectEvent?.eventId,
+      smoke: smoke.reportCorrectionSuppressesIndexing(later, published),
+      subjectEvents: site.subjectEvents.at(-1)?.eventId
+    },
+    { suppressIndexing: true, current: correction.eventId, smoke: true, subjectEvents: clarification.eventId },
+    "a later clarification never lifts a correction"
+  );
+});
