@@ -1,5 +1,6 @@
 import {
   CAPTURE_LOSS_DETAIL_CONTRACT,
+  captureLossDetailAllowsFamily,
   type KnownCaptureLossDetail
 } from "./capture-loss-detail-contract";
 import { isRecord } from "./guards";
@@ -176,7 +177,17 @@ export function evaluateDetectorCausalInputs(
       return { complete: false, cause: "qualityFacts.captureLoss entry is not an object" };
     }
     if (loss.family !== "detector-output") continue;
-    if (typeof loss.detail !== "string") continue;
+    // `detector-output` is shared by every detector, so only a detail can say
+    // whose stage a loss belongs to. A loss with no detail, or with one the
+    // producer's registry does not record under this family, cannot be shown
+    // to be another detector's, so it censors this one. This is the reading
+    // side's rule too (captureLossAffectsScope).
+    if (loss.detail === undefined) {
+      return { complete: false, cause: "a detector-output loss records no detail" };
+    }
+    if (typeof loss.detail !== "string" || !captureLossDetailAllowsFamily(loss.detail, "detector-output")) {
+      return { complete: false, cause: "a detector-output loss records a detail outside the producer's registry" };
+    }
     if (ownStageDetails.has(loss.detail)) {
       return { complete: false, cause: `${loss.detail} stage evidence is incomplete` };
     }

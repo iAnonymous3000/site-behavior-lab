@@ -178,6 +178,50 @@ test("a detector-output loss censors only the stage it belongs to", () => {
 });
 
 /**
+ * `detector-output` is shared by every detector, so a loss there is scoped by
+ * its detail alone. A loss that names no detail, or a detail the producer's
+ * registry does not record under this family, cannot be shown to belong to
+ * another detector's stage, so it censors every detector: the same reading
+ * `captureLossAffectsScope` gives it on the report side.
+ */
+test("a detector-output loss whose detail cannot scope it censors every detector", () => {
+  const withLoss = (loss: Record<string, unknown>) => {
+    const run = wholeRun();
+    (run.qualityFacts as Record<string, unknown>).captureLoss = [
+      { family: "detector-output", phaseId: 0, kind: "dropped", count: 1, ...loss }
+    ];
+    return run;
+  };
+  const detectors = Object.keys(DETECTOR_CAUSAL_INPUTS) as CalibratableDetectorId[];
+  for (const detector of detectors) {
+    assert.equal(
+      evaluateDetectorCausalInputs(withLoss({}), detector).complete,
+      false,
+      `a detector-output loss with no detail censors ${detector}`
+    );
+    assert.equal(
+      evaluateDetectorCausalInputs(withLoss({ detail: "not-a-registered-detail" }), detector).complete,
+      false,
+      `a detector-output loss with an unregistered detail censors ${detector}`
+    );
+    assert.equal(
+      evaluateDetectorCausalInputs(withLoss({ detail: "cookie-snapshot" }), detector).complete,
+      false,
+      `a detector-output loss with a detail registered to another family censors ${detector}`
+    );
+  }
+  // A registered detector-output detail that is no calibratable detector's own
+  // stage still leaves every detector whole, as before.
+  for (const detector of detectors) {
+    assert.deepEqual(
+      evaluateDetectorCausalInputs(withLoss({ detail: "public-warnings" }), detector),
+      { complete: true },
+      `a registered detector-output detail outside ${detector}'s stages leaves it whole`
+    );
+  }
+});
+
+/**
  * The cases that decide whether the rule ships broken. A run without
  * `quality.byFamily` is malformed against a required v2 field, and an
  * optional-chained rule reads that absence as "nothing censored".
