@@ -62,6 +62,11 @@ export function findDurableScanJob(
   assertTimestamp(now);
   ensureRegistryTable(sql);
 
+  // Expired rows were deleted only at the next admission, so a quiet
+  // scanner kept up to the cap of expired capability pairs indefinitely. A
+  // lookup deletes them too. A period with neither still keeps them until
+  // one comes; only an alarm would end that.
+  sql.exec("DELETE FROM scan_job_registry WHERE created_at <= ?", now - DURABLE_SCAN_JOB_REGISTRY_TTL_MS);
   const row = sql
     .exec<{ report_id: string; total_runs: number; created_at: number }>(
       "SELECT report_id, total_runs, created_at FROM scan_job_registry WHERE job_id = ? AND created_at > ?",

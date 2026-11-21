@@ -210,6 +210,20 @@ test("registry entries expire at 75 minutes and are pruned on the next write", (
   });
 });
 
+test("an expired registry row is deleted by a lookup, not only by the next admission", () => {
+  // The lookup stopped serving an expired id but left its row, so a quiet
+  // scanner kept expired capability pairs until another admission came.
+  withDatabase((database, sql) => {
+    registerDurableScanJob(sql, registration({ createdAt: 1_000 }));
+    assert.equal(findDurableScanJob(sql, JOB_ID, 1_000 + DURABLE_SCAN_JOB_REGISTRY_TTL_MS), null);
+    assert.equal(
+      database.prepare("SELECT COUNT(*) AS count FROM scan_job_registry").get()?.count,
+      0,
+      "an expired registry row is deleted by a lookup"
+    );
+  });
+});
+
 test("registry evicts the oldest rows first at its hard cap", () => {
   withDatabase((database, sql) => {
     for (let index = 0; index <= DURABLE_SCAN_JOB_REGISTRY_MAX_ROWS; index += 1) {
