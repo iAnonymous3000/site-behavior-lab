@@ -254,11 +254,25 @@ jobs:
           fi
 
       - name: Require the revision to be already promoted to production
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git fetch origin production --quiet
           if ! git merge-base --is-ancestor "$RELEASE_SHA" origin/production; then
             echo "::error title=Release refused::${RELEASE_SHA} is not reachable from production; only a promoted revision may be tagged."
+            exit 1
+          fi
+          # Reachable is not promoted: a later push can carry production past a
+          # revision it never held as its tip, and that revision's exact tree
+          # was never what production served. Every push to production starts
+          # the container deploy workflow for its new tip, so a push-event run
+          # of it at this exact SHA is the record that production held it.
+          promotions=$(gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-container.yml/runs?branch=production&event=push&head_sha=${RELEASE_SHA}&per_page=1" \
+            --jq '.total_count')
+          if [[ ! "$promotions" =~ ^[0-9]+$ ]] || (( promotions < 1 )); then
+            echo "::error title=Release refused::${RELEASE_SHA} is reachable from production but production never held it as its tip; only an exactly promoted revision may be tagged."
             exit 1
           fi
 
