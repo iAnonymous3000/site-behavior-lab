@@ -27,6 +27,7 @@ import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { scanMeasurementEnvelopeWithR2Run } from "./scan-report-v2-runtime-fixtures";
 import type { ScrollCheckEvidence } from "./scroll-check-evidence";
+import { SHARE_SAVE_WARNING } from "./share-save-warning";
 
 const JOB_ID = `20260718-${"a".repeat(32)}`;
 const REPORT_ID = `20260718-${"b".repeat(32)}`;
@@ -435,6 +436,40 @@ test("completed and recovered reports require the exact reserved report identity
         : Response.json(savedReport(OTHER_REPORT_ID))
     }),
     /did not match its reserved report identity/
+  );
+});
+
+test("a v1 result whose save failed is accepted without a share, on its save-failure line alone", async () => {
+  // A v1 scanner returns the finished report with no share and the
+  // save-failure line when persistence fails, so the visitor can still export
+  // it. The poller refused it for lacking the reserved share on every resume.
+  const unsaved = makeScanReportV1();
+  delete (unsaved as { share?: unknown }).share;
+  unsaved.warnings = [...unsaved.warnings, SHARE_SAVE_WARNING];
+  const loaded = await pollAcceptedScanJob({
+    statusPath: STATUS_PATH,
+    reportId: REPORT_ID,
+    fetcher: async () => jobResponse("succeeded", { report: unsaved }),
+    wait: async () => undefined
+  });
+  assert.equal(loaded.source, "v1", "a v1 result whose save failed is accepted without a share");
+
+  // Without the line it is an ordinary result that should have been saved.
+  const silent = makeScanReportV1();
+  delete (silent as { share?: unknown }).share;
+  await assert.rejects(
+    pollAcceptedScanJob({ statusPath: STATUS_PATH, reportId: REPORT_ID, fetcher: async () => jobResponse("succeeded", { report: silent }), wait: async () => undefined }),
+    /did not match its reserved report identity/,
+    "a shareless v1 result without the save-failure line is refused"
+  );
+
+  // r2 has no such seam: a save failure fails the job, so the line excuses nothing there.
+  const r2 = makePublicSingleReportV2R2();
+  r2.run.warnings = [...r2.run.warnings, SHARE_SAVE_WARNING];
+  await assert.rejects(
+    pollAcceptedScanJob({ statusPath: STATUS_PATH, reportId: REPORT_ID, fetcher: async () => jobResponse("succeeded", { report: r2 }), wait: async () => undefined }),
+    /did not match its reserved report identity/,
+    "a shareless r2 result is refused whatever it carries"
   );
 });
 

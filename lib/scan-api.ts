@@ -1,3 +1,4 @@
+import { SHARE_SAVE_WARNING } from "./share-save-warning";
 import { randomBytes } from "node:crypto";
 import {
   acquireScanSlot,
@@ -78,7 +79,6 @@ export type ScanExecutionControl = {
   scrollCheckReserved?: boolean;
 };
 
-const SHARE_SAVE_WARNING = "Shareable report could not be saved on this host; JSON export is still available.";
 
 export async function runScanRequest(
   request: Request,

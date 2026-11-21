@@ -12,6 +12,7 @@ import { readScanJobProgress } from "./scan-job-progress";
 import type { LoadedReport } from "./scan-report-view";
 import type { RuntimeScanJobApiResponse } from "./runtime-scan-report";
 import { carriesScrollCheck } from "./scroll-check-result";
+import { SHARE_SAVE_WARNING } from "./share-save-warning";
 import type { ScanJobProgress } from "./types";
 
 const TRANSIENT_HTTP_STATUSES = new Set([429, 502, 503]);
@@ -380,17 +381,26 @@ function readJobPayload(
 
 /**
  * A completed result must be the report whose id was reserved at admission.
- * The one result with no id to compare is an after-scrolling check's: nothing
+ * Two results have no id to compare. An after-scrolling check's: nothing
  * from that visit is saved, so the scanner gives it no share
  * (lib/scan-api.ts), and refusing it for that would show every finished
- * check as a mismatch on a scanner that runs scans as jobs. A share that
- * names another report is refused whatever the result carries.
+ * check as a mismatch on a scanner that runs scans as jobs. And a v1 result
+ * whose save failed: the scanner returns it without a share and with the
+ * save-failure line, so the visitor can still export it, and refusing it
+ * would refuse that result on every resume. A share that names another
+ * report is refused whatever the result carries.
  */
 function assertLoadedReportIdentity(report: LoadedReport, expectedReportId: string): void {
   if (!report.wire.share && carriesScrollCheck(report)) return;
+  if (!report.wire.share && carriesShareSaveFailure(report)) return;
   if (report.wire.share?.id !== expectedReportId) {
     throw new Error("The completed scan report did not match its reserved report identity.");
   }
+}
+
+/** A v1 result the scanner could not save: its own save-failure line, and only on v1, where the seam exists. */
+function carriesShareSaveFailure(report: LoadedReport): boolean {
+  return report.source === "v1" && report.wire.warnings.includes(SHARE_SAVE_WARNING);
 }
 
 function throwIfAborted(signal?: AbortSignal): void {
