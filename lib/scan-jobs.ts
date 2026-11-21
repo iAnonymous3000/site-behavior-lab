@@ -68,6 +68,10 @@ const JOB_MAX_AGE_MS = 60 * 60 * 1000;
 const JOB_EXPIRED_RETENTION_MS = 15 * 60 * 1000;
 const MAX_RETAINED_JOBS = 500;
 const JOB_CANCELLED_MESSAGE = "This scan job was cancelled.";
+// Stands in for the submitter's client key once the admission charge is
+// made. Nothing after the charge reads the key: a job runs with the
+// execution-time charge turned off. The durable path has its own sentinel.
+export const JOB_ADMITTED_CLIENT_KEY = "job-admitted";
 // Keep an idempotence tombstone beyond the 180-second DO lease, then release
 // reports, prepared bundles, coordinator secrets, and closures promptly.
 const DURABLE_LOCAL_RECORD_RETENTION_MS = 5 * 60 * 1000;
@@ -123,7 +127,16 @@ type InternalScanJobRecord = {
   updatedAt: string;
   startedAt?: string;
   finishedAt?: string;
-  prepared: PreparedScanRequest;
+  /**
+   * The execution inputs: the target and its options. Released, with the
+   * scan and saveReport closures, when the record reaches a terminal status
+   * (releaseExecutionInputs), so a finished job keeps no target beside its
+   * result. Its client key is the JOB_ADMITTED_CLIENT_KEY sentinel from the
+   * admission charge on, so no job keeps the submitter's address.
+   */
+  prepared?: PreparedScanRequest;
+  /** The visits the job runs, taken at admission: status reads need it after the inputs are released. */
+  totalRuns: number;
   progress: ScanJobProgress;
   report?: RuntimeScanReport;
   error?: string;
@@ -427,6 +440,8 @@ export function enqueuePreparedScanJob(
     releaseScrollCheck?.();
     throw error;
   }
+  // The charge is the last use of the submitter's address.
+  const admittedPrepared: PreparedScanRequest = { ...prepared, clientKey: JOB_ADMITTED_CLIENT_KEY };
 
   const now = new Date();
   const id = createJobId(now);
@@ -444,8 +459,9 @@ export function enqueuePreparedScanJob(
     createdAt: now.toISOString(),
     createdAtMs: now.getTime(),
     updatedAt: now.toISOString(),
-    prepared,
-    progress: createProgress("queued", prepared, 0),
+    prepared: admittedPrepared,
+    totalRuns: totalRunsForPreparedRequest(admittedPrepared),
+    progress: createProgress("queued", totalRunsForPreparedRequest(admittedPrepared), 0),
     scan: dependencies.scan,
     saveReport: dependencies.saveReport,
     publication: dependencies.publication,
@@ -539,7 +555,8 @@ export async function activateDurableScanJob(
       createdAtMs: admittedAt,
       updatedAt: new Date().toISOString(),
       prepared,
-      progress: createProgress("queued", prepared, 0),
+      totalRuns: totalRunsForPreparedRequest(prepared),
+      progress: createProgress("queued", totalRunsForPreparedRequest(prepared), 0),
       scan: dependencies.scan,
       usesDefaultPersistence: true,
       abortController: new AbortController(),
@@ -792,6 +809,25 @@ export function scanJobStateForTests(): { queuedJobs: number; activeJobWorkers: 
   };
 }
 
+/** What a job record holds about its submitter and its inputs, for the retention tests. */
+export function scanJobRetentionForTests(id: string): {
+  clientKey: string | null;
+  target: string | null;
+  holdsScan: boolean;
+  holdsSaveReport: boolean;
+  totalRuns: number;
+} {
+  const record = jobs.get(id);
+  if (!record) throw new Error(`Unknown scan job ${id}`);
+  return {
+    clientKey: record.prepared?.clientKey ?? null,
+    target: record.prepared?.url ?? null,
+    holdsScan: record.scan !== undefined,
+    holdsSaveReport: record.saveReport !== undefined,
+    totalRuns: record.totalRuns
+  };
+}
+
 export function setScanJobCreatedAtForTests(id: string, createdAtMs: number): void {
   const record = jobs.get(id);
   if (!record) throw new Error(`Unknown scan job ${id}`);
@@ -833,7 +869,10 @@ async function runScanJob(record: InternalScanJobRecord): Promise<void> {
     const saveReport: ReportSaver = record.durable
       ? durableReportSaver(record)
       : record.saveReport ?? localReportSaver(record);
-    const report = await executePreparedScan(record.prepared, record.scan, saveReport, QUEUE_TIMEOUT_MS, false, {
+    const prepared = record.prepared;
+    // A queued record still holds its inputs; they are released only at a terminal status.
+    if (!prepared) throw new Error("A scan job started after its execution inputs were released.");
+    const report = await executePreparedScan(prepared, record.scan, saveReport, QUEUE_TIMEOUT_MS, false, {
       signal: record.abortController.signal,
       onProgress: (progress) => updateRunningProgress(record, progress),
       beforeSave: record.durable
@@ -1276,7 +1315,7 @@ function markRunning(record: InternalScanJobRecord): boolean {
   record.status = "running";
   record.startedAt = now;
   record.updatedAt = now;
-  record.progress = createProgress("waiting", record.prepared, 0);
+  record.progress = createProgress("waiting", record.totalRuns, 0);
   return true;
 }
 
@@ -1289,7 +1328,7 @@ function updateRunningProgress(record: InternalScanJobRecord, progress: ScanJobP
 function markSucceeded(record: InternalScanJobRecord, report: RuntimeScanReport): void {
   if (record.status !== "running") return;
   const now = new Date().toISOString();
-  const totalRuns = totalRunsForPreparedRequest(record.prepared);
+  const totalRuns = record.totalRuns;
   record.status = "succeeded";
   record.report = report;
   record.finishedAt = now;
@@ -1300,6 +1339,7 @@ function markSucceeded(record: InternalScanJobRecord, report: RuntimeScanReport)
     totalRuns
   };
   record.releaseScrollCheck?.();
+  releaseExecutionInputs(record);
   scheduleDurableLocalCleanup(record);
   scheduleRetentionPrune(record);
 }
@@ -1312,6 +1352,7 @@ function markFailed(record: InternalScanJobRecord, error: string): void {
   record.finishedAt = now;
   record.updatedAt = now;
   record.releaseScrollCheck?.();
+  releaseExecutionInputs(record);
   scheduleDurableLocalCleanup(record);
   scheduleRetentionPrune(record);
 }
@@ -1324,6 +1365,7 @@ function markCancelled(record: InternalScanJobRecord): void {
   record.finishedAt = now;
   record.updatedAt = now;
   record.releaseScrollCheck?.();
+  releaseExecutionInputs(record);
   scheduleDurableLocalCleanup(record);
   scheduleRetentionPrune(record);
 }
@@ -1333,7 +1375,7 @@ function markPublicationStarted(record: InternalScanJobRecord): void {
     throw scanAbortError(record.abortController.signal, JOB_CANCELLED_MESSAGE);
   }
   record.publicationStarted = true;
-  record.progress = createProgress("saving", record.prepared, totalRunsForPreparedRequest(record.prepared));
+  record.progress = createProgress("saving", record.totalRuns, record.totalRuns);
   record.updatedAt = new Date().toISOString();
 }
 
@@ -1356,15 +1398,28 @@ function markExpired(record: InternalScanJobRecord): void {
   record.finishedAt = now;
   record.updatedAt = now;
   record.releaseScrollCheck?.();
+  releaseExecutionInputs(record);
   scheduleRetentionPrune(record);
 }
 
-function createProgress(phase: ScanJobProgress["phase"], prepared: PreparedScanRequest, completedRuns: number): ScanJobProgress {
+function createProgress(phase: ScanJobProgress["phase"], totalRuns: number, completedRuns: number): ScanJobProgress {
   return {
     phase,
     completedRuns,
-    totalRuns: totalRunsForPreparedRequest(prepared)
+    totalRuns
   };
+}
+
+/**
+ * A finished job keeps its status, progress and result for the submitter's
+ * polls, and nothing it needed only to run: the target and options, and the
+ * scan and saveReport closures. An in-flight visit holds its own reference
+ * to the inputs until it settles.
+ */
+function releaseExecutionInputs(record: InternalScanJobRecord): void {
+  delete record.prepared;
+  delete record.scan;
+  delete record.saveReport;
 }
 
 function totalRunsForPreparedRequest(prepared: PreparedScanRequest): number {

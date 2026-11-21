@@ -36,6 +36,8 @@ import {
   enqueuePreparedScanJob,
   getScanJobStatus,
   resetScanJobStateForTests,
+  scanJobRetentionForTests,
+  JOB_ADMITTED_CLIENT_KEY,
   scanJobStateForTests,
   setScanJobCreatedAtForTests,
   waitForScanJobForTests
@@ -267,6 +269,77 @@ test("an async check holds the one check from admission to its end, and a second
   });
   await waitForScanJobForTests(next.jobId);
   assert.equal(scrollCheckReservedForTests(), false);
+});
+
+test("a job keeps no submitter address after its charge, and no inputs after it ends", async () => {
+  // The client key is the submitter's address (or IPv6 network), needed only
+  // for the admission charge. A finished job is polled for its result alone.
+  let releaseHeld: () => void = () => undefined;
+  let heldStarted: () => void = () => undefined;
+  const started = new Promise<void>((resolve) => {
+    heldStarted = resolve;
+  });
+  const held: ScanRunner = (payload) =>
+    new Promise((resolve) => {
+      releaseHeld = () => resolve(testMeasurementEnvelopeForResult(makeScanResult(payload)));
+      heldStarted();
+    });
+  const queued = enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "203.0.113.7" }), {
+    scan: held,
+    saveReport: async (report) => report
+  });
+  assert.deepEqual(
+    scanJobRetentionForTests(queued.jobId),
+    { clientKey: JOB_ADMITTED_CLIENT_KEY, target: "https://1.1.1.1/", holdsScan: true, holdsSaveReport: true, totalRuns: 1 },
+    "a job keeps no submitter address after its charge"
+  );
+  // Release the visit only once it runs: a release before it starts is lost.
+  await started;
+  releaseHeld();
+  await waitForScanJobForTests(queued.jobId);
+  const succeeded = getScanJobStatus(queued.jobId);
+  assert.equal(succeeded?.status, "succeeded");
+  assert.equal(succeeded?.progress?.totalRuns, 1);
+  assert.equal(succeeded?.report?.schemaVersion, 1);
+  assert.deepEqual(
+    scanJobRetentionForTests(queued.jobId),
+    { clientKey: null, target: null, holdsScan: false, holdsSaveReport: false, totalRuns: 1 },
+    "a job keeps no inputs after it ends (succeeded)"
+  );
+
+  const failed = enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "203.0.113.8" }), {
+    scan: async () => {
+      throw new Error("the browser closed");
+    },
+    saveReport: async (report) => report
+  });
+  await waitForScanJobForTests(failed.jobId);
+  assert.equal(getScanJobStatus(failed.jobId)?.status, "failed");
+  assert.deepEqual(
+    scanJobRetentionForTests(failed.jobId),
+    { clientKey: null, target: null, holdsScan: false, holdsSaveReport: false, totalRuns: 1 },
+    "a job keeps no inputs after it ends (failed)"
+  );
+
+  const running = enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "203.0.113.9" }), {
+    scan: (_payload, options) =>
+      new Promise((_resolve, reject) => {
+        options?.signal?.addEventListener("abort", () => reject(options.signal?.reason), { once: true });
+      }),
+    saveReport: async (report) => report
+  });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(getScanJobStatus(running.jobId)?.status, "running");
+  cancelScanJob(running.jobId);
+  await waitForScanJobForTests(running.jobId);
+  assert.equal(getScanJobStatus(running.jobId)?.status, "cancelled");
+  assert.deepEqual(
+    scanJobRetentionForTests(running.jobId),
+    { clientKey: null, target: null, holdsScan: false, holdsSaveReport: false, totalRuns: 1 },
+    "a job keeps no inputs after it ends (cancelled)"
+  );
+  // Each address was charged once, at admission; the sentinel never was.
+  assert.equal(scanLimitStateForTests().trackedClients, 3, "the admitted-job sentinel is never charged as a client");
 });
 
 test("a check job's hold ends when it fails, is cancelled queued or running, expires, or is never charged", async () => {
