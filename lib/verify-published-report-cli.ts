@@ -4,9 +4,13 @@ import { parseCorrectionsLedger } from "./corrections-ledger-model";
 import { readManagedReport } from "./managed-report-reader";
 import { parseTransparencyLog, verifyTransparencyLogChain } from "./publication-transparency-log";
 import { REPORT_ID_PATTERN } from "./report-validation";
-import { sha256Hex } from "./sha256";
+import { sha256BytesHex } from "./sha256";
 import { inspectOtsProof } from "./transparency-log-anchoring";
-import { readVerifyArtifactTextWithinLimit } from "./verify-published-report-fetch";
+import {
+  decodeVerifyArtifact,
+  readVerifyArtifactBytesWithinLimit,
+  readVerifyArtifactTextWithinLimit
+} from "./verify-published-report-fetch";
 
 /**
  * One command that checks a published report end to end, for a reader who
@@ -101,11 +105,15 @@ async function main(): Promise<void> {
   const checks: Check[] = [];
   const privacyRemoval = await privacyRemovalOf(options.reportId);
 
-  const reportWire = await readArtifact(options.source, `${options.reportId}.json`);
+  // The digest is taken over the bytes as read, never over a decoded and
+  // re-encoded string: a decoder that drops a byte order mark or replaces a
+  // bad byte would let a changed transport copy verify as the published one.
+  const reportBytes = await readArtifactBytes(options.source, `${options.reportId}.json`);
+  const reportWire = decodeArtifact(reportBytes);
   checks.push({
     ok: true,
     label: "report bytes read",
-    detail: `${new TextEncoder().encode(reportWire).byteLength} bytes`
+    detail: `${reportBytes.byteLength} bytes`
   });
 
   const sidecarWire = await readArtifact(options.source, `${options.reportId}.provenance.json`);
@@ -114,7 +122,7 @@ async function main(): Promise<void> {
   // The manifest is an independent statement about the same bytes, so a
   // report that matches its own sidecar but not the published index is still
   // a mismatch worth surfacing.
-  const wireDigest = sha256Hex(reportWire);
+  const wireDigest = sha256BytesHex(reportBytes);
   const manifestDigest = await publishedWireDigest(options.source, options.reportId);
   if (manifestDigest.kind === "absent" && options.source.kind === "directory") {
     // docs/evidence-custody.md tells a reader to save the report and its
@@ -511,14 +519,23 @@ function parseArgs(argv: readonly string[]): Options {
 }
 
 async function readArtifact(source: Source, filename: string): Promise<string> {
+  return decodeArtifact(await readArtifactBytes(source, filename));
+}
+
+async function readArtifactBytes(source: Source, filename: string): Promise<Uint8Array> {
   if (source.kind === "directory") {
     try {
-      return await readFile(path.join(source.dir, filename), "utf8");
+      return new Uint8Array(await readFile(path.join(source.dir, filename)));
     } catch {
       throw new Error(`Cannot read ${filename} in ${source.dir}.`);
     }
   }
-  return fetchText(`${source.origin}/reports/${filename}`);
+  return fetchBytes(`${source.origin}/reports/${filename}`);
+}
+
+// A decode failure surfaces as the decoder's own error, as a failed read does.
+function decodeArtifact(bytes: Uint8Array): string {
+  return decodeVerifyArtifact(bytes);
 }
 
 /**
@@ -559,12 +576,23 @@ async function publishedWireDigest(source: Source, reportId: string): Promise<Ma
 }
 
 async function fetchText(url: string): Promise<string> {
+  return fetchArtifact(url, readVerifyArtifactTextWithinLimit);
+}
+
+async function fetchBytes(url: string): Promise<Uint8Array> {
+  return fetchArtifact(url, readVerifyArtifactBytesWithinLimit);
+}
+
+async function fetchArtifact<T>(
+  url: string,
+  read: (response: Response, url: string, maxBytes: number) => Promise<T>
+): Promise<T> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
     const response = await fetch(url, { signal: controller.signal, redirect: "error" });
     if (!response.ok) throw new Error(`${url} returned HTTP ${response.status}.`);
-    return await readVerifyArtifactTextWithinLimit(response, url, MAX_FETCH_BYTES);
+    return await read(response, url, MAX_FETCH_BYTES);
   } finally {
     clearTimeout(timer);
   }

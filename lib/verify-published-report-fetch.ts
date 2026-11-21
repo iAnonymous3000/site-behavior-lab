@@ -1,14 +1,33 @@
 /**
- * Read one verifier artifact without ever consuming more than the configured
- * byte ceiling. Published origins may omit Content-Length (for example, when
- * a response is chunked), so the header is only an early refusal; the stream
- * itself remains the authoritative limit.
+ * Decode an artifact the verifier has already hashed. Strict: a byte order
+ * mark is kept (so it is never silently dropped from what was published) and
+ * bytes that are not UTF-8 are refused rather than replaced.
  */
+export function decodeVerifyArtifact(bytes: Uint8Array): string {
+  return new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
+}
+
+/** {@link readVerifyArtifactBytesWithinLimit}, decoded by {@link decodeVerifyArtifact}. */
 export async function readVerifyArtifactTextWithinLimit(
   response: Response,
   url: string,
   maxBytes: number
 ): Promise<string> {
+  return decodeVerifyArtifact(await readVerifyArtifactBytesWithinLimit(response, url, maxBytes));
+}
+
+/**
+ * Read one verifier artifact without ever consuming more than the configured
+ * byte ceiling. Published origins may omit Content-Length (for example, when
+ * a response is chunked), so the header is only an early refusal; the stream
+ * itself remains the authoritative limit. The bytes come back as received:
+ * a digest of them is a digest of what the origin served.
+ */
+export async function readVerifyArtifactBytesWithinLimit(
+  response: Response,
+  url: string,
+  maxBytes: number
+): Promise<Uint8Array> {
   if (!Number.isSafeInteger(maxBytes) || maxBytes <= 0) {
     throw new TypeError("The verifier response byte ceiling must be a positive safe integer.");
   }
@@ -34,7 +53,7 @@ export async function readVerifyArtifactTextWithinLimit(
     if (expectedLength !== null && expectedLength !== 0) {
       throw new Error(`${url} body length does not match Content-Length.`);
     }
-    return "";
+    return new Uint8Array(0);
   }
 
   const reader = response.body.getReader();
@@ -71,7 +90,7 @@ export async function readVerifyArtifactTextWithinLimit(
   if (expectedLength !== null && totalBytes !== expectedLength) {
     throw new Error(`${url} body length does not match Content-Length.`);
   }
-  return new TextDecoder().decode(bytes.subarray(0, totalBytes));
+  return bytes.slice(0, totalBytes);
 }
 
 function cancelBodyDetached(response: Response): void {

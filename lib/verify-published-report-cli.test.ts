@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
+import { createServer } from "node:http";
 import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -673,5 +674,65 @@ test("against the committed log, the output states what the log's own anchor row
     assert.deepEqual(unqualifiedWitnessClaims(result.stdout), []);
   } finally {
     rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+/** Run the verifier without blocking this process, so a server in it can answer. */
+function runCliAsync(args: readonly string[]): Promise<{ status: number | null; stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [cliPath, ...args], { cwd: root });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (chunk) => (stdout += chunk));
+    child.stderr.on("data", (chunk) => (stderr += chunk));
+    child.once("error", reject);
+    child.once("close", (status) => resolve({ status, stdout, stderr }));
+  });
+}
+
+test("a copy served with a byte order mark is not verified as the published bytes", async () => {
+  // The network reader decoded before hashing, and the default decoder drops
+  // a leading byte order mark, so a marked transport copy verified as the
+  // published bytes. The digest is now of the bytes as served.
+  const ids = await listStaticReportCandidateIds(reportsDir);
+  const id = ids[0];
+  assert.ok(id, "the committed corpus must contain at least one report");
+  let mark = false;
+  const server = createServer((request, response) => {
+    const name = request.url?.replace(/^\/reports\//, "") ?? "";
+    if (![`${id}.json`, `${id}.provenance.json`, "index.json"].includes(name)) {
+      response.writeHead(404).end();
+      return;
+    }
+    const bytes = readFileSync(path.join(reportsDir, name));
+    response.writeHead(200, { "content-type": "application/json" });
+    response.end(mark && name === `${id}.json` ? Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), bytes]) : bytes);
+  });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const address = server.address();
+  assert.ok(address && typeof address === "object");
+  try {
+    const origin = `http://127.0.0.1:${address.port}`;
+    const exact = await runCliAsync([id, "--origin", origin]);
+    assert.equal(exact.status, 0, exact.stdout + exact.stderr);
+    mark = true;
+    const marked = await runCliAsync([id, "--origin", origin]);
+    assert.notEqual(marked.status, 0, "a copy served with a byte order mark is not verified as the published bytes");
+    assert.doesNotMatch(
+      marked.stdout,
+      /Verified: these bytes are exactly what this project published/,
+      "a copy served with a byte order mark is not verified as the published bytes"
+    );
+    // And the refusal is the byte comparison's own: the strict decoder also
+    // refuses the marked text, so the verdict alone cannot show the digest is
+    // taken over the bytes as served.
+    assert.match(
+      marked.stdout,
+      /FAIL {2}wire digest vs published index/,
+      "the marked copy's bytes are named as not the published bytes"
+    );
+  } finally {
+    server.closeAllConnections();
+    await new Promise<void>((resolve) => server.close(() => resolve()));
   }
 });

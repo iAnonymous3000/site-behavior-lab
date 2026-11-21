@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readVerifyArtifactTextWithinLimit } from "./verify-published-report-fetch";
+import {
+  decodeVerifyArtifact,
+  readVerifyArtifactBytesWithinLimit,
+  readVerifyArtifactTextWithinLimit
+} from "./verify-published-report-fetch";
 
 const TEST_URL = "https://reports.example.test/report.json";
 
@@ -165,3 +169,27 @@ async function settleWithin<T>(promise: Promise<T>): Promise<T> {
     if (timer) clearTimeout(timer);
   }
 }
+
+test("the verifier reads an artifact's bytes exactly as served, a byte order mark included", async () => {
+  // A digest is only of the published bytes if it is taken before any
+  // decoding: the default decoder drops a leading byte order mark.
+  const served = new Uint8Array([0xef, 0xbb, 0xbf, 0x7b, 0x7d]);
+  assert.deepEqual(
+    [...(await readVerifyArtifactBytesWithinLimit(new Response(served), TEST_URL, 16))],
+    [...served],
+    "the verifier reads an artifact's bytes exactly as served"
+  );
+});
+
+test("the verifier decodes an artifact strictly", () => {
+  assert.equal(
+    decodeVerifyArtifact(new Uint8Array([0xef, 0xbb, 0xbf, 0x7b, 0x7d])),
+    "\ufeff{}",
+    "the verifier decodes an artifact strictly (keeps a byte order mark)"
+  );
+  assert.throws(
+    () => decodeVerifyArtifact(new Uint8Array([0x7b, 0xff, 0x7d])),
+    TypeError,
+    "the verifier decodes an artifact strictly (refuses bytes that are not UTF-8)"
+  );
+});
