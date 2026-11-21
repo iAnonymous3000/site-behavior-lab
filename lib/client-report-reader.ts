@@ -27,12 +27,28 @@ export type LoadedReportRead =
 
 type ViewModule = typeof import("./scan-report-view");
 
-let viewModule: Promise<ViewModule> | null = null;
-
-function loadViewModule(): Promise<ViewModule> {
-  viewModule ??= import("./scan-report-view");
-  return viewModule;
+/**
+ * Shares one load while it is pending or once it has resolved, and forgets it
+ * if it rejects, so the next caller loads again. Caching the rejected promise
+ * of a dynamic import turned one failed chunk fetch (a network blip, or a
+ * deploy that removed the old chunk) into a refusal of every later report read
+ * in the tab until a reload.
+ */
+export function cacheSuccessfulLoad<T>(load: () => Promise<T>): () => Promise<T> {
+  let pending: Promise<T> | null = null;
+  return () => {
+    if (pending === null) {
+      const attempt = load();
+      pending = attempt;
+      attempt.catch(() => {
+        if (pending === attempt) pending = null;
+      });
+    }
+    return pending;
+  };
 }
+
+const loadViewModule = cacheSuccessfulLoad<ViewModule>(() => import("./scan-report-view"));
 
 export async function readLoadedReport(payload: unknown, subject = "This file"): Promise<LoadedReportRead> {
   if (!hasBrowserSafeReportCollections(payload)) {

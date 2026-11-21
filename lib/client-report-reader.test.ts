@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { readLoadedReport, asLocalReport, shareForLoadedReport } from "./client-report-reader";
+import { cacheSuccessfulLoad, readLoadedReport, asLocalReport, shareForLoadedReport } from "./client-report-reader";
 import { buildReportShare } from "./report-locator";
 import { displayableScreenshot } from "./report-insights";
 import { loadedReportFromStored, publicWireForExportOrPersistence } from "./scan-report-view";
@@ -165,4 +165,23 @@ test("local imports preserve identity in every export generation without offerin
     assert.deepEqual(shareForLoadedReport(read.loaded), share);
     assert.deepEqual(read.loaded.wire.share, share);
   }
+});
+
+test("a failed view-module load is retried on the next read, and a loaded one is not loaded twice", async () => {
+  // The real dynamic import cannot be made to fail here, so the cache the
+  // reader wraps it in is driven with a load that fails once.
+  const module = { name: "view" };
+  let calls = 0;
+  const load = cacheSuccessfulLoad(async () => {
+    calls += 1;
+    if (calls === 1) throw new Error("chunk fetch failed");
+    return module;
+  });
+  await assert.rejects(load(), /chunk fetch failed/, "the first read sees the failed load");
+  // Each later read's outcome, fulfilled or not, so a kept rejection fails the
+  // named assertion rather than escaping as the load's own error.
+  const outcome = () => load().catch((error: unknown) => error);
+  assert.equal(await outcome(), module, "the second read loads again after a failure");
+  assert.equal(await outcome(), module, "a loaded module is shared");
+  assert.equal(calls, 2, "a loaded module is not loaded twice");
 });
