@@ -368,6 +368,31 @@ test("at most ten destinations and twenty event lines are listed, and each reque
   assert.equal(scroll.notDecoded, 5);
 });
 
+test("a destination cut below another is listed after it, so the events block is kept", async () => {
+  // The own site sends 22 scroll-depth lines (1% to 22%), one each: 22 events,
+  // 20 once cut to the line bound. Tally sends page_view 21 times: 21 events,
+  // nothing cut. Ranked on the full sets the own site comes first; on what
+  // the evidence carries, Tally does, and the validator orders by that. The
+  // inverted order refused the whole events block.
+  const scheduled: Scheduled[] = [];
+  const lines = Array.from({ length: 20 }, (_value, index) => `en=scroll_depth_${index + 1}%25`).join("\r\n");
+  scheduled.push({ at: SCROLL_START + 1_000, url: `${OWN}/g/collect?${GA}`, body: lines });
+  scheduled.push({ at: SCROLL_START + 1_001, url: `${OWN}/g/collect?${GA}&en=scroll_depth_21%25` });
+  scheduled.push({ at: SCROLL_START + 1_002, url: `${OWN}/g/collect?${GA}&en=scroll_depth_22%25` });
+  for (let index = 0; index < 21; index += 1) {
+    scheduled.push({ at: SCROLL_START + 2_000 + index, url: `${TALLY}/g/collect?${GA}&en=page_view` });
+  }
+  const { evidence } = await check({ scheduled });
+  const scroll = evidence.events?.scroll;
+  assert.ok(scroll, "the events block is kept when a cut reorders the destinations");
+  assert.deepEqual(
+    scroll.destinations.map((destination) => destination.host),
+    ["collect.tally.net", OWN_HOST],
+    "the destinations are listed in the order of what they carry"
+  );
+  assert.equal(scroll.destinations[1].events.length, MAX_SCROLL_CHECK_EVENT_LINES);
+});
+
 test("events the closed shape would refuse are dropped, never the check", async () => {
   const plain = await check({ scheduled: richPage(), postData: false });
   const original = eventsModule.scrollCheckWindowEvents;

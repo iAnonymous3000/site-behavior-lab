@@ -136,6 +136,14 @@ export function scrollCheckWindowEvents(
     const events = full.events.slice(0, MAX_SCROLL_CHECK_EVENT_LINES).map((line) => ({ ...line }));
     const listed: ScrollCheckEventDestination = { format: full.format, host: full.host, ownSite: full.ownSite, beacons: full.beacons, events, customEvents: full.customEvents };
     return options.lists === true ? { ...listed, lists: draft.lists ?? "not-compared" } : listed;
-  });
+  })
+    // The ten were chosen on their full line sets, but the evidence carries
+    // the cut ones, and the validator orders by what it carries
+    // (scroll-check-evidence.ts). A destination cut from 22 lines to 20 can
+    // fall below one that kept all 21, and the inverted order refused the
+    // whole events block. Order the listed ten by their cut lines. A list
+    // already in that order, which is every list the validator accepts, is
+    // unchanged.
+    .sort(compareScrollCheckEventDestinations);
   return { beacons, destinations, notDecoded: pastBound + notRead.size };
 }
