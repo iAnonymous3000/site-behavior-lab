@@ -27,8 +27,13 @@ export const STATIC_REPORT_MANIFEST_JSON_MAX_BYTES = 32 * 1024 * 1024;
 export const CORPUS_STATS_JSON_MAX_BYTES = 16 * 1024 * 1024;
 
 /**
- * Append-only publication transparency log. Entries are fixed-width digests
- * and ids, so this bounds roughly a million publications; anchors carry
- * inline proof bytes and are separately capped per anchor.
+ * Append-only publication transparency log. Every publication rewrites the
+ * whole file under this one byte limit, and entries outlive the reports they
+ * name, so the limit bounds the number of publications the log can ever
+ * hold: the limit divided by the size of one pretty-printed entry (a few
+ * hundred bytes each, digests and ids included), less the anchors, which
+ * carry inline proof bytes and are separately capped per anchor. That is
+ * tens of thousands of publications, not millions. Reaching it needs a
+ * verifiable transition to a new log segment, which does not exist yet.
  */
 export const TRANSPARENCY_LOG_JSON_MAX_BYTES = 16 * 1024 * 1024;
