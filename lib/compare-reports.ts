@@ -53,6 +53,45 @@ export function comparisonOrderDisclosure(runLabels: ComparisonRunLabels, execut
   return `The two visits ran in randomized order; the "${runLabels[executedFirst]}" visit ran first.`;
 }
 
+export const GPC_COMPARISON_TITLE = "GPC off/on comparison";
+export const SHIELDS_COMPARISON_TITLE = "Brave-list blocking off/on comparison";
+export const TEMPORAL_COMPARISON_TITLE = "Before/after site behavior comparison";
+
+/**
+ * Titles an earlier version of this module wrote, which stored and committed
+ * reports still carry. Each was replaced, never reused, so the set only grows.
+ * - "Shields off/on comparison": 8cc238c4, the first Shields title.
+ * - "Brave Shields off/on comparison": 69c4439e, its rename.
+ * - The three "clicked" consent attempts: a9c2bc8a, before the activation
+ *   vocabulary (eb466b98) replaced them.
+ */
+export const LEGACY_COMPARISON_TITLES: readonly string[] = [
+  "Shields off/on comparison",
+  "Brave Shields off/on comparison",
+  "Consent comparison attempt (no banner clicked)",
+  "Consent comparison attempt (only Accept all clicked)",
+  "Consent comparison attempt (only Reject all clicked)"
+];
+
+/**
+ * Every title a comparison producer in this module has ever written: the
+ * three fixed titles, every title consentComparisonTitle can return, and the
+ * legacy ones. A v1 comparison is only ever titled from this module, so a
+ * reader can hold a stored title to this set.
+ */
+export function producerComparisonTitles(): ReadonlySet<string> {
+  const consent = [true, false].flatMap((baseline) =>
+    [true, false].map((variant) => consentComparisonTitle({ baseline, variant }))
+  );
+  return new Set([
+    GPC_COMPARISON_TITLE,
+    SHIELDS_COMPARISON_TITLE,
+    TEMPORAL_COMPARISON_TITLE,
+    ...consent,
+    ...LEGACY_COMPARISON_TITLES
+  ]);
+}
+
 export function createGpcComparisonReport(
   baseline: ScanResult,
   variant: ScanResult,
@@ -60,7 +99,7 @@ export function createGpcComparisonReport(
 ): ComparisonScanResult {
   return createComparisonReport({
     comparisonType: "gpc",
-    title: "GPC off/on comparison",
+    title: GPC_COMPARISON_TITLE,
     runLabels: {
       baseline: "GPC off",
       variant: "GPC on"
@@ -83,7 +122,7 @@ export function createShieldsComparisonReport(
   // normalizes the older "Shields off/on" labels on already-stored reports.)
   return createComparisonReport({
     comparisonType: "shields",
-    title: "Brave-list blocking off/on comparison",
+    title: SHIELDS_COMPARISON_TITLE,
     runLabels: {
       baseline: "No blocking",
       variant: "Brave-list blocking"
@@ -169,7 +208,7 @@ export function orderTemporalPair(a: ScanResult, b: ScanResult): [ScanResult, Sc
 export function createTemporalComparisonReport(before: ScanResult, after: ScanResult): ComparisonScanResult {
   return createComparisonReport({
     comparisonType: "temporal",
-    title: "Before/after site behavior comparison",
+    title: TEMPORAL_COMPARISON_TITLE,
     runLabels: {
       baseline: "Before",
       variant: "After"

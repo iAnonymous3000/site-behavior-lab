@@ -3,7 +3,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
-import { createComparisonReport } from "../compare-reports";
+import { createComparisonReport, GPC_COMPARISON_TITLE, TEMPORAL_COMPARISON_TITLE } from "../compare-reports";
 import { buildCorpusStats } from "../corpus-stats-builder";
 import { loadCorpusOverview } from "../corpus-overview";
 import { runInCorpusDistributionPopulation, type RunView } from "../scan-report-view";
@@ -516,7 +516,9 @@ test("comparison coverage and cap totals consider a successful variant when the 
   variant.warnings = ["The scan stopped recording or loading additional requests after 1000 requests."];
   const comparison = createComparisonReport({
     comparisonType: "custom",
-    title: "Two-arm coverage fixture",
+    // The managed reader holds a v1 comparison's title to the titles its
+    // producers wrote, so a fixture read through it borrows one.
+    title: TEMPORAL_COMPARISON_TITLE,
     runLabels: { baseline: "Baseline", variant: "Variant" },
     baseline,
     variant,
@@ -540,7 +542,7 @@ test("cohort recency reads the report-level scan time the directory aggregate al
   // cohorts on two clocks can name two different primary cohorts.
   const plain = createComparisonReport({
     comparisonType: "custom",
-    title: "Two-clock fixture",
+    title: TEMPORAL_COMPARISON_TITLE,
     runLabels: { baseline: "Baseline", variant: "Variant" },
     baseline: makeResult({ firstPartyDomain: "plain-clock-fixture.dev", scannedAt: "2026-07-01T10:00:00.000Z" }),
     variant: makeResult({ firstPartyDomain: "plain-clock-fixture.dev", scannedAt: "2026-07-01T10:00:40.000Z" }),
@@ -548,7 +550,7 @@ test("cohort recency reads the report-level scan time the directory aggregate al
   });
   const gpc = createComparisonReport({
     comparisonType: "custom",
-    title: "Two-clock GPC fixture",
+    title: GPC_COMPARISON_TITLE,
     runLabels: { baseline: "Baseline", variant: "Variant" },
     baseline: makeResult({
       firstPartyDomain: "gpc-clock-fixture.dev",

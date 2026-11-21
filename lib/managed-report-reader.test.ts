@@ -717,7 +717,8 @@ test("a Node run's egress label is held to the scanner's public labels", () => {
   });
 });
 
-test("a v1 comparison's run names are held to the reviewed run labels", () => {
+/** Every v1 comparison the producers write, from arms one minute apart. */
+function producedV1Comparisons(): ScanReport[] {
   const arm = (
     scannedAt: string,
     consent?: { mode: "accept-all" | "reject-all"; clicked: boolean }
@@ -736,10 +737,7 @@ test("a v1 comparison's run names are held to the reviewed run labels", () => {
   const first = "2026-07-09T10:00:00.000Z";
   const second = "2026-07-09T10:01:00.000Z";
 
-  // Every comparison the producers write is redacted and read back, so a
-  // producer whose run names leave the reviewed labels fails here and not at
-  // a visitor's save.
-  const produced: ScanReport[] = [
+  return [
     createGpcComparisonReport(arm(first), arm(second), { executedFirst: "baseline" }),
     createShieldsComparisonReport(arm(first), arm(second), { executedFirst: "variant" }),
     createTemporalComparisonReport(arm(first), arm(second)),
@@ -756,6 +754,13 @@ test("a v1 comparison's run names are held to the reviewed run labels", () => {
       )
     )
   ];
+}
+
+test("a v1 comparison's run names are held to the reviewed run labels", () => {
+  // Every comparison the producers write is redacted and read back, so a
+  // producer whose run names leave the reviewed labels fails here and not at
+  // a visitor's save.
+  const produced = producedV1Comparisons();
   const reviewed = new Set(publicStringPolicyInputs().warningLabels);
   for (const comparison of produced) {
     if (comparison.reportType !== "comparison" || comparison.runLabels === undefined) {
@@ -792,6 +797,75 @@ test("a v1 comparison's run names are held to the reviewed run labels", () => {
   if (unnamed.reportType !== "comparison") throw new Error("expected a comparison");
   delete unnamed.runLabels;
   assert.equal(readWithOwnSidecar(unnamed).ok, true);
+});
+
+test("a v1 comparison's title and root time are held to what its producer wrote", () => {
+  const produced = producedV1Comparisons();
+  const retitled = (title: string) => {
+    const report = redactScanReportV1(produced[0]).report;
+    if (report.reportType !== "comparison") throw new Error("expected a comparison");
+    report.title = title;
+    return report;
+  };
+
+  // Titles earlier producers wrote are still in stored and committed reports,
+  // so each must keep reading. Named here, not read from the list, so that
+  // dropping one from the list fails.
+  for (const title of [
+    "Shields off/on comparison",
+    "Brave Shields off/on comparison",
+    "Consent comparison attempt (no banner clicked)",
+    "Consent comparison attempt (only Accept all clicked)",
+    "Consent comparison attempt (only Reject all clicked)",
+    ...produced.map((report) => (report.reportType === "comparison" ? report.title : ""))
+  ]) {
+    const read = readWithOwnSidecar(retitled(title));
+    assert.equal(read.ok, true, `the producer title "${title}" keeps reading${read.ok ? "" : ` (${read.reason})`}`);
+  }
+
+  // Any other title is a fixed point of the sanitizer, which only bounds its
+  // length, so only the closed list refuses it.
+  const planted = retitled("Comparison prepared for jane.doe@victim-mail.example");
+  assert.equal(
+    JSON.stringify(redactScanReportV1(planted).report),
+    JSON.stringify(planted),
+    "the planted title must survive the sanitizer for this test to mean anything"
+  );
+  assert.deepEqual(
+    readWithOwnSidecar(planted),
+    { ok: false, error: "invalid", reason: "producer-vocabulary-mismatch" },
+    "a title no producer wrote is refused"
+  );
+
+  // The root time is the variant's. The sanitizer copies it through as it is,
+  // so the fixed point does not tie the two; the v1 evaluator the reader runs
+  // does (scan-report-v1-evaluators.ts). This pins that refusal for a root
+  // that differs, or spells the same instant another way.
+  for (const [label, scannedAt] of [
+    ["one millisecond off the variant's", "2026-07-09T10:01:00.001Z"],
+    ["the same instant spelled another way", "2026-07-09T10:01:00Z"],
+    ["text", "jane.doe@victim-mail.example"]
+  ] as const) {
+    const misdated = redactScanReportV1(produced[0]).report;
+    if (misdated.reportType !== "comparison") throw new Error("expected a comparison");
+    assert.equal(misdated.variant.conditions.scannedAt, "2026-07-09T10:01:00.000Z");
+    misdated.scannedAt = scannedAt;
+    assert.equal(
+      JSON.stringify(redactScanReportV1(misdated).report),
+      JSON.stringify(misdated),
+      `a root time ${label} must survive the sanitizer for this test to mean anything`
+    );
+    assert.deepEqual(
+      readWithOwnSidecar(misdated),
+      {
+        ok: false,
+        error: "inconsistent",
+        reason: "invalid-report",
+        violations: ["comparison: root scannedAt does not match the variant run"]
+      },
+      `a root time ${label} is refused`
+    );
+  }
 });
 
 test("an unknown producer is diagnosed separately from unsafe report bytes", () => {

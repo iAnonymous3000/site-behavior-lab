@@ -1,5 +1,6 @@
 import { publicReportDigest } from "./canonical-json";
 import { isCanonicalTimestamp } from "./canonical-timestamp";
+import { producerComparisonTitles } from "./compare-reports";
 import { publicStringPolicyInputs, redactScanReportV1 } from "./redact-scan-report-v1";
 import { REDACTION_VERSION } from "./redaction-v2";
 import {
@@ -176,7 +177,10 @@ export function readManagedReport(input: {
     }
     if (redactedDigest !== provenance.entry.publicDigest) return redactionFailure("digest-mismatch");
   }
-  if (reportRead.stored.schemaVersion === 1 && !hasReviewedRunLabels(reportRead.stored.report)) {
+  if (
+    reportRead.stored.schemaVersion === 1 &&
+    (!hasReviewedRunLabels(reportRead.stored.report) || !hasProducerComparisonTitle(reportRead.stored.report))
+  ) {
     return failure("producer-vocabulary-mismatch");
   }
 
@@ -250,9 +254,25 @@ const REVIEWED_RUN_LABELS: ReadonlySet<string> = new Set(publicStringPolicyInput
 // carries a label its metadata declares, which is not from this list.
 const PUBLIC_EGRESS_LABELS: ReadonlySet<string> = new Set(PUBLIC_SCANNER_EGRESS_LABELS);
 
+// The title a v1 comparison carries: every title a comparison producer has
+// ever written (lib/compare-reports.ts). The sanitizer only bounds its length,
+// so a planted report could otherwise head its page with any 160 characters.
+const PRODUCER_COMPARISON_TITLES: ReadonlySet<string> = producerComparisonTitles();
+
 function hasReviewedRunLabels(report: ScanReport): boolean {
   if (report.reportType !== "comparison" || report.runLabels === undefined) return true;
   return REVIEWED_RUN_LABELS.has(report.runLabels.baseline) && REVIEWED_RUN_LABELS.has(report.runLabels.variant);
+}
+
+/**
+ * A v1 comparison's title, held to the producers' closed list. Its root
+ * `scannedAt` needs no rule here: the v1 evaluator the reader runs above
+ * already refuses one that is not exactly the variant's
+ * (scan-report-v1-evaluators.ts), and the variant's is canonical at the fixed
+ * point.
+ */
+function hasProducerComparisonTitle(report: ScanReport): boolean {
+  return report.reportType !== "comparison" || PRODUCER_COMPARISON_TITLES.has(report.title);
 }
 
 function hasPublicEgressLabels(report: PublicScanReportV2R2): boolean {
