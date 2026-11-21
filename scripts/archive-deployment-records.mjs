@@ -122,7 +122,8 @@ function decodedStatement(line) {
  * the bundle is a provenance statement whose subject is the record's exact
  * bytes, made by the deploy workflow of this repository on the production
  * branch at the record's commit. The signature itself is checked when the
- * record is proposed (recordAttestationArgs); this reads what it signed.
+ * record is proposed (recordAttestationArgs), online and then against this
+ * downloaded bundle before it is kept; this reads what it signed.
  */
 export function recordBundleProblems(recordBytes, bundleText) {
   const digest = createHash("sha256").update(recordBytes).digest("hex");
@@ -204,7 +205,8 @@ const defaultGh = (args, options = {}) => execFileSync("gh", args, { encoding: "
 /**
  * Collects and checks the records of the named runs, then writes them under
  * `root`. Nothing is written unless every run passes. `gh` runs the GitHub
- * CLI and `verifier` the pinned one that verifies attestations.
+ * CLI and `verifier` the GitHub CLI that verifies attestations: the runner's
+ * own, whose version this script does not pin.
  */
 export function collectDeploymentRecords({ runIds, root, gh = defaultGh, verifier = defaultGh }) {
   const scratch = mkdtempSync(path.join(os.tmpdir(), "sbl-deployment-records-"));
@@ -236,7 +238,21 @@ export function collectDeploymentRecords({ runIds, root, gh = defaultGh, verifie
         verifier(["attestation", "download", recordFile, "--repo", REPOSITORY], { cwd: bundles });
         const downloaded = readdirSync(bundles).filter((file) => file.endsWith(".jsonl"));
         if (downloaded.length !== 1) throw new Error(`${label}'s record has ${downloaded.length} attestation bundle files, not one`);
-        return { run, attempt, bytes, bundle: path.join(bundles, downloaded[0]) };
+        const bundle = path.join(bundles, downloaded[0]);
+        // The online check proves the record was signed. The bundle kept beside
+        // it is a separate download, and the offline check reads only what it
+        // states, so its own signature is checked here, against the same
+        // signer, ref and digest, before it can be archived.
+        let bundleResults;
+        try {
+          bundleResults = JSON.parse(verifier([...recordAttestationArgs(recordFile, run.head_sha), "--bundle", bundle]));
+        } catch (error) {
+          throw new Error(`${label}'s downloaded attestation bundle does not verify: ${error instanceof Error ? error.message : String(error)}`);
+        }
+        if (!Array.isArray(bundleResults) || bundleResults.length === 0) {
+          throw new Error(`${label}'s downloaded attestation bundle has no verified attestation`);
+        }
+        return { run, attempt, bytes, bundle };
       });
     });
     const written = [];

@@ -89,6 +89,10 @@ type World = {
   verified: unknown;
   bundles: number;
   calls: string[];
+  /** What a `--bundle` verification of the downloaded bundle answers, or "throw" for a damaged signature. */
+  bundleVerified: unknown[] | "throw";
+  /** The bytes of each bundle file handed to a `--bundle` verification. */
+  bundlesVerified: Buffer[];
 };
 
 /** A record of run `id` written by the deploy job at `attempt`. */
@@ -109,7 +113,10 @@ async function recordText(id: number, attempt: number): Promise<string> {
  * latest attempt can be later than every kept one.
  */
 async function world(runIds: number[], deployAttempts = [1], latestAttempt = Math.max(...deployAttempts)): Promise<World> {
-  const state: World = { runs: new Map(), records: new Map(), artifacts: new Map(), verified: [{ verificationResult: {} }], bundles: 1, calls: [] };
+  const state: World = {
+    runs: new Map(), records: new Map(), artifacts: new Map(), verified: [{ verificationResult: {} }], bundles: 1, calls: [],
+    bundleVerified: [{ verificationResult: {} }], bundlesVerified: []
+  };
   for (const id of runIds) {
     state.runs.set(id, await goodRun(id, latestAttempt));
     state.artifacts.set(id, [...deployAttempts.map((attempt) => ({ name: keptArtifactName(attempt), expired: false })), { name: "other-artifact", expired: false }]);
@@ -137,7 +144,13 @@ function fakes(state: World, recordFile: string): { gh: Gh; verifier: Gh } {
     throw new Error(`unexpected gh ${args.join(" ")}`);
   };
   const verifier: Gh = (args, options = {}) => {
-    state.calls.push(`verifier ${args.slice(0, 2).join(" ")}`);
+    const bundleAt = args.indexOf("--bundle");
+    state.calls.push(`verifier ${args.slice(0, 2).join(" ")}${bundleAt === -1 ? "" : " --bundle"}`);
+    if (args[0] === "attestation" && args[1] === "verify" && bundleAt !== -1) {
+      state.bundlesVerified.push(readFileSync(args[bundleAt + 1]));
+      if (state.bundleVerified === "throw") throw new Error("the bundle's signature does not verify");
+      return JSON.stringify(state.bundleVerified);
+    }
     if (args[0] === "attestation" && args[1] === "verify") return JSON.stringify(state.verified);
     if (args[0] === "attestation" && args[1] === "download") {
       const bytes = readFileSync(args[2]);
@@ -165,8 +178,19 @@ test("a batch of good runs is kept as one record and one bundle each, byte for b
     assert.deepEqual(written, expected);
     assert.deepEqual(readdirSync(path.join(target, ARCHIVE_DIRECTORY)).sort(), ["101-1.bundle.jsonl", "101-1.json", "102-1.bundle.jsonl", "102-1.json"]);
     assert.equal(readFileSync(path.join(target, ARCHIVE_DIRECTORY, "101-1.json"), "utf8"), state.records.get("101-1"));
-    // Each record's signature is checked before anything is written.
+    // Each record's signature is checked before anything is written, online
+    // and then against the very bundle that is kept beside it.
     assert.equal(state.calls.filter((call) => call === "verifier attestation verify").length, 2);
+    assert.equal(
+      state.calls.filter((call) => call === "verifier attestation verify --bundle").length,
+      2,
+      "each downloaded bundle is verified before it is kept"
+    );
+    assert.deepEqual(
+      state.bundlesVerified.map((bytes) => bytes.toString("utf8")),
+      ["101-1.bundle.jsonl", "102-1.bundle.jsonl"].map((name) => readFileSync(path.join(target, ARCHIVE_DIRECTORY, name), "utf8")),
+      "the bundle verified is the bundle kept"
+    );
   } finally {
     rmSync(target, { recursive: true, force: true });
   }
@@ -196,7 +220,9 @@ test("a batch with one refused run writes nothing at all", async () => {
     }, /not of deployment run 102 attempt 2/],
     ["a record of another commit", (s) => { s.records.set("102-1", s.records.get("102-1")!.replaceAll(COMMIT, "2".repeat(40))); }, /names commit 2+, not 1+/],
     ["no verified attestation", (s) => { s.verified = []; }, /no verified attestation/],
-    ["two bundles", (s) => { s.bundles = 2; }, /2 attestation bundle files, not one/]
+    ["two bundles", (s) => { s.bundles = 2; }, /2 attestation bundle files, not one/],
+    ["a downloaded bundle whose signature does not verify", (s) => { s.bundleVerified = "throw"; }, /downloaded attestation bundle does not verify/],
+    ["a downloaded bundle with no verified attestation", (s) => { s.bundleVerified = []; }, /downloaded attestation bundle has no verified attestation/]
   ];
   for (const [what, edit, message] of cases) {
     const state = await world([101, 102]);
