@@ -779,6 +779,18 @@ function listedLastModified(contentsXml: string): number {
   return Number.isFinite(parsed) ? parsed : Date.now();
 }
 
+/**
+ * The listing's retention HEAD pool. On the first failure no worker takes
+ * another id, and the failure is rethrown only once every HEAD in flight has
+ * settled. As a fail-fast Promise.all, one failed HEAD rejected the listing
+ * while up to seven other workers went on HEADing the rest of up to a thousand
+ * ids after the caller had released the store lock.
+ *
+ * lib/report-store.ts keeps its own pool for retention deletes, and the two
+ * differ on purpose: that one also waits for every worker, but lets the others
+ * run on to the end of the list. These are read-only HEADs for a listing that
+ * has already failed, so there is nothing left for the rest of them to do.
+ */
 async function mapWithConcurrency<T, U>(
   values: readonly T[],
   concurrency: number,
@@ -786,15 +798,22 @@ async function mapWithConcurrency<T, U>(
 ): Promise<U[]> {
   const results = new Array<U>(values.length);
   let nextIndex = 0;
+  const failures: unknown[] = [];
   const worker = async () => {
-    while (true) {
+    while (failures.length === 0) {
       const index = nextIndex;
       nextIndex += 1;
       if (index >= values.length) return;
-      results[index] = await mapper(values[index], index);
+      try {
+        results[index] = await mapper(values[index], index);
+      } catch (error) {
+        failures.push(error);
+        return;
+      }
     }
   };
   await Promise.all(Array.from({ length: Math.min(concurrency, values.length) }, () => worker()));
+  if (failures.length > 0) throw failures[0];
   return results;
 }
 

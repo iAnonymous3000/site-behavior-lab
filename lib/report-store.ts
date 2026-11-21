@@ -998,6 +998,9 @@ async function mapWithConcurrency<T>(
   // read a retention ledger holding markers for bundles whose delete never
   // failed, which is the exact input to the publication refusal. Keep the
   // first failure and rethrow it only once every worker has returned.
+  // lib/report-store-r2.ts has its own pool for the listing's retention HEADs,
+  // and the two differ on purpose: that one stops taking ids after the first
+  // failure, since its HEADs are read-only and its listing has already failed.
   const failures: unknown[] = [];
   const worker = async () => {
     while (true) {

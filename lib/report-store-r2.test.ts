@@ -917,6 +917,51 @@ test("R2 list bounds concurrent retention HEAD requests", async () => {
   assert.ok(maxActiveHeads <= R2_LIST_HEAD_CONCURRENCY);
 });
 
+test("R2 list stops sending retention HEADs after one fails, and rejects only once the HEADs in flight have settled", async () => {
+  const ids = Array.from(
+    { length: R2_LIST_HEAD_CONCURRENCY * 4 },
+    (_, index) => `20260620-${index.toString(16).padStart(32, "0")}`
+  );
+  const page = `<ListBucketResult>${ids
+    .flatMap((id) => [
+      `<Contents><Key>reports/${id}.json</Key><LastModified>2026-06-20T12:00:00.000Z</LastModified></Contents>`,
+      `<Contents><Key>reports/${id}.json.provenance.json</Key><LastModified>2026-06-20T12:00:01.000Z</LastModified></Contents>`
+    ])
+    .join("")}<IsTruncated>false</IsTruncated></ListBucketResult>`;
+  let activeHeads = 0;
+  let headCalls = 0;
+  const backend = createR2ReportStoreBackend(CONFIG, {
+    sign: async (input, init) => new Request(input, init),
+    fetch: (async (input: Request): Promise<Response> => {
+      if (input.method === "GET") return new Response(page, { status: 200 });
+      if (input.method !== "HEAD") throw new Error(`Unexpected ${input.method} request.`);
+      headCalls += 1;
+      // A committed candidate whose metadata cannot be read fails the listing.
+      if (headCalls === 1) return new Response(null, { status: 403 });
+      activeHeads += 1;
+      await new Promise<void>((resolve) => setTimeout(resolve, 5));
+      activeHeads -= 1;
+      return new Response(null, { status: 200, headers: retentionHeaders() });
+    }) as unknown as typeof fetch,
+    sleep: async () => undefined
+  });
+
+  let inFlightAtRejection = -1;
+  let headsAtRejection = -1;
+  await assert.rejects(
+    backend.list().catch((error: unknown) => {
+      inFlightAtRejection = activeHeads;
+      headsAtRejection = headCalls;
+      throw error;
+    }),
+    /Failed to read report metadata \(HTTP 403\)/
+  );
+  assert.equal(inFlightAtRejection, 0, "no retention HEAD is still in flight when the list rejects");
+  await new Promise<void>((resolve) => setTimeout(resolve, 50));
+  assert.equal(headCalls, headsAtRejection, "no retention HEAD starts after the list rejects");
+  assert.ok(headCalls < ids.length, `the pool stops taking ids after the failure (${headCalls} of ${ids.length})`);
+});
+
 test("R2 surfaces a sidecar-only deletion orphan and permits a later retry", async () => {
   const page = `<?xml version="1.0"?>
     <ListBucketResult>
