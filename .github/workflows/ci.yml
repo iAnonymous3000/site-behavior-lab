@@ -739,7 +739,7 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24.14.1
-          cache: npm
+          package-manager-cache: false
 
       - name: Verify exact Node and npm runtime
         run: |
@@ -747,8 +747,12 @@ jobs:
           test "$(node --version)" = "v24.14.1"
           test "$(npm --version)" = "11.11.0"
 
+      # This job holds the deploy token in its publish step, so it runs no
+      # install script and restores no package cache that a script-running
+      # job could have written. Nothing it runs needs one: its scripts are
+      # plain Node, and the browser is installed by the explicit step below.
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       # Only the smoke step uses the host browser, about 15 minutes from now.
       # Install it while the image builds; the step before the smoke waits for
@@ -928,6 +932,14 @@ jobs:
           test -s "$RUNNER_TEMP/trivy-container-image-licenses.json"
           node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' \
             "$RUNNER_TEMP/trivy-container-image-licenses.json"
+
+      # The receipt's byte size is counted by the daemon that unpacked the
+      # image and can depend on that host's overlay driver settings, so the
+      # log names the daemon the receipt was taken on.
+      - name: Name the daemon the receipt is taken on
+        run: >-
+          docker info --format
+          'server {{.ServerVersion}}; storage {{.Driver}}; {{range .DriverStatus}}{{index . 0}}: {{index . 1}}; {{end}}kernel {{.KernelVersion}}'
 
       # Runs only after both image smoke lanes pass. The receipt records the
       # exact local image/layer identities and OCI source labels; it remains

@@ -40,6 +40,44 @@ export function assertPublishedImageIdentity(published, tested) {
   return image.repoDigests[0];
 }
 
+/**
+ * The JSON paths at which a published receipt differs from the tested one,
+ * each with both values, after the same repoDigests clearing the identity
+ * check applies. It explains a refusal; it decides nothing. It stays outside
+ * assertPublishedImageIdentity, whose body the attest job embeds verbatim.
+ */
+export function receiptDifferences(published, tested) {
+  const copy = structuredClone(published);
+  if (Array.isArray(copy?.artifacts) && copy.artifacts.length > 0 && copy.artifacts[0] && typeof copy.artifacts[0] === "object") {
+    copy.artifacts[0].repoDigests = [];
+  }
+  const lines = [];
+  const walk = (left, right, at) => {
+    if (JSON.stringify(left) === JSON.stringify(right)) return;
+    const bothArrays = Array.isArray(left) && Array.isArray(right);
+    const bothObjects = !bothArrays && left !== null && right !== null && typeof left === "object" &&
+      typeof right === "object" && !Array.isArray(left) && !Array.isArray(right);
+    if (bothArrays) {
+      for (let index = 0; index < Math.max(left.length, right.length); index += 1) walk(left[index], right[index], `${at}[${index}]`);
+      return;
+    }
+    if (bothObjects) {
+      const leftKeys = Object.keys(left);
+      const rightKeys = Object.keys(right);
+      for (const key of [...new Set([...rightKeys, ...leftKeys])]) walk(left[key], right[key], at ? `${at}.${key}` : key);
+      const shared = leftKeys.filter((key) => rightKeys.includes(key));
+      const sharedRight = rightKeys.filter((key) => leftKeys.includes(key));
+      if (shared.join("\n") !== sharedRight.join("\n")) {
+        lines.push(`${at || "(root)"}: key order published ${JSON.stringify(shared)}, tested ${JSON.stringify(sharedRight)}`);
+      }
+      return;
+    }
+    lines.push(`${at || "(root)"}: published ${JSON.stringify(left) ?? "absent"}, tested ${JSON.stringify(right) ?? "absent"}`);
+  };
+  walk(copy, tested, "");
+  return lines;
+}
+
 export function validatePublishedContainer(receipt, { commit, tree, configBytes }) {
   assert.match(commit, /^[0-9a-f]{40}$/);
   assert.match(tree, /^[0-9a-f]{40}$/);

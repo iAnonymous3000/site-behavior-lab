@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { ACCOUNT_ID, REPOSITORY, assertPublishedImageIdentity, assertRegistryManifest } from "./published-container-lib.mjs";
+import { ACCOUNT_ID, REPOSITORY, assertPublishedImageIdentity, assertRegistryManifest, receiptDifferences } from "./published-container-lib.mjs";
 
 const [testedFile, publishedFile] = process.argv.slice(2);
 assert.ok(testedFile && publishedFile && process.argv.length === 4, "Pass tested and published evidence paths");
@@ -36,7 +36,15 @@ try {
   run(process.execPath, ["scripts/release-evidence.mjs", "--container-image", "site-behavior-lab:smoke",
     "--output", publishedFile], false);
   const published = JSON.parse(readFileSync(publishedFile, "utf8"));
-  const reference = assertPublishedImageIdentity(published, tested);
+  let reference;
+  try {
+    reference = assertPublishedImageIdentity(published, tested);
+  } catch (error) {
+    // Name what moved before refusing. Every receipt field is public
+    // evidence, so both values may be printed.
+    for (const line of receiptDifferences(published, tested)) console.error(`Receipt difference: ${line}`);
+    throw error;
+  }
   const manifest = JSON.parse(run("docker", ["manifest", "inspect", "--verbose", reference]));
   assertRegistryManifest(manifest, reference, imageId);
   console.log(`Published tested image ${reference}; registry manifest addresses tested configuration ${imageId}.`);

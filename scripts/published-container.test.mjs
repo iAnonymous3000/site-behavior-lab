@@ -6,7 +6,7 @@ import path from "node:path";
 import test from "node:test";
 import { waitForDeployment } from "./verify-deployed-container.mjs";
 import {
-  REPOSITORY, IMAGE_REPOSITORY, assertPublishedImageIdentity,
+  REPOSITORY, IMAGE_REPOSITORY, assertPublishedImageIdentity, receiptDifferences,
   validatePublishedContainer, validMainRun, attestationArgs, sha256, assertRegistryManifest
 } from "./published-container-lib.mjs";
 
@@ -192,6 +192,41 @@ test("a substituted image, source, layer, runtime, config or extra observation c
     const { tested, published } = receipts(); mutate(published);
     assert.throws(() => assertPublishedImageIdentity(published, tested));
   }
+});
+
+test("a refused publication names each differing receipt path with both values", () => {
+  const { tested, published } = receipts();
+  assert.deepEqual(receiptDifferences(published, tested), [], "an equal receipt, repoDigests aside, has no differences");
+  published.artifacts[0].bytes = 12346;
+  assert.deepEqual(receiptDifferences(published, tested), ["artifacts[0].bytes: published 12346, tested 12345"],
+    "a refused publication names each differing receipt path with both values");
+  published.source.commit = "7".repeat(40);
+  delete published.artifacts[0].runtime;
+  published.extraClaim = true;
+  assert.deepEqual(receiptDifferences(published, tested).sort(), [
+    "artifacts[0].bytes: published 12346, tested 12345",
+    'artifacts[0].runtime: published absent, tested {"node":"26.13.1"}',
+    "extraClaim: published true, tested absent",
+    `source.commit: published "${"7".repeat(40)}", tested "${commit}"`
+  ], "a refused publication names each differing receipt path with both values");
+  const reordered = receipts();
+  const { tree: sourceTree, ...rest } = reordered.published.source;
+  reordered.published.source = { tree: sourceTree, ...rest };
+  assert.throws(() => assertPublishedImageIdentity(reordered.published, reordered.tested));
+  assert.equal(receiptDifferences(reordered.published, reordered.tested).length, 1,
+    "a refused publication names each differing receipt path with both values (key order)");
+  assert.deepEqual(published.artifacts[0].repoDigests, [reference], "the helper changes neither receipt");
+});
+
+test("the publish script prints the receipt differences and still refuses", () => {
+  const script = readFileSync("scripts/publish-tested-container.mjs", "utf8");
+  const guarded = /\n  try \{\n    reference = assertPublishedImageIdentity\(published, tested\);\n  \} catch \(error\) \{\n([\s\S]*?)\n  \}\n/.exec(script);
+  assert.ok(guarded, "the publish script prints the receipt differences and still refuses (the call is guarded)");
+  assert.match(guarded[1], /for \(const line of receiptDifferences\(published, tested\)\) console\.error\(/,
+    "the publish script prints the receipt differences and still refuses (it prints)");
+  assert.match(guarded[1], /\n    throw error;$/, "the publish script prints the receipt differences and still refuses (it rethrows)");
+  assert.equal(script.split("assertPublishedImageIdentity(published, tested)").length - 1, 1,
+    "the publish script prints the receipt differences and still refuses (one call)");
 });
 
 test("mutable tags, wrong account/repository, malformed digests and another platform are refused", () => {
