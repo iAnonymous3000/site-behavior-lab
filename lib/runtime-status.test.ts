@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -345,6 +346,14 @@ test("runtimeStatus keeps scans available while a routine expiry backlog drains"
     assert.deepEqual(status.warnings, [
       "Report retention reached its per-pass limit and continues on the next pass; scans and saved reports are unaffected."
     ]);
+    // And the production monitor reads this exact response as routine.
+    const workflow = readFileSync(path.join(process.cwd(), ".github", "workflows", "production-health.yml"), "utf8");
+    const block = workflow.slice(
+      workflow.indexOf("// RETENTION_CONTINUATION_ACCEPTANCE_START"),
+      workflow.indexOf("// RETENTION_CONTINUATION_ACCEPTANCE_END")
+    );
+    const accepts = new Function(`${block}\nreturn routineRetentionContinuation;`)() as (health: unknown) => boolean;
+    assert.equal(accepts(JSON.parse(JSON.stringify(status))), true, "the monitor accepts the scanner's own continuation response");
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

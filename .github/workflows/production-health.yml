@@ -326,10 +326,39 @@ jobs:
             if (!condition) failures.push(message);
           };
 
+          // Retention that reached its per-pass deletion limit continues on the
+          // next pass while the store publishes normally. The scanner reports
+          // that as degraded with one fixed warning, and it is routine, not an
+          // incident, so the monitor accepts exactly that state and no other.
+          // Health exposes no debt age, so a continuation that never finishes
+          // stays accepted while the store reads healthy.
+          // RETENTION_CONTINUATION_ACCEPTANCE_START
+          const RETENTION_CONTINUATION_WARNING =
+            "Report retention reached its per-pass limit and continues on the next pass; scans and saved reports are unaffected.";
+          function routineRetentionContinuation(health) {
+            const store = health?.checks?.reportStore;
+            return (
+              health?.status === "degraded" &&
+              Array.isArray(health?.warnings) &&
+              health.warnings.length === 1 &&
+              health.warnings[0] === RETENTION_CONTINUATION_WARNING &&
+              store?.retentionContinuationPending === true &&
+              store?.retentionHealthy === true &&
+              store?.capacityExhausted === false &&
+              health?.scansAvailable === true &&
+              health?.capabilities?.savedReports === true
+            );
+          }
+          // RETENTION_CONTINUATION_ACCEPTANCE_END
+          const continuationOnly = routineRetentionContinuation(health);
+
           assertPosture(health?.ok === true, "ok must be true");
-          assertPosture(health?.status === "ok", `status must be ok (received ${JSON.stringify(health?.status)})`);
+          assertPosture(health?.status === "ok" || continuationOnly, `status must be ok (received ${JSON.stringify(health?.status)})`);
           assertPosture(health?.scansAvailable === true, "scansAvailable must be true");
-          assertPosture(Array.isArray(health?.warnings) && health.warnings.length === 0, "warnings must be an empty array");
+          assertPosture(
+            Array.isArray(health?.warnings) && (health.warnings.length === 0 || continuationOnly),
+            "warnings must be an empty array"
+          );
           assertPosture(health?.authenticated === false, "temporary access-token authentication must be disabled");
           assertPosture(health?.openAccess === true, "public scan access must be enabled");
           assertPosture(health?.turnstile === true, "Turnstile must be enabled");

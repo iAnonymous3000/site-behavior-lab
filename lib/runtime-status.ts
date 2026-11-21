@@ -78,6 +78,16 @@ const reportStoreRetentionHealthProbe = createReportStoreRetentionHealthProbe(
   reportStoreRetentionStatus
 );
 
+/**
+ * The warning for a store that publishes normally while its retention had
+ * more due deletions than one pass makes, and continues on the next. The
+ * production monitor (.github/workflows/production-health.yml) accepts this
+ * state alone as healthy and keeps the sentence verbatim;
+ * lib/production-health-retention-continuation.test.ts holds the two equal.
+ */
+export const REPORT_RETENTION_CONTINUATION_WARNING =
+  "Report retention reached its per-pass limit and continues on the next pass; scans and saved reports are unaffected.";
+
 export type RuntimeStatus = {
   ok: boolean;
   status: "ok" | "degraded";
@@ -180,9 +190,7 @@ export async function runtimeStatus(
   } else if (store.public.retentionContinuationPending && !store.public.capacityExhausted) {
     // The store publishes in this state (retentionRefusesPublication), so it
     // is a warning only: scansAvailable and savedReports below stay true.
-    warnings.push(
-      "Report retention reached its per-pass limit and continues on the next pass; scans and saved reports are unaffected."
-    );
+    warnings.push(REPORT_RETENTION_CONTINUATION_WARNING);
   }
   if (store.public.capacityExhausted) {
     warnings.push(
