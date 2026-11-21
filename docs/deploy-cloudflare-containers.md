@@ -56,8 +56,11 @@ accelerate deployment. See [Cloudflare's rollout lifecycle](https://developers.c
    enough. If that publish is refused, revert on main the change that moved
    the publish step to this token. Then add the one permission that the error
    names, and push the change again. A refused publish deploys nothing.
-2. Store a dedicated Cloudflare API token as the repository Actions secret
-   `CLOUDFLARE_CONTAINER_DEPLOY_TOKEN`. The two deploy jobs read it. Use the
+2. Store a dedicated Cloudflare API token as the secret
+   `CLOUDFLARE_CONTAINER_DEPLOY_TOKEN` of the GitHub environment `production`.
+   The two deploy jobs name that environment and read it. Until you delete the
+   repository Actions secret of the same name, the same value is in both
+   places; see "Deploy token behind the production environment" below. Use the
    proven six-permission scope: Containers, Cloudchamber, and Workers Scripts
    Edit; Account Settings Read; User Memberships and User Details Read. Account
    permissions must select only account `dea2502fea1fef952043925374196ae9`; no
@@ -89,6 +92,52 @@ credentials. They do not prove registry access or a live rollout. Record those
 results and before/after timings only after the cutover above succeeds. No larger
 runner or container instance is required; image transfer and registry retention
 still consume their normal resources.
+
+### Deploy token behind the production environment
+
+The deploy job of `deploy-container.yml` and the deploy job of
+`deploy-pages.yml` name the GitHub environment `production`. No other job names
+it. The environment has one branch rule, the branch `production`, and no
+required reviewers or wait timer. Its secret `CLOUDFLARE_CONTAINER_DEPLOY_TOKEN`
+holds the deploy token. While a repository secret of the same name exists, any
+workflow on any branch can still read that copy, so the environment limits the
+token only after step 7.
+
+To move the deploy token behind the environment:
+
+1. Create the environment `production`. Give it one branch rule: the branch
+   `production`.
+2. Make sure that no deploy or release is running.
+3. Roll the deploy token at Cloudflare.
+4. Save the new value in the repository secret and in the environment secret
+   `CLOUDFLARE_CONTAINER_DEPLOY_TOKEN`.
+5. Push the workflow change that names the environment.
+6. Require both deploy runs at that commit to succeed, with the Production
+   Health run that each requests.
+7. Delete the repository secret `CLOUDFLARE_CONTAINER_DEPLOY_TOKEN`.
+8. Dispatch `deploy-container.yml` with `--ref production`. Require it to
+   succeed, with its Production Health run. For Pages, require the next
+   release's Pages deploy, or dispatch `deploy-pages.yml` with `--ref production`
+   within one day of its main CI run.
+
+A dispatch on another ref does not reach the environment: the deploy job's
+condition skips it. The documentation does not state how a job that the branch
+rule refuses appears.
+
+If a deploy job fails after the token moved:
+
+1. If the branch rule refused the job, correct the rule to the branch
+   `production`. Then rerun the failed run, or dispatch it with
+   `--ref production`.
+2. If the token is empty, the container job stops at `test -n` and the Pages
+   job stops at its first assertion. Roll the token. Save the new value in each
+   place that holds it. Then rerun the failed run.
+3. If the token is wrong, the Pages job stops at "Pages provider read failed"
+   before any upload. The container job stops at Wrangler's own error. Inspect
+   both identities, as above. Then do step 2.
+4. For Pages, do this within one day of the main CI run, or use the Pages
+   recovery steps below.
+5. Revert the workflow change only while the repository secret exists.
 
 ## Production Pages deployment from the tested export
 

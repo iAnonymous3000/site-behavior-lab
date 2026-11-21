@@ -17,6 +17,9 @@ concurrency:
 jobs:
   deploy:
     name: Deploy the attested production Pages export
+    # The environment's branch rule lets only a run on the production
+    # branch read the deploy token it holds.
+    environment: production
     if: >-
       github.ref == 'refs/heads/production' &&
       vars.SITE_BEHAVIOR_LAB_PREBUILT_PAGES_DEPLOY == '1'

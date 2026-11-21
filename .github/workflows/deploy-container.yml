@@ -18,6 +18,9 @@ concurrency:
 jobs:
   deploy:
     name: Deploy the attested production image
+    # The environment's branch rule lets only a run on the production
+    # branch read the deploy token it holds.
+    environment: production
     # Activate only after the existing Workers Builds trigger is disabled.
     # This cutover switch prevents two independent production deployers racing.
     if: >-

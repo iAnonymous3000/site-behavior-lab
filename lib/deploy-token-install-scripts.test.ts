@@ -23,11 +23,22 @@ import test from "node:test";
  * it. Each workflow must name the tokens only inside a job, so a workflow-level
  * `env:` cannot hand one to every job uncounted.
  *
+ * The two deployers each name the GitHub environment `production`, whose
+ * branch rule admits only the branch `production`, and no other job names it.
+ * The docker job and the job that signs the deployment record name no
+ * environment, so the signer's OpenID Connect subject keeps its branch form.
+ * An environment is read only in its bare form, `environment: NAME` at job
+ * level; any other spelling of the key fails, so none can hide a declaration.
+ *
  * Residual, by design: the jobs that hold a token still run wrangler's own
  * code with it, and a token with Containers Edit may still change the
  * container application. Only a narrower token at the provider closes that.
+ * The environment limits who can read the deploy token only once no
+ * repository secret of the same name remains: that is a setting, which these
+ * tests cannot read.
  */
 const DEPLOY_TOKEN = "CLOUDFLARE_CONTAINER_DEPLOY_TOKEN";
+const DEPLOY_ENVIRONMENT = "production";
 const PUBLISH_TOKEN = "CLOUDFLARE_CONTAINER_PUBLISH_TOKEN";
 const WORKFLOWS_DIR = ".github/workflows";
 
@@ -61,12 +72,47 @@ function jobsOf(file: string, text: string): Job[] {
   return jobs;
 }
 
+// A block scalar's header: a line whose first key has `|` or `>` as its value.
+// A comment line, a quoted key or a key holding a colon is never read as one,
+// so its content stays scanned, which fails closed.
+const BLOCK_SCALAR_HEADER = /^\s*(?:-\s+)*[^\s#'"][^#:'"]*:\s+[|>][1-9+-]{0,2}\s*(?:#.*)?$/;
+
+/**
+ * A workflow's YAML structure: its text with each block scalar's content
+ * blanked, so a line of a script cannot read as a key. The content is every
+ * later line indented past the header key's own column.
+ */
+function structureOf(text: string): string {
+  let column = -1;
+  return text
+    .split("\n")
+    .map((line) => {
+      const indent = line.length - line.trimStart().length;
+      if (column >= 0) {
+        if (line.trim() === "" || indent > column) return "";
+        column = -1;
+      }
+      if (BLOCK_SCALAR_HEADER.test(line)) column = (/^(\s*(?:-\s+)*)/.exec(line) ?? [""])[0].length;
+      return line;
+    })
+    .join("\n");
+}
+
 const jobs = workflows.flatMap(({ file, text }) => jobsOf(file, text));
 const holdersOf = (name: string) => jobs.filter((job) => mentions(job.text, name) > 0);
 const deployHolders = holdersOf(DEPLOY_TOKEN);
 const publishHolders = holdersOf(PUBLISH_TOKEN);
 const holders = jobs.filter((job) => deployHolders.includes(job) || publishHolders.includes(job));
 const label = (job: Job) => `${job.file} ${job.id}`;
+
+// Every spelling of an environment key: bare, quoted, in any case, in a flow
+// or block mapping. `runner.environment` has no colon after it, and
+// `RUNNER_ENVIRONMENT:` no word boundary, so neither counts.
+const ENVIRONMENT_KEY = /\benvironment["']?\s*:/gi;
+// The one form the guard reads: a bare name at the job's own key level.
+const BARE_ENVIRONMENT = /^ {4}environment: ([a-z0-9][a-z0-9-]*)$/gm;
+const environmentKeys = (text: string) => (text.match(ENVIRONMENT_KEY) ?? []).length;
+const environmentsOf = (job: Job) => [...job.text.matchAll(BARE_ENVIRONMENT)].map((match) => match[1]);
 
 // Every way npm installs or rebuilds packages, any of which runs lifecycle scripts.
 const NPM_INSTALL = /\bnpm\s+(?:ci|i|install(?:-[a-z-]+)?|rebuild)\b[^\n]*/g;
@@ -101,6 +147,48 @@ test("every workflow names the deploy and publish tokens only inside a job", () 
         `every workflow names the deploy and publish tokens only inside a job (${file})`
       );
     }
+  }
+});
+
+test("each deployer declares the environment production at job level", () => {
+  assert.ok(deployHolders.length > 0, "the guard finds the jobs that name the deploy token");
+  for (const holder of deployHolders) {
+    const message = `each deployer declares the environment production at job level (${label(holder)})`;
+    assert.equal(environmentKeys(holder.text), 1, message);
+    assert.deepEqual(environmentsOf(holder), [DEPLOY_ENVIRONMENT], message);
+  }
+});
+
+test("the environment production is declared by exactly the two deployers", () => {
+  assert.deepEqual(
+    jobs.filter((job) => environmentsOf(job).includes(DEPLOY_ENVIRONMENT)).map(label).sort(),
+    ["deploy-container.yml deploy", "deploy-pages.yml deploy"],
+    "the environment production is declared by exactly the two deployers"
+  );
+});
+
+test("the publish token's holder declares no environment", () => {
+  assert.ok(publishHolders.length > 0, "the guard finds the job that names the publish token");
+  for (const holder of publishHolders) {
+    assert.equal(environmentKeys(holder.text), 0, `the publish token's holder declares no environment (${label(holder)})`);
+  }
+});
+
+test("the job that signs the deployment record declares no environment", () => {
+  const signers = jobs.filter((job) => job.file === "deploy-container.yml" && job.id === "attest-deployment");
+  assert.equal(signers.length, 1, "the guard finds the job that signs the deployment record");
+  assert.equal(environmentKeys(signers[0].text), 0, "the job that signs the deployment record declares no environment");
+});
+
+test("every workflow declares an environment only by its bare name at job level", () => {
+  // Each key in a file must be a bare declaration inside a job the split
+  // reads, so no other spelling, workflow-level key or unread job holds one.
+  for (const { file, text } of workflows) {
+    assert.equal(
+      environmentKeys(text),
+      jobsOf(file, text).reduce((sum, job) => sum + environmentsOf(job).length, 0),
+      `every workflow declares an environment only by its bare name at job level (${file})`
+    );
   }
 });
 
@@ -142,12 +230,17 @@ test("every job that names a deploy or publish token turns the npm cache off by 
   }
 });
 
-test("the tokens reach no job through a composite action, inherited secrets, toJSON(secrets) or a computed secrets index", () => {
+test("the tokens reach no job through a composite action, inherited secrets, toJSON(secrets), a computed secrets index or a YAML indirection", () => {
   // The guards above read each job's own text. A local composite action, a
   // reusable workflow or inherited secrets would carry an install or a token
   // where that text does not show it, and toJSON(secrets) or a computed index
   // reaches every secret without naming one. A quoted literal index names its
-  // secret, so the holder tests count it.
+  // secret, so the holder tests count it. An explicit YAML key, a merge key,
+  // an anchor or alias, or a double-quoted key with an escape could carry a
+  // token or an environment that the counts above do not see.
+  //
+  // The YAML patterns read the structure, so a script line is not taken for a
+  // key; the others read the whole text.
   //
   // Each check compares the matched text, never the whole workflow: node
   // --test can stall while it reports a failed assertion whose actual is a
@@ -157,10 +250,21 @@ test("the tokens reach no job through a composite action, inherited secrets, toJ
     /toJSON\(\s*secrets\s*\)/i,
     /\bsecrets\s*\[(?!\s*(?:'[^'\n]*'|"[^"\n]*")\s*\])/i
   ];
+  const refusedInStructure = [
+    /^\s*\?(?:\s|$)/m,
+    /^\s*<<\s*:/m,
+    /:\s+[&*][A-Za-z_][\w-]*(?:\s|$)/m,
+    /^\s*-\s+\*[A-Za-z_]/m,
+    /^\s*(?:-\s+)?"[^"\n]*\\[^\n]*"\s*:/m
+  ];
   for (const { file, text } of workflows) {
-    const message = `the tokens reach no job through a composite action, inherited secrets, toJSON(secrets) or a computed secrets index (${file})`;
+    const message = `the tokens reach no job through a composite action, inherited secrets, toJSON(secrets), a computed secrets index or a YAML indirection (${file})`;
     for (const pattern of refused) {
       assert.equal(text.match(pattern)?.[0] ?? null, null, message);
+    }
+    const structure = structureOf(text);
+    for (const pattern of refusedInStructure) {
+      assert.equal(structure.match(pattern)?.[0] ?? null, null, message);
     }
   }
 });
