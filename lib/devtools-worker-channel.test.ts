@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
-import { createServer as createNetServer } from "node:net";
+import { createServer as createNetServer, type AddressInfo, type Socket } from "node:net";
 import { test } from "node:test";
 import { chromium } from "playwright";
 import {
@@ -523,4 +523,40 @@ test("real Chromium: installers run in order inside each worker's one pause, bef
     verifiedWorkerCount: 6,
     unverifiedAttachedWorkerCount: 0
   });
+});
+
+test("a connect that times out closes the socket it gave up on", async (t) => {
+  // A loopback listener that accepts the TCP connection and never answers the
+  // WebSocket upgrade, so the channel's socket stays CONNECTING until the
+  // connect deadline gives it up.
+  const accepted: Socket[] = [];
+  const server = createNetServer((socket) => {
+    accepted.push(socket);
+    socket.on("error", () => undefined);
+    socket.resume();
+  });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => {
+    for (const socket of accepted) socket.destroy();
+    server.close();
+  });
+  const { port } = server.address() as AddressInfo;
+
+  await assert.rejects(
+    openDevtoolsBrowserChannel(`ws://127.0.0.1:${port}/devtools/browser/never-answered`, { connectTimeoutMs: 100 }),
+    /DevTools WebSocket connect timed out\./
+  );
+  assert.equal(accepted.length, 1, "the channel reached the listener and was never answered");
+  const peer = accepted[0];
+  const closed = await new Promise<boolean>((resolve) => {
+    if (peer.destroyed || peer.readableEnded) return resolve(true);
+    const timer = setTimeout(() => resolve(false), 2_000);
+    const done = () => {
+      clearTimeout(timer);
+      resolve(true);
+    };
+    peer.once("end", done);
+    peer.once("close", done);
+  });
+  assert.equal(closed, true, "the client closes the connection it gave up on");
 });

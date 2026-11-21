@@ -656,10 +656,16 @@ export async function openDevtoolsBrowserChannel(
   const commandTimeoutMs = options.commandTimeoutMs ?? DEFAULT_COMMAND_TIMEOUT_MS;
   const socket = new WebSocket(webSocketUrl);
   await new Promise<void>((resolve, reject) => {
-    const timer = setTimeout(
-      () => reject(new Error("DevTools WebSocket connect timed out.")),
-      options.connectTimeoutMs ?? DEVTOOLS_DISCOVERY_TIMEOUT_MS
-    );
+    const timer = setTimeout(() => {
+      // Give the connection up, not only the wait: a socket left CONNECTING
+      // that opens later stays an idle DevTools client of the shared browser
+      // until it exits. Its handlers go first, so a late open or the failure
+      // the close itself causes reaches nothing.
+      socket.onopen = null;
+      socket.onerror = null;
+      socket.close();
+      reject(new Error("DevTools WebSocket connect timed out."));
+    }, options.connectTimeoutMs ?? DEVTOOLS_DISCOVERY_TIMEOUT_MS);
     socket.onopen = () => {
       clearTimeout(timer);
       resolve();
