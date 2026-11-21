@@ -1552,7 +1552,12 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
 
     // Page routes take precedence. This fallback prevents popup/auxiliary
     // requests from loading outside the guarded and recorded visit paths.
-    await context.route("**/*", (route) => {
+    //
+    // Both registrations are bound by the setup deadline, as every other setup
+    // step is. Playwright sends them with no timeout of its own, so a browser
+    // that stops answering while its connection stays open left the await
+    // pending and the visit holding its scan slot until a restart.
+    await withSetupTimeout(context.route("**/*", (route) => {
       const operation = (async () => {
         // Attribute loss before awaiting abort, while the originating phase is
         // still active. Drain these handlers with the main-page route work.
@@ -1573,10 +1578,10 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
         () => inFlightRouteHandlers.delete(operation)
       );
       return operation;
-    });
+    }), started);
     page.on("popup", (popup) => { void popup.close().catch(() => undefined); });
 
-    await page.route("**/*", (route) => {
+    await withSetupTimeout(page.route("**/*", (route) => {
       const operation = (async () => {
         const request = route.request();
         if (keystrokeActivePhase !== null && isActiveProbeBlockedRequest(request)) {
@@ -1675,7 +1680,7 @@ async function scanSiteWithMeasurementOnLeasedBrowser(
         () => inFlightRouteHandlers.delete(operation)
       );
       return operation;
-    });
+    }), started);
 
     // Kernel step 3 state (flag-gated): registered consent-state readback.
     // Everything recorded here is process-local r2 fact material. It remains private

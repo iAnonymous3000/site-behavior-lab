@@ -5,7 +5,7 @@ import { connect } from "node:net";
 import path from "node:path";
 import { setImmediate as afterTurn } from "node:timers/promises";
 import { test } from "node:test";
-import { chromium, type Browser, type BrowserContext } from "playwright";
+import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
 import { PublicScanError } from "./public-errors";
 import {
   closeSharedBrowserForTests,
@@ -584,3 +584,62 @@ test(
     }
   }
 );
+
+test("a route registration that never settles ends its visit at the setup deadline", { timeout: 90_000 }, async () => {
+  // Playwright sends both route registrations with no timeout of its own, so a
+  // browser that stops answering them while its connection stays open held
+  // the visit, and with it one of the two scan slots, until a restart. Each
+  // registration must end at the scanner's own setup deadline, as a setup
+  // timeout: the budget ran out before the page was requested.
+  await closeSharedBrowserForTests();
+  const scanner = instrumentScannerChromium();
+  const fixture = await startScanFixture();
+  try {
+    await scanSiteWithMeasurement(fixturePayload, fixtureScanOptions(fixture.port));
+    const outcomes: Record<string, { reached: boolean; outcome: string }> = {};
+    for (const target of ["context", "page"] as const) {
+      let reached = false;
+      const never = (): Promise<void> => {
+        reached = true;
+        return new Promise<void>(() => undefined);
+      };
+      scanner.onNextContext = (context) => {
+        if (target === "context") {
+          context.route = never as unknown as BrowserContext["route"];
+          return;
+        }
+        const newPage = context.newPage;
+        context.newPage = async (...args: Parameters<BrowserContext["newPage"]>) => {
+          const page = await newPage.apply(context, args);
+          page.route = never as unknown as Page["route"];
+          return page;
+        };
+      };
+      // Ten seconds of budget left: setup reaches the registration well before
+      // the deadline, which then ends it.
+      const outcome = await settleWithin(
+        scanOutcome(
+          scanSiteWithMeasurement(fixturePayload, fixtureScanOptions(fixture.port, { scanBudgetSpentMsForTests: 35_000 }))
+        ),
+        25_000,
+        `a stalled ${target} route registration ends at the setup deadline`
+      );
+      outcomes[target] = { reached, outcome };
+    }
+    await settleWithin(Promise.all(scanner.contextsClosed), 10_000, "Every context the visits created closing");
+    assert.deepEqual(
+      outcomes,
+      {
+        context: { reached: true, outcome: "scan setup timeout" },
+        page: { reached: true, outcome: "scan setup timeout" }
+      },
+      "a stalled route registration ends at the setup deadline"
+    );
+  } finally {
+    scanner.stopCounting();
+    await closeSharedBrowserForTests();
+    for (const browser of scanner.launched) await browser.close().catch(() => undefined);
+    scanner.restore();
+    await closeScanFixture(fixture.server);
+  }
+});
