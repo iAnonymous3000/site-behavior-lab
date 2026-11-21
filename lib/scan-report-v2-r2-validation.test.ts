@@ -485,6 +485,74 @@ test("Shields verification facts reconcile only against their declared passive p
   assert.deepEqual(violationsOf(laterPhaseFlag), []);
 });
 
+/** The flagged straggler shape used by the tests below, in a phase of its own. */
+function addLaterPhaseFlag(run: AnyRecord): void {
+  run.phases.push({ phaseId: 1, kind: "active-probe", startedAtMs: 5000, endedAtMs: 5500 });
+  run.evidence.requests.push({
+    id: 2,
+    url: "https://tracker.example.net/pixel",
+    domain: "tracker.example.net",
+    method: "GET",
+    resourceType: "image",
+    status: 200,
+    thirdParty: true,
+    tracker: null,
+    startedAtMs: 5100,
+    phaseId: 1,
+    blockedByShields: true
+  });
+  run.summary.counts.totalRequests = 2;
+  run.summary.counts.thirdPartyRequests = 1;
+  run.summary.counts.thirdPartyDomains = 1;
+  run.summary.countsByPhase.push({ phaseId: 1, totalRequests: 1, thirdPartyRequests: 1, knownTrackerRequests: 0 });
+  run.summary.durationMs = 5500;
+}
+
+test("a block-simulation run retains no blockedByShields flag in any phase", () => {
+  // The simulation aborts every match in every phase and drops the aborted
+  // row, so a retained flag in a later phase is not something the producer
+  // writes. Counting only the passive phase let it pass.
+  const simulated = mutate(singleWith(makeShieldsInterventionReportV2R2().variant), (draft) => {
+    assert.equal(draft.run.conditions.shields, "block-simulation");
+    addLaterPhaseFlag(draft.run as AnyRecord);
+  });
+  assert.equal(
+    violationsOf(simulated).some((entry) => entry.includes("a block-simulation run retains blockedByShields flags")),
+    true,
+    "a block-simulation flag outside the passive phase is refused"
+  );
+});
+
+test("a blockedByShields flag needs a loaded adblock engine, with or without Shields facts", () => {
+  // A valid run can omit Shields facts, and then only the r1 summary rule
+  // reconciles the count, so the engine rule cannot live inside the facts.
+  const noFacts = mutate(singleWith(makeShieldsInterventionReportV2R2().baseline), (draft) => {
+    assert.equal(draft.run.conditions.shields, "classification");
+    delete draft.run.verificationFacts;
+    draft.run.toolchain.adblock = null;
+    addLaterPhaseFlag(draft.run as AnyRecord);
+    draft.run.summary.counts.shieldsBlockedRequests = 1;
+  });
+  assert.equal(
+    violationsOf(noFacts).some((entry) => entry.includes("requests carry blockedByShields without a loaded adblock engine")),
+    true,
+    "a flag with no engine and no Shields facts is refused"
+  );
+
+  const unloaded = mutate(singleWith(makeShieldsInterventionReportV2R2().baseline), (draft) => {
+    const facts = draft.run.verificationFacts!.shields!;
+    Object.assign(facts, { engineLoaded: false, applied: false, requestsEvaluated: 0, requestsMatched: 0 });
+    draft.run.toolchain.adblock = null;
+    delete draft.run.summary.counts.shieldsBlockedRequests;
+    addLaterPhaseFlag(draft.run as AnyRecord);
+  });
+  assert.equal(
+    violationsOf(unloaded).some((entry) => entry.includes("requests carry blockedByShields without a loaded adblock engine")),
+    true,
+    "a flag beside facts that say the engine was not loaded is refused"
+  );
+});
+
 test("runs that started at the same instant support neither declared order", () => {
   const tiedPrimary = mutate(makeShieldsInterventionReportV2R2(), (draft) => {
     if (draft.experiment.kind !== "intervention") throw new Error("the fixture is an intervention");

@@ -432,12 +432,11 @@ function factsViolationsR2(run: ScanRunV2R2, label: string): string[] {
     if (phaseKindAt(run, shields.phaseId) !== "passive-load") {
       violations.push(`${label}: shields facts are tagged to a non-passive-load phase`);
     }
+    // A block-simulation run's flags are refused in every phase by
+    // shieldsFlagViolationsR2, with or without these facts.
     const flagged = run.evidence.requests.filter(
       (request) => request.phaseId === shields.phaseId && request.blockedByShields === true
     ).length;
-    if (run.conditions.shields === "block-simulation" && flagged !== 0) {
-      violations.push(`${label}: a block-simulation run retains blockedByShields flags in evidence`);
-    }
     // `requestsMatched` is frozen at the passive-load settle boundary, but the
     // passive phase stays open until the next phase begins, so a filter-list
     // match that lands after that snapshot is legitimately retained, flagged,
@@ -692,12 +691,40 @@ function supportingPairViolations(
 // Runs and reports
 // ---------------------------------------------------------------------------
 
+/**
+ * Where a retained `blockedByShields` flag may stand, whether or not the run
+ * carries Shields facts (a valid run can omit them, and then only the r1
+ * summary rule reconciles the count).
+ *
+ * - Only a loaded engine can flag a request: the builder refuses a flag
+ *   without the adblock toolchain identity (scan-result-v2-r2-builder.ts), and
+ *   so does the v1 evaluator. Where facts exist, `engineLoaded` already equals
+ *   `toolchain.adblock !== null`, so this covers an unloaded engine too.
+ * - A block-simulation run aborts every match in every phase and drops the
+ *   aborted row, so it retains no flag anywhere. Counting only the passive
+ *   phase let a flag in a later phase pass. Classification keeps its
+ *   later-phase stragglers (factsViolationsR2).
+ */
+function shieldsFlagViolationsR2(run: ScanRunV2R2, label: string): string[] {
+  const flagged = run.evidence.requests.filter((request) => request.blockedByShields === true).length;
+  if (flagged === 0) return [];
+  const violations: string[] = [];
+  if (run.toolchain.adblock === null) {
+    violations.push(`${label}: requests carry blockedByShields without a loaded adblock engine`);
+  }
+  if (run.conditions.shields === "block-simulation") {
+    violations.push(`${label}: a block-simulation run retains blockedByShields flags in evidence`);
+  }
+  return violations;
+}
+
 function runR2Violations(run: ScanRunV2R2, label: string): string[] {
   return [
     // Shields facts supersede the r1 evidence-flag summary rule (RFC 15.3).
     ...scanRunCoreViolations(run, label, { skipShieldsSummary: run.verificationFacts?.shields !== undefined }),
     ...consentViolationsR2(run, label),
-    ...factsViolationsR2(run, label)
+    ...factsViolationsR2(run, label),
+    ...shieldsFlagViolationsR2(run, label)
   ];
 }
 
