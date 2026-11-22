@@ -25,6 +25,10 @@ import type { ScanResult, TrackerMatch } from "./types";
 /** The owner's sentence (ledger 2026-11-20T17:01:43Z), for a report that records no phases. */
 const OWNER_TYPING_NOTE = "This report does not record which requests came during the typing test.";
 
+/** The disclosure a visit carries when the scanner typed and counted what followed. */
+const TYPED_DISCLOSURE =
+  "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.";
+
 /** The run the report's headline and board describe. */
 function shownFacts(view: ReportView): RunFacts {
   const facts = buildReportFacts(view);
@@ -33,9 +37,9 @@ function shownFacts(view: ReportView): RunFacts {
 }
 
 // The approved owner packet (2026-11-18), word for word, on reports a test may read,
-// except two changes held for the owner's yes on the final list: the scanner's typing
-// is "the typing test", and the note for a visit with no phases is the owner's own
-// sentence (2026-11-20).
+// with the owner's final list (2026-11-22): the scanner's typing is "the typing test",
+// and the note for a visit with no phases is the owner's own sentence. A sentence
+// prints only where the visit's record shows what it says.
 test("the notes of the packet's examples are the approved sentences", () => {
   const coolmath = runPhaseNotes(shownFacts(ledgerPinnedReportView("20260814-209d4cf900b7d1a05d779187d7270297")));
   assert.equal(
@@ -54,14 +58,14 @@ test("the notes of the packet's examples are the approved sentences", () => {
     "Recorded during the scanner's typing test: 12 of the 15 requests to these platforms, including every request to 1 of the visit's 2 catalogued platforms. A phase records timing, not cause or content."
   );
 
-  assert.equal(
-    runPhaseNotes(shownFacts(frozenReportView("20260714-ad6a59f306b5ef20da4a0adcfa4eac63"))).note,
-    "Recorded after the scanner clicked Reject all: 1 of the 127 cross-site requests. A phase records timing, not cause or content."
-  );
-  assert.equal(
-    runPhaseNotes(shownFacts(frozenReportView("20260814-2943c6775c7589eba879c77245c2abdb"))).note,
-    "Recorded during the scanner's typing test: 1 of the 121 cross-site requests. A phase records timing, not cause or content."
-  );
+  // Two packet examples print no note, since their records do not show what it would say:
+  // khanacademy's click has no recorded time, and creditkarma's visits typed nothing.
+  for (const id of ["20260714-ad6a59f306b5ef20da4a0adcfa4eac63", "20260814-2943c6775c7589eba879c77245c2abdb"]) {
+    const view = frozenReportView(id);
+    assert.equal(runPhaseNotes(shownFacts(view)).note, null, id);
+    const rendered = JSON.stringify({ headline: buildReportHeadline(view), board: buildFindings(view, null) });
+    assert.doesNotMatch(rendered, /typing test:|during (the scanner's|its|the) typing test|ecorded after the scanner clicked|recorded the scanner's typing test/, id);
+  }
   assert.equal(
     runPhaseNotes(shownFacts(frozenReportView("20261019-68fc891fdaf08f25d4e0478d54513a06"))).note,
     OWNER_TYPING_NOTE
@@ -76,13 +80,14 @@ test("the notes of the packet's examples are the approved sentences", () => {
 type Row = { domain: string; thirdParty: boolean; entity?: string; phase: PhaseKind };
 
 /** A single r2 visit through the real view, with the given phases and rows. */
-function phasedRun(phases: readonly PhaseKind[], rows: readonly Row[]) {
-  return phasedReport(phases, rows).runs[0];
+function phasedRun(phases: readonly PhaseKind[], rows: readonly Row[], typed = true) {
+  return phasedReport(phases, rows, typed).runs[0];
 }
 
 /** A single r2 report through the real view, with the given phases and rows. */
-function phasedReport(phases: readonly PhaseKind[], rows: readonly Row[]): ReportView {
+function phasedReport(phases: readonly PhaseKind[], rows: readonly Row[], typed = true): ReportView {
   const report = makePublicSingleReportV2R2();
+  if (typed && phases.includes("active-probe")) report.run.warnings = [...report.run.warnings, TYPED_DISCLOSURE];
   const template = report.run.evidence.requests[0];
   report.run.phases = phases.map((kind, phaseId) => ({ phaseId, kind, startedAtMs: phaseId * 1000, endedAtMs: phaseId * 1000 + 1000 }));
   report.run.evidence.requests = rows.map((row, index) => ({
@@ -99,7 +104,7 @@ function phasedReport(phases: readonly PhaseKind[], rows: readonly Row[]): Repor
 }
 
 const PROBE: readonly PhaseKind[] = ["passive-load", "active-probe"];
-const TYPED: RecordedScannerActions = { typingCounted: true, consentClick: false, kinds: ["typing test"] };
+const TYPED: RecordedScannerActions = { typingCounted: true, consentClick: false, kinds: ["typing test"], policyRead: false };
 
 test("every state prints its template, and a censored log never states an absence", () => {
   const all = phasedRun(PROBE, [
@@ -107,7 +112,7 @@ test("every state prints its template, and a censored log never states an absenc
     { domain: "collector.example.net", thirdParty: true, phase: "active-probe" }
   ]);
   const note = (run: ReturnType<typeof phasedRun>, censored: boolean) =>
-    phaseNote(crossSitePhaseSplit(run, { requestsCensored: censored, unphased: TYPED }), { noun: CROSS_SITE_REQUESTS, consentMode: "observe", recorded: TYPED });
+    phaseNote(crossSitePhaseSplit(run, { requestsCensored: censored, unphased: TYPED }), { noun: CROSS_SITE_REQUESTS, recorded: TYPED });
   assert.equal(
     note(all, false),
     "All 2 cross-site requests were recorded during the scanner's typing test, none during the initial page load. A phase records timing, not cause or content. Pages also send requests on timers."
@@ -126,10 +131,10 @@ test("every state prints its template, and a censored log never states an absenc
 test("no note or caveat says the scanner caused a request or that a request carried what was typed", () => {
   const sentences = [
     OWNER_TYPING_NOTE,
-    pairActionCaveat({ baseline: TYPED, variant: { typingCounted: false, consentClick: false, kinds: [] } }, { baseline: "No blocking", variant: "Brave-list blocking" }, "shields")!,
+    pairActionCaveat({ baseline: TYPED, variant: { typingCounted: false, consentClick: false, kinds: [], policyRead: false } }, { baseline: "No blocking", variant: "Brave-list blocking" }, "shields")!,
     phaseNote(
       crossSitePhaseSplit(phasedRun(PROBE, [{ domain: "b.example.net", thirdParty: true, phase: "active-probe" }]), { requestsCensored: false, unphased: TYPED }),
-      { noun: CROSS_SITE_REQUESTS, consentMode: "observe", recorded: TYPED }
+      { noun: CROSS_SITE_REQUESTS, recorded: TYPED }
     )!
   ];
   for (const sentence of sentences) {
@@ -138,7 +143,7 @@ test("no note or caveat says the scanner caused a request or that a request carr
 });
 
 test("a comparison caveat names the one visit that recorded an action, and none where both match", () => {
-  const none: RecordedScannerActions = { typingCounted: false, consentClick: false, kinds: [] };
+  const none: RecordedScannerActions = { typingCounted: false, consentClick: false, kinds: [], policyRead: false };
   const labels = { baseline: "No blocking", variant: "Brave-list blocking" };
   assert.equal(
     pairActionCaveat({ baseline: TYPED, variant: none }, labels, "shields"),
@@ -153,7 +158,7 @@ test("a comparison caveat names the one visit that recorded an action, and none 
     pairActionCaveat({ baseline: TYPED, variant: none }, { baseline: "GPC off", variant: "GPC on" }, "gpc"),
     "Only the visit labeled GPC off recorded the scanner's typing test; part of this difference may come from it, not the privacy signal."
   );
-  const clicked: RecordedScannerActions = { typingCounted: false, consentClick: true, kinds: ["consent click"] };
+  const clicked: RecordedScannerActions = { typingCounted: false, consentClick: true, kinds: ["consent click"], policyRead: false };
   // On a comparison of the consent choice, the click is what is compared.
   assert.equal(pairActionCaveat({ baseline: clicked, variant: clicked }, labels, "consent"), null);
   assert.equal(pairActionCaveat({ baseline: clicked, variant: none }, labels, "consent"), null);
@@ -161,7 +166,7 @@ test("a comparison caveat names the one visit that recorded an action, and none 
     pairActionCaveat({ baseline: clicked, variant: TYPED }, labels, "temporal"),
     "The two visits recorded different scanner actions; part of this difference may come from them, not the compared setting."
   );
-  const both: RecordedScannerActions = { typingCounted: true, consentClick: true, kinds: ["consent click", "typing test"] };
+  const both: RecordedScannerActions = { typingCounted: true, consentClick: true, kinds: ["consent click", "typing test"], policyRead: false };
   assert.equal(
     pairActionCaveat({ baseline: both, variant: none }, labels, "shields"),
     "Only the visit labeled No blocking recorded the scanner's consent click and typing test; part of this difference may come from them, not blocking."
@@ -195,18 +200,84 @@ test("the recorded actions of a visit come from its own record", () => {
   assert.deepEqual(recordedScannerActions(pageOnly).kinds, []);
 });
 
-test("a consent click is named only where the record shows the control was activated", () => {
-  const clicked = { typingCounted: false, consentClick: true, kinds: ["consent click"] } as const;
-  const notClicked = { typingCounted: false, consentClick: false, kinds: [] } as const;
-  const run = phasedRun(["passive-load", "consent-interaction"], [
+test("no note places a consent-phase row after a click, nor counts it under another action", () => {
+  // The consent phase opens before the banner search and records no click time.
+  const both: RecordedScannerActions = { typingCounted: true, consentClick: true, kinds: ["consent click", "typing test"], policyRead: true };
+  const unclicked: RecordedScannerActions = { typingCounted: true, consentClick: false, kinds: ["typing test"], policyRead: true };
+  for (const later of [[], ["active-probe"], ["policy-analysis"]] as const) {
+    for (const step of ["consent-interaction", "post-choice-reload"] as const) {
+      const run = phasedRun(["passive-load", step, ...later], [
+        { domain: "a.example.net", thirdParty: true, phase: "passive-load" },
+        { domain: "b.example.net", thirdParty: true, phase: step },
+        ...later.map((phase) => ({ domain: "c.example.net", thirdParty: true, phase }))
+      ]);
+      for (const recorded of [both, unclicked]) {
+        const split = crossSitePhaseSplit(run, { requestsCensored: false, unphased: recorded });
+        assert.equal(phaseNote(split, { noun: CROSS_SITE_REQUESTS, recorded }), null, `${step} ${later.join()} click=${recorded.consentClick}`);
+      }
+    }
+  }
+});
+
+test("a typing phase in which nothing was typed is never called a typing test", () => {
+  for (const pageRows of [0, 1]) {
+    const rows: Row[] = [
+      ...Array.from({ length: pageRows }, () => ({ domain: "a.example.net", thirdParty: true, phase: "passive-load" as const })),
+      { domain: "b.example.net", thirdParty: true, phase: "active-probe" }
+    ];
+    const view = phasedReport(PROBE, rows, false);
+    assert.deepEqual(recordedScannerActions(view.runs[0]).kinds, [], "the phase alone is no typing test");
+    const facts = buildReportFacts(view);
+    assert.equal(runPhaseNotes(facts.display).note, null);
+    const headline = buildReportHeadline(view, facts);
+    for (const text of [headline.headline, headline.subhead, headline.shareText, JSON.stringify(buildFindings(view, null, facts, undefined))]) {
+      assert.doesNotMatch(text, /during (the scanner's|its|the) typing test|only during the scanner's typing test/, text);
+    }
+  }
+  // The lead too, once the visit's counts let the cross-site story lead: typed, it names the test; untyped, it does not.
+  const lead = (typed: boolean) => {
+    const view = phasedReport(PROBE, [{ domain: "b.example.net", thirdParty: true, phase: "active-probe" }], typed);
+    const shown = view.runs[0];
+    shown.counts.thirdPartyRequests = 1;
+    shown.counts.thirdPartyDomains = 1;
+    shown.counts.knownTrackerRequests = 0;
+    shown.evidence.domains = [{ domain: "b.example.net", requests: 1, thirdParty: true, tracker: null, statuses: [200], resourceTypes: ["script"] }];
+    return buildReportHeadline(view).headline;
+  };
+  assert.equal(lead(true), "example.com's cross-site traffic was all recorded during the scanner's typing test: 1 host, not classified as tracking.");
+  assert.equal(lead(false), "example.com contacted 1 cross-site host that the service catalog did not classify as tracking.");
+  const omitted = phasedRun(PROBE, [{ domain: "b.example.net", thirdParty: true, phase: "active-probe" }], false);
+  omitted.warnings = [TYPED_DISCLOSURE.replace(/Observed requests.*$/, "Requests from this incomplete probe were omitted from the recorded request log and counts.")];
+  assert.deepEqual(recordedScannerActions(omitted).kinds, [], "typing whose requests were left out is not counted");
+});
+
+test("the policy phrase prints only for a visit that stored a policy read", () => {
+  const run = phasedRun(["passive-load", "active-probe", "policy-analysis"], [
     { domain: "a.example.net", thirdParty: true, phase: "passive-load" },
-    { domain: "b.example.net", thirdParty: true, phase: "consent-interaction" }
+    { domain: "b.example.net", thirdParty: true, phase: "active-probe" },
+    { domain: "c.example.net", thirdParty: true, phase: "policy-analysis" }
   ]);
   const note = (recorded: RecordedScannerActions) =>
-    phaseNote(crossSitePhaseSplit(run, { requestsCensored: false, unphased: recorded }), { noun: CROSS_SITE_REQUESTS, consentMode: "reject-all", recorded });
-  assert.equal(note({ ...clicked, kinds: [...clicked.kinds] }), "Recorded after the scanner clicked Reject all: 1 of the 2 cross-site requests. A phase records timing, not cause or content.");
-  // The consent phase opens before the scanner tries the banner: without a click, its rows get no wording.
-  assert.equal(note({ ...notClicked, kinds: [] }), null);
+    phaseNote(crossSitePhaseSplit(run, { requestsCensored: false, unphased: recorded }), { noun: CROSS_SITE_REQUESTS, recorded });
+  run.evidence.privacyPolicy = null;
+  assert.equal(note(recordedScannerActions(run)), null, "the phase alone is no policy read");
+  run.evidence.privacyPolicy = { url: "https://site.example/privacy", claims: [], mentionedEntities: [], unmentionedEntities: [], policyTextLength: 1000 };
+  const read = recordedScannerActions(run);
+  assert.equal(
+    note(read),
+    "Recorded during the scanner's typing test or while it read the privacy policy: 2 of the 3 cross-site requests. A phase records timing, not cause or content."
+  );
+  assert.equal(note({ ...read, typingCounted: false }), null, "a typing row is not counted under the policy read");
+  const alone = phasedRun(["passive-load", "policy-analysis"], [
+    { domain: "a.example.net", thirdParty: true, phase: "passive-load" },
+    { domain: "c.example.net", thirdParty: true, phase: "policy-analysis" }
+  ]);
+  alone.evidence.privacyPolicy = run.evidence.privacyPolicy;
+  const recorded = recordedScannerActions(alone);
+  assert.equal(
+    phaseNote(crossSitePhaseSplit(alone, { requestsCensored: false, unphased: recorded }), { noun: CROSS_SITE_REQUESTS, recorded }),
+    "Recorded while the scanner read the privacy policy: 1 of the 2 cross-site requests. A phase records timing, not cause or content."
+  );
 });
 
 /** A split from a visit that records no phases, so the note can say only what the visit included. */
@@ -223,8 +294,7 @@ test("the note for a visit with no phases names what the visit included and neve
   const note = (kinds: RecordedScannerActions["kinds"]) =>
     phaseNote(UNPHASED, {
       noun: CROSS_SITE_REQUESTS,
-      consentMode: "accept-all",
-      recorded: { typingCounted: kinds.includes("typing test"), consentClick: kinds.includes("consent click"), kinds: [...kinds] }
+      recorded: { typingCounted: kinds.includes("typing test"), consentClick: kinds.includes("consent click"), kinds: [...kinds], policyRead: false }
     });
   // The typing form is the owner's sentence, byte for byte.
   assert.equal(note(["typing test"]), OWNER_TYPING_NOTE);
@@ -252,7 +322,7 @@ test("a visit with phases and an untagged cross-site row states no phase and pri
   // A claim whose own rows all carry a phase states nothing either: the gate is the visit's.
   const tagged = crossSitePhaseSplit(run, { claimRows: (request) => request.domain === "b.example.net", requestsCensored: false, unphased: TYPED });
   assert.equal(tagged.state, "untagged-rows");
-  assert.equal(phaseNote(tagged, { noun: CROSS_SITE_REQUESTS, consentMode: "observe", recorded: TYPED }), null);
+  assert.equal(phaseNote(tagged, { noun: CROSS_SITE_REQUESTS, recorded: TYPED }), null);
 
   const facts = buildReportFacts(view);
   const notes = runPhaseNotes(facts.display);

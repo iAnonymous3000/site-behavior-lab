@@ -165,20 +165,22 @@ export type RecordedScannerAction = "consent click" | "typing test";
 export type RecordedScannerActions = UnphasedActions & {
   /** The actions this visit recorded whose requests are in its counts, consent first. */
   kinds: RecordedScannerAction[];
+  /** The visit stored a privacy-policy read, which its policy phase alone does not show. */
+  policyRead: boolean;
 };
 
 /**
- * What a visit's own record says the scanner did on the page: its consent and
- * typing phases on r2, or on a report without phases its typing disclosure
- * (read by lib/typing-disclosure.ts) and whether its consent control was
- * activated. A typing test
+ * What a visit's own record says the scanner did: its typing disclosure
+ * (read by lib/typing-disclosure.ts), whether its consent control was
+ * activated and whether it stored a policy read. On r2 the action's phase
+ * must be there too, and never stands in for that record. A typing test
  * whose disclosure says its requests were left out of the counts is not
  * listed, since it changed nothing the counts show.
  *
  * The one reader of this question: the phase split's input for a visit with
  * no phases, and the comparison caveat, both read it.
  */
-export function recordedScannerActions(run: Pick<RunView, "phases" | "warnings" | "consent">): RecordedScannerActions {
+export function recordedScannerActions(run: Pick<RunView, "phases" | "warnings" | "consent" | "evidence">): RecordedScannerActions {
   const typing = typingProbeRecord(run);
   const typingCounted = typing !== null && !typing.requestsOmitted;
   // The click, not the request for one: a choice run whose control was never
@@ -189,10 +191,11 @@ export function recordedScannerActions(run: Pick<RunView, "phases" | "warnings" 
     // The consent phase opens before the scanner tries the banner, so the
     // phase alone does not show a click.
     if (run.phases.some((phase) => phase.kind === "consent-interaction") && consentClick) kinds.push("consent click");
-    if (run.phases.some((phase) => phase.kind === "active-probe") && !typing?.requestsOmitted) kinds.push("typing test");
+    // The typing phase opens before a field is found, so it does not show typing.
+    if (run.phases.some((phase) => phase.kind === "active-probe") && typingCounted) kinds.push("typing test");
   } else {
     if (consentClick) kinds.push("consent click");
     if (typingCounted) kinds.push("typing test");
   }
-  return { typingCounted, consentClick, kinds };
+  return { typingCounted, consentClick, kinds, policyRead: Boolean(run.evidence.privacyPolicy) };
 }

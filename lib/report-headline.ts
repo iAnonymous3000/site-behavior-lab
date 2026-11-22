@@ -322,6 +322,7 @@ function buildUncorrectedReportHeadline(
   // Every row behind the lead's claim recorded during the typing test, and
   // none in page load: the lead says so instead of "contacted" (H-15.1).
   const allDuringProbe = (split: CrossSitePhaseSplit): boolean =>
+    phaseNotes.recorded.typingCounted &&
     split.state === "all-after-action" &&
     !split.requestsCensored &&
     split.actions.length === 1 &&

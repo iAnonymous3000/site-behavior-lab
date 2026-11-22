@@ -1,4 +1,3 @@
-import { consentChoiceLabel } from "./consent-interaction";
 import { HEADLINE_PLATFORMS } from "./headline-platforms";
 import type { RunFacts } from "./report-facts";
 import { isTrackingEntity } from "./report-insights";
@@ -10,7 +9,6 @@ import {
   type RecordedScannerActions,
   type ScannerActionPhase
 } from "./report-phase-split";
-import type { ConsentMode } from "./types";
 
 /**
  * The words the report prints about when its counted cross-site requests
@@ -40,27 +38,29 @@ export const CATALOGUED_PLATFORMS: NoteNoun = { one: "catalogued platform", many
 
 const counted = (count: number, noun: NoteNoun) => `${count} ${count === 1 ? noun.one : noun.many}`;
 
-function consentPhrase(mode: ConsentMode | null): string | null {
-  return mode === "accept-all" || mode === "reject-all" ? `the scanner clicked ${consentChoiceLabel(mode)}` : null;
-}
-
 /**
- * "during the scanner's typing test", "after the scanner clicked Reject all",
- * or both, in phase order. A post-choice reload belongs to the click; its
- * requests are not recorded at all.
+ * "during the scanner's typing test", "while the scanner read the privacy
+ * policy", or both, in phase order. Fails closed: each counted action must be
+ * one the visit's own record shows, or the rows get no wording at all, since
+ * naming one action would count another's rows under it.
+ *
+ * A phase alone shows none of them. The typing phase opens before a field is
+ * found, so it needs the typing disclosure. The policy phase opens before
+ * the policy is fetched, so it needs a policy read. The consent phase opens
+ * before the banner search and records no click time, so a row in it may
+ * precede the click (see trackerRequestsAllPrecedeConsentPhase): it is never
+ * placed after the click, and no note places it at all.
  */
-function whenRecorded(actions: readonly ScannerActionPhase[], consentMode: ConsentMode | null, clickedControl: boolean): string | null {
+function whenRecorded(actions: readonly ScannerActionPhase[], recorded: RecordedScannerActions): string | null {
   const parts: string[] = [];
-  // "After the scanner clicked" only where the record shows the click; rows
-  // from a consent phase whose control was never activated get no wording.
-  const clicked = clickedControl ? consentPhrase(consentMode) : null;
-  if ((actions.includes("consent-interaction") || actions.includes("post-choice-reload")) && !clicked && actions.every((action) => action === "consent-interaction" || action === "post-choice-reload")) {
-    return null;
-  }
-  if ((actions.includes("consent-interaction") || actions.includes("post-choice-reload")) && clicked) parts.push(`after ${clicked}`);
-  if (actions.includes("active-probe")) parts.push(parts.length > 0 ? "during its typing test" : "during the scanner's typing test");
-  if (actions.includes("policy-analysis")) {
-    parts.push(parts.length > 0 ? "while it read the privacy policy" : "while the scanner read the privacy policy");
+  for (const action of actions) {
+    if (action === "active-probe" && recorded.typingCounted) {
+      parts.push("during the scanner's typing test");
+    } else if (action === "policy-analysis" && recorded.policyRead) {
+      parts.push(parts.length > 0 ? "while it read the privacy policy" : "while the scanner read the privacy policy");
+    } else {
+      return null;
+    }
   }
   return parts.length > 0 ? parts.join(" or ") : null;
 }
@@ -90,11 +90,11 @@ export type NoteEntities = { split: CrossSitePhaseSplit; total: number; noun: No
  */
 export function phaseNote(
   split: CrossSitePhaseSplit,
-  input: { noun: NoteNoun; consentMode: ConsentMode | null; recorded: RecordedScannerActions; entities?: NoteEntities }
+  input: { noun: NoteNoun; recorded: RecordedScannerActions; entities?: NoteEntities }
 ): string | null {
   if (split.state === "unknown-after-action") return unphasedNote(input.recorded.kinds);
   if (split.state !== "mixed" && split.state !== "all-after-action") return null;
-  const when = whenRecorded(split.actions, input.consentMode, input.recorded.consentClick);
+  const when = whenRecorded(split.actions, input.recorded);
   if (!when) return null;
   const { total, afterAction } = split.requests;
   if (split.requestsCensored) {
@@ -205,7 +205,6 @@ export function runPhaseNotes(facts: Pick<RunFacts, "run" | "identity" | "eviden
   const tracking = split(toNamed(trackingNames));
   const platforms = split(toNamed(platformNames));
   const perPlatform = new Map(platformNames.map((name) => [name, split(toNamed([name]))] as const));
-  const consentMode = run.conditions.consentMode as ConsentMode;
   return {
     recorded,
     crossSite,
@@ -216,13 +215,11 @@ export function runPhaseNotes(facts: Pick<RunFacts, "run" | "identity" | "eviden
     perPlatform,
     note: phaseNote(crossSite, {
       noun: CROSS_SITE_REQUESTS,
-      consentMode,
       recorded,
       entities: { split: tracking, total: trackingNames.length, noun: TRACKING_SERVICE_ENTITIES }
     }),
     platformsNote: phaseNote(platforms, {
       noun: PLATFORM_REQUESTS,
-      consentMode,
       recorded,
       entities: { split: platforms, total: platformNames.length, noun: CATALOGUED_PLATFORMS }
     })

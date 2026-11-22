@@ -470,6 +470,9 @@ const PHASES = { rows: ["page-load-only", "mixed", "all-after"], services: ["hos
 function phasedVisit(choice: { [K in keyof typeof PHASES]: (typeof PHASES)[K][number] }): ReportView {
   const report = makePublicSingleReportV2R2();
   const run = report.run;
+  // The scanner opens this phase only with the probe on, and only its disclosure says it typed.
+  run.conditions.probes.keystroke = true;
+  run.warnings = [...run.warnings, ...TYPING_WARNINGS.counted];
   const [document] = run.evidence.requests;
   run.phases = [
     { phaseId: 0, kind: "passive-load", startedAtMs: 0, endedAtMs: 1000 },
