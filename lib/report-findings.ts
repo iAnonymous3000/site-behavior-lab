@@ -950,7 +950,9 @@ export function buildFindings(
         : hashed
         ? `A hashed form of synthetic input appeared in requests to ${recipientCount} before submission`
         : `Synthetic form input appeared in requests to ${recipientCount} before submission`,
-      lead: hashed
+      // Unpaired, the lead says only that the value appeared: a hash named
+      // here would be read as going to every recipient it counts.
+      lead: hashed && !unpaired
         ? `When the scanner typed a unique test value into ${fields}, a one-way hash of that value appeared in requests to ${recipientCount} without the form being submitted.${namedRecipientsAndEncodings}`
         : `When the scanner typed a unique test value into ${fields}, that value appeared in requests to ${recipientCount} without the form being submitted.${namedRecipientsAndEncodings}`,
       detail: hashed

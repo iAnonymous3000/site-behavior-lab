@@ -6122,6 +6122,15 @@ test("with several recipients and both hashed and readable forms, no recipient i
     card.detail
   );
   assert.equal(card.level, "loud");
+  assert.equal(
+    card.lead,
+    "When the scanner typed a unique test value into 1 form field, that value appeared in requests to 2 cross-site domains without the form being submitted. Recipients: a-plain.example and b-hash.example. Encodings: plain and sha256."
+  );
+  assertTextSentencesAtMost("the unpaired lead", card.lead, MAX_CARD_SENTENCE_WORDS);
+  for (const [recipients, encodings] of [[["a.example", "b.example"], ["sha256"]], [["a.example"], ["plain", "sha256"]]]) {
+    const paired = byId(buildFindings(keystrokeReport(recipients, encodings), null), "keystroke-exfiltration");
+    assert.match(paired.lead, /, a one-way hash of that value appeared in requests to /);
+  }
   // Every leak hashed, or one recipient: the forms can be stated as before.
   const allHashed = buildReportHeadline(keystrokeReport(["a.example", "b.example"], ["sha256"]));
   assert.equal(allHashed.headline, "shop.example sent a hashed form of synthetic input to 2 cross-site domains before submission.");
