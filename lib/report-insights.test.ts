@@ -601,3 +601,19 @@ test("no committed report's detections table prints a sanitizer token", () => {
   // test would no longer exercise the formatting it guards.
   assert.ok(recordedWithToken > 0, "no committed detection records a sanitizer token; this test would be vacuous");
 });
+
+test("the detections table shows one base64 occurrence as one encoding", () => {
+  const row = (encodings: string[]): KeystrokeExfiltrationDetectionSummary => ({
+    kind: "keystroke-exfiltration",
+    heuristic: "input-sentinel-exfiltration-v1",
+    count: 1,
+    evidence: { recipients: ["collect.example"], encodings, fieldsTyped: 1, fieldTypes: ["email"] }
+  });
+  const both = row(["base64", "base64url"]);
+  const shown = "typed value was sent to collect.example as base64, from 1 field";
+  assert.equal(detectionEvidence(both), shown);
+  assert.equal(detectionEvidenceForRun({ domains: [] }, both), shown);
+  assert.deepEqual(both.evidence.encodings, ["base64", "base64url"], "the stored list keeps both names");
+  // A URL-safe match alone is its own form.
+  assert.equal(detectionEvidence(row(["base64url"])), "typed value was sent to collect.example as base64url, from 1 field");
+});

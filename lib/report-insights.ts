@@ -652,7 +652,7 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
 
   if (detection.kind === "keystroke-exfiltration") {
     return `typed value was sent to ${humanList(detection.evidence.recipients.map(displayHost))} as ${humanList(
-      detection.evidence.encodings
+      displayKeystrokeEncodings(detection.evidence.encodings)
     )}, from ${plural(detection.evidence.fieldsTyped, "field")}`;
   }
 
