@@ -242,10 +242,12 @@ test("a typing phase in which nothing was typed is never called a typing test", 
     shown.counts.thirdPartyDomains = 1;
     shown.counts.knownTrackerRequests = 0;
     shown.evidence.domains = [{ domain: "b.example.net", requests: 1, thirdParty: true, tracker: null, statuses: [200], resourceTypes: ["script"] }];
-    return buildReportHeadline(view).headline;
+    return buildReportHeadline(view);
   };
-  assert.equal(lead(true), "example.com's cross-site traffic was all recorded during the scanner's typing test: 1 host, not classified as tracking.");
-  assert.equal(lead(false), "example.com contacted 1 cross-site host that the service catalog did not classify as tracking.");
+  assert.equal(lead(true).semantic.typingTestOnly, true);
+  assert.equal(lead(false).semantic.typingTestOnly, undefined, "the phase alone does not record typing");
+  assert.equal(lead(true).headline, "example.com's cross-site traffic was all recorded during the scanner's typing test: 1 host, not classified as tracking.");
+  assert.equal(lead(false).headline, "example.com contacted 1 cross-site host that the service catalog did not classify as tracking.");
   const omitted = phasedRun(PROBE, [{ domain: "b.example.net", thirdParty: true, phase: "active-probe" }], false);
   omitted.warnings = [TYPED_DISCLOSURE.replace(/Observed requests.*$/, "Requests from this incomplete probe were omitted from the recorded request log and counts.")];
   assert.deepEqual(recordedScannerActions(omitted).kinds, [], "typing whose requests were left out is not counted");

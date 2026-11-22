@@ -126,10 +126,11 @@ export function qualificationPresentationProblems(id, headline) {
   }
   // The single visit's cross-site requests are all the fixture's input beacon,
   // which only the scanner's typing sets off, so its headline must record that
-  // every counted cross-site row came during a scanner action. Read from the
-  // headline's meaning, never its words.
+  // every counted cross-site row came during the typing test: the timing, and
+  // that typing is on the record, which the timing alone does not show. Read
+  // from the headline's meaning, never its words.
   if (id === "single-observation") {
-    return headline.semantic.phase !== "all-after-action" || headline.semantic.reassuring !== false
+    return headline.semantic.phase !== "all-after-action" || headline.semantic.typingTestOnly !== true || headline.semantic.reassuring !== false
       ? ["single visit does not record that its cross-site requests were all recorded during the scanner's typing test"] : [];
   }
   return [];

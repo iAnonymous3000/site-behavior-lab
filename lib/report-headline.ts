@@ -158,6 +158,8 @@ export type ReportHeadline = {
      * Absent on a pair-scope headline, which describes two runs.
      */
     phase?: CrossSitePhaseState;
+    /** Every counted cross-site row came during a typing test the run's record shows, from a complete log. The phase alone does not show typing. */
+    typingTestOnly?: true;
     /** The subhead states this run's cross-site counts, so it carries the run's phase note. */
     countsCrossSite?: true;
     /** The caveat of a comparison whose two visits recorded different scanner actions. */
@@ -417,6 +419,7 @@ function buildUncorrectedReportHeadline(
         assertedClaims: [],
         absenceClaims: [],
         ...(scopedNotes ? { phase: scopedNotes.crossSite.state } : {}),
+        ...(scopedNotes === phaseNotes && allDuringProbe(phaseNotes.crossSite) ? { typingTestOnly: true as const } : {}),
         ...(pairCaveat ? { pairCaveat } : {}),
         ...semanticOverride
       },

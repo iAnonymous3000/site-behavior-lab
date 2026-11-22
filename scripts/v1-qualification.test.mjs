@@ -96,12 +96,13 @@ test("a missing semantic field cannot silently pass the failed-document presenta
 
 test("the single visit's headline must record that its cross-site requests all came during the typing test", async () => {
   const { qualificationPresentationProblems } = await import('./v1-qualification-lib.mjs');
-  assert.deepEqual(qualificationPresentationProblems('single-observation', { semantic: { story: 'unidentified-cross-site', reassuring: false, phase: 'all-after-action' } }), []);
+  assert.deepEqual(qualificationPresentationProblems('single-observation', { semantic: { story: 'unidentified-cross-site', reassuring: false, phase: 'all-after-action', typingTestOnly: true } }), []);
   for (const semantic of [
     { story: 'unidentified-cross-site', reassuring: false, phase: 'mixed' },
     { story: 'unidentified-cross-site', reassuring: false, phase: 'page-load-only' },
     { story: 'unidentified-cross-site', reassuring: false },
-    { story: 'quiet', reassuring: true, phase: 'all-after-action' }
+    { story: 'unidentified-cross-site', reassuring: false, phase: 'all-after-action' },
+    { story: 'quiet', reassuring: true, phase: 'all-after-action', typingTestOnly: true }
   ]) {
     assert.ok(qualificationPresentationProblems('single-observation', { semantic }).length, JSON.stringify(semantic));
   }
