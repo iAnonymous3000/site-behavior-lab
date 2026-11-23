@@ -71,6 +71,10 @@ const APPROVED_WHOLE: Record<keyof typeof WHOLE_FINDING_LIMITS, string> = {
     "WebGL calls can be legitimate (charts, graphics, maps), so this is a review prompt for this visit, not proof of fingerprinting.",
   fingerprintCalls:
     "These calls can be legitimate (charts, graphics, media), so the count is observational, not a severity score, and it excludes Web and Service Workers.",
+  fingerprintCallsSomeWorkers:
+    "These calls can be legitimate (charts, graphics, media), so the count is observational, not a severity score, and it excludes Service Workers but can include some Web Worker calls.",
+  fingerprintCallsScopeUnknown:
+    "These calls can be legitimate (charts, graphics, media), so the count is observational, not a severity score, and it may omit Web and Service Worker calls.",
   comparisonNoClaim:
     "The raw request logs of both visits remain below for transparency, but the diff between them supports no claim about what the compared condition changed.",
   shieldsComparisonChanged: "Treat this as an observed difference, not a measured blocking rate.",

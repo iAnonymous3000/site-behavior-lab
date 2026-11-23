@@ -4541,6 +4541,71 @@ test("phase-split fingerprint rows are counted and named as distinct APIs, like 
   assert.match(card.detail, /Top calls: canvas\.toDataURL and webgl\.getParameter\./);
 });
 
+// The three worker sentences the owner approved, by what the shown arm records:
+// before worker reading (T), with it (W), and a record that does not say (U2).
+const FINGERPRINT_CALLS_PAGE_ONLY =
+  "These calls can be legitimate (charts, graphics, media), so the count is observational, not a severity score, and it excludes Web and Service Workers.";
+const FINGERPRINT_CALLS_SOME_WORKERS =
+  "These calls can be legitimate (charts, graphics, media), so the count is observational, not a severity score, and it excludes Service Workers but can include some Web Worker calls.";
+const FINGERPRINT_CALLS_SCOPE_UNKNOWN =
+  "These calls can be legitimate (charts, graphics, media), so the count is observational, not a severity score, and it may omit Web and Service Worker calls.";
+const SURFACE_TOKEN =
+  "shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2";
+const OLDER_TOKEN =
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2";
+const tokenDisclosure = (token: string) =>
+  `Automated Chromium scan from test with browser test, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only under methodology ${token}; treat results as reproducible evidence for this scan configuration.`;
+
+function fingerprintCallsCard(disclosure: string): Finding {
+  const result = makeResult({ fingerprintEvents: 2 });
+  result.conditions.scannerDisclosure = disclosure;
+  return byId(buildFindings(viewFromV1Report(result), null), "fingerprint-apis");
+}
+
+function assertFingerprintCallsLimit(card: Finding, sentence: string, where: string) {
+  assert.equal(card.limit?.sentence, sentence, `${where}: the limit is the approved sentence`);
+  assert.ok(card.detail.startsWith(`${sentence} Top calls: `), `${where}: the card's string holds that sentence whole`);
+}
+
+test("the fingerprint-calls limit follows what the shown arm records", () => {
+  assertFingerprintCallsLimit(fingerprintCallsCard(tokenDisclosure(SURFACE_TOKEN)), FINGERPRINT_CALLS_SOME_WORKERS, "a v1 surface token");
+  assertFingerprintCallsLimit(fingerprintCallsCard(tokenDisclosure(OLDER_TOKEN)), FINGERPRINT_CALLS_PAGE_ONLY, "an older v1 token");
+
+  const v2Card = (version: string) => {
+    const report = makeConsentInterventionReportV2R2();
+    const rows = [{ api: "canvas.toDataURL", count: 2, phaseId: 0 }];
+    report.baseline.evidence.fingerprintEvents = rows;
+    report.baseline.summary.counts.fingerprintEvents = 2;
+    (report.baseline.detectors as Record<string, { version: string }>)["fingerprint-heuristics"].version = version;
+    return byId(buildFindings(viewFromV2(report, 2), null), "fingerprint-apis");
+  };
+  assertFingerprintCallsLimit(v2Card("fingerprint-observer@4"), FINGERPRINT_CALLS_PAGE_ONLY, "observer @4");
+  assertFingerprintCallsLimit(v2Card("fingerprint-observer@5"), FINGERPRINT_CALLS_SOME_WORKERS, "observer @5");
+  assertFingerprintCallsLimit(v2Card("fingerprint-observer@15"), FINGERPRINT_CALLS_SOME_WORKERS, "observer @15");
+});
+
+test("with no recorded version the fingerprint-calls sentence asserts neither inclusion nor exclusion", () => {
+  assertFingerprintCallsLimit(fingerprintCallsCard("test"), FINGERPRINT_CALLS_SCOPE_UNKNOWN, "a v1 arm with no token");
+  assertFingerprintCallsLimit(
+    fingerprintCallsCard("Automated Chromium scan from test with browser test, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."),
+    FINGERPRINT_CALLS_SCOPE_UNKNOWN,
+    "the legacy Node template"
+  );
+});
+
+test("the fingerprint-calls class is the shown arm's", () => {
+  const baseline = makeResult({ fingerprintEvents: 2 });
+  baseline.conditions.scannerDisclosure = tokenDisclosure(OLDER_TOKEN);
+  const variant = makeResult({ fingerprintEvents: 3 });
+  variant.conditions.scannerDisclosure = tokenDisclosure(SURFACE_TOKEN);
+  const view = viewFromV1Report(gpcPair(baseline, variant));
+  const facts = buildReportFacts(view);
+  const shownVariant = byId(buildFindings(view, null, facts, "variant"), "fingerprint-apis");
+  assertFingerprintCallsLimit(shownVariant, FINGERPRINT_CALLS_SOME_WORKERS, "the variant arm shown");
+  const shownBaseline = byId(buildFindings(view, null, facts, "baseline"), "fingerprint-apis");
+  assertFingerprintCallsLimit(shownBaseline, FINGERPRINT_CALLS_PAGE_ONLY, "the baseline arm shown");
+});
+
 function onlyWebglDetection(run: ReturnType<typeof displayRunView>): Extract<FingerprintDetectionSummary, { kind: "webgl-fingerprinting" }> {
   const webgl = run.evidence.fingerprintDetections.filter(
     (detection): detection is Extract<FingerprintDetectionSummary, { kind: "webgl-fingerprinting" }> =>
@@ -5621,7 +5686,8 @@ test("a presence card's limit is taken whole, with the rest of its string behind
   assert.deepEqual(cookies.limit?.behind, [
     "The scanner observed cookie metadata whose domain crossed the scanned site's registrable-domain boundary."
   ]);
-  assertWholeLimit(byId(busy, "fingerprint-apis"), WHOLE_FINDING_LIMITS.fingerprintCalls);
+  // The fixture discloses "test", which records no methodology token.
+  assertWholeLimit(byId(busy, "fingerprint-apis"), WHOLE_FINDING_LIMITS.fingerprintCallsScopeUnknown);
   // Analytics on record and no sync: a string that restates the claim.
   const analytics = byId(busy, "ga-remarketing");
   assert.equal(analytics.title, "Google Analytics present, no remarketing signal");

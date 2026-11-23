@@ -22,6 +22,7 @@
 
 import { publishedReportCorrections } from "./published-report-corrections";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
+import { fingerprintWorkerScope, type FingerprintWorkerScope } from "./fingerprint-worker-scope";
 import { corpusBenchmark, corpusIsUsable, selectCorpusStatsCohort, type CorpusStats } from "./corpus-stats";
 import {
   HEADLINE_PLATFORMS,
@@ -563,6 +564,18 @@ function corpusBenchmarkScope(corpus: CorpusStats): string {
 export function bottomLineBenchmarkScope(findings: readonly Finding[]): string | undefined {
   return findings.find((finding) => finding.id === "bottom-line")?.benchmarkScope;
 }
+
+/**
+ * What the fingerprint-calls count can hold depends on what the shown arm
+ * records (lib/fingerprint-worker-scope.ts), so the card's limit sentence is
+ * chosen by it. One record serves the card's string and the limit, so the two
+ * copies cannot drift apart.
+ */
+const FINGERPRINT_CALLS_LIMIT: Readonly<Record<FingerprintWorkerScope, string>> = {
+  "page-only": WHOLE_FINDING_LIMITS.fingerprintCalls,
+  "workers-read": WHOLE_FINDING_LIMITS.fingerprintCallsSomeWorkers,
+  unknown: WHOLE_FINDING_LIMITS.fingerprintCallsScopeUnknown
+};
 
 /**
  * The cohort sentence the evidence's Methodology block prints. Where a server
@@ -2079,7 +2092,7 @@ export function buildFindings(
         : singleSignalWebglOnly
           ? `Only the earlier single-signal rule matched: ${SINGLE_SIGNAL_WEBGL_RULE}. WebGL calls can be legitimate (charts, graphics, maps), so this is a review prompt for this visit, not proof of fingerprinting.`
         : run.counts.fingerprintEvents > 0
-          ? `These calls can be legitimate (charts, graphics, media), so the count is observational, not a severity score, and it excludes Web and Service Workers. Top calls: ${humanList(topFingerprintApis)}.`
+          ? `${FINGERPRINT_CALLS_LIMIT[fingerprintWorkerScope(run)]} Top calls: ${humanList(topFingerprintApis)}.`
           : `This is an observation layer, not proof that fingerprinting is impossible.${detectorCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence:
       detectorUnsupported
@@ -2113,7 +2126,7 @@ export function buildFindings(
     WHOLE_FINDING_LIMITS.fingerprintNoneObserved,
     WHOLE_FINDING_LIMITS.fingerprintHeuristics,
     WHOLE_FINDING_LIMITS.fingerprintSingleSignalWebgl,
-    WHOLE_FINDING_LIMITS.fingerprintCalls
+    ...Object.values(FINGERPRINT_CALLS_LIMIT)
   ]));
 
   // Every comparison card runs through the SHARED claim policy (the seam's
