@@ -1999,9 +1999,22 @@ export function buildFindings(
   const singleSignalWebglDetections = facts.signals.fingerprint.singleSignalWebglDetections;
   const singleSignalWebglOnly = highEntropyDetections.length === 0 && singleSignalWebglDetections.length > 0;
   // v2 rows are phase-tagged: the consent producer writes one row per (api,
-  // phase), so rows are not APIs. Name each API once, in first-seen order, and
-  // count families from the same distinct set the metric grid prints.
-  const topFingerprintApis = Array.from(new Set(run.evidence.fingerprintEvents.map((event) => event.api))).slice(0, 3);
+  // phase), so rows are not APIs. Name each API once, summing its rows, and
+  // count families from the same distinct set the metric grid prints. "Top
+  // calls" names the three with the highest recorded counts, ties kept in
+  // first-seen order, and lists them in first-seen order; the first three
+  // seen could leave out a higher count.
+  const fingerprintApiTotals = new Map<string, number>();
+  for (const event of run.evidence.fingerprintEvents) {
+    fingerprintApiTotals.set(event.api, (fingerprintApiTotals.get(event.api) ?? 0) + event.count);
+  }
+  const fingerprintApisSeen = [...fingerprintApiTotals.keys()];
+  const topFingerprintApiSet = new Set(
+    [...fingerprintApisSeen]
+      .sort((a, b) => fingerprintApiTotals.get(b)! - fingerprintApiTotals.get(a)! || fingerprintApisSeen.indexOf(a) - fingerprintApisSeen.indexOf(b))
+      .slice(0, 3)
+  );
+  const topFingerprintApis = fingerprintApisSeen.filter((api) => topFingerprintApiSet.has(api));
   const fingerprintEventLead = fingerprintClaim.exactCountAllowed
     ? `${plural(
         run.counts.fingerprintEvents,

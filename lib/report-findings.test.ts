@@ -4541,6 +4541,28 @@ test("phase-split fingerprint rows are counted and named as distinct APIs, like 
   assert.match(card.detail, /Top calls: canvas\.toDataURL and webgl\.getParameter\./);
 });
 
+test("\"Top calls\" names the three APIs with the highest recorded counts, in recorded order", () => {
+  // 20260824-22bbc327 recorded 1, 1, 2 and 2 calls in that order, and the
+  // card named the first three, leaving out a 2 under a label that says top.
+  const report = makeConsentInterventionReportV2R2();
+  const rows = [
+    { api: "canvas.toDataURL", count: 1, phaseId: 0 },
+    { api: "canvas.measureText", count: 1, phaseId: 0 },
+    { api: "webgl.getParameter", count: 1, phaseId: 0 },
+    { api: "webgl.getParameter", count: 1, phaseId: 2 },
+    { api: "audio.createOscillator", count: 2, phaseId: 0 }
+  ];
+  report.baseline.evidence.fingerprintEvents = rows;
+  report.baseline.summary.counts.fingerprintEvents = rows.reduce((total, row) => total + row.count, 0);
+  const card = byId(buildFindings(viewFromV2(report, 2), null), "fingerprint-apis");
+  // Ties keep recorded order: canvas.toDataURL is kept over canvas.measureText.
+  assert.match(
+    card.detail,
+    / Top calls: canvas\.toDataURL, webgl\.getParameter and audio\.createOscillator\.$/,
+    "the three highest recorded counts, in recorded order"
+  );
+});
+
 // The three worker sentences the owner approved, by what the shown arm records:
 // before worker reading (T), with it (W), and a record that does not say (U2).
 const FINGERPRINT_CALLS_PAGE_ONLY =
