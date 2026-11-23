@@ -568,7 +568,7 @@ function ChangeList({
 
 function EvidenceLink({ domain, arm, armLabel }: { domain: string; arm: EvidenceArm; armLabel: string }) {
   return (
-    <a href={buildEvidenceHash({ section: "requests", arm, query: domain })}>
+    <a href={buildEvidenceHash({ section: "requests", arm, query: domain, exactHost: true })}>
       Show {armLabel} requests
     </a>
   );

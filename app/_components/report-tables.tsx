@@ -3,7 +3,7 @@ import { useEvidenceIds, usePrintVisit } from "./print-mode";
 
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar } from "lucide-react";
-import { requestMatchesQuery, requestMatchesSignalFilter, requestProvenanceSummary } from "@/lib/request-log-filters";
+import { requestMatchesSignalFilter, requestMatchesTextFilter, requestProvenanceSummary } from "@/lib/request-log-filters";
 import { requestInspectionLink, type RequestInspectionContext } from "@/lib/request-inspection-link";
 import { visitPhaseLabel } from "@/lib/report-phase-evidence";
 import { displayHost, displayPublicUrl, hostMatchesQuery, plural } from "@/lib/text-format";
@@ -331,6 +331,10 @@ function RequestTable({
   const [signalFilter, setSignalFilter] = useState<RequestSignalFilter>("all");
   const [statusFilter, setStatusFilter] = useState<RequestStatusFilter>("all");
   const [resourceFilter, setResourceFilter] = useState("all");
+  // The recorded host a change list's link matched exactly. Only the link,
+  // typing and Clear filters set it: like the other filters, it stays through
+  // a switch to the other visit.
+  const [exactHost, setExactHost] = useState<string | null>(null);
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const evidenceTarget = useEvidenceTarget("requests");
   /**
@@ -355,10 +359,11 @@ function RequestTable({
   );
 
   const filtered = useMemo(
-    () => filterRequestLog(requests, { query, signal: signalFilter, status: statusFilter, resource: resourceFilter, pair: attributionPair }, destinationByHost),
+    () => filterRequestLog(requests, { query, signal: signalFilter, status: statusFilter, resource: resourceFilter, pair: attributionPair, exactHost }, destinationByHost),
   [
     attributionPair,
     destinationByHost,
+    exactHost,
     requests,
     query,
     resourceFilter,
@@ -383,6 +388,7 @@ function RequestTable({
     attributionPair !== null;
   function resetFilters() {
     setQuery("");
+    setExactHost(null);
     setSignalFilter("all");
     setStatusFilter("all");
     setResourceFilter("all");
@@ -396,6 +402,7 @@ function RequestTable({
   useEffect(() => {
     if (!evidenceTarget) return;
     setQuery(evidenceTarget.query ?? "");
+    setExactHost(evidenceTarget.exactHost ? evidenceTarget.query ?? null : null);
     setSignalFilter(evidenceTarget.signal ?? "all");
     setStatusFilter("all");
     setResourceFilter("all");
@@ -483,7 +490,10 @@ function RequestTable({
           placeholder="Filter requests"
           value={query}
           aria-label="Filter requests"
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setExactHost(null);
+          }}
         />
         <label>
           <span className="visually-hidden">Status</span>
@@ -535,6 +545,18 @@ function RequestTable({
               Showing only the rows behind one attribution path:{" "}
               <strong>{attributionPair.actor}</strong> to{" "}
               <strong>{attributionPair.destination}</strong>.
+            </span>{" "}
+            <button type="button" className="change-list-toggle" onClick={resetFilters}>
+              Clear filters
+            </button>
+          </p>
+        )}
+        {/* An exact host match looks like free text in the search box, so it
+            is named in the same place, whether or not rows survive. */}
+        {exactHost && (
+          <p className="attribution-active-filter">
+            <span>
+              Showing only requests with this recorded host: <strong>{displayHost(exactHost)}</strong>.
             </span>{" "}
             <button type="button" className="change-list-toggle" onClick={resetFilters}>
               Clear filters
@@ -745,6 +767,8 @@ type RequestLogFilter = {
   status: RequestStatusFilter;
   resource: string;
   pair: EvidenceAttributionPair | null;
+  /** The log's alone: no finding's link sets it, so a claim's rows never pass one. */
+  exactHost?: string | null;
 };
 
 /**
@@ -765,7 +789,7 @@ function filterRequestLog(
     if (filter.resource !== "all" && request.resourceType !== filter.resource) return false;
     // The same predicates a findings card's Look closer view checks before
     // it offers a filtered log (lib/request-log-filters.ts).
-    return requestMatchesQuery(request, q);
+    return requestMatchesTextFilter(request, q, filter.exactHost);
   });
 }
 

@@ -48,6 +48,12 @@ export type EvidenceTarget = {
   signal?: EvidenceRequestSignal;
   /** Requests section only. Both endpoints or neither; see parseEvidenceHash. */
   pair?: EvidenceAttributionPair;
+  /**
+   * The query is one recorded host, matched exactly: a link beside that host's
+   * count opens the rows the count counts. Requests section only, with an arm
+   * and a whole query; see parseEvidenceHash.
+   */
+  exactHost?: true;
 };
 
 export type DomainRequestDelta = {
@@ -133,6 +139,9 @@ export function buildEvidenceHash(target: EvidenceTarget): string {
   const params = new URLSearchParams({ evidence: target.section });
   if (target.arm) params.set("arm", target.arm);
   if (target.query?.trim()) params.set("query", target.query.trim());
+  if (target.section === "requests" && target.exactHost && target.arm && target.query?.trim()) {
+    params.set("match", "host");
+  }
   if (target.section === "requests" && target.signal && target.signal !== "all") {
     params.set("signal", target.signal);
   }
@@ -184,10 +193,14 @@ export function parseEvidenceHash(hash: string): EvidenceTarget | null {
           destination: destinationValue.slice(0, 500)
         }
       : undefined;
+  // Read only as the change list writes it. A query cut at the bound above is
+  // not the host that was counted, so it filters as free text.
+  const exactHost = params.get("match") === "host" && arm && query && query.length === queryValue.length;
   return {
     section: validSection,
     ...(arm ? { arm } : {}),
     ...(query ? { query } : {}),
+    ...(exactHost ? { exactHost: true as const } : {}),
     ...(signal && signal !== "all" ? { signal } : {}),
     ...(pair ? { pair } : {})
   };

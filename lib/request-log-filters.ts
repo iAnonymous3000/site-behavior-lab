@@ -48,6 +48,15 @@ function provenanceActorDisplay(domain: string | undefined, url: string | undefi
   return `${normalizedType} ${actor}`;
 }
 
+/**
+ * The text side of the request log's filter. With an exact host it keeps that
+ * recorded host's rows and no other, as the per-domain counts are keyed; a
+ * host with no row in the visit keeps none. Without one it is the free text.
+ */
+export function requestMatchesTextFilter(request: NetworkRequestRecord, query: string, exactHost?: string | null): boolean {
+  return exactHost ? request.domain === exactHost : requestMatchesQuery(request, query);
+}
+
 /** Whether a row passes one of the request log's signal chips. */
 export function requestMatchesSignalFilter(request: NetworkRequestRecord, filter: EvidenceRequestSignal): boolean {
   if (filter === "third-party") return request.thirdParty;

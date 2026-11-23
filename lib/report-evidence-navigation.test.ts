@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { summarizeDomains } from "./domain-summaries";
 import {
   buildEvidenceHash,
   domainRequestDeltas,
@@ -12,10 +13,13 @@ import {
   printedRequestRef,
   printedVisitArm,
   requestTimingSummary,
-  retainedRowPositions
+  retainedRowPositions,
+  type EvidenceTarget
 } from "./report-evidence-navigation";
 import { pixelEventLabel } from "./report-insights";
+import { requestMatchesTextFilter } from "./request-log-filters";
 import { requireIndex } from "./source-markers";
+import { displayHost } from "./text-format";
 import type { DomainSummary, NetworkRequestRecord, TrackerMatch } from "./types";
 
 const tracker: TrackerMatch = {
@@ -299,6 +303,175 @@ test("the request timeline's log link and the request log's target both go throu
   assert.match(timeline, /buildEvidenceHash\(\{ section: "requests", \.\.\.\(arm \? \{ arm \} : \{\}\) \}\)/);
   const hook = tables.slice(requireIndex(tables, "function useEvidenceTarget("));
   assert.match(hook.slice(0, hook.indexOf("\nfunction ")), /return evidenceTargetForPrintedVisit\(target, printVisit\);/);
+});
+
+function componentSource(name: string): string {
+  return readFileSync(path.join(process.cwd(), "app", "_components", `${name}.tsx`), "utf8");
+}
+
+function requestLogSource(): string {
+  const tables = componentSource("report-tables");
+  return tables.slice(requireIndex(tables, "function RequestTable("), requireIndex(tables, "function RequestLogRows("));
+}
+
+/** The one line of the request log's source that holds `marker`, so a failure prints that line and not the file. */
+function logLine(marker: string): string {
+  const lines = requestLogSource().split("\n").filter((line) => line.includes(marker));
+  assert.equal(lines.length, 1, `the request log has ${lines.length} lines with ${marker}`);
+  return lines[0].trim();
+}
+
+/** The host-match line of the request log's source, with the condition it renders on. */
+function hostMatchLine(): string {
+  return requestLogSource().match(/\{exactHost[^\n{]*&& \(\n\s*<p className="attribution-active-filter">[\s\S]*?<\/p>/)?.[0] ?? "";
+}
+
+/** The rows the request log keeps for the text side of a link's target. */
+function linkedRows(rows: readonly NetworkRequestRecord[], target: EvidenceTarget | null): NetworkRequestRecord[] {
+  const query = target?.query ?? "";
+  const exactHost = target?.exactHost ? query : null;
+  return rows.filter((row) => requestMatchesTextFilter(row, query, exactHost));
+}
+
+function hostRow(id: number, host: string, options: Partial<NetworkRequestRecord> = {}): NetworkRequestRecord {
+  return { ...request(id, id), domain: host, url: `https://${host}/${id}.js`, ...options };
+}
+
+test("the change list's link asks for the exact host", () => {
+  const panel = componentSource("comparison-panel");
+  const link = panel.slice(requireIndex(panel, "function EvidenceLink("));
+  assert.equal(
+    link.match(/href=\{buildEvidenceHash\([^\n]*/)?.[0],
+    'href={buildEvidenceHash({ section: "requests", arm, query: domain, exactHost: true })}>',
+    "the change list's link does not ask for the exact host"
+  );
+});
+
+test("an exact-host target round-trips", () => {
+  const target = { section: "requests" as const, arm: "baseline" as const, query: "{label}.cdn.example", exactHost: true as const };
+  const hash = buildEvidenceHash(target);
+  assert.equal(hash, "#evidence=requests&arm=baseline&query=%7Blabel%7D.cdn.example&match=host", "the link does not carry match=host");
+  assert.deepEqual(parseEvidenceHash(hash), target, "an exact-host target does not survive its own address");
+});
+
+test("a change list's link selects exactly the rows its count counts", () => {
+  const short = "{label}.{label}.vendor.example";
+  const longer = "{label}.{label}.{label}.vendor.example";
+  const visits = {
+    baseline: [
+      hostRow(1, short),
+      hostRow(2, short),
+      hostRow(3, longer),
+      hostRow(4, "other.example", { url: `https://other.example/${short}` }),
+      hostRow(5, "third.example", { provenance: { initiatorDomain: short } })
+    ],
+    variant: [hostRow(6, longer), hostRow(7, "third.example")]
+  };
+  const changes = domainRequestDeltas(summarizeDomains(visits.baseline), summarizeDomains(visits.variant));
+  assert.ok(changes.some((change) => change.domain === short), "the fixture lost its over-matched host");
+  for (const change of changes) {
+    for (const arm of ["baseline", "variant"] as const) {
+      const target = parseEvidenceHash(buildEvidenceHash({ section: "requests", arm, query: change.domain, exactHost: true }));
+      assert.equal(
+        linkedRows(visits[arm], target).length,
+        change[`${arm}Requests`],
+        `the rows of ${change.domain} in the ${arm} visit are not the rows its count counts`
+      );
+    }
+  }
+});
+
+test("match needs the requests section, an arm and a whole query", () => {
+  const exact = (hash: string) => parseEvidenceHash(hash)?.exactHost;
+  assert.equal(exact(`#evidence=requests&arm=baseline&query=${"a".repeat(500)}&match=host`), true, "a whole query of 500 characters loses the match");
+  assert.equal(exact("#evidence=requests&query=cdn.example&match=host"), undefined, "a match with no arm is read");
+  assert.equal(exact("#evidence=domains&arm=baseline&query=cdn.example&match=host"), undefined, "a match outside the request log is read");
+  assert.equal(exact("#evidence=requests&arm=baseline&match=host"), undefined, "a match with no query is read");
+  assert.equal(exact("#evidence=requests&arm=baseline&query=cdn.example&match=prefix"), undefined, "a match with another value is read");
+  assert.equal(exact(`#evidence=requests&arm=baseline&query=${"a".repeat(501)}&match=host`), undefined, "a match on a truncated query is read");
+});
+
+test("an old free-text fragment filters as before", () => {
+  const rows = [hostRow(1, "cdn.example"), hostRow(2, "a.cdn.example")];
+  const target = parseEvidenceHash("#evidence=requests&arm=baseline&query=cdn.example");
+  assert.deepEqual(target, { section: "requests", arm: "baseline", query: "cdn.example" }, "an old fragment gained a match");
+  assert.equal(linkedRows(rows, target).length, 2, "an old fragment no longer searches free text");
+});
+
+test("two wire hosts with one display form stay apart", () => {
+  const rows = [hostRow(1, "{label}.site.example"), hostRow(2, "*.site.example")];
+  assert.equal(displayHost(rows[0].domain), displayHost(rows[1].domain), "the fixture's hosts no longer share a display form");
+  assert.deepEqual(
+    rows.filter((row) => requestMatchesTextFilter(row, rows[0].domain, rows[0].domain)).map((row) => row.id),
+    [1],
+    "the match compares display forms, not recorded hosts"
+  );
+});
+
+test("a count of 0 opens no rows", () => {
+  const rows = [hostRow(1, "a.cdn.example")];
+  assert.deepEqual(rows.filter((row) => requestMatchesTextFilter(row, "cdn.example", "cdn.example")), [], "a host with no row in the visit opens other hosts' rows");
+  assert.match(
+    logLine("filterRequestLog(requests"),
+    /pair: attributionPair, exactHost \}, destinationByHost\)/,
+    "the log does not apply the match as the link set it, whatever rows the visit holds"
+  );
+});
+
+test("the match stays through a visit change", () => {
+  assert.deepEqual(
+    (requestLogSource().match(/setExactHost\([^\n]*/g) ?? []).sort(),
+    [
+      "setExactHost(evidenceTarget.exactHost ? evidenceTarget.query ?? null : null);",
+      "setExactHost(null);",
+      "setExactHost(null);"
+    ],
+    "something other than the link, typing and Clear filters sets the match"
+  );
+  const renderer = componentSource("report-renderer");
+  const mounts = renderer.match(/<RequestTable[\s\S]*?\/>/g) ?? [];
+  assert.ok(mounts.length > 0, "the renderer no longer mounts the request log");
+  for (const mount of mounts) assert.doesNotMatch(mount, /\skey=/, "a visit change would remount the request log");
+});
+
+test("the match stays through chip, status and type changes", () => {
+  assert.doesNotMatch(logLine("setSignalFilter(filter.value)"), /setExactHost/, "a chip change ends the match");
+  assert.doesNotMatch(logLine("setStatusFilter(event.currentTarget.value"), /setExactHost/, "a status change ends the match");
+  assert.doesNotMatch(logLine("setResourceFilter(event.currentTarget.value"), /setExactHost/, "a type change ends the match");
+});
+
+test("typing in the search box ends the match", () => {
+  const log = requestLogSource();
+  const start = requireIndex(log, 'aria-label="Filter requests"');
+  assert.match(log.slice(start, requireIndex(log, "/>", "the search box", start)), /setExactHost\(null\);/, "typing in the search box does not end the match");
+});
+
+test("clearing the filters ends the match", () => {
+  const log = requestLogSource();
+  const start = requireIndex(log, "function resetFilters()");
+  assert.match(log.slice(start, requireIndex(log, "useEffect(", "resetFilters", start)), /setExactHost\(null\);/, "Clear filters does not end the match");
+});
+
+test("an exact match is named above the table", () => {
+  const line = hostMatchLine();
+  assert.notEqual(line, "", "no line names the exact match");
+  assert.equal(line.split("\n")[0], "{exactHost && (", "the line depends on more than the match");
+  assert.match(line, /onClick=\{resetFilters\}/, "the line offers no Clear filters");
+  const log = requestLogSource();
+  assert.ok(log.indexOf(line) < requireIndex(log, "className={`table-wrap request-table"), "the line is not above the table");
+});
+
+test("the line is the listed sentence, word for word", () => {
+  const words = (hostMatchLine().match(/<span>([\s\S]*?)<\/span>/)?.[1] ?? "")
+    .replace(/\{[^{}]*\}/g, "<host>")
+    .replace(/<\/?strong>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  assert.equal(words, "Showing only requests with this recorded host: <host>.", "the line is not the listed sentence");
+});
+
+test("the line names the host as the report displays it", () => {
+  assert.equal(hostMatchLine().match(/<strong>[^\n]*<\/strong>/)?.[0], "<strong>{displayHost(exactHost)}</strong>", "the line does not show the host's display form");
 });
 
 test("a printed request reference names the row's place in the stored log, whatever the filter shows", () => {

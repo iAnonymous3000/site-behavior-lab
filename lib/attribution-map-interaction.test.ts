@@ -98,7 +98,8 @@ test("an applied attribution pair is stated and clearable even when rows survive
     "the active-pair label must render on the pair alone, not on an empty result"
   );
 
-  const block = tables.slice(guard, start + 700);
+  // To the end of this line only: the next line has a clear control of its own.
+  const block = tables.slice(guard, tables.indexOf("</p>", start));
   assert.match(
     block,
     /onClick=\{resetFilters\}/,
