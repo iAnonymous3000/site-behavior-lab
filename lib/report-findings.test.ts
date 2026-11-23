@@ -4765,6 +4765,44 @@ test("an incomplete pixel-body read never publishes a no-identifier-fields claim
   const refused = byId(buildFindings(viewFromV1Report(result), null), "pixel-events");
   assert.doesNotMatch(refused.detail, /Pixel decoding was incomplete|No advanced-matching identifier fields are recorded/);
   assert.match(refused.detail, /^The request evidence this check reads is incomplete, so whether other pixel requests/);
+
+  // Another detector's loss also closes this check, and it is not a decoding
+  // failure either: the card names a detector measurement, not decoding.
+  const NOT_DECODING =
+    "This report records an incomplete detector measurement that may affect this check, so whether other pixel requests carried advanced-matching identifier fields is unknown.";
+  result.warnings = [FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING];
+  const otherLossView = viewFromV1Report(result);
+  assert.equal(familyCensoredOnRun(displayRunView(otherLossView), "detector-output"), true);
+  assert.equal(familyCensoredOnRun(displayRunView(otherLossView), "requests"), false);
+  const otherLoss = byId(buildFindings(otherLossView, null), "pixel-events");
+  assert.ok(otherLoss.detail.startsWith(`${NOT_DECODING} `), "another detector's loss names a detector measurement, not decoding");
+
+  // The same loss beside an incomplete request log names the request log.
+  result.warnings = [FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, "Blocked a request that could not be verified as public: http://example.com/{seg}"];
+  const bothLosses = byId(buildFindings(viewFromV1Report(result), null), "pixel-events");
+  assert.match(
+    bothLosses.detail,
+    /^The request evidence this check reads is incomplete, so whether other pixel requests/,
+    "a detector loss beside an incomplete request log names the request log"
+  );
+});
+
+test("a v2 pixel-decoding loss is named by its capture-loss detail", () => {
+  // v2 records the decoding loss as a capture-loss detail, not a v1 reason,
+  // and either detail that names pixel decoding keeps the decoding sentence.
+  for (const [detail, kind] of [["pixel-decode", "dropped"], ["public-pixel-events", "clipped"]] as const) {
+    const report = makePublicSingleReportV2R2();
+    report.run.evidence.pixelEvents = [
+      { platform: "Meta", product: "Meta Pixel", events: ["PageView"], advancedMatching: [], requests: 1, phaseId: 0 }
+    ];
+    report.run.qualityFacts.captureLoss.push({ family: "detector-output", phaseId: null, kind, count: 1, detail });
+    report.run.quality = evaluateQuality(report.run.qualityFacts, { observedRequests: report.run.evidence.requests.length });
+    const card = byId(buildFindings(viewFromV2(report, 2), null), "pixel-events");
+    assert.ok(
+      card.detail.startsWith("Pixel decoding was incomplete for one or more request bodies, so whether other pixel requests"),
+      `v2 decoding (${detail})`
+    );
+  }
 });
 
 test("a warn-level Shields card raises the bottom line instead of being outranked by it", () => {

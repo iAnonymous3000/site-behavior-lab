@@ -1674,11 +1674,20 @@ export function buildFindings(
           : pixelDetectorCensored
             ? // Name the loss the claim actually carries. An incomplete request
               // log (a cap, a refused request) is not a decoding failure, and
-              // was worded as one.
+              // was worded as one; nor is another detector's incomplete
+              // measurement, which closes this check too. Decoding is named
+              // only where a pixel-decoding loss is recorded.
               `${
                 facts.claims["pixel-events"].blockers.includes("detector-incomplete") ||
                 familyCensoredOnRun(run, "detector-output")
-                  ? "Pixel decoding was incomplete for one or more request bodies"
+                  ? run.quality.reasons.includes("capture-loss:pixel-decode") ||
+                    (run.quality.facts?.captureLoss ?? []).some(
+                      (loss) => loss.detail === "pixel-decode" || loss.detail === "public-pixel-events"
+                    )
+                    ? "Pixel decoding was incomplete for one or more request bodies"
+                    : facts.evidence.requests.state === "censored"
+                      ? "The request evidence this check reads is incomplete"
+                      : "This report records an incomplete detector measurement that may affect this check"
                   : "The request evidence this check reads is incomplete"
               }, so whether other pixel requests carried advanced-matching identifier fields is unknown. Retained labels describe request contents, not verified user actions or successful delivery.`
             : "No advanced-matching identifier fields are recorded in the decoded evidence. Unsupported payload formats and later interactions may carry other fields; older decoders did not record every decoding gap. Event labels do not establish user actions or successful delivery.",
