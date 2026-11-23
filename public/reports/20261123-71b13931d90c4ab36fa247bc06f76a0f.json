@@ -1,0 +1,3783 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://github.com/",
+  "scannedAt": "2026-11-23T02:12:59.874Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 6814,
+      "firstPartyDomain": "github.com",
+      "totalRequests": 101,
+      "thirdPartyRequests": 95,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 3,
+      "cookies": 6,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 4
+    },
+    "conditions": {
+      "requestedUrl": "https://github.com/",
+      "finalUrl": "https://github.com/",
+      "scannedAt": "2026-11-23T02:13:06.490Z",
+      "chromiumVersion": "159.0.8154.6",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.8154.6 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-11-16T15:57:59.448Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.65.1 from github-actions-ubuntu with browser 159.0.8154.6, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://github.com/",
+        "domain": "github.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 50
+      },
+      {
+        "id": 2,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 127
+      },
+      {
+        "id": 3,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 4,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 5,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 6,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 7,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 9,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 10,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 11,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 12,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 13,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 15,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 16,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 17,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 18,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 129
+      },
+      {
+        "id": 19,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 129
+      },
+      {
+        "id": 20,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 131
+      },
+      {
+        "id": 21,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 132
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 132
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 132
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 132
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 26,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 27,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 28,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 29,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 36,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 37,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 140
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 141
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 141
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 141
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 141
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 142
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 142
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 142
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 142
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 142
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 142
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 68,
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "images.ctfassets.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 151
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 152
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 375
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 375
+      },
+      {
+        "id": 74,
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "images.ctfassets.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 375
+      },
+      {
+        "id": 75,
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "images.ctfassets.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 376
+      },
+      {
+        "id": 76,
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "images.ctfassets.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 376
+      },
+      {
+        "id": 77,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 376
+      },
+      {
+        "id": 78,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 376
+      },
+      {
+        "id": 79,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 377
+      },
+      {
+        "id": 80,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 377
+      },
+      {
+        "id": 81,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 377
+      },
+      {
+        "id": 82,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 377
+      },
+      {
+        "id": 83,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 377
+      },
+      {
+        "id": 84,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 380
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ctfassets.net",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 380
+      },
+      {
+        "id": 86,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 438
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 438
+      },
+      {
+        "id": 88,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 649
+      },
+      {
+        "id": 89,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 650
+      },
+      {
+        "id": 90,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 650
+      },
+      {
+        "id": 91,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 650
+      },
+      {
+        "id": 92,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 652
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 652
+      },
+      {
+        "id": 94,
+        "url": "https://{label}.github.com/{seg}/{seg}",
+        "domain": "{label}.github.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 727
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 845
+      },
+      {
+        "id": 96,
+        "url": "https://github.com/{seg}",
+        "domain": "github.com",
+        "method": "GET",
+        "resourceType": "manifest",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 856
+      },
+      {
+        "id": 97,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 933
+      },
+      {
+        "id": 98,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 934
+      },
+      {
+        "id": 99,
+        "url": "https://{label}.github.com/{seg}/{seg}",
+        "domain": "{label}.github.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 1157
+      },
+      {
+        "id": 100,
+        "url": "https://{label}.github.com/{seg}/{seg}",
+        "domain": "{label}.github.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 1168
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.github.com/{seg}/{seg}",
+        "domain": "{label}.github.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 1217
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.githubassets.com",
+        "requests": 90,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          206
+        ],
+        "resourceTypes": [
+          "script",
+          "font",
+          "stylesheet",
+          "image",
+          "media",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "images.ctfassets.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.ctfassets.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          206
+        ],
+        "resourceTypes": [
+          "media"
+        ]
+      },
+      {
+        "domain": "{label}.github.com",
+        "requests": 4,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "github.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "manifest"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "_octo",
+        "domain": ".github.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "logged_in",
+        "domain": ".github.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "cpu_bucket",
+        "domain": ".github.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "preferred_color_mode",
+        "domain": ".github.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "tz",
+        "domain": ".github.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_gh_sess",
+        "domain": "github.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "sessionStorage",
+        "key": "soft-nav:marker",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "documentElement",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.githubassets.com/"
+          ],
+          "totalListenerCalls": 158
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "document",
+            "documentElement",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.githubassets.com/"
+          ],
+          "totalListenerCalls": 274
+        }
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "The synthetic form-input probe did not complete its test, so input-capture conclusions for this visit are incomplete.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 6600,
+      "firstPartyDomain": "github.com",
+      "totalRequests": 97,
+      "thirdPartyRequests": 95,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 3,
+      "cookies": 6,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://github.com/",
+      "finalUrl": "https://github.com/",
+      "scannedAt": "2026-11-23T02:12:59.874Z",
+      "chromiumVersion": "159.0.8154.6",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.8154.6 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-11-16T15:57:59.448Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.65.1 from github-actions-ubuntu with browser 159.0.8154.6, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://github.com/",
+        "domain": "github.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 54
+      },
+      {
+        "id": 2,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 132
+      },
+      {
+        "id": 3,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 132
+      },
+      {
+        "id": 4,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 132
+      },
+      {
+        "id": 5,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 132
+      },
+      {
+        "id": 6,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 7,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 9,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 10,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 11,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 12,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 13,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 15,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 16,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 17,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 18,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 19,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 20,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 21,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 26,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 27,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 28,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 29,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 138
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 138
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 138
+      },
+      {
+        "id": 36,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 138
+      },
+      {
+        "id": 37,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 138
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 138
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 138
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 139
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 139
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 139
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 139
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 139
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 139
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 139
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 139
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 139
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 139
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 139
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 140
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 147
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 148
+      },
+      {
+        "id": 68,
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "images.ctfassets.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 148
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 149
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 156
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 157
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 290
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ctfassets.net",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 292
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 386
+      },
+      {
+        "id": 75,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 387
+      },
+      {
+        "id": 76,
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "images.ctfassets.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 387
+      },
+      {
+        "id": 77,
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "images.ctfassets.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 388
+      },
+      {
+        "id": 78,
+        "url": "https://images.ctfassets.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "images.ctfassets.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 388
+      },
+      {
+        "id": 79,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 388
+      },
+      {
+        "id": 80,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 389
+      },
+      {
+        "id": 81,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 389
+      },
+      {
+        "id": 82,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 389
+      },
+      {
+        "id": 83,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 391
+      },
+      {
+        "id": 84,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 392
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://github.com/",
+          "initiatorDomain": "github.com"
+        },
+        "startedAtMs": 392
+      },
+      {
+        "id": 86,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 445
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 446
+      },
+      {
+        "id": 88,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 508
+      },
+      {
+        "id": 89,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 509
+      },
+      {
+        "id": 90,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 509
+      },
+      {
+        "id": 91,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 509
+      },
+      {
+        "id": 92,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 512
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 512
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 844
+      },
+      {
+        "id": 96,
+        "url": "https://github.com/{seg}",
+        "domain": "github.com",
+        "method": "GET",
+        "resourceType": "manifest",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 854
+      },
+      {
+        "id": 97,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 957
+      },
+      {
+        "id": 98,
+        "url": "https://{label}.githubassets.com/{seg}/{seg}",
+        "domain": "{label}.githubassets.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.githubassets.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.githubassets.com"
+        },
+        "startedAtMs": 958
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.githubassets.com",
+        "requests": 90,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          206
+        ],
+        "resourceTypes": [
+          "script",
+          "font",
+          "stylesheet",
+          "image",
+          "media",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "images.ctfassets.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.ctfassets.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          206
+        ],
+        "resourceTypes": [
+          "media"
+        ]
+      },
+      {
+        "domain": "github.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "manifest"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "_octo",
+        "domain": ".github.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "logged_in",
+        "domain": ".github.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "cpu_bucket",
+        "domain": ".github.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "preferred_color_mode",
+        "domain": ".github.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "tz",
+        "domain": ".github.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_gh_sess",
+        "domain": "github.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "sessionStorage",
+        "key": "soft-nav:marker",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "documentElement",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.githubassets.com/"
+          ],
+          "totalListenerCalls": 158
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "document",
+            "documentElement",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.githubassets.com/"
+          ],
+          "totalListenerCalls": 274
+        }
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "The synthetic form-input probe did not complete its test, so input-capture conclusions for this visit are incomplete.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 101,
+      "after": 97,
+      "delta": -4
+    },
+    "thirdPartyRequests": {
+      "before": 95,
+      "after": 95,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 3,
+      "after": 3,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 6,
+      "after": 6,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.github.com",
+        "requests": 4,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 4,
+      "after": 5,
+      "delta": 1
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: The synthetic form-input probe did not complete its test, so input-capture conclusions for this visit are incomplete.",
+    "No blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: The synthetic form-input probe did not complete its test, so input-capture conclusions for this visit are incomplete.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+  ],
+  "share": {
+    "id": "20261123-71b13931d90c4ab36fa247bc06f76a0f",
+    "path": "/reports/20261123-71b13931d90c4ab36fa247bc06f76a0f/",
+    "jsonPath": "/reports/20261123-71b13931d90c4ab36fa247bc06f76a0f.json"
+  }
+}
