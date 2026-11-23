@@ -135,6 +135,20 @@ test("published docs say an anchor reaches the log by a merged proposal, not by 
   }
 });
 
+test("the report checking guide does not credit the attested run with the visit", () => {
+  // For a CI-lane scan, one run visits the site and proposes the report and a
+  // later run on main builds what is attested, so the attestation shows the
+  // bytes, not the visit, and nothing in a sidecar records the lane.
+  const guide = readFileSync(path.join(root, "docs/verify-a-report.md"), "utf8").replace(/\s+/g, " ");
+  assert.ok(
+    guide.includes(
+      "The attestation shows CI built these bytes at this SHA. It does not show that the same run performed the visit: for CI-lane scans an earlier run visited the site and proposed the report, and a later run on main built what is attested."
+    ),
+    "the guide says the attested run did not perform the visit"
+  );
+  assert.doesNotMatch(guide, /the same run performed the visit;|the receipt states which lane produced it/i, "the guide no longer credits one run with both");
+});
+
 /**
  * The catalog page publishes both kinds of boundary entry: test-enforced and
  * review-only. The README said the blind spots are published "with the test

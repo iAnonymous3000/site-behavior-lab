@@ -207,9 +207,8 @@ done
   the weekly anchor proposals that `.github/workflows/anchor-transparency-log.yml`
   opens, and CI holds that gap under a declared ceiling rather than assuming it
   is zero.
-- **The chain proves the bytes, not the visit.** The attestation shows CI built
-  these bytes at this SHA. For CI-lane scans the same run performed the visit;
-  the receipt states which lane produced it. It does not independently prove
+- **The chain proves the bytes, not the visit.** The attestation shows CI built these bytes at this SHA. It does not show that the same run performed the visit: for CI-lane scans an earlier run visited the site and proposed the report, and a later run on main built what is attested.
+  It does not independently prove
   what the scanned site served, and cannot: the site's response to one visit is
   not reproducible by anyone, including us.
 - **Timestamps inside a report are operator-clock claims.** A committed
