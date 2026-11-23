@@ -61,9 +61,13 @@ export function consentRegistrationSentence(
     case null: {
       // Reachable for v1 (which never recorded a registered state) and,
       // defensively, for a v2 report whose wire carries no consent evidence;
-      // name the actual generation so the sentence stays true on r2 too.
+      // name the actual generation so the sentence stays true on r2 too. A v1
+      // click is a dispatched click in older reports and a visible reaction in
+      // later ones, and no v1 report says which, so the v1 sentence names both.
       const generation = view.origin === "legacy-derived" ? "v1" : view.revision === 1 ? "v2/r1" : "v2/r2";
-      return `This ${generation} report records only that the scanner dispatched the ${choiceLabel} click; it cannot verify whether the site registered the choice.`;
+      return generation === "v1"
+        ? `This v1 report records the ${choiceLabel} click as dispatched or, in later versions, as a visible reaction, without saying which, and cannot verify whether the site registered it.`
+        : `This ${generation} report holds no registered consent state for the ${choiceLabel} choice, so it cannot verify whether the site registered it.`;
     }
   }
 }

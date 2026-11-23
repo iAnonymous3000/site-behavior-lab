@@ -190,10 +190,10 @@ export default function MethodologyPage() {
           conservative whole-label match). Whenever at least one field accepts the synthetic value, the report says
           how many did; a visit where no field accepted it carries no typed-field count. Consent-comparison reports
           separately disclose which consent platform or labeled control was clicked (naming the control itself when
-          that platform&apos;s control may not express the whole choice), or that nothing was clicked.
+          that platform&apos;s control may not express the whole choice), that a control was clicked and never visibly responded, that none was found, that none was clicked, or that whether one exists, was found or was clicked is unknown.
         </p>
         <p>
-          Legacy v1 reports record only that a consent click was dispatched. R2 reports also record bounded
+          Legacy v1 reports record a click, never its registration: older ones record that a click was dispatched, later ones that the clicked control visibly reacted, and no v1 report says which. R2 reports also record bounded
           consent-platform readbacks and distinguish a verified registered choice from a contradiction, weak signal,
           unavailable state, or failed check; one disclosed reload can re-read the state, and requests observed during
           that reload phase are excluded from the counts. Every visit&apos;s recorded requests still span before and

@@ -2318,8 +2318,8 @@ test("a legacy consent pair stays attempt-only because v1 cannot verify either r
   const card = byId(findings, "consent-comparison");
   assert.equal(card.level, "info");
   assert.match(card.title, /Consent choices were attempted, but not verified/);
-  assert.match(card.lead, /v1 report records only that the scanner dispatched the Accept all click/);
-  assert.match(card.lead, /v1 report records only that the scanner dispatched the Reject all click/);
+  assert.match(card.lead, /This v1 report records the Accept all click as dispatched or, in later versions, as a visible reaction, without saying which, and cannot verify whether the site registered it\./);
+  assert.match(card.lead, /This v1 report records the Reject all click as dispatched or, in later versions, as a visible reaction, without saying which, and cannot verify whether the site registered it\./);
   assert.match(card.detail, /do not support an accept-versus-reject outcome/);
   assert.match(card.detail, /both requested choices are verified as registered/);
   assert.doesNotMatch(`${card.title} ${card.lead} ${card.detail}`, /survive Reject|appeared only|did remove/);
@@ -2341,7 +2341,7 @@ test("an unverified legacy consent pair never upgrades raw traffic into a consen
 
   const card = byId(buildFindings(viewFromV1Report(consentPair(acceptRun, rejectRun)), null), "consent-comparison");
   assert.match(card.title, /attempted, but not verified/);
-  assert.match(card.lead, /records only that the scanner dispatched/);
+  assert.match(card.lead, /records the Accept all click as dispatched or, in later versions, as a visible reaction, without saying which/);
   assert.doesNotMatch(`${card.title} ${card.lead}`, /received requests|loaded in/);
 });
 
