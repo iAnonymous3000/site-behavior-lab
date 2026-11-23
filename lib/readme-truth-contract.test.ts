@@ -589,3 +589,18 @@ test("the README and RELEASE.md say a tagged release builds from source for the 
     assert.ok(existsSync(path.join(root, file)), `${file} is named by the paragraphs and must exist`);
   }
 });
+
+test("the scan job model says how long each store keeps a job, store by store", () => {
+  // The registry stops answering at 75 minutes but deletes its rows only at an
+  // admission or at a status or cancel request for a job the container no
+  // longer holds, so "for 75 minutes" and "at most 75 minutes" overstated it.
+  const model = readFileSync(path.join(root, "docs/scan-job-model.md"), "utf8").replace(/\s+/g, " ");
+  for (const sentence of [
+    "the front Worker keeps the job ID, separate report ID, run count, and admission timestamp in Durable Object SQLite and answers from them for 75 minutes. It deletes expired rows at the next admission, or at the next status or cancel request for a job the container no longer holds; a period with neither keeps them, up to the registry's 500-row bound, until one comes.",
+    "Terminal job metadata in the Node process, and Phase 2's durable rows, are deleted once 75 minutes from admission have passed: the Node process by a timer, Phase 2 by a wake scheduled for that time. The IDs-only registry's capability linkage stops answering after 75 minutes but is deleted only at the next admission, or at the next status or cancel request for a job the container no longer holds; a period with neither keeps it, up to its 500-row bound. Sensitive active payload ciphertext is deleted on every terminal outcome and is also hard-bounded by that window.",
+    "TTL 75 minutes (job max age + expired retention), pruned on write and at a status or cancel request for a job the container no longer holds, hard row cap with oldest-first eviction."
+  ]) {
+    assert.ok(model.includes(sentence), `the scan job model states: ${sentence.slice(0, 60)}`);
+  }
+  assert.doesNotMatch(model, /Durable Object SQLite for 75 minutes|retained for at most 75 minutes from admission|pruned on write, hard row cap/, "no store is said to be kept for exactly or at most 75 minutes");
+});

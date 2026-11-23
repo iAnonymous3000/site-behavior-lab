@@ -283,9 +283,7 @@ Deployed progression:
 
 - Async mode is currently opt-in with `SITE_BEHAVIOR_LAB_ASYNC_SCANS=1`.
 - Completed job status currently includes the completed report, preserving the existing UI render path.
-- Terminal job metadata and capability linkage are retained for at most 75 minutes
-  from admission. Sensitive active payload ciphertext is deleted on every terminal
-  outcome and is also hard-bounded by that window.
+- Terminal job metadata in the Node process, and Phase 2's durable rows, are deleted once 75 minutes from admission have passed: the Node process by a timer, Phase 2 by a wake scheduled for that time. The IDs-only registry's capability linkage stops answering after 75 minutes but is deleted only at the next admission, or at the next status or cancel request for a job the container no longer holds; a period with neither keeps it, up to its 500-row bound. Sensitive active payload ciphertext is deleted on every terminal outcome and is also hard-bounded by that window.
 - Accepted work is detached from the client connection. A disconnect only stops
   local polling; explicit authenticated `DELETE /api/scans/:id` is the cancellation
   operation.
@@ -310,8 +308,8 @@ scans, and report persistence stay behind the same tested execution path.
 
 `GET /api/scans/:id` returns queued/running/succeeded/failed status, progress
 metadata, and the completed report when available. In the current flag-off path,
-the front Worker keeps the job ID, separate report ID, run count, and admission
-timestamp in Durable Object SQLite for 75 minutes. After a Node restart it can
+the front Worker keeps the job ID, separate report ID, run count, and admission timestamp in Durable Object SQLite and answers from them for 75 minutes. It deletes expired rows at the next admission, or at the next status or cancel request for a job the container no longer holds; a period with neither keeps them, up to the registry's 500-row bound, until one comes.
+After a Node restart it can
 embed a persisted R2 report in a recovered `succeeded` response or return an
 explicit restart `expired` response when the report is genuinely absent. The
 Phase-1 registry contains no target URL or client identifier. Queued/running
@@ -342,8 +340,7 @@ For `DELETE`, a known registry row returns a control-only `409`: there is no
 in-memory worker left to cancel, and the response never includes report data.
 
 Rows carry no target URL and no client identifier: only TTL-bounded capability
-linkage and scheduling metadata. TTL 75 minutes (job max age + expired
-retention), pruned on write, hard row cap with oldest-first eviction. The
+linkage and scheduling metadata. TTL 75 minutes (job max age + expired retention), pruned on write and at a status or cancel request for a job the container no longer holds, hard row cap with oldest-first eviction. The
 best-effort write runs in `waitUntil`; failures are logged and never replace
 the container's already-accepted `202` response.
 
