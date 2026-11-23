@@ -3484,7 +3484,7 @@ test("a policy read that may have stopped at the text cap lists no company as un
       /Policy mentions of Criteo are unknown because this read may have stopped at the scanner's 400,000-character limit\./,
       `${length}`
     );
-    assert.match(card.evidence, /1 of 1 observed tracking company named in the policy/, `${length}: a mention still counts`);
+    assert.match(card.evidence, /1 named in the policy, of 1 observed tracking company with a known result/, `${length}: a mention still counts`);
   }
 
   const complete = policyCard(379_999);
@@ -6233,7 +6233,7 @@ test("a policy read that stored its full list of unnamed companies discloses the
   const unchecked = "This read checked at most 12 unnamed companies, so 9 more observed tracking companies were not checked: LinkedIn, Lotame and StackAdapt, plus 6 others.";
   assert.equal(
     npr.evidence,
-    `Policy at https://www.npr.org/…/privacy-policy; 0 checkable statements matched; 2 of 11 checked tracking companies named in the policy. Policy mentions of Magnite, Amazon Ads and Equativ are unknown because the historical alias matcher was incomplete. ${unchecked}`
+    `Policy at https://www.npr.org/…/privacy-policy; 0 checkable statements matched; 2 named in the policy, of 11 checked tracking companies with a known result. Policy mentions of Magnite, Amazon Ads and Equativ are unknown because the historical alias matcher was incomplete. ${unchecked}`
   );
   assert.ok(npr.lead.endsWith(` ${unchecked}`), npr.lead);
 

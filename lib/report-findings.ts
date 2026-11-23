@@ -1231,13 +1231,26 @@ export function buildFindings(
     );
     const namedCount = mentionedTrackingEntities.length;
     const totalObserved = namedCount + unmentionedTrackingEntities.length;
+    // The number counts only the companies with a known result, while "of m
+    // observed" (or "checked", when the read was capped) names them all. Where
+    // the two differ, the label says what the number counts; where they agree,
+    // today's label is true and stays.
+    const checkedTrackingCount = trackingNames.filter(
+      (entity) => policyMentionedEntityNames.has(entity) || storedUnmentionedNames.has(entity)
+    ).length;
+    const knownResultBelowNamed = totalObserved < (policyReadCapped ? checkedTrackingCount : trackingNames.length);
+    const [coverageOne, coverageMany] = policyReadCapped
+      ? ["checked tracking company", "checked tracking companies"]
+      : ["observed tracking company", "observed tracking companies"];
     const coverage =
       totalObserved > 0
-        ? `${namedCount} of ${plural(
-            totalObserved,
-            policyReadCapped ? "checked tracking company" : "observed tracking company",
-            policyReadCapped ? "checked tracking companies" : "observed tracking companies"
-          )} named in the policy`
+        ? knownResultBelowNamed
+          ? `${namedCount} named in the policy, of ${plural(
+              totalObserved,
+              `${coverageOne} with a known result`,
+              `${coverageMany} with a known result`
+            )}`
+          : `${namedCount} of ${plural(totalObserved, coverageOne, coverageMany)} named in the policy`
         : unknownPolicyMentions.length > 0 || cutPolicyMentions.length > 0
           ? "no reliable company-mention results available"
           : "no catalogued tracking companies observed to check against it";
