@@ -432,6 +432,21 @@ test("the match stays through a visit change", () => {
   const mounts = renderer.match(/<RequestTable[\s\S]*?\/>/g) ?? [];
   assert.ok(mounts.length > 0, "the renderer no longer mounts the request log");
   for (const mount of mounts) assert.doesNotMatch(mount, /\skey=/, "a visit change would remount the request log");
+  // The log's state also dies with the per-visit evidence that holds it.
+  const evidence = renderer.match(/<RunEvidence[\s\S]*?\/>/g) ?? [];
+  assert.equal(evidence.length, 2, "the renderer no longer mounts one visit's evidence for paper and one for the screen");
+  for (const mount of evidence) assert.doesNotMatch(mount, /\skey=/, "a visit change would remount the visit's evidence");
+});
+
+test("another evidence link replaces the match", () => {
+  const log = requestLogSource();
+  const start = requireIndex(log, "if (!evidenceTarget) return;");
+  const effect = log.slice(start, requireIndex(log, "}, [evidenceTarget]);", "the target effect", start));
+  assert.equal(
+    effect.match(/[^\n]*setExactHost[^\n]*/)?.[0].trim(),
+    "setExactHost(evidenceTarget.exactHost ? evidenceTarget.query ?? null : null);",
+    "a link without the match keeps the old one"
+  );
 });
 
 test("the match stays through chip, status and type changes", () => {

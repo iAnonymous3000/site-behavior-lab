@@ -790,6 +790,11 @@
   font: 400 var(--a-t-limit) / 1.5 var(--a-sans);
 }
 
+/* A recorded host can hold a run with no break, wider than a phone's line. */
+.da.da.da .report-grid .attribution-active-filter > span {
+  overflow-wrap: anywhere;
+}
+
 /* The earlier sheet fixes the explorer's column widths; this table sizes its own. */
 .da.da.da :is(.report-grid, .claim-rows-host) table.a-ev {
   table-layout: auto;

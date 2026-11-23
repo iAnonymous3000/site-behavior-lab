@@ -701,3 +701,71 @@ function componentSources(): string[] {
   walk(path.join(process.cwd(), "app"));
   return sources;
 }
+
+/**
+ * The screen's active-filter line, with the sheets the report page loads. Not
+ * print, but it needs what this file has: a real engine over the real sheets.
+ * The explorer's sheet reverts every earlier rule on the elements inside the
+ * report grid, so whether a long host wraps cannot be read from one sheet.
+ */
+const SCREEN_SHEETS = [
+  globalsCss,
+  ...["tokens", "base", "components", "report", "explorer"].map((name) =>
+    readFileSync(path.join(root, "app", "_design", `${name}.css`), "utf8")
+  )
+];
+/** A committed host's 39 unbroken characters, and the longest label DNS allows. */
+const LONG_HOSTS = ["*.a79ab95c1589a13f8a4cab612bc71f9f7.com", `${"b".repeat(63)}.example`];
+const FILTER_LINES = {
+  host: (host: string) => `Showing only requests with this recorded host: <strong>${host}</strong>.`,
+  path: (host: string) =>
+    `Showing only the rows behind one attribution path: <strong>${host}</strong> to <strong>${host}</strong>.`
+};
+
+test("a filter line wraps a long host on a phone", async () => {
+  const problems: string[] = [];
+  for (const width of [360, 320]) {
+    for (const [kind, words] of Object.entries(FILTER_LINES)) {
+      for (const host of LONG_HOSTS) {
+        const page = await browser.newPage({ viewport: { width, height: 800 } });
+        try {
+          await page.setContent(
+            `<!doctype html><html><head>${SCREEN_SHEETS.map((css) => `<style>${css}</style>`).join("")}</head>
+            <body><div class="app-shell report-page-shell da is-evidence-open"><main id="report">
+              <section class="report-grid"><div class="report-evidence-tables">
+                <details class="data-section disclosure" open>
+                  <summary class="section-heading"><h2>Request log</h2></summary>
+                  <p class="attribution-active-filter"><span>${words(host)}</span>
+                    <button type="button" class="change-list-toggle">Clear filters</button></p>
+                </details>
+              </div></section>
+            </main></div></body></html>`,
+            { waitUntil: "load" }
+          );
+          const seen = await page.evaluate(() => {
+            const line = document.querySelector("p.attribution-active-filter")!;
+            const box = line.getBoundingClientRect();
+            const words = document.createRange();
+            words.selectNodeContents(line.querySelector("span")!);
+            const button = line.querySelector("button")!.getBoundingClientRect();
+            return {
+              sheetsApply: getComputedStyle(line).marginBottom === "10px" && box.width < innerWidth,
+              fits: line.scrollWidth <= line.clientWidth && [...words.getClientRects()].every((rect) => rect.right <= box.right + 0.5),
+              pageScrolls: document.documentElement.scrollWidth > innerWidth,
+              clearInView: button.left >= 0 && button.right <= innerWidth && button.top >= 0 && button.bottom <= innerHeight
+            };
+          });
+          const where = `the ${kind} line at ${width} px with a host of ${host.length} characters`;
+          // Without this, every reading below could describe an unstyled paragraph.
+          assert.ok(seen.sheetsApply, `the fixture is not styled as the request log is (${where})`);
+          if (!seen.fits) problems.push(`${where}: the words pass the line`);
+          if (seen.pageScrolls) problems.push(`${where}: the page scrolls sideways`);
+          if (!seen.clearInView) problems.push(`${where}: Clear filters is outside the viewport`);
+        } finally {
+          await page.close();
+        }
+      }
+    }
+  }
+  assert.deepEqual(problems, [], "a long host does not fit the filter line");
+});
