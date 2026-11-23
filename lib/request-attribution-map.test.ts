@@ -2,9 +2,13 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { summarizeDomains } from "./domain-summaries";
+import { isThirdParty } from "./domain-utils";
 import { ledgerPinnedReportWire } from "./pinned-reports";
+import { publicRegistrableDomain, redactHostnameV2 } from "./redaction-v2";
 import { buildReportFacts } from "./report-facts";
 import {
+  attributionSourceIsSite,
   buildRequestAttributionMap,
   DEDICATED_WORKER_ATTRIBUTION_SENTENCE,
   MAX_DRAWN_ATTRIBUTION_EDGES,
@@ -15,6 +19,7 @@ import {
 } from "./request-attribution-map";
 import { loadedReportFromStored } from "./scan-report-view";
 import { readStoredScanReport } from "./scan-report-reader";
+import { displayHost } from "./text-format";
 import type { NetworkRequestRecord } from "./types";
 
 function request(
@@ -665,4 +670,148 @@ test("the panel and the capabilities page state one sentence about dedicated wor
     "Requests made by dedicated workers are recorded and counted, but the browser reports no initiator for them, so they are not attributed."
   );
   assert.doesNotMatch(capabilities, /dedicated workers are not observed/);
+});
+
+function partyView(site: string, requests: NetworkRequestRecord[]) {
+  return { domain: site, evidence: { requests, domains: summarizeDomains(requests) } };
+}
+
+function ownRow(id: number, domain: string): NetworkRequestRecord {
+  return request(id, { domain, thirdParty: false, provenance: undefined });
+}
+
+function attributedTo(id: number, actor: string): NetworkRequestRecord {
+  return request(id, { provenance: { initiatorDomain: actor } });
+}
+
+test("the attribution list asks the map's rule for an actor's party", () => {
+  const component = readFileSync(path.join(process.cwd(), "app", "_components", "causality-graph.tsx"), "utf8");
+  // The matched line, not the file, is what a failure prints.
+  assert.equal(
+    component.match(/const sameSite = [^\n]*/)?.[0],
+    "const sameSite = attributionSourceIsSite(run, source.domain);",
+    "the component must ask attributionSourceIsSite for the actor's party"
+  );
+});
+
+test("the site's own redacted host is the site's", () => {
+  const run = partyView("www.site.com", [
+    ownRow(1, "www.site.com"),
+    ownRow(2, "{label}.site.com"),
+    attributedTo(3, "{label}.site.com"),
+    attributedTo(4, "www.site.com")
+  ]);
+  assert.equal(attributionSourceIsSite(run, "*.site.com"), true, "a redacted host of the site is the site's");
+  assert.equal(attributionSourceIsSite(run, "www.site.com"), true, "a host with nothing hidden is still the site's");
+});
+
+test("a third party that shares a display form is not the site's", () => {
+  // An unmanaged import can hold a literal asterisk or another case of the token.
+  for (const other of ["*.site.com", "{LABEL}.site.com"]) {
+    const otherRow = request(9, { domain: other, provenance: undefined });
+    const alone = partyView("www.site.com", [
+      ownRow(1, "www.site.com"),
+      ownRow(2, "{label}.site.com"),
+      otherRow,
+      attributedTo(3, other)
+    ]);
+    assert.equal(attributionSourceIsSite(alone, "*.site.com"), false, `${other} alone is drawn as the site's`);
+    for (const actors of [["{label}.site.com", other], [other, "{label}.site.com"]]) {
+      const mixed = partyView("www.site.com", [
+        ownRow(1, "www.site.com"),
+        ownRow(2, "{label}.site.com"),
+        otherRow,
+        ...actors.map((actor, index) => attributedTo(20 + index, actor))
+      ]);
+      assert.equal(attributionSourceIsSite(mixed, "*.site.com"), false, `${actors.join(" and ")} are drawn as the site's`);
+    }
+  }
+});
+
+test("a third-party actor is not the site's", () => {
+  const run = partyView("www.site.com", [
+    ownRow(1, "www.site.com"),
+    request(2, { domain: "cdn.other.com" }),
+    attributedTo(3, "cdn.other.com"),
+    // One host seen with both parties is third-party in the domain table.
+    ownRow(4, "both.site.com"),
+    request(5, { domain: "both.site.com" }),
+    attributedTo(6, "both.site.com")
+  ]);
+  assert.equal(attributionSourceIsSite(run, "cdn.other.com"), false, "a third-party actor is drawn as the site's");
+  assert.equal(attributionSourceIsSite(run, "both.site.com"), false, "a host of both parties is drawn as the site's");
+});
+
+test("an unidentifiable host is not the site's", () => {
+  for (const marker of ["{invalid-host}", "{INVALID-HOST}"]) {
+    const run = partyView("www.site.com", [ownRow(1, "www.site.com"), ownRow(2, marker), attributedTo(3, marker)]);
+    assert.equal(attributionSourceIsSite(run, "host unavailable"), false, `${marker} is drawn as the site's`);
+  }
+});
+
+test("a generalized tenant shared with the site is not the site's", () => {
+  const run = partyView("{label}.github.io", [ownRow(1, "{label}.github.io"), attributedTo(2, "{label}.github.io")]);
+  assert.equal(attributionSourceIsSite(run, "*.github.io"), false, "a tenant host two parties can share is drawn as the site's");
+});
+
+test("an actor with no row of its own is not the site's", () => {
+  const run = partyView("www.site.com", [ownRow(1, "www.site.com"), attributedTo(2, "{label}.site.com")]);
+  assert.equal(attributionSourceIsSite(run, "*.site.com"), false, "an actor the domain table does not hold is drawn as the site's");
+});
+
+test("a source with no actor is not the site's", () => {
+  const run = partyView("www.site.com", [ownRow(1, "www.site.com"), request(2, { provenance: undefined })]);
+  assert.equal(attributionSourceIsSite(run, "www.site.com"), false, "a source no row names is drawn as the site's");
+});
+
+test("the observed registrable domain proves the site when every row host is redacted", () => {
+  const rows = [ownRow(1, "{label}.site.com"), attributedTo(2, "{label}.site.com")];
+  assert.equal(attributionSourceIsSite(partyView("site.com", rows), "*.site.com"), true, "the run's own domain did not count");
+  for (const unproven of ["{label}.site.com", "{invalid-host}", "unknown"]) {
+    assert.equal(attributionSourceIsSite(partyView(unproven, rows), "*.site.com"), false, `${unproven} counted as the site's domain`);
+  }
+});
+
+test("in a bounded table of sanitizer outputs, a host drawn as the site's shares the site's party", () => {
+  const deep = Array.from({ length: 70 }, () => "q7").join(".");
+  const hosts = [
+    "bing.com", "www.bing.com", "zq7.bing.com", "zq8.bing.com", "www.bing.com.", "zq7.bing.com..",
+    "www.bing.co.uk", "zq7.other.com", `${deep}.bing.com`, `${deep}.other.com`,
+    "a$b.bing.com", "under_score.bing.com", `${"x".repeat(64)}.bing.com`,
+    "foo.github.io", "zq7.foo.github.io", "bar.github.io", "github.io",
+    "app-1700000000.github.io", "svc-1800000000.github.io",
+    "zq7.app-1700000000.github.io", "zq8.svc-1800000000.github.io",
+    "www.app-1700000000.github.io", "www.svc-1800000000.github.io",
+    `${deep}.app-1700000000.github.io`, `${deep}.svc-1800000000.github.io`,
+    "192.0.2.1", "198.51.100.7", "[2001:db8::1]", "localhost", "one.internal", "two.internal"
+  ];
+  const published = new Map(hosts.map((host) => [host, redactHostnameV2(host).value]));
+  let drawnAsSite = 0;
+  let sharedAcrossParties = 0;
+  for (const site of hosts) {
+    const registrable = publicRegistrableDomain(site);
+    // v1 names the site by its final host, v2 by its observed registrable domain.
+    const named = [published.get(site)!, ...(registrable ? [redactHostnameV2(registrable).value] : [])];
+    const sameParty = hosts.filter((host) => !isThirdParty(site, host));
+    for (const actor of hosts) {
+      const wire = published.get(actor)!;
+      const another = isThirdParty(site, actor);
+      if (another && sameParty.some((host) => published.get(host) === wire)) sharedAcrossParties += 1;
+      for (const domain of named) {
+        // The worst case for the rule: the actor's own requests are not retained.
+        for (const own of [[site], sameParty]) {
+          const run = partyView(domain, [
+            ...own.map((host, index) => ownRow(index + 1, published.get(host)!)),
+            attributedTo(1000, wire)
+          ]);
+          if (!attributionSourceIsSite(run, displayHost(wire))) continue;
+          drawnAsSite += 1;
+          assert.equal(another, false, `${actor} is drawn as the site ${site}'s, and is another party (${wire})`);
+        }
+      }
+    }
+  }
+  // Without both kinds of case the table would show nothing.
+  assert.ok(drawnAsSite > 0, "no host in the table was drawn as the site's");
+  assert.ok(sharedAcrossParties > 0, "no published host in the table was shared by two parties");
 });

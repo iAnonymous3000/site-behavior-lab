@@ -243,6 +243,53 @@ function coverageFor(
   }
 }
 
+/** What {@link attributionSourceIsSite} reads of a visit. */
+type AttributionPartyView = {
+  domain: string;
+  evidence: Pick<RunView["evidence"], "requests" | "domains">;
+};
+
+/** A published host with no hidden label and no redaction marker. */
+function publishedVerbatim(host: string): boolean {
+  return !/[{[]/.test(host);
+}
+
+/**
+ * Whether the actor drawn as `source` is the visit's own site.
+ *
+ * `source` is a display host, and it cannot decide this alone. Two wire hosts
+ * can share one display host, and one wire host can stand for two parties:
+ * `{invalid-host}` is every host with no public registrable domain, and under
+ * a private suffix a tenant's own label can be hidden, so the site and
+ * another tenant can both publish as `{label}.github.io`.
+ *
+ * So the raw actors behind the source decide, and each must be a host the
+ * domain table marks as the site's. That is trusted only where the report
+ * shows the site's registrable domain was published verbatim: one of the
+ * site's hosts with nothing hidden, or the run's own domain (a dot, so that a
+ * one-word sentinel is no evidence). Without that the answer is false, and
+ * the actor keeps the third-party colour. lib/request-attribution-map.test.ts
+ * holds this over a bounded table of the sanitizer's outputs.
+ */
+export function attributionSourceIsSite(run: AttributionPartyView, source: string): boolean {
+  const own = new Set(
+    run.evidence.domains
+      .filter((domain) => !domain.thirdParty && domain.domain.toLowerCase() !== "{invalid-host}")
+      .map((domain) => domain.domain)
+  );
+  const runNamesSite = run.domain.includes(".") && publishedVerbatim(run.domain);
+  if (!runNamesSite && ![...own].some(publishedVerbatim)) return false;
+  let found = false;
+  for (const request of run.evidence.requests) {
+    if (!request.thirdParty) continue;
+    const actor = requestAttributionActor(request);
+    if (!actor || displayHost(actor.domain) !== source) continue;
+    if (!own.has(actor.domain)) return false;
+    found = true;
+  }
+  return found;
+}
+
 /**
  * Pure request-attribution model used by the renderer and corpus gate.
  *

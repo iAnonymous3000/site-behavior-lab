@@ -8,6 +8,7 @@ import {
 } from "@/lib/report-evidence-navigation";
 import {
   DEDICATED_WORKER_ATTRIBUTION_SENTENCE,
+  attributionSourceIsSite,
   buildRequestAttributionMap,
   type AttributionActorRole,
   type AttributionMapEdge
@@ -183,8 +184,9 @@ function CausalityGraph({
               const own = edges.filter((edge) => edge.source === source.domain);
               const selectedHere = selectedEdge !== null && selectedEdge.source === source.domain ? selectedEdge : null;
               // The actor's own party, as the domain table marks it: the site
-              // itself, or another site.
-              const sameSite = run.evidence.domains.some((domain) => domain.domain === source.domain && !domain.thirdParty);
+              // itself, or another site. The name here is a display host,
+              // so the map's rule reads the hosts behind it.
+              const sameSite = attributionSourceIsSite(run, source.domain);
               return (
                 <div className={`attribution-group${sameSite ? " is-site" : ""}`} key={source.domain}>
                   <p className="attribution-actor">
