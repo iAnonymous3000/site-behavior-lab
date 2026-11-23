@@ -443,6 +443,9 @@ test("production health treats an in-flight rollout as pending, not as a product
   assert.match(workflow, /actions\/workflows\/ci\.yml\/runs\?head_sha=\$\{EXPECTED_PRODUCTION_SHA\}/);
   assert.match(workflow, /promoted_at=\$\(gh api/);
   assert.match(workflow, /promoted_at=\$\(git log -1 --format=%ct HEAD\)/);
+  // A surface older than the pin also waits from the first promotion past its
+  // own revision, read from the push-event deploy runs' created_at.
+  assert.match(workflow, /actions\/workflows\/deploy-pages\.yml\/runs\?branch=production&event=push&per_page=100/);
   assert.match(workflow, /::notice title=Rollout clock fallback::/);
   assert.match(workflow, /GH_TOKEN: \$\{\{ github\.token \}\}/);
   assert.match(workflow, /^\s{2}actions: read$/m);
@@ -457,7 +460,8 @@ test("production health treats an in-flight rollout as pending, not as a product
 
 /**
  * PATH stand-ins for everything the rollout step reaches outside git: the two
- * live receipts, the promoting-run lookup and the 15-second waits. jq is one
+ * live receipts, the promoting-run and promotion-record lookups and the
+ * 15-second waits. jq is one
  * too, because the Docker build stage that also runs this suite installs none.
  * Each refuses any call the step does not make. The comma lists are split
  * without a here-string, which bash 5 feeds through a pipe.
@@ -479,10 +483,24 @@ const ROLLOUT_SHIMS: Readonly<Record<string, string>> = {
     `[[ "$#" == 3 && "$1" == -r && "$2" == '.deployment // empty' ]] || { echo "unexpected jq $*" >&2; exit 2; }`,
     `sed -n 's/^{"deployment":"\\([0-9a-f]*\\)"}$/\\1/p' "$3"`
   ].join("\n"),
+  // The promoting CI run, as before, and the promotion records: the stub
+  // stands in for jq too, so it accepts only the exact field selections and
+  // answers a selection of updated_at or run_started_at with the times a
+  // rerun moved, which is what the real API would print for them.
   gh: [
-    '[[ "$*" == *"actions/workflows/ci.yml/runs?head_sha=${EXPECTED_PRODUCTION_SHA}&status=success"* ]] ||',
-    '  { echo "unexpected gh $*" >&2; exit 2; }',
-    'echo "$SHIM_PROMOTED_AT"'
+    '[[ "${SHIM_GH_FAIL:-}" != 1 ]] || { echo "gh: the API did not answer" >&2; exit 1; }',
+    'if [[ "$*" == *"actions/workflows/ci.yml/runs?head_sha=${EXPECTED_PRODUCTION_SHA}&status=success"* ]]; then',
+    '  echo "$SHIM_PROMOTED_AT"',
+    "  exit 0",
+    "fi",
+    'records="repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-pages.yml/runs?branch=production&event=push&per_page=100"',
+    '[[ "$#" == 4 && "$1" == api && "$2" == "$records" && "$3" == --jq ]] || { echo "unexpected gh $*" >&2; exit 2; }',
+    'case "$4" in',
+    String.raw`  '.workflow_runs[] | "\(.head_sha) \(.created_at | fromdateiso8601)"') list="$SHIM_PROMOTIONS_CREATED" ;;`,
+    String.raw`  '.workflow_runs[] | "\(.head_sha) \(.updated_at | fromdateiso8601)"' | '.workflow_runs[] | "\(.head_sha) \(.run_started_at | fromdateiso8601)"') list="$SHIM_PROMOTIONS_UPDATED" ;;`,
+    '  *) echo "unexpected gh --jq $4" >&2; exit 2 ;;',
+    "esac",
+    'for record in ${list//,/ }; do echo "${record/:/ }"; done'
   ].join("\n"),
   sleep: "exit 0"
 };
@@ -492,8 +510,21 @@ type RolloutCase = {
   /** Live revision per poll, by commit label; the last repeats. "-" is an unreachable endpoint. */
   scanner: string;
   pages: string;
-  /** Minutes since the pinned revision was promoted. */
+  /** Minutes since the pinned revision was promoted, by the promoting CI run. */
   age: number;
+  /**
+   * The push-event deploy-pages records, newest first: minutes since each was
+   * created, and since a rerun last updated it. The default is A promoted
+   * `age` minutes ago, Z 30 minutes before that, and B one minute ago when
+   * production holds B, so the new clock reads exactly what the CI clock does.
+   */
+  promotions?: ReadonlyArray<{ label: string; created: number; updated?: number }>;
+  /** Every gh call fails, so both clocks fall back to committer dates. */
+  apiDown?: boolean;
+  /** A line the step must print, for the cases that pin its wording. */
+  prints?: RegExp;
+  /** A line the step must write to the step summary. */
+  summarizes?: RegExp;
   /** The checkout already holds B, A's child on main, and G, A's child off it (else both landed after it). */
   bKnown?: boolean;
   /** Where origin's production branch points while the step polls. */
@@ -501,10 +532,15 @@ type RolloutCase = {
   expected: { status: 0 | 1; pending: "true" | "false"; title: string | null };
 };
 
+/** A record the checkout does not hold: promoted after it was cloned. */
+const UNKNOWN_PROMOTION = "0123456789abcdef0123456789abcdef01234567";
+
 /**
  * A throwaway origin and two checkouts of its production branch, both pinned
- * at A, a child of Z: one cloned before B landed on main and one after. F is a
- * fork from Z that production never held. Built once; each case runs in its
+ * at A, whose parent is Y, whose parent is Z: one cloned before B landed on
+ * main and one after. F is a fork from Z that production never held. Z, Y and
+ * A carry fixed committer dates (3 hours, 1 hour and 2 minutes ago), the only
+ * clock left when the API does not answer. Built once; each case runs in its
  * own copy of a checkout, which still fetches from this origin.
  */
 function rolloutFixture(dir: string) {
@@ -513,16 +549,19 @@ function rolloutFixture(dir: string) {
   for (const directory of [origin, shims]) mkdirSync(directory);
   initFixtureRepo(origin);
   let commits = 0;
-  const commit = (label: string): string => {
+  const now = Math.floor(Date.now() / 1000);
+  const commit = (label: string, minutesAgo?: number): string => {
     commits += 1;
     writeFileSync(path.join(origin, "revision.txt"), `${label} ${commits}\n`);
     runFixtureGit(origin, ["add", "revision.txt"]);
-    runFixtureGit(origin, ["commit", "-q", "-m", label]);
+    const when = minutesAgo === undefined ? undefined : `@${now - minutesAgo * 60} +0000`;
+    runFixtureGit(origin, ["commit", "-q", "-m", label], when ? { GIT_COMMITTER_DATE: when, GIT_AUTHOR_DATE: when } : {});
     return runFixtureGit(origin, ["rev-parse", "HEAD"]).trim();
   };
   const shas: Record<string, string> = {};
-  shas.Z = commit("Z");
-  shas.A = commit("A");
+  shas.Z = commit("Z", 180);
+  shas.Y = commit("Y", 60);
+  shas.A = commit("A", 2);
   runFixtureGit(origin, ["branch", "production", shas.A]);
   runFixtureGit(origin, ["checkout", "-q", "-b", "fork", shas.Z]);
   shas.F = commit("F");
@@ -553,7 +592,7 @@ function runRolloutStep(
   fixture: ReturnType<typeof rolloutFixture>,
   rolloutCase: RolloutCase,
   index: number
-): { status: number | null; pending: string | undefined; titles: string[]; fetchedProduction: string } {
+): { status: number | null; pending: string | undefined; titles: string[]; fetchedProduction: string; output: string; summary: string } {
   const { shas } = fixture;
   const runner = path.join(fixture.dir, `case-${index}`);
   const state = path.join(fixture.dir, `case-${index}-state`);
@@ -564,6 +603,21 @@ function runRolloutStep(
   writeFileSync(output, "");
   const revisions = (labels: string) => labels.split(",").map((label) => (label === "-" ? "-" : shas[label])).join(",");
   const now = Math.floor(Date.now() / 1000);
+  const promotions =
+    rolloutCase.promotions ??
+    [
+      ...(rolloutCase.production === "B" ? [{ label: "B", created: 1 }] : []),
+      { label: "A", created: rolloutCase.age },
+      { label: "Z", created: rolloutCase.age + 30 }
+    ];
+  const records = (field: "created" | "updated") =>
+    promotions
+      .map((record) => {
+        const sha = record.label === "unknown" ? UNKNOWN_PROMOTION : shas[record.label];
+        const minutes = field === "updated" ? (record.updated ?? record.created) : record.created;
+        return `${sha}:${now - minutes * 60}`;
+      })
+      .join(",");
   const run = spawnSyncBounded("bash", ["--noprofile", "--norc", "-e", "-c", step], {
     cwd: runner,
     encoding: "utf8",
@@ -573,6 +627,9 @@ function runRolloutStep(
       SHIM_SCANNER: revisions(rolloutCase.scanner),
       SHIM_PAGES: revisions(rolloutCase.pages),
       SHIM_PROMOTED_AT: String(now - rolloutCase.age * 60),
+      SHIM_PROMOTIONS_CREATED: records("created"),
+      SHIM_PROMOTIONS_UPDATED: records("updated"),
+      SHIM_GH_FAIL: rolloutCase.apiDown ? "1" : "",
       EXPECTED_PRODUCTION_SHA: shas.A,
       HEALTH_URL: "https://scan.sitebehavior.org/api/health",
       PAGES_DEPLOYMENT_URL: "https://sitebehavior.org/deployment.json",
@@ -590,7 +647,9 @@ function runRolloutStep(
     status: run.status,
     pending: [...readFileSync(output, "utf8").matchAll(/^pending=(\w+)$/gm)].at(-1)?.[1],
     titles: [...`${run.stdout}${run.stderr}`.matchAll(/^::(?:warning|error) title=([^:]+)::/gm)].map((match) => match[1]),
-    fetchedProduction: runFixtureGit(runner, ["rev-parse", "refs/remotes/origin/production"]).trim()
+    fetchedProduction: runFixtureGit(runner, ["rev-parse", "refs/remotes/origin/production"]).trim(),
+    output: `${run.stdout}${run.stderr}`,
+    summary: readFileSync(path.join(state, "step-summary"), { encoding: "utf8", flag: "a+" })
   };
 }
 
@@ -637,7 +696,72 @@ test("production health defers to a production revision that advanced during its
     { name: "Pages older than the pin while production advanced, past the budget", scanner: "B", pages: "Z", age: 60, bKnown: true, production: "B", expected: stale },
     { name: "Pages on the pin's child that production never held, past the budget", scanner: "A", pages: "G", age: 60, bKnown: true, production: "B", expected: stale },
     { name: "the scanner on the pin's child that production never held, past the budget", scanner: "G", pages: "B", age: 60, bKnown: true, production: "B", expected: stale },
-    { name: "production force-moved onto a fork", scanner: "Z", pages: "F", age: 3, production: "F", expected: stale }
+    { name: "production force-moved onto a fork", scanner: "Z", pages: "F", age: 3, production: "F", expected: stale },
+    // A surface older than the pin is measured from the first promotion that
+    // moved production past ITS revision, never from a later one: promotions
+    // that keep arriving inside the budget used to restart the clock of a
+    // surface stuck on an old revision.
+    {
+      name: "a surface stuck since an earlier promotion, under a fresh pin",
+      scanner: "Z", pages: "A", age: 3,
+      promotions: [{ label: "A", created: 3 }, { label: "Y", created: 60 }, { label: "Z", created: 120 }],
+      expected: stale
+    },
+    {
+      name: "a surface stuck since an earlier promotion, while production advanced",
+      scanner: "Z", pages: "B", age: 3, bKnown: true, production: "B",
+      promotions: [{ label: "B", created: 1 }, { label: "A", created: 3 }, { label: "Y", created: 60 }, { label: "Z", created: 120 }],
+      expected: stale
+    },
+    {
+      name: "a surface older than every promotion record read",
+      scanner: "Z", pages: "A", age: 3,
+      promotions: [{ label: "A", created: 3 }],
+      expected: stale
+    },
+    {
+      name: "a surface stuck since an earlier promotion, measured by committer dates when the API does not answer",
+      scanner: "Z", pages: "A", age: 3, apiDown: true,
+      expected: stale
+    },
+    {
+      name: "a rerun of an earlier promotion's deploy does not restart its surface's clock",
+      scanner: "Z", pages: "A", age: 3,
+      promotions: [{ label: "A", created: 3 }, { label: "Y", created: 60, updated: 1 }, { label: "Z", created: 120 }],
+      expected: stale
+    },
+    {
+      name: "a surface's own wait never shortens the pin's clock",
+      scanner: "Z", pages: "A", age: 60,
+      promotions: [{ label: "A", created: 3 }, { label: "Z", created: 33 }],
+      expected: stale
+    },
+    {
+      name: "a surface on the pin's parent waits only since the pin's promotion",
+      scanner: "Y", pages: "A", age: 3,
+      promotions: [{ label: "A", created: 3 }, { label: "Y", created: 60 }],
+      expected: { ...pending, title: "Production rollout in progress" },
+      prints: /^::warning title=Production rollout in progress::scanner serves [0-9a-f]{40}, Pages serves [0-9a-f]{40}; [0-9a-f]{40} was promoted 3m ago and is still deploying \(budget 45m\); waited since production first moved past each live revision: scanner 3m, Pages the pin or later\.$/m,
+      summarizes: /^- Rollout: \*\*in progress\*\* \(scanner `[0-9a-f]{40}`, Pages `[0-9a-f]{40}`, promoted `[0-9a-f]{40}` is 3m old; waited since production first moved past each live revision: scanner 3m, Pages the pin or later\)$/m
+    },
+    {
+      name: "a promotion record the checkout does not hold is skipped",
+      scanner: "Z", pages: "A", age: 3,
+      promotions: [{ label: "unknown", created: 0 }, { label: "A", created: 3 }, { label: "Z", created: 33 }],
+      expected: { ...pending, title: "Production rollout in progress" }
+    },
+    {
+      name: "each surface is measured by its own wait",
+      scanner: "Z", pages: "Y", age: 3,
+      promotions: [{ label: "A", created: 3 }, { label: "Y", created: 60 }, { label: "Z", created: 120 }],
+      expected: stale
+    },
+    {
+      name: "a surface on the pin's grandparent while production advanced, inside its own wait",
+      scanner: "Z", pages: "B", age: 3, bKnown: true, production: "B",
+      promotions: [{ label: "B", created: 1 }, { label: "A", created: 3 }, { label: "Z", created: 50 }],
+      expected: advanced
+    }
   ];
   const fixture = rolloutFixture(mkdtempSync(path.join(tmpdir(), "production-rollout-")));
   try {
@@ -647,6 +771,15 @@ test("production health defers to a production revision that advanced during its
       assert.equal(result.status, expected.status, `${rolloutCase.name}: exit status`);
       assert.equal(result.pending, expected.pending, `${rolloutCase.name}: pending output`);
       assert.deepEqual(result.titles, expected.title ? [expected.title] : [], `${rolloutCase.name}: annotations`);
+      if (rolloutCase.prints) assert.match(result.output, rolloutCase.prints, `${rolloutCase.name}: printed line`);
+      if (rolloutCase.summarizes) assert.match(result.summary, rolloutCase.summarizes, `${rolloutCase.name}: summary line`);
+      if (rolloutCase.apiDown) {
+        assert.match(
+          result.output,
+          /^::notice title=Rollout clock fallback::Could not read the promotion records; measuring each surface from the oldest commit after its revision instead\.$/m,
+          `${rolloutCase.name}: fallback notice`
+        );
+      }
       if (rolloutCase.name === "the advance was never fetched by the checkout") {
         // The checkout's own ref still held the pin, so the verdict came from
         // the step's fresh read of production.

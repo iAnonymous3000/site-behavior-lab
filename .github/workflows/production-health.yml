@@ -198,6 +198,79 @@ jobs:
         run: |
           set -euo pipefail
           echo "pending=false" >> "$GITHUB_OUTPUT"
+          # The pin's own promotion clock cannot age a surface that was already
+          # behind before the pin was promoted: one promotion after another
+          # would restart it for as long as they keep arriving inside the
+          # budget. So a surface older than the pin is also measured from the
+          # first promotion that moved production past ITS revision. Every push
+          # to production starts exactly one push-event run of deploy-pages.yml,
+          # and a rerun of that run moves its run_started_at and updated_at but
+          # never its created_at, so created_at is the promotion record here.
+          promotions="$RUNNER_TEMP/production-promotions.txt"
+          promotions_read=""
+          read_promotions() {
+            [[ -n "$promotions_read" ]] && return 0
+            if gh api \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy-pages.yml/runs?branch=production&event=push&per_page=100" \
+              --jq '.workflow_runs[] | "\(.head_sha) \(.created_at | fromdateiso8601)"' > "$promotions" 2>/dev/null &&
+              [[ -s "$promotions" ]]; then
+              promotions_read=yes
+            else
+              promotions_read=no
+              echo "::notice title=Rollout clock fallback::Could not read the promotion records; measuring each surface from the oldest commit after its revision instead."
+            fi
+          }
+          # Sets wait_minutes to the minutes since production first moved past
+          # surface $1, or to "stale" when every record read is newer than it:
+          # this one page cannot then show when that happened, and a revision
+          # that old is never a rollout in progress. A record this checkout does
+          # not hold was promoted after it, so it is skipped; skipping can only
+          # keep an older time. Without usable records, the oldest committer
+          # date after the surface stands in: every commit exists before it is
+          # promoted and the first promotion past the surface promoted one of
+          # them, so that date is never later than the promotion it replaces.
+          surface_wait() {
+            local surface="$1" sha when first="" boundary=""
+            if [[ "$promotions_read" == yes ]]; then
+              while read -r sha when; do
+                [[ "$sha" =~ ^[0-9a-f]{40}$ && "$when" =~ ^[0-9]+$ ]] || continue
+                git cat-file -e "${sha}^{commit}" 2>/dev/null || continue
+                if [[ "$sha" != "$surface" ]] && git merge-base --is-ancestor "$surface" "$sha" 2>/dev/null; then
+                  first="$when"
+                else
+                  boundary=yes
+                  break
+                fi
+              done < "$promotions"
+              if [[ -z "$boundary" ]]; then
+                wait_minutes=stale
+                return 0
+              fi
+            fi
+            if [[ -z "$first" ]]; then
+              first=$(git log --format=%ct "${surface}..HEAD" | awk 'NR == 1 || $1 < oldest { oldest = $1 } END { print oldest }')
+            fi
+            if [[ ! "$first" =~ ^[0-9]+$ ]]; then
+              wait_minutes=stale
+              return 0
+            fi
+            wait_minutes=$(( ( $(date +%s) - first ) / 60 ))
+          }
+          # A surface that serves the pin or a later revision has deployed the
+          # pin. One that is still older is inside the budget only by both
+          # clocks: the pin's promotion and its own wait, so no surface can read
+          # younger than the pin's clock alone would make it.
+          surface_ok() {
+            local name="$1" surface="$2"
+            printf -v "${name}_wait" '%s' "the pin or later"
+            git merge-base --is-ancestor "$EXPECTED_PRODUCTION_SHA" "$surface" 2>/dev/null && return 0
+            git merge-base --is-ancestor "$surface" "$EXPECTED_PRODUCTION_SHA" 2>/dev/null || return 1
+            (( age_minutes < ROLLOUT_BUDGET_MINUTES )) || return 1
+            read_promotions
+            surface_wait "$surface"
+            printf -v "${name}_wait" '%s' "${wait_minutes}m"
+            [[ "$wait_minutes" != stale ]] && (( wait_minutes < ROLLOUT_BUDGET_MINUTES ))
+          }
           for attempt in {1..6}; do
             scanner=""
             pages=""
@@ -248,11 +321,11 @@ jobs:
               if [[ -n "$scanner" && -n "$pages" ]] &&
                 git merge-base --is-ancestor "$scanner" HEAD 2>/dev/null &&
                 git merge-base --is-ancestor "$pages" HEAD 2>/dev/null &&
-                (( age_minutes < ROLLOUT_BUDGET_MINUTES )); then
+                surface_ok scanner "$scanner" && surface_ok pages "$pages"; then
                 echo "pending=true" >> "$GITHUB_OUTPUT"
-                echo "::warning title=Production rollout in progress::scanner serves ${scanner}, Pages serves ${pages}; ${EXPECTED_PRODUCTION_SHA} was promoted ${age_minutes}m ago and is still deploying (budget ${ROLLOUT_BUDGET_MINUTES}m)."
+                echo "::warning title=Production rollout in progress::scanner serves ${scanner}, Pages serves ${pages}; ${EXPECTED_PRODUCTION_SHA} was promoted ${age_minutes}m ago and is still deploying (budget ${ROLLOUT_BUDGET_MINUTES}m); waited since production first moved past each live revision: scanner ${scanner_wait}, Pages ${pages_wait}."
                 {
-                  echo "- Rollout: **in progress** (scanner \`${scanner}\`, Pages \`${pages}\`, promoted \`${EXPECTED_PRODUCTION_SHA}\` is ${age_minutes}m old)"
+                  echo "- Rollout: **in progress** (scanner \`${scanner}\`, Pages \`${pages}\`, promoted \`${EXPECTED_PRODUCTION_SHA}\` is ${age_minutes}m old; waited since production first moved past each live revision: scanner ${scanner_wait}, Pages ${pages_wait})"
                   echo "- Posture checks: **deferred** until the promoted revision is live on both"
                 } >> "$GITHUB_STEP_SUMMARY"
                 break
@@ -265,12 +338,13 @@ jobs:
               # authoritative ref and accept only a fast-forward of the pin that
               # both live revisions equal or precede; a forked, force-moved or
               # unpromoted revision still fails.
-              # The pin's budget limits only a surface still on a revision OLDER
-              # than the pin. A surface that serves the pin or a later promoted
-              # revision has deployed it, however old the pin is: a scheduled
-              # run pins a revision hours old, and calling that surface stale
-              # failed a healthy promotion. So past the budget each surface must
-              # sit between the pin and the re-read production, inclusive.
+              # The budget limits only a surface still on a revision OLDER than
+              # the pin, by both of its clocks (surface_ok). A surface that
+              # serves the pin or a later promoted revision has deployed it,
+              # however old the pin is: a scheduled run pins a revision hours
+              # old, and calling that surface stale failed a healthy promotion.
+              # A surface the pin neither precedes nor follows is not a rollout
+              # of the pin at all.
               # The checks below were derived from the pinned config, so they
               # are deferred to the runs the newer revision's deploys request
               # rather than re-pinned mid-run.
@@ -281,9 +355,7 @@ jobs:
                   git merge-base --is-ancestor "$EXPECTED_PRODUCTION_SHA" "$latest" 2>/dev/null &&
                   git merge-base --is-ancestor "$scanner" "$latest" 2>/dev/null &&
                   git merge-base --is-ancestor "$pages" "$latest" 2>/dev/null &&
-                  { (( age_minutes < ROLLOUT_BUDGET_MINUTES )) ||
-                    { git merge-base --is-ancestor "$EXPECTED_PRODUCTION_SHA" "$scanner" 2>/dev/null &&
-                      git merge-base --is-ancestor "$EXPECTED_PRODUCTION_SHA" "$pages" 2>/dev/null; }; }; then
+                  surface_ok scanner "$scanner" && surface_ok pages "$pages"; then
                   echo "pending=true" >> "$GITHUB_OUTPUT"
                   echo "::warning title=Production advanced during the probe::pinned ${EXPECTED_PRODUCTION_SHA}, production is now ${latest}; scanner serves ${scanner}, Pages serves ${pages}. The newer revision's deploys request their own production health runs."
                   {
