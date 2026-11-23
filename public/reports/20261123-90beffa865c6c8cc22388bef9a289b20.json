@@ -1,0 +1,6369 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.khanacademy.org/",
+  "scannedAt": "2026-11-23T16:22:32.989Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 8374,
+      "firstPartyDomain": "www.khanacademy.org",
+      "totalRequests": 181,
+      "thirdPartyRequests": 160,
+      "knownTrackerRequests": 4,
+      "thirdPartyDomains": 16,
+      "cookies": 14,
+      "thirdPartyCookies": 3,
+      "storageEntries": 2,
+      "fingerprintEvents": 119,
+      "shieldsBlockedRequests": 24
+    },
+    "conditions": {
+      "requestedUrl": "https://www.khanacademy.org/",
+      "finalUrl": "https://www.khanacademy.org/",
+      "scannedAt": "2026-11-23T16:22:24.594Z",
+      "chromiumVersion": "159.0.8154.6",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.8154.6 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-11-16T15:57:59.448Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.65.1 from github-actions-ubuntu with browser 159.0.8154.6, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.khanacademy.org/",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 46
+      },
+      {
+        "id": 2,
+        "url": "https://www.khanacademy.org/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 105
+      },
+      {
+        "id": 3,
+        "url": "https://www.khanacademy.org/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 105
+      },
+      {
+        "id": 4,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 127
+      },
+      {
+        "id": 5,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 142
+      },
+      {
+        "id": 6,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 160
+      },
+      {
+        "id": 7,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 181
+      },
+      {
+        "id": 8,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/{seg}/{seg}",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 202
+      },
+      {
+        "id": 9,
+        "url": "https://www.khanacademy.org/",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 223
+      },
+      {
+        "id": 10,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 11,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 12,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 409
+      },
+      {
+        "id": 13,
+        "url": "https://www.googletagmanager.com/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 410
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 535
+      },
+      {
+        "id": 15,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 536
+      },
+      {
+        "id": 16,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 538
+      },
+      {
+        "id": 17,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 634
+      },
+      {
+        "id": 18,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 634
+      },
+      {
+        "id": 19,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 635
+      },
+      {
+        "id": 20,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 635
+      },
+      {
+        "id": 21,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 636
+      },
+      {
+        "id": 22,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 636
+      },
+      {
+        "id": 23,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 636
+      },
+      {
+        "id": 24,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 636
+      },
+      {
+        "id": 25,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 637
+      },
+      {
+        "id": 26,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 654
+      },
+      {
+        "id": 27,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 654
+      },
+      {
+        "id": 28,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 655
+      },
+      {
+        "id": 29,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 655
+      },
+      {
+        "id": 30,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 655
+      },
+      {
+        "id": 31,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 655
+      },
+      {
+        "id": 32,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 656
+      },
+      {
+        "id": 33,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 668
+      },
+      {
+        "id": 34,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 669
+      },
+      {
+        "id": 35,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 669
+      },
+      {
+        "id": 36,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 670
+      },
+      {
+        "id": 37,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 670
+      },
+      {
+        "id": 38,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 673
+      },
+      {
+        "id": 39,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 674
+      },
+      {
+        "id": 40,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 674
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.trustarc.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.trustarc.com"
+        },
+        "startedAtMs": 693
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.trustarc.com"
+        },
+        "startedAtMs": 694
+      },
+      {
+        "id": 43,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 700
+      },
+      {
+        "id": 44,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 700
+      },
+      {
+        "id": 45,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 706
+      },
+      {
+        "id": 46,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 767
+      },
+      {
+        "id": 47,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 768
+      },
+      {
+        "id": 48,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 768
+      },
+      {
+        "id": 49,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 768
+      },
+      {
+        "id": 50,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 768
+      },
+      {
+        "id": 51,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 768
+      },
+      {
+        "id": 52,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 769
+      },
+      {
+        "id": 53,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 770
+      },
+      {
+        "id": 54,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 770
+      },
+      {
+        "id": 55,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 771
+      },
+      {
+        "id": 56,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 771
+      },
+      {
+        "id": 57,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 771
+      },
+      {
+        "id": 58,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 772
+      },
+      {
+        "id": 59,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 772
+      },
+      {
+        "id": 60,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 791
+      },
+      {
+        "id": 61,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 791
+      },
+      {
+        "id": 62,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 792
+      },
+      {
+        "id": 63,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 792
+      },
+      {
+        "id": 64,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 805
+      },
+      {
+        "id": 65,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 818
+      },
+      {
+        "id": 66,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 819
+      },
+      {
+        "id": 67,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 847
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.trustarc.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.trustarc.com"
+        },
+        "startedAtMs": 848
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 849
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 850
+      },
+      {
+        "id": 71,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 878
+      },
+      {
+        "id": 72,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 879
+      },
+      {
+        "id": 73,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 879
+      },
+      {
+        "id": 74,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 880
+      },
+      {
+        "id": 75,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 881
+      },
+      {
+        "id": 76,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 881
+      },
+      {
+        "id": 77,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 881
+      },
+      {
+        "id": 78,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 883
+      },
+      {
+        "id": 79,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 883
+      },
+      {
+        "id": 80,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 884
+      },
+      {
+        "id": 81,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 897
+      },
+      {
+        "id": 82,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 898
+      },
+      {
+        "id": 83,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 947
+      },
+      {
+        "id": 84,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 947
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.gofundme.com/api/checkout/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1085
+      },
+      {
+        "id": 86,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1086
+      },
+      {
+        "id": 87,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1086
+      },
+      {
+        "id": 88,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1087
+      },
+      {
+        "id": 89,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1087
+      },
+      {
+        "id": 90,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1096
+      },
+      {
+        "id": 91,
+        "url": "https://{label}.gofundme.com/{seg}/api/checkout/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 301,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1445
+      },
+      {
+        "id": 92,
+        "url": "https://{label}.gofundme.com/api/checkout/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1481
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.gofundme.com/api/checkout/{seg}/{seg}/{n}?%5Bredacted%5D=&locale=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.gofundme.com/{seg}/api/checkout/{seg}/{seg}/{n}",
+          "initiatorDomain": "{label}.gofundme.com"
+        },
+        "startedAtMs": 1643
+      },
+      {
+        "id": 94,
+        "url": "https://{label}.gofundme.com/{seg}/{seg}?cid=&%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 308,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.gofundme.com/{seg}/api/checkout/{seg}/{seg}/{n}",
+          "initiatorDomain": "{label}.gofundme.com"
+        },
+        "startedAtMs": 2067
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.gofundme.com/{seg}/{seg}/{seg}?cid=&%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.gofundme.com/{seg}/api/checkout/{seg}/{seg}/{n}",
+          "initiatorDomain": "{label}.gofundme.com"
+        },
+        "startedAtMs": 2070
+      },
+      {
+        "id": 96,
+        "url": "https://{label}.gofundme.com/{seg}/{seg}?cid=&%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "provenance": {
+          "initiatorUrl": "https://{label}.gofundme.com/{seg}/api/checkout/{seg}/{seg}/{n}",
+          "initiatorDomain": "{label}.gofundme.com"
+        },
+        "startedAtMs": 2141
+      },
+      {
+        "id": 97,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2359
+      },
+      {
+        "id": 98,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2360
+      },
+      {
+        "id": 99,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2364
+      },
+      {
+        "id": 100,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2364
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2364
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2364
+      },
+      {
+        "id": 103,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2364
+      },
+      {
+        "id": 104,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2365
+      },
+      {
+        "id": 105,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2365
+      },
+      {
+        "id": 106,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2365
+      },
+      {
+        "id": 107,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2365
+      },
+      {
+        "id": 108,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2365
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2365
+      },
+      {
+        "id": 110,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2365
+      },
+      {
+        "id": 111,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2365
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2365
+      },
+      {
+        "id": 113,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2366
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.gofundme.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.gofundme.com"
+        },
+        "startedAtMs": 2366
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2366
+      },
+      {
+        "id": 116,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2366
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.gofundme.com/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2366
+      },
+      {
+        "id": 118,
+        "url": "https://{label}.gofundme.com/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2366
+      },
+      {
+        "id": 119,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "transcend-cdn.com"
+        },
+        "startedAtMs": 2458
+      },
+      {
+        "id": 120,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "transcend-cdn.com"
+        },
+        "startedAtMs": 2459
+      },
+      {
+        "id": 121,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 304,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2572
+      },
+      {
+        "id": 122,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.gofundme.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.gofundme.com"
+        },
+        "startedAtMs": 2573
+      },
+      {
+        "id": 123,
+        "url": "https://{label}.bugsnag.com/",
+        "domain": "{label}.bugsnag.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bugsnag.com",
+          "entity": "Bugsnag",
+          "category": "error monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2636
+      },
+      {
+        "id": 124,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "transcend-cdn.com"
+        },
+        "startedAtMs": 2663
+      },
+      {
+        "id": 125,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2664
+      },
+      {
+        "id": 126,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 304,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "transcend-cdn.com"
+        },
+        "startedAtMs": 2695
+      },
+      {
+        "id": 127,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 304,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "transcend-cdn.com"
+        },
+        "startedAtMs": 2696
+      },
+      {
+        "id": 128,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2763
+      },
+      {
+        "id": 129,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2764
+      },
+      {
+        "id": 130,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2766
+      },
+      {
+        "id": 131,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2766
+      },
+      {
+        "id": 132,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2766
+      },
+      {
+        "id": 133,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2767
+      },
+      {
+        "id": 134,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2767
+      },
+      {
+        "id": 135,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2767
+      },
+      {
+        "id": 136,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2768
+      },
+      {
+        "id": 137,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2769
+      },
+      {
+        "id": 138,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2769
+      },
+      {
+        "id": 139,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2769
+      },
+      {
+        "id": 140,
+        "url": "https://{label}.bugsnag.com/",
+        "domain": "{label}.bugsnag.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bugsnag.com",
+          "entity": "Bugsnag",
+          "category": "error monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2769
+      },
+      {
+        "id": 141,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 304,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "transcend-cdn.com"
+        },
+        "startedAtMs": 2789
+      },
+      {
+        "id": 142,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2790
+      },
+      {
+        "id": 143,
+        "url": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.feroot.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2803
+      },
+      {
+        "id": 144,
+        "url": "https://{label}.facebook.net/{seg}/{seg}",
+        "domain": "{label}.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2805
+      },
+      {
+        "id": 145,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2949
+      },
+      {
+        "id": 146,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2950
+      },
+      {
+        "id": 147,
+        "url": "https://{label}.stripe.com/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2950
+      },
+      {
+        "id": 148,
+        "url": "https://{label}.gofundme.com/api/checkout/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2951
+      },
+      {
+        "id": 149,
+        "url": "https://{label}.gofundme.com/api/checkout/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2951
+      },
+      {
+        "id": 150,
+        "url": "https://{label}.gofundme.com/api/checkout/{seg}/{n}/{n}",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2952
+      },
+      {
+        "id": 151,
+        "url": "https://{label}.gofundme.com/api/checkout/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2952
+      },
+      {
+        "id": 152,
+        "url": "https://{label}.gofundme.com/{seg}/{seg}?%5Bredacted%5D=&q=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.feroot.com"
+        },
+        "startedAtMs": 3057
+      },
+      {
+        "id": 153,
+        "url": "https://{label}.mparticle.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.mparticle.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 3074
+      },
+      {
+        "id": 154,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.feroot.com"
+        },
+        "startedAtMs": 3075
+      },
+      {
+        "id": 155,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.feroot.com"
+        },
+        "startedAtMs": 3091
+      },
+      {
+        "id": 156,
+        "url": "https://{label}.stripe.com/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.feroot.com"
+        },
+        "startedAtMs": 3155
+      },
+      {
+        "id": 157,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3173
+      },
+      {
+        "id": 158,
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3207
+      },
+      {
+        "id": 159,
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3208
+      },
+      {
+        "id": 160,
+        "url": "https://{label}.mparticle.com/{seg}/{seg}",
+        "domain": "{label}.mparticle.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3225
+      },
+      {
+        "id": 161,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.feroot.com"
+        },
+        "startedAtMs": 3329
+      },
+      {
+        "id": 162,
+        "url": "https://{label}.mparticle.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.mparticle.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 3387
+      },
+      {
+        "id": 163,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 3393
+      },
+      {
+        "id": 164,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3393
+      },
+      {
+        "id": 165,
+        "url": "https://{label}.stripe.com/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3452
+      },
+      {
+        "id": 166,
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3453
+      },
+      {
+        "id": 167,
+        "url": "https://{label}.stripe.com/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3454
+      },
+      {
+        "id": 168,
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3456
+      },
+      {
+        "id": 169,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}?hl=&v=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 3536
+      },
+      {
+        "id": 170,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3571
+      },
+      {
+        "id": 171,
+        "url": "https://{label}.stripe.com/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.feroot.com"
+        },
+        "startedAtMs": 4152
+      },
+      {
+        "id": 172,
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4173
+      },
+      {
+        "id": 173,
+        "url": "https://m.stripe.network/{seg}",
+        "domain": "m.stripe.network",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4189
+      },
+      {
+        "id": 174,
+        "url": "https://m.stripe.network/{seg}",
+        "domain": "m.stripe.network",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4235
+      },
+      {
+        "id": 175,
+        "url": "https://m.stripe.com/{n}",
+        "domain": "m.stripe.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4337
+      },
+      {
+        "id": 176,
+        "url": "https://{label}.stripe.com/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 4494
+      },
+      {
+        "id": 177,
+        "url": "https://{label}.stripe.com/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 4494
+      },
+      {
+        "id": 178,
+        "url": "https://{label}.{label}.rum-ingress-coralogix.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.rum-ingress-coralogix.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 4772
+      },
+      {
+        "id": 179,
+        "url": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.feroot.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 4966
+      },
+      {
+        "id": 180,
+        "url": "https://{label}.stripe.com/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 6393
+      },
+      {
+        "id": 181,
+        "url": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.feroot.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 6968
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.bugsnag.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bugsnag.com",
+          "entity": "Bugsnag",
+          "category": "error monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          202
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.kastatic.org",
+        "requests": 61,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.classy.org",
+        "requests": 35,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.gofundme.com",
+        "requests": 14,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          301,
+          308
+        ],
+        "resourceTypes": [
+          "fetch",
+          "script",
+          "document",
+          "other",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.stripe.com",
+        "requests": 13,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "transcend-cdn.com",
+        "requests": 10,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          304
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.trustarc.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "other"
+        ]
+      },
+      {
+        "domain": "{label}.feroot.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.mparticle.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          202
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "m.stripe.network",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "m.stripe.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.rum-ingress-coralogix.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.khanacademy.org",
+        "requests": 21,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "fetch",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": "{label}.gofundme.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": "m.stripe.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.google.com",
+        "path": "/{seg}",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".khanacademy.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".khanacademy.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 242626
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 118
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 400,
+          "maxCanvasHeight": 60,
+          "maxDistinctTextCharacters": 30,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 58,
+          "maxDistinctFonts": 57,
+          "maxDistinctTextSamples": 1,
+          "maxTextLength": 13
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.kastatic.org/",
+            "https://{label}.trustarc.com/",
+            "https://{label}.gofundme.com/"
+          ],
+          "totalListenerCalls": 50
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.kastatic.org/",
+            "https://{label}.trustarc.com/",
+            "https://{label}.gofundme.com/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 120
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.khanacademy.org/about/privacy-policy",
+      "claims": [],
+      "mentionedEntities": [
+        "Google",
+        "Meta"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 29289
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Read the site's privacy policy (https://www.khanacademy.org/about/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 9556,
+      "firstPartyDomain": "www.khanacademy.org",
+      "totalRequests": 158,
+      "thirdPartyRequests": 139,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 11,
+      "cookies": 14,
+      "thirdPartyCookies": 3,
+      "storageEntries": 2,
+      "fingerprintEvents": 113,
+      "shieldsBlockedRequests": 32
+    },
+    "conditions": {
+      "requestedUrl": "https://www.khanacademy.org/",
+      "finalUrl": "https://www.khanacademy.org/",
+      "scannedAt": "2026-11-23T16:22:32.989Z",
+      "chromiumVersion": "159.0.8154.6",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.8154.6 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-11-16T15:57:59.448Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.65.1 from github-actions-ubuntu with browser 159.0.8154.6, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.5-request-method-v1-playwright-1.65.1+subject-validity-v4+detector-coverage-v2+fingerprint-surface-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.khanacademy.org/",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 45
+      },
+      {
+        "id": 2,
+        "url": "https://www.khanacademy.org/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 93
+      },
+      {
+        "id": 3,
+        "url": "https://www.khanacademy.org/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 93
+      },
+      {
+        "id": 4,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 116
+      },
+      {
+        "id": 5,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 129
+      },
+      {
+        "id": 6,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 146
+      },
+      {
+        "id": 7,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 158
+      },
+      {
+        "id": 8,
+        "url": "https://www.khanacademy.org/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/{seg}/{seg}",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 179
+      },
+      {
+        "id": 9,
+        "url": "https://www.khanacademy.org/",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 204
+      },
+      {
+        "id": 10,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 325
+      },
+      {
+        "id": 12,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 385
+      },
+      {
+        "id": 13,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 386
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 525
+      },
+      {
+        "id": 15,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 525
+      },
+      {
+        "id": 16,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 527
+      },
+      {
+        "id": 17,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 593
+      },
+      {
+        "id": 18,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 594
+      },
+      {
+        "id": 19,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 595
+      },
+      {
+        "id": 20,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 595
+      },
+      {
+        "id": 21,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 595
+      },
+      {
+        "id": 22,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 595
+      },
+      {
+        "id": 23,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 596
+      },
+      {
+        "id": 24,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 596
+      },
+      {
+        "id": 25,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 596
+      },
+      {
+        "id": 26,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 602
+      },
+      {
+        "id": 27,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 603
+      },
+      {
+        "id": 28,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 603
+      },
+      {
+        "id": 29,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 603
+      },
+      {
+        "id": 30,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 603
+      },
+      {
+        "id": 31,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 604
+      },
+      {
+        "id": 32,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 604
+      },
+      {
+        "id": 33,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 619
+      },
+      {
+        "id": 34,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 620
+      },
+      {
+        "id": 35,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 620
+      },
+      {
+        "id": 36,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 620
+      },
+      {
+        "id": 37,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 620
+      },
+      {
+        "id": 38,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 628
+      },
+      {
+        "id": 39,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 628
+      },
+      {
+        "id": 40,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 629
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.trustarc.com"
+        },
+        "startedAtMs": 645
+      },
+      {
+        "id": 43,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 650
+      },
+      {
+        "id": 44,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 651
+      },
+      {
+        "id": 45,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 652
+      },
+      {
+        "id": 46,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 712
+      },
+      {
+        "id": 47,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 713
+      },
+      {
+        "id": 48,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 713
+      },
+      {
+        "id": 49,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 713
+      },
+      {
+        "id": 50,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 714
+      },
+      {
+        "id": 51,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 714
+      },
+      {
+        "id": 52,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 714
+      },
+      {
+        "id": 53,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 714
+      },
+      {
+        "id": 54,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 714
+      },
+      {
+        "id": 55,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 715
+      },
+      {
+        "id": 56,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 715
+      },
+      {
+        "id": 57,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 716
+      },
+      {
+        "id": 58,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 716
+      },
+      {
+        "id": 59,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 716
+      },
+      {
+        "id": 60,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 770
+      },
+      {
+        "id": 61,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 770
+      },
+      {
+        "id": 62,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 771
+      },
+      {
+        "id": 63,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 771
+      },
+      {
+        "id": 64,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 773
+      },
+      {
+        "id": 66,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 788
+      },
+      {
+        "id": 67,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 820
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 822
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.trustarc.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.trustarc.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 823
+      },
+      {
+        "id": 71,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 847
+      },
+      {
+        "id": 72,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 847
+      },
+      {
+        "id": 73,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 847
+      },
+      {
+        "id": 74,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 847
+      },
+      {
+        "id": 75,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 847
+      },
+      {
+        "id": 76,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 847
+      },
+      {
+        "id": 77,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 848
+      },
+      {
+        "id": 78,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 848
+      },
+      {
+        "id": 79,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 848
+      },
+      {
+        "id": 80,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 848
+      },
+      {
+        "id": 81,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 855
+      },
+      {
+        "id": 82,
+        "url": "https://www.khanacademy.org/api/{seg}/{seg}/{seg}",
+        "domain": "www.khanacademy.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 856
+      },
+      {
+        "id": 83,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 895
+      },
+      {
+        "id": 84,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.khanacademy.org/",
+          "initiatorDomain": "www.khanacademy.org"
+        },
+        "startedAtMs": 895
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.gofundme.com/api/checkout/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1019
+      },
+      {
+        "id": 86,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1019
+      },
+      {
+        "id": 87,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1020
+      },
+      {
+        "id": 88,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1020
+      },
+      {
+        "id": 89,
+        "url": "https://cdn.kastatic.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.kastatic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1020
+      },
+      {
+        "id": 91,
+        "url": "https://{label}.gofundme.com/{seg}/api/checkout/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 301,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.kastatic.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.kastatic.org"
+        },
+        "startedAtMs": 1409
+      },
+      {
+        "id": 92,
+        "url": "https://{label}.gofundme.com/api/checkout/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1441
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.gofundme.com/api/checkout/{seg}/{seg}/{n}?%5Bredacted%5D=&locale=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.gofundme.com/{seg}/api/checkout/{seg}/{seg}/{n}",
+          "initiatorDomain": "{label}.gofundme.com"
+        },
+        "startedAtMs": 1586
+      },
+      {
+        "id": 94,
+        "url": "https://{label}.gofundme.com/{seg}/{seg}?cid=&%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 308,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.gofundme.com/{seg}/api/checkout/{seg}/{seg}/{n}",
+          "initiatorDomain": "{label}.gofundme.com"
+        },
+        "startedAtMs": 1928
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.gofundme.com/{seg}/{seg}/{seg}?cid=&%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.gofundme.com/{seg}/api/checkout/{seg}/{seg}/{n}",
+          "initiatorDomain": "{label}.gofundme.com"
+        },
+        "startedAtMs": 1932
+      },
+      {
+        "id": 96,
+        "url": "https://{label}.gofundme.com/{seg}/{seg}?cid=&%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "provenance": {
+          "initiatorUrl": "https://{label}.gofundme.com/{seg}/api/checkout/{seg}/{seg}/{n}",
+          "initiatorDomain": "{label}.gofundme.com"
+        },
+        "startedAtMs": 2004
+      },
+      {
+        "id": 97,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2214
+      },
+      {
+        "id": 99,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2218
+      },
+      {
+        "id": 100,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2218
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2218
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2218
+      },
+      {
+        "id": 103,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2218
+      },
+      {
+        "id": 104,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2219
+      },
+      {
+        "id": 105,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2219
+      },
+      {
+        "id": 106,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2219
+      },
+      {
+        "id": 107,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2219
+      },
+      {
+        "id": 108,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2219
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2219
+      },
+      {
+        "id": 110,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2219
+      },
+      {
+        "id": 111,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2220
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2221
+      },
+      {
+        "id": 113,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2221
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.gofundme.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.gofundme.com"
+        },
+        "startedAtMs": 2221
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2222
+      },
+      {
+        "id": 116,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2222
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.gofundme.com/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2223
+      },
+      {
+        "id": 118,
+        "url": "https://{label}.gofundme.com/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2223
+      },
+      {
+        "id": 121,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.gofundme.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.gofundme.com"
+        },
+        "startedAtMs": 2486
+      },
+      {
+        "id": 122,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2561
+      },
+      {
+        "id": 123,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2565
+      },
+      {
+        "id": 124,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2565
+      },
+      {
+        "id": 125,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2565
+      },
+      {
+        "id": 126,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2566
+      },
+      {
+        "id": 127,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2567
+      },
+      {
+        "id": 128,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2567
+      },
+      {
+        "id": 129,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2567
+      },
+      {
+        "id": 130,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2568
+      },
+      {
+        "id": 131,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2568
+      },
+      {
+        "id": 132,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2568
+      },
+      {
+        "id": 133,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2568
+      },
+      {
+        "id": 135,
+        "url": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.feroot.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2614
+      },
+      {
+        "id": 137,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2730
+      },
+      {
+        "id": 138,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2731
+      },
+      {
+        "id": 139,
+        "url": "https://{label}.stripe.com/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2731
+      },
+      {
+        "id": 140,
+        "url": "https://{label}.gofundme.com/api/checkout/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2741
+      },
+      {
+        "id": 141,
+        "url": "https://{label}.gofundme.com/api/checkout/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2742
+      },
+      {
+        "id": 142,
+        "url": "https://{label}.gofundme.com/api/checkout/{seg}/{n}/{n}",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2742
+      },
+      {
+        "id": 143,
+        "url": "https://{label}.gofundme.com/api/checkout/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2742
+      },
+      {
+        "id": 144,
+        "url": "https://{label}.gofundme.com/{seg}/{seg}?%5Bredacted%5D=&q=",
+        "domain": "{label}.gofundme.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.feroot.com"
+        },
+        "startedAtMs": 2814
+      },
+      {
+        "id": 145,
+        "url": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.feroot.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 208,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 2819
+      },
+      {
+        "id": 147,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.feroot.com"
+        },
+        "startedAtMs": 2838
+      },
+      {
+        "id": 148,
+        "url": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}",
+        "domain": "{label}.{label}.classy.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.feroot.com"
+        },
+        "startedAtMs": 2854
+      },
+      {
+        "id": 149,
+        "url": "https://{label}.mparticle.com/{seg}/{seg}",
+        "domain": "{label}.mparticle.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2858
+      },
+      {
+        "id": 150,
+        "url": "https://{label}.stripe.com/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.feroot.com"
+        },
+        "startedAtMs": 2922
+      },
+      {
+        "id": 151,
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2968
+      },
+      {
+        "id": 152,
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2969
+      },
+      {
+        "id": 156,
+        "url": "https://{label}.stripe.com/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3199
+      },
+      {
+        "id": 157,
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3200
+      },
+      {
+        "id": 158,
+        "url": "https://{label}.stripe.com/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3200
+      },
+      {
+        "id": 159,
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3203
+      },
+      {
+        "id": 161,
+        "url": "https://{label}.stripe.com/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.feroot.com"
+        },
+        "startedAtMs": 3919
+      },
+      {
+        "id": 162,
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3939
+      },
+      {
+        "id": 163,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3950
+      },
+      {
+        "id": 164,
+        "url": "https://m.stripe.network/{seg}",
+        "domain": "m.stripe.network",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3954
+      },
+      {
+        "id": 165,
+        "url": "https://m.stripe.network/{seg}",
+        "domain": "m.stripe.network",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4018
+      },
+      {
+        "id": 166,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.feroot.com"
+        },
+        "startedAtMs": 4091
+      },
+      {
+        "id": 168,
+        "url": "https://m.stripe.com/{n}",
+        "domain": "m.stripe.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4136
+      },
+      {
+        "id": 169,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 4142
+      },
+      {
+        "id": 170,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4143
+      },
+      {
+        "id": 173,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}?hl=&v=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.google.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.google.com"
+        },
+        "startedAtMs": 4274
+      },
+      {
+        "id": 174,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4314
+      },
+      {
+        "id": 177,
+        "url": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.feroot.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.classy.org/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.classy.org"
+        },
+        "startedAtMs": 4763
+      },
+      {
+        "id": 186,
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.feroot.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.feroot.com"
+        },
+        "startedAtMs": 8207
+      }
+    ],
+    "domains": [
+      {
+        "domain": "cdn.kastatic.org",
+        "requests": 61,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.classy.org",
+        "requests": 35,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.gofundme.com",
+        "requests": 14,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          301,
+          308
+        ],
+        "resourceTypes": [
+          "fetch",
+          "script",
+          "document",
+          "other",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.stripe.com",
+        "requests": 11,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.trustarc.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "other"
+        ]
+      },
+      {
+        "domain": "{label}.feroot.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          208
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "m.stripe.network",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.mparticle.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "m.stripe.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.khanacademy.org",
+        "requests": 19,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "fetch",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": "{label}.gofundme.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": "m.stripe.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.google.com",
+        "path": "/{seg}",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".khanacademy.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".khanacademy.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.khanacademy.org",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 242626
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 112
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 400,
+          "maxCanvasHeight": 60,
+          "maxDistinctTextCharacters": 30,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 58,
+          "maxDistinctFonts": 57,
+          "maxDistinctTextSamples": 1,
+          "maxTextLength": 13
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.kastatic.org/",
+            "https://{label}.trustarc.com/",
+            "https://{label}.gofundme.com/"
+          ],
+          "totalListenerCalls": 50
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.kastatic.org/",
+            "https://{label}.trustarc.com/",
+            "https://{label}.gofundme.com/"
+          ],
+          "totalListenerCalls": 118
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.khanacademy.org/about/privacy-policy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 29289
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "The page did not reach network idle before the scan window ended.",
+      "Read the site's privacy policy (https://www.khanacademy.org/about/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 181,
+      "after": 158,
+      "delta": -23
+    },
+    "thirdPartyRequests": {
+      "before": 160,
+      "after": 139,
+      "delta": -21
+    },
+    "knownTrackerRequests": {
+      "before": 4,
+      "after": 0,
+      "delta": -4
+    },
+    "thirdPartyDomains": {
+      "before": 16,
+      "after": 11,
+      "delta": -5
+    },
+    "cookies": {
+      "before": 14,
+      "after": 14,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 3,
+      "after": 3,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 119,
+      "after": 113,
+      "delta": -6
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "transcend-cdn.com",
+        "requests": 10,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.bugsnag.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "bugsnag.com",
+          "entity": "Bugsnag",
+          "category": "error monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.rum-ingress-coralogix.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Bugsnag",
+        "requests": 2,
+        "domains": 1
+      },
+      {
+        "entity": "Google",
+        "requests": 1,
+        "domains": 1
+      },
+      {
+        "entity": "Meta",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "transcend-cdn.com",
+        "requests": 6,
+        "tracker": null,
+        "initiator": "transcend-cdn.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.mparticle.com",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "{label}.{label}.classy.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "transcend-cdn.com",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "{label}.{label}.classy.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.{label}.classy.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.khanacademy.org",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 24,
+      "after": 32,
+      "delta": 8
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: Read the site's privacy policy (https://www.khanacademy.org/about/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: The page did not reach network idle before the scan window ended.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.khanacademy.org/about/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20261123-90beffa865c6c8cc22388bef9a289b20",
+    "path": "/reports/20261123-90beffa865c6c8cc22388bef9a289b20/",
+    "jsonPath": "/reports/20261123-90beffa865c6c8cc22388bef9a289b20.json"
+  }
+}
