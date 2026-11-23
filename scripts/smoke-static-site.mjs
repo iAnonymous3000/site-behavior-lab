@@ -1024,6 +1024,8 @@ async function main() {
     pass("a consent-banner view opens the request log at its catalog matches, and a cookie card's history view, the same in the explorer, lands on the site's report table");
     await assertSectionLinksLand(context, baseUrl, manifest);
     pass("a copied section link to the request log, cookies or conditions opens the explorer and lands on its section, cold, on reload and on back");
+    await assertHostLinkOpensCountedRows(context, baseUrl, manifest);
+    pass("a comparison's host link opens exactly the rows its count counts, and names the host in view on a phone");
 
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
     const exploreEvidence = page.getByRole("button", { name: "Explore full evidence" });
@@ -4315,6 +4317,102 @@ async function uploadHomeReport(page, file) {
   await openHomepageTools(page);
   await page.locator("label.file-button", { hasText: "Open report file" }).first().locator('input[type="file"]').setInputFiles(file);
   await page.locator(".report-header").waitFor({ state: "visible" });
+}
+
+/**
+ * A comparison prints a host's request count beside a link to that visit's
+ * log, and the link opens those rows and no other. The case is a host whose
+ * text another host's row holds, so a free-text link would open more rows
+ * than the count. The committed data proposes it at run time and the rendered
+ * page decides: a pair that does not support raw counts prints no such link,
+ * whatever its data holds. Followed at 360 px, where the line that names the
+ * host must fit and be in view on arrival.
+ */
+async function assertHostLinkOpensCountedRows(context, baseUrl, manifest) {
+  const page = await context.newPage();
+  await page.setViewportSize({ width: 360, height: 800 });
+  try {
+    for (const report of manifest.reports) {
+      if (report.reportType !== "comparison") continue;
+      const wire = JSON.parse(await readFile(path.join(outDir, "reports", `${report.id}.json`), "utf8"));
+      const visits = Object.fromEntries(
+        ["baseline", "variant"].map((arm) => [arm, (wire[arm]?.evidence ?? wire[arm])?.requests ?? []])
+      );
+      const overMatched = new Set();
+      const hosts = new Set([...visits.baseline, ...visits.variant].map((row) => row.domain));
+      for (const host of hosts) {
+        const needle = host.toLowerCase();
+        for (const [arm, rows] of Object.entries(visits)) {
+          // Two of the free text's fields are enough to prove that it over-matches.
+          if (rows.some((row) => row.domain !== host &&
+            (row.domain.toLowerCase().includes(needle) || (row.url ?? "").toLowerCase().includes(needle)))) {
+            overMatched.add(`${arm} ${host}`);
+          }
+        }
+      }
+      if (overMatched.size === 0) continue;
+
+      await page.goto(`${baseUrl}/reports/${report.id}/`, { waitUntil: "networkidle" });
+      await page.getByRole("button", { name: "Explore full evidence" }).click();
+      await page.locator(".report-focus-target .report-header").waitFor();
+      const collapsed = page.locator('.domain-request-deltas .change-list-toggle[aria-expanded="false"]');
+      if ((await collapsed.count()) > 0) await collapsed.click();
+      const links = await page.locator(".domain-request-deltas .change-row a").evaluateAll((anchors) => anchors.map((anchor, index) => {
+        const target = new URLSearchParams(anchor.getAttribute("href").slice(1));
+        const row = anchor.closest(".change-row");
+        // The panel's own count: "<baseline label>: N · <variant label>: M".
+        const counts = row.querySelectorAll("small")[1].textContent.split(" · ").map((part) => part.match(/([0-9,]+)\s*$/)?.[1]);
+        const arm = target.get("arm");
+        return {
+          index,
+          arm,
+          host: target.get("query"),
+          shown: row.querySelector("strong").textContent,
+          count: Number((counts[arm === "variant" ? 1 : 0] ?? "").replaceAll(",", "") || Number.NaN)
+        };
+      }));
+      const chosen = links.find((link) => overMatched.has(`${link.arm} ${link.host}`));
+      if (!chosen) continue;
+
+      const step = `report ${report.id}: the host link for ${chosen.host} in the ${chosen.arm} visit`;
+      if (!Number.isSafeInteger(chosen.count)) fail(`${step} has no readable count beside it`);
+      await page.locator(".domain-request-deltas .change-row a").nth(chosen.index).click();
+      await waitForEvidenceState(page, { open: true, query: chosen.host, arm: chosen.arm === "variant" ? 1 : 0 },
+        `${step} did not open that visit's request log`);
+
+      const opened = await page.locator("details#request-evidence").evaluate((log) => ({
+        rows: log.querySelectorAll("tr[data-request-row]").length,
+        badge: log.querySelector(".count-badge").textContent
+      }));
+      const total = visits[chosen.arm].length;
+      // The screen draws at most 80 rows, so the badge carries the count past
+      // that. Another host's row exists, so the count is never the whole log.
+      const badge = `${chosen.count} of ${total} recorded`;
+      if (opened.rows !== Math.min(chosen.count, 80) || opened.badge !== badge) {
+        fail(`${step} opened ${opened.rows} rows ("${opened.badge}"), but its count is ${chosen.count}`);
+      }
+      const words = `Showing only requests with this recorded host: ${chosen.shown}.`;
+      const named = await page.locator("details#request-evidence .attribution-active-filter > span").allTextContents();
+      if (!named.includes(words)) fail(`${step} does not print "${words}"`);
+      try {
+        await page.waitForFunction((expected) => {
+          const span = [...document.querySelectorAll("details#request-evidence .attribution-active-filter > span")]
+            .find((element) => element.textContent === expected);
+          if (!span) return false;
+          const line = span.parentElement;
+          const box = line.getBoundingClientRect();
+          return line.scrollWidth <= line.clientWidth &&
+            box.top >= 0 && box.bottom <= window.innerHeight && box.left >= 0 && box.right <= window.innerWidth;
+        }, words, { timeout: 10_000 });
+      } catch {
+        fail(`${step} opened with the line that names the host outside the viewport`);
+      }
+      return;
+    }
+    fail("no committed comparison renders a change-list host link whose free text selects another host's rows, so the host link's selection is unchecked");
+  } finally {
+    await page.close();
+  }
 }
 
 /**
