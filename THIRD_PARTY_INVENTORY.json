@@ -19,7 +19,7 @@
     },
     "filterMetadata": {
       "path": "lib/adblock-wasm/brave-default-filters.meta.json",
-      "sha256": "36165f237c6e437e338cb5f18cf127a9231da2b3f5bf0a36153e6b99dc395188"
+      "sha256": "3a9182e63358a67a382fdbbb2e058dd449c3ea04607dcad188cca65a9d56bc76"
     },
     "githubCliBuildTool": {
       "path": "scripts/github-cli-build-tool-manifest.json",
@@ -2768,10 +2768,10 @@
     },
     "bundle": {
       "sourceCount": 31,
-      "sourceManifestSha256": "449e805ffa2c5f7dcf3d29c1a2d0a3639745ac3e53ab81235f53bd2d160a6038",
-      "rulesSha256": "e124bdc91fc00c9b1b7adbf62b39ce90e3925546d192c5923ec7c5e62b816ff2",
-      "rawBytes": 9116948,
-      "gzipBytes": 2734303
+      "sourceManifestSha256": "04d848aa988481ebe9edd9736c5b9fac61c56cd1e1f19dbd53594929e85124c9",
+      "rulesSha256": "9ef3c3c6600987b64b38ce8eb1c5f4b5477139c1188723108b013105924944dc",
+      "rawBytes": 9117814,
+      "gzipBytes": 2734781
     },
     "sources": [
       {
@@ -2885,8 +2885,8 @@
       {
         "sourceIndex": 12,
         "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/quick-fixes.txt",
-        "bytes": 81382,
-        "sha256": "264262b724e044ac73eb0670c6a50a7730b7ea2fd5f744aaa9426a10945ff80d",
+        "bytes": 81409,
+        "sha256": "93d0102f4726526ef84df83475f13661dffa647d33940f627f2c8d8b71da4615",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2903,8 +2903,8 @@
       {
         "sourceIndex": 14,
         "url": "https://easylist.to/easylist/easylist.txt",
-        "bytes": 2053809,
-        "sha256": "b6d3c42516d3d86973c92479b05dbf8175a9bb53d54aed79f9cacf7e8d1725fc",
+        "bytes": 2054571,
+        "sha256": "fd60c4d981a0876814607f571318f083f2ed9eafc2ad5f89e816f4488cb5559e",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null
@@ -2975,8 +2975,8 @@
       {
         "sourceIndex": 22,
         "url": "https://easylist.to/easylist/easyprivacy.txt",
-        "bytes": 1521678,
-        "sha256": "c378b4c39e3803f8b0589c4ff95e0617e346e520008ad6893edaee4f09f3ba5f",
+        "bytes": 1521755,
+        "sha256": "2ba5ab9da4360309bea8c6cd5a4f06c88b7a9a685c6b5907c3dfe4fe016dd131",
         "license": "UNKNOWN",
         "licenseStatus": "unknown-not-recorded-in-filter-metadata",
         "licenseEvidence": null

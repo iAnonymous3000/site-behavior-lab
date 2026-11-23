@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-11-23T17:02:57.016Z",
+  "fetchedAt": "2026-11-23T18:28:51.799Z",
   "catalog": "https://raw.githubusercontent.com/brave/adblock-resources/87e925ec3ed08b28b96460b7615b033c52971fa9/filter_lists/list_catalog.json",
   "catalogCommit": "87e925ec3ed08b28b96460b7615b033c52971fa9",
   "catalogSha256": "d701b93f8988851c1637548071bed1fe3f4a4abc8b138d4f3109d9373c3a3b0e",
@@ -67,8 +67,8 @@
     },
     {
       "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/quick-fixes.txt",
-      "bytes": 81382,
-      "sha256": "264262b724e044ac73eb0670c6a50a7730b7ea2fd5f744aaa9426a10945ff80d"
+      "bytes": 81409,
+      "sha256": "93d0102f4726526ef84df83475f13661dffa647d33940f627f2c8d8b71da4615"
     },
     {
       "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/ubo-link-shorteners.txt",
@@ -77,8 +77,8 @@
     },
     {
       "url": "https://easylist.to/easylist/easylist.txt",
-      "bytes": 2053809,
-      "sha256": "b6d3c42516d3d86973c92479b05dbf8175a9bb53d54aed79f9cacf7e8d1725fc"
+      "bytes": 2054571,
+      "sha256": "fd60c4d981a0876814607f571318f083f2ed9eafc2ad5f89e816f4488cb5559e"
     },
     {
       "url": "https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-agh-online.txt",
@@ -117,8 +117,8 @@
     },
     {
       "url": "https://easylist.to/easylist/easyprivacy.txt",
-      "bytes": 1521678,
-      "sha256": "c378b4c39e3803f8b0589c4ff95e0617e346e520008ad6893edaee4f09f3ba5f"
+      "bytes": 1521755,
+      "sha256": "2ba5ab9da4360309bea8c6cd5a4f06c88b7a9a685c6b5907c3dfe4fe016dd131"
     },
     {
       "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
@@ -161,8 +161,8 @@
       "sha256": "68f380f62e1f8fe688064b3a0fc80c1a3fe437cd3249ec92dd406496a7028444"
     }
   ],
-  "manifestDigest": "449e805ffa2c5f7dcf3d29c1a2d0a3639745ac3e53ab81235f53bd2d160a6038",
-  "rulesDigest": "e124bdc91fc00c9b1b7adbf62b39ce90e3925546d192c5923ec7c5e62b816ff2",
-  "rawBytes": 9116948,
-  "gzipBytes": 2734303
+  "manifestDigest": "04d848aa988481ebe9edd9736c5b9fac61c56cd1e1f19dbd53594929e85124c9",
+  "rulesDigest": "9ef3c3c6600987b64b38ce8eb1c5f4b5477139c1188723108b013105924944dc",
+  "rawBytes": 9117814,
+  "gzipBytes": 2734781
 }
