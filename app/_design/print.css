@@ -391,8 +391,8 @@
     width: 100%;
   }
 
-  /* (Important: the earlier sheet sets every printed head cell to auto with
-     !important, app/globals.css.) Domain and provenance get the width a typical row needs to stay on one
+  /* (This sheet alone sets the printable log's widths; app/globals.css sets
+     none.) Domain and provenance get the width a typical row needs to stay on one
      line; the address takes what is left and wraps. */
   .da.da.da.printable-report .request-table thead tr:not(.print-table-limit-row) th:nth-last-child(1) { width: 29.75% !important; }
   .da.da.da.printable-report .request-table thead tr:not(.print-table-limit-row) th:nth-last-child(2) { width: 24% !important; }
@@ -401,6 +401,18 @@
   .da.da.da.printable-report .request-table thead tr:not(.print-table-limit-row) th:nth-last-child(5) { width: 4% !important; }
   .da.da.da.printable-report .request-table thead th.time-cell { width: 6% !important; }
   .da.da.da.printable-report .request-table thead th.request-ref { width: 8.25% !important; }
+
+  /* With a phase column the shares above are scaled by 100/106: the phase
+     takes the time's share and the eight add up to 100%, so the engine has
+     nothing to rescale (lib/print-stylesheet.test.ts holds both). */
+  .da.da.da.printable-report .request-table.has-phase-column thead tr:not(.print-table-limit-row) th:nth-last-child(1) { width: 28.06604% !important; }
+  .da.da.da.printable-report .request-table.has-phase-column thead tr:not(.print-table-limit-row) th:nth-last-child(2) { width: 22.64151% !important; }
+  .da.da.da.printable-report .request-table.has-phase-column thead tr:not(.print-table-limit-row) th:nth-last-child(3) { width: 19.81132% !important; }
+  .da.da.da.printable-report .request-table.has-phase-column thead tr:not(.print-table-limit-row) th:nth-last-child(4) { width: 6.60377% !important; }
+  .da.da.da.printable-report .request-table.has-phase-column thead tr:not(.print-table-limit-row) th:nth-last-child(5) { width: 3.77358% !important; }
+  .da.da.da.printable-report .request-table.has-phase-column thead tr:not(.print-table-limit-row) th:nth-last-child(6) { width: 5.66038% !important; }
+  .da.da.da.printable-report .request-table.has-phase-column thead th.time-cell { width: 5.66038% !important; }
+  .da.da.da.printable-report .request-table.has-phase-column thead th.request-ref { width: 7.78302% !important; }
 
   /* Only the address breaks anywhere. A host breaks between its labels (the
      cell has a break opportunity after each dot), never inside one. */

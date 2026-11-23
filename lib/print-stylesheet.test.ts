@@ -452,6 +452,196 @@ test("the printable guide's digests fit a phone screen and keep their paper layo
   }
 });
 
+/*
+ * The printed request log's columns, with the real sheets in the printable
+ * route's order (app/layout.tsx, then app/reports/[id]/print/page.tsx). The
+ * font sheet is left out: it only names files this fixture cannot load.
+ *
+ * Widths are read as Chromium computes them, so a width is checked whichever
+ * sheet and selector set it. The log stands in a box as wide as the landscape
+ * sheet's content, 966 CSS px as measured in an exported PDF: emulated print
+ * does not lay out the named landscape page, so the box gives that width.
+ */
+const DESIGN_SHEETS = ["tokens", "base", "components", "report", "explorer", "print"].map((name) =>
+  readFileSync(path.join(root, "app", "_design", `${name}.css`), "utf8")
+);
+const ROUTE_SHEETS = [globalsCss, ...DESIGN_SHEETS];
+/** The same sheets without app/globals.css, so print.css is the one that gives widths. */
+const WITHOUT_GLOBALS = DESIGN_SHEETS;
+const SHEET_WIDTH = 966;
+const UNBREAKABLE_HOST = `${"a".repeat(260)}.example`;
+
+function printedLog(hasPhases: boolean, shell: string): string {
+  const row = (reference: string, host: string) => `<tr data-request-row>
+    <td class="request-ref"><code>${reference}</code></td>
+    <td class="mono time-cell" data-label="Time">12,345ms</td>
+    ${hasPhases ? '<td data-label="Phase">P0</td>' : ""}
+    <td data-label="Status"><span class="status-ok">200</span></td>
+    <td data-label="Type">stylesheet</td>
+    <td class="mono host-cell" data-label="Domain">${host}</td>
+    <td data-label="Provenance"><span class="provenance-cell"><span>initiated by www.example.com</span></span></td>
+    <td class="url-cell mono" data-label="URL">https://www.example.com/…</td>
+  </tr>`;
+  return `<body><div class="${shell}"><main><div class="report-grid" style="display:block">
+    <div class="report-evidence-tables" style="display:block;width:${SHEET_WIDTH}px">
+      <div class="table-wrap request-table${hasPhases ? " has-phase-column" : ""}">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col" class="request-ref">Ref</th>
+              <th scope="col" class="time-cell">Time</th>
+              ${hasPhases ? '<th scope="col">Phase</th>' : ""}
+              <th scope="col">Status</th>
+              <th scope="col">Type</th>
+              <th scope="col">Domain</th>
+              <th scope="col">Provenance</th>
+              <th scope="col">URL</th>
+            </tr>
+            <tr class="print-table-limit-row"><th colspan="${hasPhases ? 8 : 7}">This log contains retained rows only.</th></tr>
+          </thead>
+          <tbody>${row("B:R0001", "www.<wbr>example.<wbr>com")}${row("B:R0002", UNBREAKABLE_HOST)}</tbody>
+        </table>
+      </div>
+    </div>
+  </div></main></div></body>`;
+}
+
+const PRINTABLE_SHELL = "app-shell report-page-shell printable-report da";
+
+async function measureLog(sheets: readonly string[], hasPhases: boolean, shell = PRINTABLE_SHELL) {
+  const page = await browser.newPage({ viewport: { width: SHEET_WIDTH, height: 696 } });
+  try {
+    await page.emulateMedia({ media: "print" });
+    await page.setContent(
+      `<!doctype html><html><head>${sheets.map((css) => `<style>${css}</style>`).join("")}</head>${printedLog(hasPhases, shell)}</html>`,
+      { waitUntil: "load" }
+    );
+    if (sheets === ROUTE_SHEETS) {
+      // Without this, every reading below could describe a narrow log that no
+      // exported page has. The other sheet sets are partial, so only the
+      // route's own is held to it.
+      const tableWidth = await page.evaluate(() => document.querySelector("table")!.getBoundingClientRect().width);
+      assert.ok(
+        Math.abs(tableWidth - SHEET_WIDTH) <= 0.5,
+        `the fixture's table is not as wide as the sheet: ${tableWidth} px of ${SHEET_WIDTH}`
+      );
+    }
+    return await page.evaluate(() => {
+      const table = document.querySelector("table")!;
+      const box = document.querySelector(".report-evidence-tables")!.getBoundingClientRect();
+      const heads = [...table.rows[0].cells];
+      const body = [...table.tBodies[0].rows[0].cells];
+      return {
+        declared: heads.map((cell) => String(cell.computedStyleMap().get("width"))),
+        bodyDeclared: body.map((cell) => String(cell.computedStyleMap().get("width"))),
+        used: heads.map((cell) => cell.getBoundingClientRect().width),
+        tablePastSheet: table.getBoundingClientRect().right - box.right,
+        columnsPastSheet: heads.filter((cell) => cell.getBoundingClientRect().right > box.right + 0.5).map((cell) => cell.textContent),
+        headFonts: heads.map((cell) => getComputedStyle(cell).fontSize),
+        limitFont: getComputedStyle(table.rows[1].cells[0]).fontSize,
+        bodyFonts: body.map((cell) => getComputedStyle(cell.querySelector("code") ?? cell).fontSize),
+        wrapping: {
+          referenceHead: getComputedStyle(heads[0]).whiteSpace,
+          timeHead: getComputedStyle(heads[1]).whiteSpace,
+          statusHead: getComputedStyle(heads[heads.length - 5]).whiteSpace,
+          referenceCell: getComputedStyle(body[0]).whiteSpace,
+          timeCell: getComputedStyle(body[1]).whiteSpace
+        }
+      };
+    });
+  } finally {
+    await page.close();
+  }
+}
+
+test("the printed request log's computed column widths fill the sheet exactly", async () => {
+  for (const hasPhases of [true, false]) {
+    const where = hasPhases ? "with a phase column" : "without a phase column";
+    const { declared, used } = await measureLog(ROUTE_SHEETS, hasPhases);
+    assert.deepEqual(declared.filter((width) => !width.endsWith("%")), [], `every printed column states a share (${where})`);
+    const total = declared.reduce((sum, width) => sum + Number.parseFloat(width), 0);
+    assert.ok(Math.abs(total - 100) < 0.001, `the printed columns' shares add up to ${total.toFixed(3)}%, not 100% (${where})`);
+    // Each column gets the share it states, so nothing is rescaled behind it.
+    declared.forEach((width, index) => {
+      const expected = (Number.parseFloat(width) / 100) * SHEET_WIDTH;
+      assert.ok(Math.abs(used[index] - expected) < 1, `column ${index + 1} is ${used[index]} px for a stated ${width} (${where})`);
+    });
+  }
+});
+
+test("each phase-table share is the sheet's own share scaled by 100/106", async () => {
+  // Read, not restated: the seven shares are the ones print.css computes for a
+  // table without a phase column. A sum of 100 cannot see a share that moved.
+  await measureLog(ROUTE_SHEETS, true);
+  const shares = async (hasPhases: boolean) =>
+    (await measureLog(WITHOUT_GLOBALS, hasPhases)).declared.map((width) => Number.parseFloat(width));
+  const seven = await shares(false);
+  const eight = await shares(true);
+  assert.deepEqual([seven.length, eight.length], [7, 8], "the fixture's two logs have seven and eight columns");
+  assert.ok(Math.abs(eight[2] - eight[1]) <= 0.0001, `the phase column's share ${eight[2]} is not the time column's ${eight[1]}`);
+  const [reference, time, ...others] = seven;
+  [reference, time, time, ...others].forEach((share, index) => {
+    const expected = (share * 100) / 106;
+    assert.ok(
+      Math.abs(eight[index] - expected) <= 0.0001,
+      `column ${index + 1}'s share ${eight[index]} is not the sheet's own share scaled by 100/106, ${expected}`
+    );
+  });
+});
+
+test("print.css alone gives every printed column the width both sheets give", async () => {
+  for (const hasPhases of [true, false]) {
+    const where = hasPhases ? "with a phase column" : "without a phase column";
+    const both = await measureLog(ROUTE_SHEETS, hasPhases);
+    const alone = await measureLog(WITHOUT_GLOBALS, hasPhases);
+    assert.deepEqual(alone.declared, both.declared, `print.css does not own every printed column's width (${where})`);
+  }
+});
+
+test("globals gives the printable request log no width of its own", async () => {
+  for (const hasPhases of [true, false]) {
+    const printable = await measureLog([globalsCss], hasPhases);
+    const ordinary = await measureLog([globalsCss], hasPhases, "app-shell report-page-shell");
+    assert.deepEqual(
+      [printable.declared, printable.bodyDeclared],
+      [ordinary.declared, ordinary.bodyDeclared],
+      `globals.css sets a width only for the printable request log (${hasPhases ? "with" : "without"} a phase column)`
+    );
+  }
+});
+
+test("no printed column or table passes its sheet", async () => {
+  for (const sheets of [ROUTE_SHEETS, WITHOUT_GLOBALS]) {
+    for (const hasPhases of [true, false]) {
+      const { tablePastSheet, columnsPastSheet } = await measureLog(sheets, hasPhases);
+      assert.ok(tablePastSheet <= 0.5, `the printed request log passes its sheet by ${tablePastSheet} px`);
+      assert.deepEqual(columnsPastSheet, [], "a printed column passes its sheet");
+    }
+  }
+});
+
+test("the printed references and times stay on one line", async () => {
+  for (const hasPhases of [true, false]) {
+    const { wrapping } = await measureLog(ROUTE_SHEETS, hasPhases);
+    assert.deepEqual(
+      wrapping,
+      { referenceHead: "nowrap", timeHead: "nowrap", statusHead: "nowrap", referenceCell: "nowrap", timeCell: "nowrap" },
+      "a printed reference, time or status head may wrap"
+    );
+  }
+});
+
+test("the printed request log's font sizes are the pinned ones", async () => {
+  for (const hasPhases of [true, false]) {
+    const { headFonts, bodyFonts, limitFont } = await measureLog(ROUTE_SHEETS, hasPhases);
+    const columns = hasPhases ? 8 : 7;
+    // 9 pt for the reference, 7.5 pt for every other cell, 8.5 pt for the limit.
+    assert.deepEqual(bodyFonts, ["12px", ...Array(columns - 1).fill("10px")], "a printed cell's font size moved");
+    assert.deepEqual(headFonts, Array(columns).fill("10px"), "a printed head's font size moved");
+    assert.equal(Math.round(Number.parseFloat(limitFont) * 0.75 * 10) / 10, 8.5, "the printed limit's font size moved");
+  }
+});
+
 /** WCAG relative-contrast of a #rrggbb value against white. */
 function contrastOnWhite(hex: string): number {
   const match = /^#([0-9a-f]{6})$/i.exec(hex);
