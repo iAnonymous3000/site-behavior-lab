@@ -102,6 +102,7 @@ import {
   strongestReportSeverity,
   type ClaimEligibility,
   type ReportClaimId,
+  type ReportFacts,
   type ReportSeverity,
   type RunFacts
 } from "./report-facts";
@@ -624,6 +625,62 @@ export function buildFindings(
       detail: "The original observations remain available below. Use them with the public correction; the original findings summary is withheld.",
       evidence: `${event.eventId} · ${event.detailsUrl}` }];
   }
+
+  const ctx = buildFindingsContext(view, corpusInput, reportFacts, focusArm);
+  const findings: Finding[] = [];
+  const pushIfPresent = (finding: Finding | null) => {
+    if (finding) findings.push(finding);
+  };
+
+  // An ABSENCE claim over a censored evidence family cannot reassure: nothing
+  // proves the absence held after collection stopped, so those cards hedge
+  // and drop to "info" instead of "ok".
+  const keystrokeDetection = fingerprintDetection(ctx.run.evidence, "keystroke-exfiltration");
+  if (keystrokeDetection) findings.push(buildKeystrokeExfiltrationFinding(ctx, keystrokeDetection));
+  pushIfPresent(buildCnameCloakingFinding(ctx));
+  pushIfPresent(buildConsentBannerFinding(ctx));
+  pushIfPresent(buildPrivacyPolicyFinding(ctx));
+  findings.push(buildThirdPartyServicesFinding(ctx));
+  findings.push(buildNamedPlatformsFinding(ctx));
+  pushIfPresent(buildPixelEventsFinding(ctx));
+  pushIfPresent(buildPageGraphProvenanceFinding(ctx));
+  findings.push(buildGaRemarketingFinding(ctx));
+  findings.push(buildThirdPartyCookiesFinding(ctx));
+  pushIfPresent(buildSessionRecordingFinding(ctx, Boolean(keystrokeDetection)));
+  findings.push(buildFingerprintApisFinding(ctx));
+
+  for (const comparisonFinding of buildComparisonFindings(ctx)) {
+    findings.unshift(comparisonFinding);
+  }
+
+  const subjectFailureBottomLine = buildSubjectFailureBottomLine(ctx, findings);
+  if (subjectFailureBottomLine) {
+    findings.unshift(subjectFailureBottomLine);
+    return findings;
+  }
+
+  // Built BEFORE the bottom line so its level is part of overallLevel. While
+  // it was spliced in afterwards, a warn-level Shields card could never raise
+  // the bottom line, so a visit with ten or more matched requests could still
+  // headline "few review signals".
+  const shieldsBlocked = buildShieldsBlockedFinding(ctx);
+  if (shieldsBlocked) findings.unshift(shieldsBlocked);
+
+  findings.unshift(buildBottomLineFinding(ctx, findings));
+
+  // Emit every finding. The conditionals above bound this to at most ~9 cards,
+  // all of them meaningful; a fixed cap here silently dropped the last-pushed
+  // card (the fingerprinting finding) on Node Shields-comparison reports that
+  // also surfaced a session-recording or input-monitoring signal.
+  return findings;
+}
+
+function buildFindingsContext(
+  view: ReportView,
+  corpusInput: CorpusStats | null,
+  reportFacts: ReportFacts,
+  focusArm?: "baseline" | "variant"
+) {
   const facts = (focusArm && reportFacts.arms?.[focusArm]) ?? reportFacts.display;
   // New artifacts publish one distribution per exact schema/methodology/
   // producer/requested-GPC cohort. Select the report's own cohort or fail
@@ -651,7 +708,6 @@ export function buildFindings(
   const operationalNames = operationalEntities.map((entity) => entity.entity);
   const unclassifiedNames = unclassifiedEntities.map((entity) => entity.entity);
   const respondedEntities = facts.identity.respondedEntities;
-  const topCategories = Array.from(new Set(trackingEntities.flatMap((entity) => entity.categories))).slice(0, 3);
   const trackingCnameCloaks = run.evidence.cnameCloaks.filter((cloak) =>
     isTrackingTrackerMatch(cloak.tracker)
   );
@@ -690,24 +746,7 @@ export function buildFindings(
   const nonCatalogIdentityNames = Array.from(
     new Set([...nonCatalogOutsideIdentityNames, ...nonCatalogSameOrganizationNames])
   ).sort();
-  const cookiesUnsupported = facts.evidence.cookies.state === "unsupported";
-  const fingerprintDetectorStatus = run.detectors?.["fingerprint-heuristics"]?.status;
-  const fingerprintClaim = facts.claims["fingerprint-apis"];
-  const detectorUnsupported =
-    facts.evidence.fingerprinting.state === "unsupported" ||
-    fingerprintDetectorStatus === "unsupported";
   const requestsCensored = facts.evidence.requests.state === "censored";
-  const cookiesCensored = facts.evidence.cookies.state === "censored";
-  // Raw fingerprint events live in the "fingerprinting" evidence family;
-  // the fingerprint-heuristics detector owns the interpreted conclusions. An
-  // unrelated detector-output failure must not make fingerprinting unavailable.
-  const detectorCensored =
-    facts.evidence.fingerprinting.state === "censored" ||
-    (fingerprintDetectorStatus !== undefined && fingerprintDetectorStatus !== "complete") ||
-    fingerprintClaim.blockers.includes("detector-incomplete");
-  const pixelDetectorCensored = facts.claims["pixel-events"].blockers.some(
-    (blocker) => blocker !== "subject-not-established"
-  );
   // The distribution these percentiles rank against is built from plain first
   // visits only: corpus-stats-builder, entryEligibleForCorpusRollups, and the
   // researcher export all drop a post-choice consent arm from the denominator.
@@ -747,6 +786,556 @@ export function buildFindings(
   const cookiesBenchmark = cookiesBenchmarkAllowed
     ? corpusBenchmark(corpus, "thirdPartyCookies", run.counts.thirdPartyCookies)
     : null;
+  // Opens with words, not the count: a sentence that starts with a numeral
+  // reads as a continuation of the one before it.
+  const sameOrganizationNote =
+    ownership.sameOrganizationDomainCount > 0
+      ? ` Of the catalogued cross-site domains, ${ownership.sameOrganizationDomainCount.toLocaleString("en-US")} ${
+          ownership.sameOrganizationDomainCount === 1 ? "belongs" : "belong"
+        } to the same reviewed ${ownership.sameOrganizationName ?? "organization"} domain family as the site, so that traffic is not evidence of disclosure to an outside company.`
+      : "";
+  const sessionReplayNames = facts.signals.fingerprint.sessionReplayNames;
+  const sessionReplayNote =
+    sessionReplayNames.length > 0
+      ? ` Catalog labels include session-replay or behavior-analytics services: ${humanList(sessionReplayNames)}. The domain match alone does not prove that a recording occurred.`
+      : "";
+
+  return {
+    view,
+    reportFacts,
+    facts,
+    run,
+    corpus,
+    phaseNotes,
+    visibleDomain,
+    arms,
+    axis,
+    boardDescribesDisplayRun,
+    trackingEntities,
+    trackingNames,
+    operationalEntities,
+    operationalNames,
+    unclassifiedEntities,
+    unclassifiedNames,
+    respondedEntities,
+    trackingCnameCloaks,
+    namedTrackingCnameCloaks,
+    trackingCnameNames,
+    nonCatalogOutsideIdentityNames,
+    nonCatalogSameOrganizationNames,
+    nonCatalogIdentityNames,
+    catalogCoverageNote,
+    sameOrganizationNote,
+    sessionReplayNames,
+    sessionReplayNote,
+    requestsCensored,
+    domainsBenchmarkAllowed,
+    cookiesBenchmarkAllowed,
+    domainsBenchmark,
+    cookiesBenchmark
+  };
+}
+
+type FindingsContext = ReturnType<typeof buildFindingsContext>;
+
+function buildKeystrokeExfiltrationFinding(
+  ctx: FindingsContext,
+  keystrokeDetection: NonNullable<ReturnType<typeof fingerprintDetection<"keystroke-exfiltration">>>
+): Finding {
+  const { facts, run } = ctx;
+  // Readers see the wildcard form the evidence tables use; the ownership
+  // check below reads the recorded hosts.
+  const recipients = humanList(keystrokeDetection.evidence.recipients.map(displayHost));
+  const recipientCount = plural(keystrokeDetection.evidence.recipients.length, "cross-site domain");
+  const sameOrganizationRecipients = keystrokeDetection.evidence.recipients.filter(
+    (recipient) => reviewedOwnershipRelationship(run.domain, recipient).kind === "same-organization"
+  );
+  // Opens with words, not the count, like sameOrganizationNote.
+  const recipientOwnershipNote =
+    sameOrganizationRecipients.length > 0
+      ? ` Of the recipient domains, ${sameOrganizationRecipients.length.toLocaleString("en-US")} ${
+          sameOrganizationRecipients.length === 1 ? "belongs" : "belong"
+        } to the site's same reviewed organization, so that portion is not disclosure to an outside company.`
+      : "";
+  // The recipients and encodings are named in sentences of their own: inside
+  // the lead's one sentence, three of each ran it to about 38 words. Both
+  // lists hold single tokens capped at three plus a count, so neither
+  // sentence grows with its list.
+  // One base64 occurrence is one form, though it matches two needles.
+  const shownEncodings = displayKeystrokeEncodings(keystrokeDetection.evidence.encodings);
+  const forms = keystrokeForms(keystrokeDetection.evidence.encodings);
+  // Recipients and encodings are two separate lists: with several recipients
+  // and both hashed and recoverable forms, the card cannot pair them.
+  const unpaired = keystrokeFormsUnpaired(keystrokeDetection.evidence);
+  const namedRecipientsAndEncodings = ` ${
+    keystrokeDetection.evidence.recipients.length === 1 ? "Recipient" : "Recipients"
+  }: ${recipients}. ${shownEncodings.length === 1 ? "Encoding" : "Encodings"}: ${humanList(shownEncodings)}.`;
+  const fields = plural(keystrokeDetection.evidence.fieldsTyped, "form field");
+  // A one-way hash is a stronger transformation signal and retains the loud
+  // level, but neither encoding nor this frozen summary proves recipient
+  // purpose, real-user handling, or timing within typing/blur/unload.
+  const hashed = keystrokeLeakHashed(keystrokeDetection.evidence.encodings);
+  // The first recipient the card names, never one the sanitizer could not
+  // record. The log does not mark which row carried the value.
+  const recipientHost = lookCloserHost(keystrokeDetection.evidence.recipients[0]);
+  return limited({
+    id: "keystroke-exfiltration",
+    icon: "keyboard",
+    level: hashed ? "loud" : "warn",
+    title: hashed && unpaired
+      ? `Synthetic form input appeared in requests to ${recipientCount} before submission, at least once as a hash`
+      : hashed
+      ? `A hashed form of synthetic input appeared in requests to ${recipientCount} before submission`
+      : `Synthetic form input appeared in requests to ${recipientCount} before submission`,
+    // Unpaired, the lead says only that the value appeared: a hash named
+    // here would be read as going to every recipient it counts.
+    lead: hashed && !unpaired
+      ? `When the scanner typed a unique test value into ${fields}, a one-way hash of that value appeared in requests to ${recipientCount} without the form being submitted.${namedRecipientsAndEncodings}`
+      : `When the scanner typed a unique test value into ${fields}, that value appeared in requests to ${recipientCount} without the form being submitted.${namedRecipientsAndEncodings}`,
+    detail: hashed
+      ? `${
+          forms.recoverable.length > 0
+            ? `The synthetic value appeared as a one-way hash (${humanList(forms.hashed)}) and in a recoverable form (${humanList(forms.recoverable)}).${
+                keystrokeDetection.evidence.recipients.length > 1 ? " This report does not record which recipient received which form." : ""
+              }`
+            : `The synthetic value was hashed (${humanList(forms.hashed)}) before being sent.`
+        } The report does not establish whether transmission happened during typing, blur, or unload, what the recipient used it for, or whether real visitor input follows the same path. The scanner types only synthetic values and never submits the form.${recipientOwnershipNote}`
+      : `The synthetic value appeared in a recoverable form (${humanList(shownEncodings)}). The report does not establish whether transmission happened during typing, blur, or unload, why it was sent, or whether real visitor input follows the same path. The scanner types only synthetic values and never submits the form.${recipientOwnershipNote}`,
+    evidence: `Synthetic test value appeared in requests to ${recipients} via ${humanList(shownEncodings)}.`,
+    claim: findingClaim(facts, "keystroke-exfiltration", "presence"),
+    ...withLookCloser(
+      recipientHost && lookCloserKeepsRows(run.evidence.requests, { query: recipientHost })
+        ? { variant: "keystroke-recipient", host: recipientHost }
+        : null
+    )
+    // The recoverable-form string only, and without the sentence about
+    // same-organization recipients, which no approved card carried.
+  }, recipientOwnershipNote === "" ? [WHOLE_FINDING_LIMITS.typedValueRecoverable] : []);
+}
+
+function buildCnameCloakingFinding(ctx: FindingsContext): Finding | null {
+  const { facts, trackingCnameCloaks, trackingCnameNames } = ctx;
+  const cnameCloaks = trackingCnameCloaks;
+  if (cnameCloaks.length === 0) return null;
+  const listMatches = cnameCloaks.filter((cloak) => cloak.tracker.confidence === "shields-list");
+  return limited({
+    id: "cname-cloaking",
+    icon: "radar",
+    level: "warn",
+    title: `${plural(cnameCloaks.length, "first-party DNS alias", "first-party DNS aliases")} matched tracking checks`,
+    lead: [
+      trackingCnameNames.length > 0
+        ? `Recorded DNS aliases resolve to catalogued tracking-related services: ${humanList(trackingCnameNames)}.`
+        : "",
+      // Opens with words, not the count: after the names, a sentence that
+      // starts with a numeral reads as part of the one before it.
+      listMatches.length > 0
+        ? `Of the resolved targets, ${listMatches.length.toLocaleString("en-US")} matched Brave filter lists; those matches do not identify the operators.`
+        : ""
+    ].filter(Boolean).join(" "),
+    detail:
+      "The scanner followed DNS CNAME chains from first-party subdomains and checked resolved targets against the service catalog and Brave filter lists. These matches do not establish a request's purpose, profiling, or an intent to conceal tracking. A filter-list match alone is not a verified service identity or proof of tracking.",
+    // One sentence per alias: four of them in one list ran to 34 words.
+    evidence: sentenceSequence(
+      cnameCloaks.map((cloak) => `DNS alias: ${dnsAliasText(cloak)} (${cloak.tracker.confidence === "curated" ? `${cloak.tracker.entity}; catalog match` : "Brave filter-list match; operator unverified"})`),
+      4,
+      (count) => `Plus ${plural(count, "other DNS alias", "other DNS aliases")}.`
+    ),
+    claim: findingClaim(facts, "cname-cloaking", "presence")
+  }, [WHOLE_FINDING_LIMITS.dnsAliases]);
+}
+
+function buildConsentBannerFinding(ctx: FindingsContext): Finding | null {
+  const { facts, run, visibleDomain, trackingEntities, respondedEntities, requestsCensored } = ctx;
+  // The pre-consent framing ("the scanner never clicks the banner") only holds
+  // for observe-mode runs. Consent-comparison runs clicked a choice, and their
+  // story is carried by the dedicated consent-comparison card below instead.
+  // The facts decide both that and which hosts are read, and rank what they
+  // name, so the headline is never calm over this card.
+  const consentPlatform = facts.signals.consentPlatform;
+  if (!consentPlatform) return null;
+  const preConsentTrackers = trackingEntities.length;
+  const consentPlatformAnswered =
+    (run.evidence.domains.find((domain) => domain.domain === consentPlatform.domain)?.statuses.length ?? 0) > 0;
+  const answeredPreConsentTrackers = trackingEntities.filter((entity) => respondedEntities.has(entity.entity)).length;
+  // A framework endpoint identifies the tooling standard, not the vendor that
+  // ran it, so it may not be printed in the slot a named platform occupies.
+  // The catalog's kind is the single source: a host regex here disagreed
+  // with the catalog on non-normalized uploaded bytes (mixed case, trailing
+  // dot), naming IAB TCF in the vendor slot for exactly those reports.
+  const frameworkEndpoint = consentPlatform.kind === "framework-endpoint";
+  const consentPlatformPhrase = frameworkEndpoint
+    ? `${consentPlatform.name}, a consent framework endpoint shared by many consent management platforms (the tooling that shows cookie banners) rather than one named platform`
+    : `${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners)`;
+  // The platform view calls its host "the consent platform's address", which
+  // a framework endpoint is not, so that card offers no view.
+  const consentPlatformHost = frameworkEndpoint ? null : lookCloserHost(consentPlatform.domain);
+  return limited({
+    id: "consent-banner",
+    icon: "cookie",
+    level: preConsentTrackers > 0 ? "warn" : "info",
+    title:
+      preConsentTrackers > 0
+        ? "Consent tooling and requests to tracking-service entities appeared before any choice"
+        : frameworkEndpoint
+          ? consentPlatformAnswered
+            ? "A shared consent framework endpoint answered"
+            : "A shared consent framework endpoint was requested"
+          : consentPlatformAnswered
+            ? "A consent management platform answered"
+            : "A consent management platform was requested",
+    // The tracker count is a sentence of its own: after the platform phrase,
+    // the lead ran 39 words, and about 55 with a framework endpoint's. With
+    // no tracker, the timing is its own sentence: a framework endpoint's
+    // phrase ran that lead to 35 words.
+    lead:
+      preConsentTrackers > 0
+        ? `${visibleDomain} sent a request to ${consentPlatformPhrase}. The request log included ${retainedCountPhrase(
+            preConsentTrackers,
+            "distinct catalogued tracking-related service",
+            "distinct catalogued tracking-related services",
+            facts.evidence.requests.state
+          )} before the scanner made any consent choice${
+            answeredPreConsentTrackers > 0
+              ? `; ${plural(answeredPreConsentTrackers, "company", "companies")} answered`
+              : requestsCensored
+                ? "; none of the retained matches recorded a response before collection stopped"
+                : "; none recorded a response"
+          }.`
+        : `${visibleDomain} sent a request to ${consentPlatformPhrase}. The request came before the scanner made any consent choice.${
+            frameworkEndpoint ? " This scan could not name the platform that served it." : ""
+          } Tracker-service observations are reported separately so this positive tooling signal does not imply an absence.`,
+    detail:
+      'A request to the platform\'s loader proves the page attempted to fetch consent tooling. An observed response supports delivery, but neither fact proves a banner was visibly shown to this scanner. Banner display can vary by region and visit context. The scanner never clicks a banner in this mode, so this report records requests made before the scanner made a consent choice. It does not determine whether any request required consent or whether the site\'s behavior complied with applicable law. More tracking-service entities or requests may appear after "Accept" than this report captures, so the counts here are lower bounds for users who consent.',
+    evidence: `${
+      frameworkEndpoint ? "Consent framework endpoint" : "Consent platform"
+    } detected via a request to ${displayHost(consentPlatform.domain)}.`,
+    claim: findingClaim(facts, "consent-banner", "presence"),
+    ...withLookCloser(
+      preConsentTrackers > 0
+        ? lookCloserKeepsRows(run.evidence.requests, { signal: "known-service" })
+          ? { variant: "consent-banner-catalog-matches" }
+          : null
+        : consentPlatformHost && lookCloserKeepsRows(run.evidence.requests, { query: consentPlatformHost })
+          ? { variant: "consent-banner-platform", host: consentPlatformHost }
+          : null
+    )
+    // One string, two claims: with tracking-service requests the limit is
+    // what the report does not determine about them; with tooling alone it
+    // is what a request and a response do not prove about a banner.
+  }, [preConsentTrackers > 0 ? WHOLE_FINDING_LIMITS.consentToolingAndTrackers : WHOLE_FINDING_LIMITS.consentToolingOnly]);
+}
+
+function buildPrivacyPolicyFinding(ctx: FindingsContext): Finding | null {
+  const { facts, run, trackingNames } = ctx;
+  const policy = run.evidence.privacyPolicy;
+  if (!policy) return null;
+  // The facts say whether the stored read supports a comparison, and hold the
+  // count conflicts the headline's severity ranks. A short read from a
+  // cross-check that did not wait for the policy to load may be the page
+  // shell, whose silence about a company says nothing about the policy. It
+  // supports neither an omission nor a statement, so it takes the site-root
+  // card's shape.
+  const policyFacts = facts.signals.policy;
+  if (policyFacts.read === "shell-suspected") {
+    return limited({
+      id: "privacy-policy",
+      icon: "file-text",
+      methodology: true,
+      level: "info",
+      title: "Privacy-policy cross-check not established",
+      lead: `The page this scan read as the privacy policy held ${policy.policyTextLength.toLocaleString()} characters of text, short enough to be the page before its policy loaded. As a result, no policy text was compared against this visit's evidence. That is a limit of the automated check, not a finding about the site either way.`,
+      detail: "The scanner that recorded this visit read a policy page a fixed second after it began loading. Some pages render their policy later, and some had requests refused by the scan's own traffic budget. A short read can therefore be the page around a policy that never arrived. Company mentions and policy statements recorded from it are not used; later scanner versions wait for the page to settle and withhold such a read.",
+      evidence: `Page recorded as the policy: ${displayPublicUrl(policy.url)} (${plural(policy.policyTextLength, "character")} of text); no policy text compared.`,
+      claim: findingClaim(facts, "privacy-policy", "unavailable")
+    }, [WHOLE_FINDING_LIMITS.policyShortRead]);
+  }
+  if (policyFacts.read === "site-root") {
+    // The document read as the policy was the site root: the homepage, not a
+    // policy. Its text supports neither an omission nor a contradiction, so
+    // the card takes the same shape as any other cross-check this scan could
+    // not make (methodology, info, "unavailable") and quotes no result from it.
+    // The scanner's frozen disclosure names this URL as "the site's privacy
+    // policy"; reconcile it when the run carries it (fails safe if not).
+    const policyReadNoteShown = run.warnings.some((warning) =>
+      warning.startsWith(`Read the site's privacy policy (${policy.url}) `)
+    );
+    return limited({
+      id: "privacy-policy",
+      icon: "file-text",
+      methodology: true,
+      level: "info",
+      title: "Privacy-policy cross-check not established",
+      lead: "The page this scan recorded as the privacy policy is a homepage (the root of its site), not a policy document. As a result, no policy text was compared against this visit's evidence. That is a limit of the automated check, not a finding about the site either way.",
+      detail: `The scanner that recorded this visit read whatever document the page's privacy-policy link led to. Here that was a site root, for example because the link redirected to or pointed at the homepage. Company mentions and policy statements recorded from that text are not used.${
+        policyReadNoteShown ? " The measurement note that the privacy policy was read refers to this homepage text." : ""
+      }`,
+      evidence: `Page recorded as the policy: ${displayPublicUrl(policy.url)} (the site root); no policy text compared.`,
+      claim: findingClaim(facts, "privacy-policy", "unavailable")
+    }, [WHOLE_FINDING_LIMITS.policySiteRoot]);
+  }
+  // Each entry pairs a testable statement from the policy with the observed
+  // evidence that cuts against it. Quotes come along so a reader can check
+  // the sentence in context; this is a text match, never a legal reading.
+  const conflicts: string[] = [];
+  const quotes: string[] = [];
+  const checkablePolicyClaims = policyFacts.checkableClaims;
+  const policyClaim = (kind: PrivacyPolicyClaimKind) =>
+    checkablePolicyClaims.find((claim) => claim.kind === kind);
+
+  // The count comparisons are the facts' own, never made again here: the
+  // card warns on a conflict the headline's severity has ranked.
+  for (const conflict of policyFacts.countConflicts) {
+    conflicts.push(
+      conflict.claim === "no-third-party-cookies"
+        ? `the policy says third-party cookies are not used, but ${plural(conflict.cookies, "third-party cookie")} appeared in this visit`
+        : `the policy says cookies are not used, but ${plural(conflict.cookies, "cookie")} appeared in this visit`
+    );
+    quotes.push(conflict.quote);
+  }
+
+  // Field POPULATION is what the scanner proves; the values are never
+  // read, so this observation is CONDITIONAL and must never headline as a
+  // definite contradiction the way the count-based checks above may.
+  const conditionalConflicts: string[] = [];
+  const noSellingOrSharing = policyClaim("no-selling-or-sharing");
+  const pixelsWithIdentifiers = pixelEventSummaries(run.evidence).filter((pixel) => pixel.advancedMatching.length > 0);
+  if (noSellingOrSharing && pixelsWithIdentifiers.length > 0) {
+    // Four sentences, not one: as a single clause with its condition and
+    // its limit, this entry ran the lead to about 60 words.
+    conditionalConflicts.push(
+      `the policy says personal information is not sold or shared. Advertising events to ${humanList(
+        pixelsWithIdentifiers.map((pixel) => pixel.product)
+      )} carried populated personal-identifier fields in this visit. IF those fields held real visitor data, many regulators treat that as sharing. However, the scanner only checks those fields for being non-empty and never stores the values`
+    );
+    quotes.push(noSellingOrSharing.quote);
+  }
+
+  // Deliberately NOT checked as a conflict: an "honors GPC" claim. Honoring
+  // GPC means not selling or sharing data, which request counts cannot
+  // observe; a site can honor the signal while loading identical requests.
+  // The claim stays in the stored policy summary, but no request-count
+  // comparison is allowed to contradict it.
+  //
+  // Enforced rather than remembered: COMPARED_POLICY_CLAIM_KINDS in
+  // privacy-policy.ts is what isCurrentlyCheckablePolicyClaim filters on, so
+  // a kind with no comparison here cannot be counted as checkable, and the
+  // card falls to its "nothing this scan can check" branch instead of
+  // publishing a reassurance backed by zero comparisons.
+
+  // Frozen producer arrays recorded every catalogued entity as a potential
+  // tracking company. Rebind them to the current, positive ServiceRole
+  // classification before publishing a disclosure claim; an operational or
+  // unclassified catalog match must not become tracking merely because an
+  // older producer put its name in one of these arrays.
+  const policyMentionedEntityNames = new Set(policy.mentionedEntities);
+  const policyUnmentionedEntityNames = new Set(policy.unmentionedEntities);
+  // A read stores at most this many unmentioned companies, so at exactly
+  // that many, an observed company in neither stored list was never
+  // checked. Saying nothing dropped it from the count and the list.
+  const storedUnmentionedNames = new Set(policy.unmentionedEntities);
+  const uncheckedTrackingEntities =
+    policy.unmentionedEntities.length === HISTORICAL_MAX_UNMENTIONED_ENTITIES
+      ? trackingNames.filter((entity) => !policyMentionedEntityNames.has(entity) && !storedUnmentionedNames.has(entity))
+      : [];
+  const policyReadCapped = uncheckedTrackingEntities.length > 0;
+  // Earlier instruments used parent-company keys that did not match the
+  // catalog. A historical non-match cannot support an omission accusation.
+  const policyDetectorOrdinal = policyCrossCheckOrdinal(run.detectors?.["privacy-policy"]?.version);
+  const unreliablePolicyAliases = Object.keys(POLICY_ALIAS_RELIABLE_FROM).filter(
+    (entity) => policyDetectorOrdinal < POLICY_ALIAS_RELIABLE_FROM[entity]!
+  );
+  const unknownPolicyMentions = trackingNames.filter(entity =>
+    unreliablePolicyAliases.includes(entity) && policyUnmentionedEntityNames.has(entity));
+  for (const entity of unknownPolicyMentions) policyUnmentionedEntityNames.delete(entity);
+  // Silence in a read that may have been cut short supports no omission.
+  const cutPolicyMentions =
+    policyDetectorOrdinal < POLICY_READ_CUT_WITHHELD_FROM &&
+    policy.policyTextLength >= POLICY_READ_CUT_SUSPECT_MIN_CHARS
+      ? trackingNames.filter((entity) => policyUnmentionedEntityNames.has(entity))
+      : [];
+  for (const entity of cutPolicyMentions) policyUnmentionedEntityNames.delete(entity);
+  const mentionedTrackingEntities = trackingNames.filter((entity) =>
+    policyMentionedEntityNames.has(entity)
+  );
+  const unmentionedTrackingEntities = trackingNames.filter((entity) =>
+    policyUnmentionedEntityNames.has(entity)
+  );
+  const namedCount = mentionedTrackingEntities.length;
+  const totalObserved = namedCount + unmentionedTrackingEntities.length;
+  // The number counts only the companies with a known result, while "of m
+  // observed" (or "checked", when the read was capped) names them all. Where
+  // the two differ, the label says what the number counts; where they agree,
+  // today's label is true and stays.
+  const checkedTrackingCount = trackingNames.filter(
+    (entity) => policyMentionedEntityNames.has(entity) || storedUnmentionedNames.has(entity)
+  ).length;
+  const knownResultBelowNamed = totalObserved < (policyReadCapped ? checkedTrackingCount : trackingNames.length);
+  const [coverageOne, coverageMany] = policyReadCapped
+    ? ["checked tracking company", "checked tracking companies"]
+    : ["observed tracking company", "observed tracking companies"];
+  const coverage =
+    totalObserved > 0
+      ? knownResultBelowNamed
+        ? `${namedCount} named in the policy, of ${plural(
+            totalObserved,
+            `${coverageOne} with a known result`,
+            `${coverageMany} with a known result`
+          )}`
+        : `${namedCount} of ${plural(totalObserved, coverageOne, coverageMany)} named in the policy`
+      : unknownPolicyMentions.length > 0 || cutPolicyMentions.length > 0
+        ? "no reliable company-mention results available"
+        : "no catalogued tracking companies observed to check against it";
+  // A sentence of its own after the coverage, never inside its parenthetical,
+  // where it ran a lead to 47 words.
+  const cutPolicyMentionsNote = cutPolicyMentions.length
+    ? ` Policy mentions of ${humanList(cutPolicyMentions)} are unknown because this read may have stopped at the scanner's ${MAX_POLICY_TEXT_CHARS.toLocaleString("en-US")}-character limit.`
+    : "";
+  const unknownPolicyMentionsNote = (unknownPolicyMentions.length
+    ? ` Policy mentions of ${humanList(unknownPolicyMentions)} are unknown because the historical alias matcher was incomplete.`
+    : "") + cutPolicyMentionsNote;
+  const uncheckedNote = policyReadCapped
+    ? ` This read checked at most ${HISTORICAL_MAX_UNMENTIONED_ENTITIES} unnamed companies, so ${
+        uncheckedTrackingEntities.length === 1
+          ? "1 more observed tracking company was"
+          : `${uncheckedTrackingEntities.length} more observed tracking companies were`
+      } not checked: ${humanList(uncheckedTrackingEntities)}.`
+    : "";
+
+  // A "nothing contradicted" reassurance is itself an absence claim over
+  // the checked evidence, so censored collection hedges it.
+  const policyAbsenceIneligible = !facts.claims["privacy-policy"].allowed;
+  const policyEvidenceCensored = facts.claims["privacy-policy"].blockers.some(
+    (blocker) => blocker !== "subject-not-established"
+  );
+  // The same rule applied to the other side of the comparison: with no
+  // checkable statement extracted, "no checked statement contradicted" is
+  // vacuously true and reads as a clean result from zero checks. 83 of the
+  // committed reports publish exactly that, so this needs its own branch
+  // rather than the reassuring default.
+  const noCheckableClaims = checkablePolicyClaims.length === 0;
+  // "Nothing could be checked" is a statement about the AUTOMATED CHECK, not
+  // about the site -- this card's own lead says so. Left as ordinary evidence
+  // it raised the bottom line to "this visit has review-worthy signals" on
+  // gov.uk, whose every other card was ok and whose headline was the calm
+  // "showed few catalogued or fingerprint-like signals". Two computations
+  // were answering "is this visit quiet?" (calmEligible and the findings
+  // board) and disagreeing on the same page.
+  const policyCheckUnavailable =
+    conflicts.length === 0 &&
+    conditionalConflicts.length === 0 &&
+    unmentionedTrackingEntities.length === 0 &&
+    (policyAbsenceIneligible || noCheckableClaims);
+  const policyAbsence = absenceCopy(facts, "privacy-policy", {
+    title: "Privacy policy read; no checked statement contradicted",
+    lead: `The policy's checkable statements did not contradict this visit's evidence (${coverage}).${unknownPolicyMentionsNote}`,
+    retainedEvidenceLead: `The policy's checkable statements did not contradict the retained evidence (${coverage}).${unknownPolicyMentionsNote}`
+  });
+  return limited({
+    id: "privacy-policy",
+    icon: "file-text",
+    ...(policyCheckUnavailable ? { methodology: true as const } : {}),
+    level:
+      conflicts.length > 0
+        ? "warn"
+        : conditionalConflicts.length > 0 || unmentionedTrackingEntities.length > 0
+          ? "info"
+          : policyAbsenceIneligible || noCheckableClaims
+            ? "info"
+            : "ok",
+    title:
+      conflicts.length > 0
+        ? "The privacy policy says one thing; this visit shows another"
+        : conditionalConflicts.length > 0
+          ? "A policy statement may conflict with observed advertising events"
+          : unmentionedTrackingEntities.length > 0
+            ? "Tracking companies the privacy policy does not appear to name"
+            : noCheckableClaims
+              ? "Privacy policy read; it made no statement this scan can check"
+              : policyAbsence.title,
+    // Each conflict is its own sentence after the first: joined with "and",
+    // the two count checks made a 40-word sentence. The unnamed companies
+    // and the policy's silence about them are two sentences: one ran three
+    // long names to 31 words.
+    lead:
+      conflicts.length > 0 || conditionalConflicts.length > 0
+        ? `Comparing the site's own privacy policy against this visit: ${(conflicts.length > 0 ? conflicts : conditionalConflicts)
+            .map((conflict, index) => `${index === 0 ? conflict : capitalizeSentence(conflict)}.`)
+            .join(" ")}`
+        : unmentionedTrackingEntities.length > 0
+          ? `${humanList(unmentionedTrackingEntities)} ${unmentionedTrackingEntities.length === 1 ? "was" : "were"} sent requests during this visit. However, the policy text matched none of the names this scan knows ${unmentionedTrackingEntities.length === 1 ? "that company" : "those companies"} by.${uncheckedNote}`
+          : noCheckableClaims
+            ? `None of the statements this scan knows how to check appear in the policy text. As a result, nothing was compared against this visit's evidence (${coverage}).${unknownPolicyMentionsNote} That is a limit of the automated check, not a finding about the site either way.`
+            : policyAbsence.lead,
+    detail:
+      conflicts.length > 0 || conditionalConflicts.length > 0
+        ? `Matched policy wording: ${quotes.map((quote) => `"${quote}"`).join(" / ")}. This is an automated sentence match against the policy's own text, quoted so it can be verified in context. Policies can define terms narrowly (such as what counts as selling or sharing), so treat this as a documented discrepancy to review, not a legal conclusion.`
+        : unmentionedTrackingEntities.length > 0
+          ? `Policies often disclose vendor categories rather than company names, so an unnamed vendor is a transparency gap worth reviewing, not automatically a violation.${namedCount > 0 ? ` Named in the policy: ${humanList(mentionedTrackingEntities)}.` : ""}`
+          : `Statements checked automatically: blanket no-cookie claims, third-party-cookie claims, and combined do-not-sell-or-share claims against advertising-pixel identifier fields. Global Privacy Control claims are never checked against request counts, which cannot show whether selling or sharing stopped.${policyEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""}`,
+    evidence: `Policy at ${displayPublicUrl(policy.url)}; ${plural(checkablePolicyClaims.length, "checkable statement")} matched; ${coverage}.${unknownPolicyMentionsNote}${uncheckedNote}`,
+    claim: findingClaim(
+      facts,
+      "privacy-policy",
+      conflicts.length > 0 || conditionalConflicts.length > 0 || unmentionedTrackingEntities.length > 0
+        ? "presence"
+        : noCheckableClaims
+          ? "unavailable"
+          : "absence",
+      policyAbsence.leadScope
+    ),
+    // Only the branch titled "Tracking companies the privacy policy does
+    // not appear to name": its view opens the requests to those companies.
+    ...withLookCloser(
+      conflicts.length === 0 &&
+        conditionalConflicts.length === 0 &&
+        unmentionedTrackingEntities.length > 0 &&
+        lookCloserKeepsRows(run.evidence.requests, { signal: "known-service" })
+        ? { variant: "policy-unnamed-companies" }
+        : null
+    )
+    // The conflict strings hold neither sentence and keep their full text.
+    // The Global Privacy Control sentence is the limit only of the card
+    // that says nothing could be checked. On the card that says no checked
+    // statement was contradicted it does not bound the claim, so that card,
+    // where its claim is stated as fact and nothing was cut short, takes
+    // the sentence written for it.
+  }, [WHOLE_FINDING_LIMITS.policyUnnamedCompanies, ...(noCheckableClaims ? [WHOLE_FINDING_LIMITS.policyChecksMade] : [])],
+    conflicts.length === 0 &&
+      conditionalConflicts.length === 0 &&
+      unmentionedTrackingEntities.length === 0 &&
+      !noCheckableClaims &&
+      !policyAbsenceIneligible
+      ? NEW_FINDING_LIMITS.policyNothingContradicted
+      : null
+  );
+}
+
+function buildThirdPartyServicesFinding(ctx: FindingsContext): Finding {
+  const {
+    facts,
+    run,
+    phaseNotes,
+    trackingEntities,
+    trackingNames,
+    operationalEntities,
+    operationalNames,
+    unclassifiedEntities,
+    unclassifiedNames,
+    respondedEntities,
+    namedTrackingCnameCloaks,
+    trackingCnameNames,
+    nonCatalogOutsideIdentityNames,
+    nonCatalogSameOrganizationNames,
+    nonCatalogIdentityNames,
+    catalogCoverageNote,
+    sameOrganizationNote,
+    sessionReplayNote,
+    requestsCensored,
+    domainsBenchmarkAllowed,
+    domainsBenchmark
+  } = ctx;
+  const topCategories = Array.from(new Set(trackingEntities.flatMap((entity) => entity.categories))).slice(0, 3);
   // The severity the third-party-host COUNT carries on its own, independent of
   // whether the catalog identified anybody. This is the number the card's
   // benchmark badge already reports, so gating the level on it keeps the badge
@@ -780,8 +1369,6 @@ export function buildFindings(
   // "no known services matched" once the count itself is elevated, where an
   // absence title over a warn/loud card would actively mislead.
   const uncataloguedVolume = domainsCountLevel === "warn" || domainsCountLevel === "loud";
-  const findings: Finding[] = [];
-
   const operationalNote =
     operationalNames.length > 0
       ? ` The role taxonomy assigns these additional services explicitly non-tracking operational, support, security, consent-management, or hosting roles: ${humanList(operationalNames)}.`
@@ -796,589 +1383,6 @@ export function buildFindings(
           (count) => `Plus ${plural(count, "other unclassified service")}.`
         )}`
       : "";
-  // Opens with words, not the count: a sentence that starts with a numeral
-  // reads as a continuation of the one before it.
-  const sameOrganizationNote =
-    ownership.sameOrganizationDomainCount > 0
-      ? ` Of the catalogued cross-site domains, ${ownership.sameOrganizationDomainCount.toLocaleString("en-US")} ${
-          ownership.sameOrganizationDomainCount === 1 ? "belongs" : "belong"
-        } to the same reviewed ${ownership.sameOrganizationName ?? "organization"} domain family as the site, so that traffic is not evidence of disclosure to an outside company.`
-      : "";
-
-  const sessionReplayNames = facts.signals.fingerprint.sessionReplayNames;
-  const sessionReplayNote =
-    sessionReplayNames.length > 0
-      ? ` Catalog labels include session-replay or behavior-analytics services: ${humanList(sessionReplayNames)}. The domain match alone does not prove that a recording occurred.`
-      : "";
-
-  // Major-platform findings are request-row claims. Domain/entity summaries
-  // are intentionally lossy and can preserve only one of several exact
-  // catalog matches on a shared host, so they must not decide which platform
-  // names exist or how many requests belong to them.
-  const cataloguedPlatformRequestRows = run.evidence.requests.filter(
-    (request) =>
-      request.thirdParty &&
-      request.tracker !== null &&
-      HEADLINE_PLATFORMS.includes(request.tracker.entity)
-  );
-  const outsideCataloguedPlatformRequestRows = cataloguedPlatformRequestRows.filter(
-    (request) =>
-      reviewedOwnershipRelationship(run.domain, request.domain).kind !==
-      "same-organization"
-  );
-  const headlineRequestRows = outsideCataloguedPlatformRequestRows.filter(
-    (request) => request.tracker !== null && isTrackingTrackerMatch(request.tracker)
-  );
-  const cataloguedNonTrackingHeadlineRequestRows =
-    outsideCataloguedPlatformRequestRows.filter(
-      (request) =>
-        request.tracker !== null && !isTrackingTrackerMatch(request.tracker)
-    );
-  const platformNamesForRows = (
-    rows: typeof cataloguedPlatformRequestRows
-  ): string[] =>
-    HEADLINE_PLATFORMS.filter((platform) =>
-      rows.some((request) => request.tracker?.entity === platform)
-    );
-  const headlineNames = platformNamesForRows(headlineRequestRows);
-  const cataloguedNonTrackingHeadlineNames = platformNamesForRows(
-    cataloguedNonTrackingHeadlineRequestRows
-  );
-  // Platform domains the ownership map names but the service catalog does not
-  // carry, for example fonts.googleapis.com and gstatic.com. The card's absence
-  // claim is derived from catalog matches alone, so without these it published
-  // a green "no requests to Google domains were observed" over an observed
-  // request to exactly such a domain.
-  const cataloguedHeadlineNames = new Set(
-    cataloguedPlatformRequestRows.flatMap((request) =>
-      request.tracker ? [request.tracker.entity] : []
-    )
-  );
-  const sameOrganizationPlatformRequestRows = run.evidence.requests.filter(
-    (request) => {
-      if (!request.thirdParty) return false;
-      const relationship = reviewedOwnershipRelationship(
-        run.domain,
-        request.domain
-      );
-      return (
-        relationship.kind === "same-organization" &&
-        HEADLINE_PLATFORMS.includes(relationship.organization)
-      );
-    }
-  );
-  const sameOrganizationPlatformNames = HEADLINE_PLATFORMS.filter(
-    (platform) =>
-      facts.identity.sameOrganizationNames.includes(platform) ||
-      sameOrganizationPlatformRequestRows.some((request) => {
-        const relationship = reviewedOwnershipRelationship(
-          run.domain,
-          request.domain
-        );
-        return (
-          relationship.kind === "same-organization" &&
-          relationship.organization === platform
-        );
-      })
-  );
-  const uncataloguedPlatformOrganizations = facts.identity.outsideNames.filter(
-    (organization) =>
-      HEADLINE_PLATFORMS.includes(organization) &&
-      !cataloguedHeadlineNames.has(organization)
-  );
-  const sameOrganizationPlatformRequests =
-    sameOrganizationPlatformRequestRows.length;
-  const headlineRequests = headlineRequestRows.length;
-  const cataloguedNonTrackingHeadlineRequests =
-    cataloguedNonTrackingHeadlineRequestRows.length;
-  const provenanceHighlights = requestProvenanceHighlights(run.evidence.requests);
-  const requestsWithProvenance = run.evidence.requests.filter((request) => request.provenance).length;
-
-  const googleAnalyticsPresent = run.evidence.domains.some((domain) =>
-    GOOGLE_ANALYTICS_COLLECTION_HOST.test(domain.domain)
-  );
-  const googleTagManagerOnly =
-    !googleAnalyticsPresent && run.evidence.domains.some((domain) => GOOGLE_TAG_MANAGER_HOST.test(domain.domain));
-  const gaRemarketingOn =
-    (googleAnalyticsPresent || googleTagManagerOnly) &&
-    run.evidence.domains.some((domain) => DOUBLECLICK_REMARKETING_HOST.test(domain.domain));
-  // Analytics or its loader is present and a DoubleClick host is recorded
-  // under a generalized name: the sync cannot be told from the row.
-  const gaSyncIndistinguishable =
-    !gaRemarketingOn &&
-    (googleAnalyticsPresent || googleTagManagerOnly) &&
-    run.evidence.domains.some((domain) => GENERALIZED_DOUBLECLICK_SUBHOST.test(domain.domain));
-  // With neither present the marker is not in question, but its absence still
-  // may not be asserted over such a row.
-  const doubleclickNamesGeneralized = run.evidence.domains.some((domain) =>
-    GENERALIZED_DOUBLECLICK_SUBHOST.test(domain.domain)
-  );
-
-  // An ABSENCE claim over a censored evidence family cannot reassure: nothing
-  // proves the absence held after collection stopped, so those cards hedge
-  // and drop to "info" instead of "ok".
-  const keystrokeDetection = fingerprintDetection(run.evidence, "keystroke-exfiltration");
-  if (keystrokeDetection) {
-    // Readers see the wildcard form the evidence tables use; the ownership
-    // check below reads the recorded hosts.
-    const recipients = humanList(keystrokeDetection.evidence.recipients.map(displayHost));
-    const recipientCount = plural(keystrokeDetection.evidence.recipients.length, "cross-site domain");
-    const sameOrganizationRecipients = keystrokeDetection.evidence.recipients.filter(
-      (recipient) => reviewedOwnershipRelationship(run.domain, recipient).kind === "same-organization"
-    );
-    // Opens with words, not the count, like sameOrganizationNote.
-    const recipientOwnershipNote =
-      sameOrganizationRecipients.length > 0
-        ? ` Of the recipient domains, ${sameOrganizationRecipients.length.toLocaleString("en-US")} ${
-            sameOrganizationRecipients.length === 1 ? "belongs" : "belong"
-          } to the site's same reviewed organization, so that portion is not disclosure to an outside company.`
-        : "";
-    // The recipients and encodings are named in sentences of their own: inside
-    // the lead's one sentence, three of each ran it to about 38 words. Both
-    // lists hold single tokens capped at three plus a count, so neither
-    // sentence grows with its list.
-    // One base64 occurrence is one form, though it matches two needles.
-    const shownEncodings = displayKeystrokeEncodings(keystrokeDetection.evidence.encodings);
-    const forms = keystrokeForms(keystrokeDetection.evidence.encodings);
-    // Recipients and encodings are two separate lists: with several recipients
-    // and both hashed and recoverable forms, the card cannot pair them.
-    const unpaired = keystrokeFormsUnpaired(keystrokeDetection.evidence);
-    const namedRecipientsAndEncodings = ` ${
-      keystrokeDetection.evidence.recipients.length === 1 ? "Recipient" : "Recipients"
-    }: ${recipients}. ${shownEncodings.length === 1 ? "Encoding" : "Encodings"}: ${humanList(shownEncodings)}.`;
-    const fields = plural(keystrokeDetection.evidence.fieldsTyped, "form field");
-    // A one-way hash is a stronger transformation signal and retains the loud
-    // level, but neither encoding nor this frozen summary proves recipient
-    // purpose, real-user handling, or timing within typing/blur/unload.
-    const hashed = keystrokeLeakHashed(keystrokeDetection.evidence.encodings);
-    // The first recipient the card names, never one the sanitizer could not
-    // record. The log does not mark which row carried the value.
-    const recipientHost = lookCloserHost(keystrokeDetection.evidence.recipients[0]);
-    findings.push(limited({
-      id: "keystroke-exfiltration",
-      icon: "keyboard",
-      level: hashed ? "loud" : "warn",
-      title: hashed && unpaired
-        ? `Synthetic form input appeared in requests to ${recipientCount} before submission, at least once as a hash`
-        : hashed
-        ? `A hashed form of synthetic input appeared in requests to ${recipientCount} before submission`
-        : `Synthetic form input appeared in requests to ${recipientCount} before submission`,
-      // Unpaired, the lead says only that the value appeared: a hash named
-      // here would be read as going to every recipient it counts.
-      lead: hashed && !unpaired
-        ? `When the scanner typed a unique test value into ${fields}, a one-way hash of that value appeared in requests to ${recipientCount} without the form being submitted.${namedRecipientsAndEncodings}`
-        : `When the scanner typed a unique test value into ${fields}, that value appeared in requests to ${recipientCount} without the form being submitted.${namedRecipientsAndEncodings}`,
-      detail: hashed
-        ? `${
-            forms.recoverable.length > 0
-              ? `The synthetic value appeared as a one-way hash (${humanList(forms.hashed)}) and in a recoverable form (${humanList(forms.recoverable)}).${
-                  keystrokeDetection.evidence.recipients.length > 1 ? " This report does not record which recipient received which form." : ""
-                }`
-              : `The synthetic value was hashed (${humanList(forms.hashed)}) before being sent.`
-          } The report does not establish whether transmission happened during typing, blur, or unload, what the recipient used it for, or whether real visitor input follows the same path. The scanner types only synthetic values and never submits the form.${recipientOwnershipNote}`
-        : `The synthetic value appeared in a recoverable form (${humanList(shownEncodings)}). The report does not establish whether transmission happened during typing, blur, or unload, why it was sent, or whether real visitor input follows the same path. The scanner types only synthetic values and never submits the form.${recipientOwnershipNote}`,
-      evidence: `Synthetic test value appeared in requests to ${recipients} via ${humanList(shownEncodings)}.`,
-      claim: findingClaim(facts, "keystroke-exfiltration", "presence"),
-      ...withLookCloser(
-        recipientHost && lookCloserKeepsRows(run.evidence.requests, { query: recipientHost })
-          ? { variant: "keystroke-recipient", host: recipientHost }
-          : null
-      )
-      // The recoverable-form string only, and without the sentence about
-      // same-organization recipients, which no approved card carried.
-    }, recipientOwnershipNote === "" ? [WHOLE_FINDING_LIMITS.typedValueRecoverable] : []));
-  }
-
-  const cnameCloaks = trackingCnameCloaks;
-  if (cnameCloaks.length > 0) {
-    const listMatches = cnameCloaks.filter((cloak) => cloak.tracker.confidence === "shields-list");
-    findings.push(limited({
-      id: "cname-cloaking",
-      icon: "radar",
-      level: "warn",
-      title: `${plural(cnameCloaks.length, "first-party DNS alias", "first-party DNS aliases")} matched tracking checks`,
-      lead: [
-        trackingCnameNames.length > 0
-          ? `Recorded DNS aliases resolve to catalogued tracking-related services: ${humanList(trackingCnameNames)}.`
-          : "",
-        // Opens with words, not the count: after the names, a sentence that
-        // starts with a numeral reads as part of the one before it.
-        listMatches.length > 0
-          ? `Of the resolved targets, ${listMatches.length.toLocaleString("en-US")} matched Brave filter lists; those matches do not identify the operators.`
-          : ""
-      ].filter(Boolean).join(" "),
-      detail:
-        "The scanner followed DNS CNAME chains from first-party subdomains and checked resolved targets against the service catalog and Brave filter lists. These matches do not establish a request's purpose, profiling, or an intent to conceal tracking. A filter-list match alone is not a verified service identity or proof of tracking.",
-      // One sentence per alias: four of them in one list ran to 34 words.
-      evidence: sentenceSequence(
-        cnameCloaks.map((cloak) => `DNS alias: ${dnsAliasText(cloak)} (${cloak.tracker.confidence === "curated" ? `${cloak.tracker.entity}; catalog match` : "Brave filter-list match; operator unverified"})`),
-        4,
-        (count) => `Plus ${plural(count, "other DNS alias", "other DNS aliases")}.`
-      ),
-      claim: findingClaim(facts, "cname-cloaking", "presence")
-    }, [WHOLE_FINDING_LIMITS.dnsAliases]));
-  }
-
-  // The pre-consent framing ("the scanner never clicks the banner") only holds
-  // for observe-mode runs. Consent-comparison runs clicked a choice, and their
-  // story is carried by the dedicated consent-comparison card below instead.
-  // The facts decide both that and which hosts are read, and rank what they
-  // name, so the headline is never calm over this card.
-  const consentPlatform = facts.signals.consentPlatform;
-  if (consentPlatform) {
-    const preConsentTrackers = trackingEntities.length;
-    const consentPlatformAnswered =
-      (run.evidence.domains.find((domain) => domain.domain === consentPlatform.domain)?.statuses.length ?? 0) > 0;
-    const answeredPreConsentTrackers = trackingEntities.filter((entity) => respondedEntities.has(entity.entity)).length;
-    // A framework endpoint identifies the tooling standard, not the vendor that
-    // ran it, so it may not be printed in the slot a named platform occupies.
-    // The catalog's kind is the single source: a host regex here disagreed
-    // with the catalog on non-normalized uploaded bytes (mixed case, trailing
-    // dot), naming IAB TCF in the vendor slot for exactly those reports.
-    const frameworkEndpoint = consentPlatform.kind === "framework-endpoint";
-    const consentPlatformPhrase = frameworkEndpoint
-      ? `${consentPlatform.name}, a consent framework endpoint shared by many consent management platforms (the tooling that shows cookie banners) rather than one named platform`
-      : `${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners)`;
-    // The platform view calls its host "the consent platform's address", which
-    // a framework endpoint is not, so that card offers no view.
-    const consentPlatformHost = frameworkEndpoint ? null : lookCloserHost(consentPlatform.domain);
-    findings.push(limited({
-      id: "consent-banner",
-      icon: "cookie",
-      level: preConsentTrackers > 0 ? "warn" : "info",
-      title:
-        preConsentTrackers > 0
-          ? "Consent tooling and requests to tracking-service entities appeared before any choice"
-          : frameworkEndpoint
-            ? consentPlatformAnswered
-              ? "A shared consent framework endpoint answered"
-              : "A shared consent framework endpoint was requested"
-            : consentPlatformAnswered
-              ? "A consent management platform answered"
-              : "A consent management platform was requested",
-      // The tracker count is a sentence of its own: after the platform phrase,
-      // the lead ran 39 words, and about 55 with a framework endpoint's. With
-      // no tracker, the timing is its own sentence: a framework endpoint's
-      // phrase ran that lead to 35 words.
-      lead:
-        preConsentTrackers > 0
-          ? `${visibleDomain} sent a request to ${consentPlatformPhrase}. The request log included ${retainedCountPhrase(
-              preConsentTrackers,
-              "distinct catalogued tracking-related service",
-              "distinct catalogued tracking-related services",
-              facts.evidence.requests.state
-            )} before the scanner made any consent choice${
-              answeredPreConsentTrackers > 0
-                ? `; ${plural(answeredPreConsentTrackers, "company", "companies")} answered`
-                : requestsCensored
-                  ? "; none of the retained matches recorded a response before collection stopped"
-                  : "; none recorded a response"
-            }.`
-          : `${visibleDomain} sent a request to ${consentPlatformPhrase}. The request came before the scanner made any consent choice.${
-              frameworkEndpoint ? " This scan could not name the platform that served it." : ""
-            } Tracker-service observations are reported separately so this positive tooling signal does not imply an absence.`,
-      detail:
-        'A request to the platform\'s loader proves the page attempted to fetch consent tooling. An observed response supports delivery, but neither fact proves a banner was visibly shown to this scanner. Banner display can vary by region and visit context. The scanner never clicks a banner in this mode, so this report records requests made before the scanner made a consent choice. It does not determine whether any request required consent or whether the site\'s behavior complied with applicable law. More tracking-service entities or requests may appear after "Accept" than this report captures, so the counts here are lower bounds for users who consent.',
-      evidence: `${
-        frameworkEndpoint ? "Consent framework endpoint" : "Consent platform"
-      } detected via a request to ${displayHost(consentPlatform.domain)}.`,
-      claim: findingClaim(facts, "consent-banner", "presence"),
-      ...withLookCloser(
-        preConsentTrackers > 0
-          ? lookCloserKeepsRows(run.evidence.requests, { signal: "known-service" })
-            ? { variant: "consent-banner-catalog-matches" }
-            : null
-          : consentPlatformHost && lookCloserKeepsRows(run.evidence.requests, { query: consentPlatformHost })
-            ? { variant: "consent-banner-platform", host: consentPlatformHost }
-            : null
-      )
-      // One string, two claims: with tracking-service requests the limit is
-      // what the report does not determine about them; with tooling alone it
-      // is what a request and a response do not prove about a banner.
-    }, [preConsentTrackers > 0 ? WHOLE_FINDING_LIMITS.consentToolingAndTrackers : WHOLE_FINDING_LIMITS.consentToolingOnly]));
-  }
-
-  const policy = run.evidence.privacyPolicy;
-  // The facts say whether the stored read supports a comparison, and hold the
-  // count conflicts the headline's severity ranks. A short read from a
-  // cross-check that did not wait for the policy to load may be the page
-  // shell, whose silence about a company says nothing about the policy. It
-  // supports neither an omission nor a statement, so it takes the site-root
-  // card's shape.
-  const policyFacts = facts.signals.policy;
-  if (policy && policyFacts.read === "shell-suspected") {
-    findings.push(limited({
-      id: "privacy-policy",
-      icon: "file-text",
-      methodology: true,
-      level: "info",
-      title: "Privacy-policy cross-check not established",
-      lead: `The page this scan read as the privacy policy held ${policy.policyTextLength.toLocaleString()} characters of text, short enough to be the page before its policy loaded. As a result, no policy text was compared against this visit's evidence. That is a limit of the automated check, not a finding about the site either way.`,
-      detail: "The scanner that recorded this visit read a policy page a fixed second after it began loading. Some pages render their policy later, and some had requests refused by the scan's own traffic budget. A short read can therefore be the page around a policy that never arrived. Company mentions and policy statements recorded from it are not used; later scanner versions wait for the page to settle and withhold such a read.",
-      evidence: `Page recorded as the policy: ${displayPublicUrl(policy.url)} (${plural(policy.policyTextLength, "character")} of text); no policy text compared.`,
-      claim: findingClaim(facts, "privacy-policy", "unavailable")
-    }, [WHOLE_FINDING_LIMITS.policyShortRead]));
-  } else if (policy && policyFacts.read === "site-root") {
-    // The document read as the policy was the site root: the homepage, not a
-    // policy. Its text supports neither an omission nor a contradiction, so
-    // the card takes the same shape as any other cross-check this scan could
-    // not make (methodology, info, "unavailable") and quotes no result from it.
-    // The scanner's frozen disclosure names this URL as "the site's privacy
-    // policy"; reconcile it when the run carries it (fails safe if not).
-    const policyReadNoteShown = run.warnings.some((warning) =>
-      warning.startsWith(`Read the site's privacy policy (${policy.url}) `)
-    );
-    findings.push(limited({
-      id: "privacy-policy",
-      icon: "file-text",
-      methodology: true,
-      level: "info",
-      title: "Privacy-policy cross-check not established",
-      lead: "The page this scan recorded as the privacy policy is a homepage (the root of its site), not a policy document. As a result, no policy text was compared against this visit's evidence. That is a limit of the automated check, not a finding about the site either way.",
-      detail: `The scanner that recorded this visit read whatever document the page's privacy-policy link led to. Here that was a site root, for example because the link redirected to or pointed at the homepage. Company mentions and policy statements recorded from that text are not used.${
-        policyReadNoteShown ? " The measurement note that the privacy policy was read refers to this homepage text." : ""
-      }`,
-      evidence: `Page recorded as the policy: ${displayPublicUrl(policy.url)} (the site root); no policy text compared.`,
-      claim: findingClaim(facts, "privacy-policy", "unavailable")
-    }, [WHOLE_FINDING_LIMITS.policySiteRoot]));
-  } else if (policy) {
-    // Each entry pairs a testable statement from the policy with the observed
-    // evidence that cuts against it. Quotes come along so a reader can check
-    // the sentence in context; this is a text match, never a legal reading.
-    const conflicts: string[] = [];
-    const quotes: string[] = [];
-    const checkablePolicyClaims = policyFacts.checkableClaims;
-    const policyClaim = (kind: PrivacyPolicyClaimKind) =>
-      checkablePolicyClaims.find((claim) => claim.kind === kind);
-
-    // The count comparisons are the facts' own, never made again here: the
-    // card warns on a conflict the headline's severity has ranked.
-    for (const conflict of policyFacts.countConflicts) {
-      conflicts.push(
-        conflict.claim === "no-third-party-cookies"
-          ? `the policy says third-party cookies are not used, but ${plural(conflict.cookies, "third-party cookie")} appeared in this visit`
-          : `the policy says cookies are not used, but ${plural(conflict.cookies, "cookie")} appeared in this visit`
-      );
-      quotes.push(conflict.quote);
-    }
-
-    // Field POPULATION is what the scanner proves; the values are never
-    // read, so this observation is CONDITIONAL and must never headline as a
-    // definite contradiction the way the count-based checks above may.
-    const conditionalConflicts: string[] = [];
-    const noSellingOrSharing = policyClaim("no-selling-or-sharing");
-    const pixelsWithIdentifiers = pixelEventSummaries(run.evidence).filter((pixel) => pixel.advancedMatching.length > 0);
-    if (noSellingOrSharing && pixelsWithIdentifiers.length > 0) {
-      // Four sentences, not one: as a single clause with its condition and
-      // its limit, this entry ran the lead to about 60 words.
-      conditionalConflicts.push(
-        `the policy says personal information is not sold or shared. Advertising events to ${humanList(
-          pixelsWithIdentifiers.map((pixel) => pixel.product)
-        )} carried populated personal-identifier fields in this visit. IF those fields held real visitor data, many regulators treat that as sharing. However, the scanner only checks those fields for being non-empty and never stores the values`
-      );
-      quotes.push(noSellingOrSharing.quote);
-    }
-
-    // Deliberately NOT checked as a conflict: an "honors GPC" claim. Honoring
-    // GPC means not selling or sharing data, which request counts cannot
-    // observe; a site can honor the signal while loading identical requests.
-    // The claim stays in the stored policy summary, but no request-count
-    // comparison is allowed to contradict it.
-    //
-    // Enforced rather than remembered: COMPARED_POLICY_CLAIM_KINDS in
-    // privacy-policy.ts is what isCurrentlyCheckablePolicyClaim filters on, so
-    // a kind with no comparison here cannot be counted as checkable, and the
-    // card falls to its "nothing this scan can check" branch instead of
-    // publishing a reassurance backed by zero comparisons.
-
-    // Frozen producer arrays recorded every catalogued entity as a potential
-    // tracking company. Rebind them to the current, positive ServiceRole
-    // classification before publishing a disclosure claim; an operational or
-    // unclassified catalog match must not become tracking merely because an
-    // older producer put its name in one of these arrays.
-    const policyMentionedEntityNames = new Set(policy.mentionedEntities);
-    const policyUnmentionedEntityNames = new Set(policy.unmentionedEntities);
-    // A read stores at most this many unmentioned companies, so at exactly
-    // that many, an observed company in neither stored list was never
-    // checked. Saying nothing dropped it from the count and the list.
-    const storedUnmentionedNames = new Set(policy.unmentionedEntities);
-    const uncheckedTrackingEntities =
-      policy.unmentionedEntities.length === HISTORICAL_MAX_UNMENTIONED_ENTITIES
-        ? trackingNames.filter((entity) => !policyMentionedEntityNames.has(entity) && !storedUnmentionedNames.has(entity))
-        : [];
-    const policyReadCapped = uncheckedTrackingEntities.length > 0;
-    // Earlier instruments used parent-company keys that did not match the
-    // catalog. A historical non-match cannot support an omission accusation.
-    const policyDetectorOrdinal = policyCrossCheckOrdinal(run.detectors?.["privacy-policy"]?.version);
-    const unreliablePolicyAliases = Object.keys(POLICY_ALIAS_RELIABLE_FROM).filter(
-      (entity) => policyDetectorOrdinal < POLICY_ALIAS_RELIABLE_FROM[entity]!
-    );
-    const unknownPolicyMentions = trackingNames.filter(entity =>
-      unreliablePolicyAliases.includes(entity) && policyUnmentionedEntityNames.has(entity));
-    for (const entity of unknownPolicyMentions) policyUnmentionedEntityNames.delete(entity);
-    // Silence in a read that may have been cut short supports no omission.
-    const cutPolicyMentions =
-      policyDetectorOrdinal < POLICY_READ_CUT_WITHHELD_FROM &&
-      policy.policyTextLength >= POLICY_READ_CUT_SUSPECT_MIN_CHARS
-        ? trackingNames.filter((entity) => policyUnmentionedEntityNames.has(entity))
-        : [];
-    for (const entity of cutPolicyMentions) policyUnmentionedEntityNames.delete(entity);
-    const mentionedTrackingEntities = trackingNames.filter((entity) =>
-      policyMentionedEntityNames.has(entity)
-    );
-    const unmentionedTrackingEntities = trackingNames.filter((entity) =>
-      policyUnmentionedEntityNames.has(entity)
-    );
-    const namedCount = mentionedTrackingEntities.length;
-    const totalObserved = namedCount + unmentionedTrackingEntities.length;
-    // The number counts only the companies with a known result, while "of m
-    // observed" (or "checked", when the read was capped) names them all. Where
-    // the two differ, the label says what the number counts; where they agree,
-    // today's label is true and stays.
-    const checkedTrackingCount = trackingNames.filter(
-      (entity) => policyMentionedEntityNames.has(entity) || storedUnmentionedNames.has(entity)
-    ).length;
-    const knownResultBelowNamed = totalObserved < (policyReadCapped ? checkedTrackingCount : trackingNames.length);
-    const [coverageOne, coverageMany] = policyReadCapped
-      ? ["checked tracking company", "checked tracking companies"]
-      : ["observed tracking company", "observed tracking companies"];
-    const coverage =
-      totalObserved > 0
-        ? knownResultBelowNamed
-          ? `${namedCount} named in the policy, of ${plural(
-              totalObserved,
-              `${coverageOne} with a known result`,
-              `${coverageMany} with a known result`
-            )}`
-          : `${namedCount} of ${plural(totalObserved, coverageOne, coverageMany)} named in the policy`
-        : unknownPolicyMentions.length > 0 || cutPolicyMentions.length > 0
-          ? "no reliable company-mention results available"
-          : "no catalogued tracking companies observed to check against it";
-    // A sentence of its own after the coverage, never inside its parenthetical,
-    // where it ran a lead to 47 words.
-    const cutPolicyMentionsNote = cutPolicyMentions.length
-      ? ` Policy mentions of ${humanList(cutPolicyMentions)} are unknown because this read may have stopped at the scanner's ${MAX_POLICY_TEXT_CHARS.toLocaleString("en-US")}-character limit.`
-      : "";
-    const unknownPolicyMentionsNote = (unknownPolicyMentions.length
-      ? ` Policy mentions of ${humanList(unknownPolicyMentions)} are unknown because the historical alias matcher was incomplete.`
-      : "") + cutPolicyMentionsNote;
-    const uncheckedNote = policyReadCapped
-      ? ` This read checked at most ${HISTORICAL_MAX_UNMENTIONED_ENTITIES} unnamed companies, so ${
-          uncheckedTrackingEntities.length === 1
-            ? "1 more observed tracking company was"
-            : `${uncheckedTrackingEntities.length} more observed tracking companies were`
-        } not checked: ${humanList(uncheckedTrackingEntities)}.`
-      : "";
-
-    // A "nothing contradicted" reassurance is itself an absence claim over
-    // the checked evidence, so censored collection hedges it.
-    const policyAbsenceIneligible = !facts.claims["privacy-policy"].allowed;
-    const policyEvidenceCensored = facts.claims["privacy-policy"].blockers.some(
-      (blocker) => blocker !== "subject-not-established"
-    );
-    // The same rule applied to the other side of the comparison: with no
-    // checkable statement extracted, "no checked statement contradicted" is
-    // vacuously true and reads as a clean result from zero checks. 83 of the
-    // committed reports publish exactly that, so this needs its own branch
-    // rather than the reassuring default.
-    const noCheckableClaims = checkablePolicyClaims.length === 0;
-    // "Nothing could be checked" is a statement about the AUTOMATED CHECK, not
-    // about the site -- this card's own lead says so. Left as ordinary evidence
-    // it raised the bottom line to "this visit has review-worthy signals" on
-    // gov.uk, whose every other card was ok and whose headline was the calm
-    // "showed few catalogued or fingerprint-like signals". Two computations
-    // were answering "is this visit quiet?" (calmEligible and the findings
-    // board) and disagreeing on the same page.
-    const policyCheckUnavailable =
-      conflicts.length === 0 &&
-      conditionalConflicts.length === 0 &&
-      unmentionedTrackingEntities.length === 0 &&
-      (policyAbsenceIneligible || noCheckableClaims);
-    const policyAbsence = absenceCopy(facts, "privacy-policy", {
-      title: "Privacy policy read; no checked statement contradicted",
-      lead: `The policy's checkable statements did not contradict this visit's evidence (${coverage}).${unknownPolicyMentionsNote}`,
-      retainedEvidenceLead: `The policy's checkable statements did not contradict the retained evidence (${coverage}).${unknownPolicyMentionsNote}`
-    });
-    findings.push(limited({
-      id: "privacy-policy",
-      icon: "file-text",
-      ...(policyCheckUnavailable ? { methodology: true as const } : {}),
-      level:
-        conflicts.length > 0
-          ? "warn"
-          : conditionalConflicts.length > 0 || unmentionedTrackingEntities.length > 0
-            ? "info"
-            : policyAbsenceIneligible || noCheckableClaims
-              ? "info"
-              : "ok",
-      title:
-        conflicts.length > 0
-          ? "The privacy policy says one thing; this visit shows another"
-          : conditionalConflicts.length > 0
-            ? "A policy statement may conflict with observed advertising events"
-            : unmentionedTrackingEntities.length > 0
-              ? "Tracking companies the privacy policy does not appear to name"
-              : noCheckableClaims
-                ? "Privacy policy read; it made no statement this scan can check"
-                : policyAbsence.title,
-      // Each conflict is its own sentence after the first: joined with "and",
-      // the two count checks made a 40-word sentence. The unnamed companies
-      // and the policy's silence about them are two sentences: one ran three
-      // long names to 31 words.
-      lead:
-        conflicts.length > 0 || conditionalConflicts.length > 0
-          ? `Comparing the site's own privacy policy against this visit: ${(conflicts.length > 0 ? conflicts : conditionalConflicts)
-              .map((conflict, index) => `${index === 0 ? conflict : capitalizeSentence(conflict)}.`)
-              .join(" ")}`
-          : unmentionedTrackingEntities.length > 0
-            ? `${humanList(unmentionedTrackingEntities)} ${unmentionedTrackingEntities.length === 1 ? "was" : "were"} sent requests during this visit. However, the policy text matched none of the names this scan knows ${unmentionedTrackingEntities.length === 1 ? "that company" : "those companies"} by.${uncheckedNote}`
-            : noCheckableClaims
-              ? `None of the statements this scan knows how to check appear in the policy text. As a result, nothing was compared against this visit's evidence (${coverage}).${unknownPolicyMentionsNote} That is a limit of the automated check, not a finding about the site either way.`
-              : policyAbsence.lead,
-      detail:
-        conflicts.length > 0 || conditionalConflicts.length > 0
-          ? `Matched policy wording: ${quotes.map((quote) => `"${quote}"`).join(" / ")}. This is an automated sentence match against the policy's own text, quoted so it can be verified in context. Policies can define terms narrowly (such as what counts as selling or sharing), so treat this as a documented discrepancy to review, not a legal conclusion.`
-          : unmentionedTrackingEntities.length > 0
-            ? `Policies often disclose vendor categories rather than company names, so an unnamed vendor is a transparency gap worth reviewing, not automatically a violation.${namedCount > 0 ? ` Named in the policy: ${humanList(mentionedTrackingEntities)}.` : ""}`
-            : `Statements checked automatically: blanket no-cookie claims, third-party-cookie claims, and combined do-not-sell-or-share claims against advertising-pixel identifier fields. Global Privacy Control claims are never checked against request counts, which cannot show whether selling or sharing stopped.${policyEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""}`,
-      evidence: `Policy at ${displayPublicUrl(policy.url)}; ${plural(checkablePolicyClaims.length, "checkable statement")} matched; ${coverage}.${unknownPolicyMentionsNote}${uncheckedNote}`,
-      claim: findingClaim(
-        facts,
-        "privacy-policy",
-        conflicts.length > 0 || conditionalConflicts.length > 0 || unmentionedTrackingEntities.length > 0
-          ? "presence"
-          : noCheckableClaims
-            ? "unavailable"
-            : "absence",
-        policyAbsence.leadScope
-      ),
-      // Only the branch titled "Tracking companies the privacy policy does
-      // not appear to name": its view opens the requests to those companies.
-      ...withLookCloser(
-        conflicts.length === 0 &&
-          conditionalConflicts.length === 0 &&
-          unmentionedTrackingEntities.length > 0 &&
-          lookCloserKeepsRows(run.evidence.requests, { signal: "known-service" })
-          ? { variant: "policy-unnamed-companies" }
-          : null
-      )
-      // The conflict strings hold neither sentence and keep their full text.
-      // The Global Privacy Control sentence is the limit only of the card
-      // that says nothing could be checked. On the card that says no checked
-      // statement was contradicted it does not bound the claim, so that card,
-      // where its claim is stated as fact and nothing was cut short, takes
-      // the sentence written for it.
-    }, [WHOLE_FINDING_LIMITS.policyUnnamedCompanies, ...(noCheckableClaims ? [WHOLE_FINDING_LIMITS.policyChecksMade] : [])],
-      conflicts.length === 0 &&
-        conditionalConflicts.length === 0 &&
-        unmentionedTrackingEntities.length === 0 &&
-        !noCheckableClaims &&
-        !policyAbsenceIneligible
-        ? NEW_FINDING_LIMITS.policyNothingContradicted
-        : null
-    ));
-  }
-
   const servicesAbsence = absenceCopy(facts, "third-party-services", {
     title: "No known services matched",
     lead: "This scan did not match any third-party domains to the service catalog or another identity source.",
@@ -1393,7 +1397,7 @@ export function buildFindings(
     operationalEntities.length === 0 &&
     unclassifiedEntities.length === 0 &&
     nonCatalogIdentityNames.length === 0;
-  findings.push(limited({
+  return limited({
     id: "third-party-services",
     icon: "globe",
     level:
@@ -1541,8 +1545,91 @@ export function buildFindings(
     // which counts the hosts no source identified, is the limit. Only here.
     // On a card that names a service it stays behind that card's own limit.
     servicesNoneMatched ? FORMED_FINDING_LIMITS.servicesHostsUnidentified : null
-  ));
+  );
+}
 
+function buildNamedPlatformsFinding(ctx: FindingsContext): Finding {
+  const { facts, run, phaseNotes, sameOrganizationNote, requestsCensored } = ctx;
+  // Major-platform findings are request-row claims. Domain/entity summaries
+  // are intentionally lossy and can preserve only one of several exact
+  // catalog matches on a shared host, so they must not decide which platform
+  // names exist or how many requests belong to them.
+  const cataloguedPlatformRequestRows = run.evidence.requests.filter(
+    (request) =>
+      request.thirdParty &&
+      request.tracker !== null &&
+      HEADLINE_PLATFORMS.includes(request.tracker.entity)
+  );
+  const outsideCataloguedPlatformRequestRows = cataloguedPlatformRequestRows.filter(
+    (request) =>
+      reviewedOwnershipRelationship(run.domain, request.domain).kind !==
+      "same-organization"
+  );
+  const headlineRequestRows = outsideCataloguedPlatformRequestRows.filter(
+    (request) => request.tracker !== null && isTrackingTrackerMatch(request.tracker)
+  );
+  const cataloguedNonTrackingHeadlineRequestRows =
+    outsideCataloguedPlatformRequestRows.filter(
+      (request) =>
+        request.tracker !== null && !isTrackingTrackerMatch(request.tracker)
+    );
+  const platformNamesForRows = (
+    rows: typeof cataloguedPlatformRequestRows
+  ): string[] =>
+    HEADLINE_PLATFORMS.filter((platform) =>
+      rows.some((request) => request.tracker?.entity === platform)
+    );
+  const headlineNames = platformNamesForRows(headlineRequestRows);
+  const cataloguedNonTrackingHeadlineNames = platformNamesForRows(
+    cataloguedNonTrackingHeadlineRequestRows
+  );
+  // Platform domains the ownership map names but the service catalog does not
+  // carry, for example fonts.googleapis.com and gstatic.com. The card's absence
+  // claim is derived from catalog matches alone, so without these it published
+  // a green "no requests to Google domains were observed" over an observed
+  // request to exactly such a domain.
+  const cataloguedHeadlineNames = new Set(
+    cataloguedPlatformRequestRows.flatMap((request) =>
+      request.tracker ? [request.tracker.entity] : []
+    )
+  );
+  const sameOrganizationPlatformRequestRows = run.evidence.requests.filter(
+    (request) => {
+      if (!request.thirdParty) return false;
+      const relationship = reviewedOwnershipRelationship(
+        run.domain,
+        request.domain
+      );
+      return (
+        relationship.kind === "same-organization" &&
+        HEADLINE_PLATFORMS.includes(relationship.organization)
+      );
+    }
+  );
+  const sameOrganizationPlatformNames = HEADLINE_PLATFORMS.filter(
+    (platform) =>
+      facts.identity.sameOrganizationNames.includes(platform) ||
+      sameOrganizationPlatformRequestRows.some((request) => {
+        const relationship = reviewedOwnershipRelationship(
+          run.domain,
+          request.domain
+        );
+        return (
+          relationship.kind === "same-organization" &&
+          relationship.organization === platform
+        );
+      })
+  );
+  const uncataloguedPlatformOrganizations = facts.identity.outsideNames.filter(
+    (organization) =>
+      HEADLINE_PLATFORMS.includes(organization) &&
+      !cataloguedHeadlineNames.has(organization)
+  );
+  const sameOrganizationPlatformRequests =
+    sameOrganizationPlatformRequestRows.length;
+  const headlineRequests = headlineRequestRows.length;
+  const cataloguedNonTrackingHeadlineRequests =
+    cataloguedNonTrackingHeadlineRequestRows.length;
   // The title carries the lead's scope word. Without "catalogued" it read as
   // an absence of the platforms themselves, above request rows to hosts such
   // as fbcdn.net, instagram.com or pinimg.com that the catalog does not carry.
@@ -1552,7 +1639,7 @@ export function buildFindings(
     retainedEvidenceLead:
       "No requests to catalogued Google, Meta, TikTok, X, Microsoft, LinkedIn, or Pinterest domains appear in the retained evidence."
   });
-  findings.push(limited({
+  return limited({
     id: "named-platforms",
     icon: "network",
     level:
@@ -1643,14 +1730,20 @@ export function buildFindings(
     WHOLE_FINDING_LIMITS.platformsNoneRecorded,
     WHOLE_FINDING_LIMITS.platformsNotInCatalog,
     WHOLE_FINDING_LIMITS.platformsSameOrganization
-  ]));
+  ]);
+}
 
+function buildPixelEventsFinding(ctx: FindingsContext): Finding | null {
+  const { facts, run } = ctx;
   const pixelEvents = pixelEventSummaries(run.evidence);
-  if (pixelEvents.length > 0) {
-    const pixelsWithMatching = facts.signals.pixels.withIdentifiers;
-    const pixelsWithEvents = facts.signals.pixels.withEventLabels;
-    const matchingFields = Array.from(new Set(pixelsWithMatching.flatMap((pixel) => pixel.advancedMatching))).map(pixelFieldLabel);
-    findings.push(limited({
+  if (pixelEvents.length === 0) return null;
+  const pixelDetectorCensored = facts.claims["pixel-events"].blockers.some(
+    (blocker) => blocker !== "subject-not-established"
+  );
+  const pixelsWithMatching = facts.signals.pixels.withIdentifiers;
+  const pixelsWithEvents = facts.signals.pixels.withEventLabels;
+  const matchingFields = Array.from(new Set(pixelsWithMatching.flatMap((pixel) => pixel.advancedMatching))).map(pixelFieldLabel);
+  return limited({
       id: "pixel-events",
       icon: "radar",
       level: pixelsWithMatching.length > 0 ? "warn" : "info",
@@ -1703,35 +1796,60 @@ export function buildFindings(
       WHOLE_FINDING_LIMITS.pixelIdentifiers,
       WHOLE_FINDING_LIMITS.pixelEventLabels,
       WHOLE_FINDING_LIMITS.pixelRetainedLabels
-    ]));
-  }
+    ]);
+}
 
-  if (run.conditions.automation === "brave-pagegraph") {
-    findings.push({
-      id: "pagegraph-provenance",
-      icon: "network",
-      level: provenanceHighlights.length > 0 ? "info" : "quiet",
-      // Whether the PageGraph export carried initiator metadata is a property
-      // of THIS ARTIFACT, not of the site, so it must not move the bottom line
-      // the way an observed signal does (same rule as the ineligible-pair and
-      // unverified-consent cards).
-      methodology: true,
-      title: provenanceHighlights.length > 0 ? "PageGraph causality is attached" : "PageGraph causality was not supplied",
-      lead:
-        provenanceHighlights.length > 0
-          ? `${plural(requestsWithProvenance, "request")} include initiator or script provenance.`
-          : "This PageGraph-derived report did not include request initiator metadata.",
-      detail:
-        provenanceHighlights.length > 0
-          ? `Examples: ${humanList(provenanceHighlights, 3)}.`
-          : "Counts and domains still describe observed traffic, but this artifact cannot explain which script caused each request.",
-      evidence:
-        provenanceHighlights.length > 0
-          ? "The request log preserves redacted actor URLs and domains when PageGraph provides them."
-          : "Ask the PageGraph export pipeline for source, initiator, script, or injector fields before treating this as causal evidence."
-    });
-  }
+function buildPageGraphProvenanceFinding(ctx: FindingsContext): Finding | null {
+  const { run } = ctx;
+  if (run.conditions.automation !== "brave-pagegraph") return null;
+  const provenanceHighlights = requestProvenanceHighlights(run.evidence.requests);
+  const requestsWithProvenance = run.evidence.requests.filter((request) => request.provenance).length;
+  return {
+    id: "pagegraph-provenance",
+    icon: "network",
+    level: provenanceHighlights.length > 0 ? "info" : "quiet",
+    // Whether the PageGraph export carried initiator metadata is a property
+    // of THIS ARTIFACT, not of the site, so it must not move the bottom line
+    // the way an observed signal does (same rule as the ineligible-pair and
+    // unverified-consent cards).
+    methodology: true,
+    title: provenanceHighlights.length > 0 ? "PageGraph causality is attached" : "PageGraph causality was not supplied",
+    lead:
+      provenanceHighlights.length > 0
+        ? `${plural(requestsWithProvenance, "request")} include initiator or script provenance.`
+        : "This PageGraph-derived report did not include request initiator metadata.",
+    detail:
+      provenanceHighlights.length > 0
+        ? `Examples: ${humanList(provenanceHighlights, 3)}.`
+        : "Counts and domains still describe observed traffic, but this artifact cannot explain which script caused each request.",
+    evidence:
+      provenanceHighlights.length > 0
+        ? "The request log preserves redacted actor URLs and domains when PageGraph provides them."
+        : "Ask the PageGraph export pipeline for source, initiator, script, or injector fields before treating this as causal evidence."
+  };
+}
 
+function buildGaRemarketingFinding(ctx: FindingsContext): Finding {
+  const { facts, run, requestsCensored } = ctx;
+  const googleAnalyticsPresent = run.evidence.domains.some((domain) =>
+    GOOGLE_ANALYTICS_COLLECTION_HOST.test(domain.domain)
+  );
+  const googleTagManagerOnly =
+    !googleAnalyticsPresent && run.evidence.domains.some((domain) => GOOGLE_TAG_MANAGER_HOST.test(domain.domain));
+  const gaRemarketingOn =
+    (googleAnalyticsPresent || googleTagManagerOnly) &&
+    run.evidence.domains.some((domain) => DOUBLECLICK_REMARKETING_HOST.test(domain.domain));
+  // Analytics or its loader is present and a DoubleClick host is recorded
+  // under a generalized name: the sync cannot be told from the row.
+  const gaSyncIndistinguishable =
+    !gaRemarketingOn &&
+    (googleAnalyticsPresent || googleTagManagerOnly) &&
+    run.evidence.domains.some((domain) => GENERALIZED_DOUBLECLICK_SUBHOST.test(domain.domain));
+  // With neither present the marker is not in question, but its absence still
+  // may not be asserted over such a row.
+  const doubleclickNamesGeneralized = run.evidence.domains.some((domain) =>
+    GENERALIZED_DOUBLECLICK_SUBHOST.test(domain.domain)
+  );
   const gaAbsence = googleAnalyticsPresent
     ? absenceCopy(facts, "ga-remarketing", {
         title: "Google Analytics present, no remarketing signal",
@@ -1753,7 +1871,7 @@ export function buildFindings(
         });
   const GA_SYNC_UNTOLD_DETAIL =
     "The sync goes to stats.g.doubleclick.net, and a published report writes that name the same way as DoubleClick's ad-serving hosts. This report neither shows nor rules out the sync.";
-  findings.push(limited({
+  return limited({
     id: "ga-remarketing",
     icon: "radar",
     level: gaRemarketingOn ? "warn" : gaSyncIndistinguishable || requestsCensored ? "info" : "ok",
@@ -1820,14 +1938,19 @@ export function buildFindings(
     // fetch: not where the sync cannot be told or the evidence was cut
     // short, whose whole sentences come first.
     NAMED_FINDING_LIMITS.analyticsTagManagerOnly
-  ));
+  );
+}
 
+function buildThirdPartyCookiesFinding(ctx: FindingsContext): Finding {
+  const { facts, run, cookiesBenchmarkAllowed, cookiesBenchmark } = ctx;
+  const cookiesUnsupported = facts.evidence.cookies.state === "unsupported";
+  const cookiesCensored = facts.evidence.cookies.state === "censored";
   const cookiesAbsence = absenceCopy(facts, "third-party-cookies", {
     title: "No third-party cookies observed",
     lead: "The automated visit did not observe third-party cookies.",
     retainedEvidenceLead: "No third-party cookies appear in the retained evidence."
   });
-  findings.push(limited({
+  return limited({
     id: "third-party-cookies",
     icon: "cookie",
     level:
@@ -1879,139 +2002,158 @@ export function buildFindings(
     // The other retained visits' counts, on the site's history page. Offered
     // only where the server says that page lists another report for this site.
     ...withLookCloser(!cookiesUnsupported && run.counts.thirdPartyCookies > 0 ? { variant: "cookie-history" } : null)
-  }, [WHOLE_FINDING_LIMITS.cookiesPresent, WHOLE_FINDING_LIMITS.cookiesNoneObserved]));
+  }, [WHOLE_FINDING_LIMITS.cookiesPresent, WHOLE_FINDING_LIMITS.cookiesNoneObserved]);
+}
 
+function buildSessionRecordingFinding(ctx: FindingsContext, keystrokePresent: boolean): Finding | null {
+  const { facts, run, sessionReplayNames, sessionReplayNote } = ctx;
   // Restricted to genuinely cross-site listener origins: the in-page probe's
   // hostname heuristic can misread same-site siblings (verified.example.com vs
   // www.example.com) as third parties, and a same-party listener is normal
   // site behavior, not monitoring by an outside party.
   const sessionRecordingDetection = crossSiteListenerDetection(run.evidence, "session-recording");
   const inputMonitoringDetection = crossSiteListenerDetection(run.evidence, "input-monitoring");
-  if (sessionRecordingDetection || inputMonitoringDetection || sessionReplayNames.length > 0) {
-    // The probe reports one listener-call total across every origin it
-    // attributed. When same-site origins were filtered out of that set, the
-    // total still covers them, so binding it to the narrowed names would
-    // credit calls to third parties that did not make them.
-    // "With X in the registration call chain", never "from X": stack
-    // attribution records the origins present in the bounded call chain of the
-    // registration, and a third-party helper on that chain produces the same
-    // wire evidence as a third-party registrant. The wire does not say which
-    // script asked for the listener.
-    const listenerNote = (
-      entry: CrossSiteListenerDetection | undefined,
-      noun: "interaction-listener registration" | "input-listener registration"
-    ): string => {
-      if (!entry) return "";
-      const names = humanList(entry.detection.evidence.thirdPartyOrigins.map(displayPublicUrl));
-      const calls = entry.detection.evidence.totalListenerCalls;
-      return entry.originsNarrowed
-        ? `${plural(calls, noun)} attributed across ${names} and same-site origins the probe could not separate`
-        : `${plural(calls, noun)} with ${names} in the registration call chain`;
-    };
-    // One labeled sentence per note: joined into one list they read as a
-    // single sentence of up to 46 words.
-    const behaviorNotes = [
-      sessionRecordingDetection
-        ? `${detectionLabel(sessionRecordingDetection.detection)}: ${listenerNote(sessionRecordingDetection, "interaction-listener registration")}.`
-        : "",
-      inputMonitoringDetection
-        ? `${detectionLabel(inputMonitoringDetection.detection)}: ${listenerNote(inputMonitoringDetection, "input-listener registration")}.`
-        : "",
-      sessionReplayNames.length > 0 ? `Known session-replay vendor(s): ${humanList(sessionReplayNames)}.` : ""
-    ].filter(Boolean);
-    const replayCorroborated = Boolean(sessionRecordingDetection && sessionReplayNames.length > 0);
-    // "Third-party script" only when the report attributes at least one
-    // retained origin to an operator other than the site's (reviewed
-    // ownership or a catalog match). A site's own asset domain is a different
-    // registrable domain and nothing more; calling it a third party publishes
-    // an outside-party claim the wire does not make.
-    const listenerOrigins = [
-      ...(sessionRecordingDetection?.detection.evidence.thirdPartyOrigins ?? []),
-      ...(inputMonitoringDetection?.detection.evidence.thirdPartyOrigins ?? [])
-    ];
-    const outsideOperatorAttributed = listenerOrigins.some((origin) =>
-      listenerOriginAttributedToOutsideOperator(run.evidence, run.domain, origin)
-    );
-    const scriptNoun = outsideOperatorAttributed ? "a third-party script" : "a script from another domain";
-    const scriptPhrase = outsideOperatorAttributed ? "a third-party script" : "a script served from another registrable domain";
-    // Its own sentence: as a relative clause it ran the lead to 38 words.
-    const scriptOperatorNote = outsideOperatorAttributed ? "" : " This scan did not establish the operator of that script.";
-    // Named from this detection's own event types, never from the vocabulary
-    // the gate draws on, so the lead cannot claim coverage of an event class
-    // no listener in this visit was registered for.
-    const sessionCategories = sessionRecordingDetection
-      ? listenerCoverageCategories(sessionRecordingDetection.detection.evidence.eventTypes)
-      : [];
-    // The typing test's own card answers the closest question, then a
-    // catalogued replay vendor's requests, then the first script origin in a
-    // listener's call chain, in the order the card's evidence names them.
-    // Listener registrations are not request rows, so no view shows them.
-    const replayVendor = sessionReplayNames[0];
-    const listenerOriginHost =
-      listenerOrigins[0] === undefined ? null : lookCloserHost(normalizeOriginHost(listenerOrigins[0]));
-    const listenerView: LookCloserKey | null = keystrokeDetection
-      ? { variant: "listener-typing-test" }
-      : replayVendor !== undefined
-        ? lookCloserKeepsRows(run.evidence.requests, { query: replayVendor })
-          ? { variant: "listener-replay-vendor", vendor: replayVendor }
-          : null
-        : listenerOriginHost && lookCloserKeepsRows(run.evidence.requests, { query: listenerOriginHost })
-          ? { variant: "listener-script-origin", host: listenerOriginHost }
-          : null;
-
-    findings.push(limited({
-      id: "session-recording-input-monitoring",
-      icon: "eye",
-      level: replayCorroborated ? "warn" : "info",
-      // "Involving", never "registered by": the recorded fact is a third-party
-      // origin in the registration call chain, which first-party code can
-      // produce by registering its own listeners through a synchronous
-      // third-party helper. Attributing registration to the third party would
-      // publish an accusation the wire does not support.
-      title: inputMonitoringDetection
-        ? `Input-monitoring signal involving ${scriptNoun}`
-        : replayCorroborated
-          ? "Session-recording signal matched a known vendor"
-          : sessionRecordingDetection
-            ? `Interaction-monitoring signal involving ${scriptNoun}`
-            : "Session-replay vendor observed",
-      lead: inputMonitoringDetection
-        ? `Listener coverage that could observe typing-related input events was registered through call chains that included ${scriptPhrase}.${scriptOperatorNote}`
-        : replayCorroborated
-          ? `The page registered broad interaction listeners through call chains that included ${scriptPhrase}, and contacted a known session-replay service.${scriptOperatorNote}`
-          : sessionRecordingDetection
-            ? sessionCategories.length > 0
-              ? // The call chains are a sentence of their own: after all ten
-                // categories, one sentence ran 31 words.
-                `Broad ${humanList(
-                  sessionCategories,
-                  LISTENER_EVENT_CATEGORIES.length
-                )} listener coverage was registered during the visit. It was registered through call chains that included ${scriptPhrase}.${scriptOperatorNote}`
-              : `Broad interaction listener coverage was registered during the visit through call chains that included ${scriptPhrase}.${scriptOperatorNote}`
-            : `${humanList(sessionReplayNames)} appeared in the request log.`,
-      // A card with no listener detection holds one fact, a request to a
-      // catalogued vendor. It may not describe listener or call-chain
-      // evidence, or say the page was shown to be instrumented, so it reuses
-      // the third-party services card's two sentences on that match.
-      detail:
-        !sessionRecordingDetection && !inputMonitoringDetection
-          ? `${sessionReplayNote.trim()} ${LISTENER_CARD_REVIEW_PROMPT}`
-          : // Every clause here is a hedge an audit asked for; the sentences were
-            // split, never trimmed, when three of them ran 37 to 45 words.
-          `This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests: it shows the page was instrumented to observe interaction, not that anything was transmitted. Stack attribution records the script origins present in the bounded registration call chain. A cross-site origin in that chain does not by itself establish that the cross-site script registered the listener. That is because first-party code can register its own listeners through a helper served from elsewhere. A different registrable domain is also not by itself a different operator: sites commonly serve their own scripts from a separate asset domain. The card therefore says third party only when the catalog or reviewed ownership attributes an origin to another organization. On scanners that run the active keystroke-capture probe, actual transmission is tested separately (a synthetic value is typed, never real input, and no typed values are collected). ${LISTENER_CARD_REVIEW_PROMPT}`,
-      evidence: behaviorNotes.join(" "),
-      claim: findingClaim(facts, "session-recording-input-monitoring", "presence"),
-      ...withLookCloser(listenerView)
-      // The listener sentence only where a listener registration was
-      // recorded, which is what it is about. A card whose evidence is a
-      // vendor request alone has the sentence on what a domain match proves.
-    }, [
-      sessionRecordingDetection || inputMonitoringDetection
-        ? WHOLE_FINDING_LIMITS.listenerSignal
-        : WHOLE_FINDING_LIMITS.sessionVendorDomainMatch
-    ]));
+  if (!sessionRecordingDetection && !inputMonitoringDetection && sessionReplayNames.length === 0) {
+    return null;
   }
+  // The probe reports one listener-call total across every origin it
+  // attributed. When same-site origins were filtered out of that set, the
+  // total still covers them, so binding it to the narrowed names would
+  // credit calls to third parties that did not make them.
+  // "With X in the registration call chain", never "from X": stack
+  // attribution records the origins present in the bounded call chain of the
+  // registration, and a third-party helper on that chain produces the same
+  // wire evidence as a third-party registrant. The wire does not say which
+  // script asked for the listener.
+  const listenerNote = (
+    entry: CrossSiteListenerDetection | undefined,
+    noun: "interaction-listener registration" | "input-listener registration"
+  ): string => {
+    if (!entry) return "";
+    const names = humanList(entry.detection.evidence.thirdPartyOrigins.map(displayPublicUrl));
+    const calls = entry.detection.evidence.totalListenerCalls;
+    return entry.originsNarrowed
+      ? `${plural(calls, noun)} attributed across ${names} and same-site origins the probe could not separate`
+      : `${plural(calls, noun)} with ${names} in the registration call chain`;
+  };
+  // One labeled sentence per note: joined into one list they read as a
+  // single sentence of up to 46 words.
+  const behaviorNotes = [
+    sessionRecordingDetection
+      ? `${detectionLabel(sessionRecordingDetection.detection)}: ${listenerNote(sessionRecordingDetection, "interaction-listener registration")}.`
+      : "",
+    inputMonitoringDetection
+      ? `${detectionLabel(inputMonitoringDetection.detection)}: ${listenerNote(inputMonitoringDetection, "input-listener registration")}.`
+      : "",
+    sessionReplayNames.length > 0 ? `Known session-replay vendor(s): ${humanList(sessionReplayNames)}.` : ""
+  ].filter(Boolean);
+  const replayCorroborated = Boolean(sessionRecordingDetection && sessionReplayNames.length > 0);
+  // "Third-party script" only when the report attributes at least one
+  // retained origin to an operator other than the site's (reviewed
+  // ownership or a catalog match). A site's own asset domain is a different
+  // registrable domain and nothing more; calling it a third party publishes
+  // an outside-party claim the wire does not make.
+  const listenerOrigins = [
+    ...(sessionRecordingDetection?.detection.evidence.thirdPartyOrigins ?? []),
+    ...(inputMonitoringDetection?.detection.evidence.thirdPartyOrigins ?? [])
+  ];
+  const outsideOperatorAttributed = listenerOrigins.some((origin) =>
+    listenerOriginAttributedToOutsideOperator(run.evidence, run.domain, origin)
+  );
+  const scriptNoun = outsideOperatorAttributed ? "a third-party script" : "a script from another domain";
+  const scriptPhrase = outsideOperatorAttributed ? "a third-party script" : "a script served from another registrable domain";
+  // Its own sentence: as a relative clause it ran the lead to 38 words.
+  const scriptOperatorNote = outsideOperatorAttributed ? "" : " This scan did not establish the operator of that script.";
+  // Named from this detection's own event types, never from the vocabulary
+  // the gate draws on, so the lead cannot claim coverage of an event class
+  // no listener in this visit was registered for.
+  const sessionCategories = sessionRecordingDetection
+    ? listenerCoverageCategories(sessionRecordingDetection.detection.evidence.eventTypes)
+    : [];
+  // The typing test's own card answers the closest question, then a
+  // catalogued replay vendor's requests, then the first script origin in a
+  // listener's call chain, in the order the card's evidence names them.
+  // Listener registrations are not request rows, so no view shows them.
+  const replayVendor = sessionReplayNames[0];
+  const listenerOriginHost =
+    listenerOrigins[0] === undefined ? null : lookCloserHost(normalizeOriginHost(listenerOrigins[0]));
+  const listenerView: LookCloserKey | null = keystrokePresent
+    ? { variant: "listener-typing-test" }
+    : replayVendor !== undefined
+      ? lookCloserKeepsRows(run.evidence.requests, { query: replayVendor })
+        ? { variant: "listener-replay-vendor", vendor: replayVendor }
+        : null
+      : listenerOriginHost && lookCloserKeepsRows(run.evidence.requests, { query: listenerOriginHost })
+        ? { variant: "listener-script-origin", host: listenerOriginHost }
+        : null;
 
+  return limited({
+    id: "session-recording-input-monitoring",
+    icon: "eye",
+    level: replayCorroborated ? "warn" : "info",
+    // "Involving", never "registered by": the recorded fact is a third-party
+    // origin in the registration call chain, which first-party code can
+    // produce by registering its own listeners through a synchronous
+    // third-party helper. Attributing registration to the third party would
+    // publish an accusation the wire does not support.
+    title: inputMonitoringDetection
+      ? `Input-monitoring signal involving ${scriptNoun}`
+      : replayCorroborated
+        ? "Session-recording signal matched a known vendor"
+        : sessionRecordingDetection
+          ? `Interaction-monitoring signal involving ${scriptNoun}`
+          : "Session-replay vendor observed",
+    lead: inputMonitoringDetection
+      ? `Listener coverage that could observe typing-related input events was registered through call chains that included ${scriptPhrase}.${scriptOperatorNote}`
+      : replayCorroborated
+        ? `The page registered broad interaction listeners through call chains that included ${scriptPhrase}, and contacted a known session-replay service.${scriptOperatorNote}`
+        : sessionRecordingDetection
+          ? sessionCategories.length > 0
+            ? // The call chains are a sentence of their own: after all ten
+              // categories, one sentence ran 31 words.
+              `Broad ${humanList(
+                sessionCategories,
+                LISTENER_EVENT_CATEGORIES.length
+              )} listener coverage was registered during the visit. It was registered through call chains that included ${scriptPhrase}.${scriptOperatorNote}`
+            : `Broad interaction listener coverage was registered during the visit through call chains that included ${scriptPhrase}.${scriptOperatorNote}`
+          : `${humanList(sessionReplayNames)} appeared in the request log.`,
+    // A card with no listener detection holds one fact, a request to a
+    // catalogued vendor. It may not describe listener or call-chain
+    // evidence, or say the page was shown to be instrumented, so it reuses
+    // the third-party services card's two sentences on that match.
+    detail:
+      !sessionRecordingDetection && !inputMonitoringDetection
+        ? `${sessionReplayNote.trim()} ${LISTENER_CARD_REVIEW_PROMPT}`
+        : // Every clause here is a hedge an audit asked for; the sentences were
+          // split, never trimmed, when three of them ran 37 to 45 words.
+        `This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests: it shows the page was instrumented to observe interaction, not that anything was transmitted. Stack attribution records the script origins present in the bounded registration call chain. A cross-site origin in that chain does not by itself establish that the cross-site script registered the listener. That is because first-party code can register its own listeners through a helper served from elsewhere. A different registrable domain is also not by itself a different operator: sites commonly serve their own scripts from a separate asset domain. The card therefore says third party only when the catalog or reviewed ownership attributes an origin to another organization. On scanners that run the active keystroke-capture probe, actual transmission is tested separately (a synthetic value is typed, never real input, and no typed values are collected). ${LISTENER_CARD_REVIEW_PROMPT}`,
+    evidence: behaviorNotes.join(" "),
+    claim: findingClaim(facts, "session-recording-input-monitoring", "presence"),
+    ...withLookCloser(listenerView)
+    // The listener sentence only where a listener registration was
+    // recorded, which is what it is about. A card whose evidence is a
+    // vendor request alone has the sentence on what a domain match proves.
+  }, [
+    sessionRecordingDetection || inputMonitoringDetection
+      ? WHOLE_FINDING_LIMITS.listenerSignal
+      : WHOLE_FINDING_LIMITS.sessionVendorDomainMatch
+  ]);
+}
+
+function buildFingerprintApisFinding(ctx: FindingsContext): Finding {
+  const { facts, run } = ctx;
+  const fingerprintDetectorStatus = run.detectors?.["fingerprint-heuristics"]?.status;
+  const fingerprintClaim = facts.claims["fingerprint-apis"];
+  const detectorUnsupported =
+    facts.evidence.fingerprinting.state === "unsupported" ||
+    fingerprintDetectorStatus === "unsupported";
+  // Raw fingerprint events live in the "fingerprinting" evidence family;
+  // the fingerprint-heuristics detector owns the interpreted conclusions. An
+  // unrelated detector-output failure must not make fingerprinting unavailable.
+  const detectorCensored =
+    facts.evidence.fingerprinting.state === "censored" ||
+    (fingerprintDetectorStatus !== undefined && fingerprintDetectorStatus !== "complete") ||
+    fingerprintClaim.blockers.includes("detector-incomplete");
   const highEntropyDetections = facts.signals.fingerprint.highEntropyDetections;
   const highEntropyDetectionLabels = highEntropyDetections.map(detectionLabel);
   // A WebGL detection that satisfied only the observer's earlier single-signal
@@ -2069,7 +2211,7 @@ export function buildFindings(
     lead: "The scan did not observe the instrumented high-entropy browser APIs.",
     retainedEvidenceLead: "The retained evidence holds no calls to the instrumented high-entropy browser APIs."
   });
-  findings.push(limited({
+  return limited({
     id: "fingerprint-apis",
     icon: "fingerprint",
     // Elevated to "info" with nothing observed means the detector did not
@@ -2162,8 +2304,65 @@ export function buildFindings(
     WHOLE_FINDING_LIMITS.fingerprintHeuristics,
     WHOLE_FINDING_LIMITS.fingerprintSingleSignalWebgl,
     ...Object.values(FINGERPRINT_CALLS_LIMIT)
-  ]));
+  ]);
+}
 
+function buildSignedComparisonDeltas(
+  arms: NonNullable<ReturnType<typeof comparisonArmViews>>,
+  rawCountsAllowed: boolean,
+  classificationAllowed: boolean,
+  fingerprintComparisonAllowed: boolean
+) {
+  // SIGNED deltas per allowed family (variant minus baseline; negative =
+  // fewer with intervention on), classified as decreased / increased / mixed
+  // / flat. Never clamped and never summed across families: a pair with
+  // more third-party requests but one fewer tracking-related service request is a
+  // MIXED result, not "fewer tracking signals".
+  const signedDeltas: { label: string; singular: string; value: number }[] = [];
+  if (rawCountsAllowed) {
+    signedDeltas.push(
+      {
+        label: "third-party requests",
+        singular: "third-party request",
+        value: arms.variant.counts.thirdPartyRequests - arms.baseline.counts.thirdPartyRequests
+      },
+      {
+        label: "third-party cookies",
+        singular: "third-party cookie",
+        value: arms.variant.counts.thirdPartyCookies - arms.baseline.counts.thirdPartyCookies
+      }
+    );
+  }
+  if (classificationAllowed) {
+    signedDeltas.push({
+      label: "tracking-related service requests",
+      singular: "tracking-related service request",
+      value:
+        trackingServiceRequests(arms.variant.evidence) -
+        trackingServiceRequests(arms.baseline.evidence)
+    });
+  }
+  if (fingerprintComparisonAllowed) {
+    signedDeltas.push({
+      label: "fingerprint-like calls",
+      singular: "fingerprint-like call",
+      value: arms.variant.counts.fingerprintEvents - arms.baseline.counts.fingerprintEvents
+    });
+  }
+  const decreased = signedDeltas.some((delta) => delta.value < 0);
+  const increased = signedDeltas.some((delta) => delta.value > 0);
+  const direction: "mixed" | "decreased" | "increased" | "flat" =
+    decreased && increased ? "mixed" : decreased ? "decreased" : increased ? "increased" : "flat";
+  const changedParts = signedDeltas
+    .filter((delta) => delta.value !== 0)
+    .map((delta) => `${Math.abs(delta.value).toLocaleString("en-US")} ${delta.value < 0 ? "fewer" : "more"} ${Math.abs(delta.value) === 1 ? delta.singular : delta.label}`);
+  const removedEntityNames = classificationAllowed ? entitiesOnlyIn(arms.baseline, arms.variant) : [];
+  return { signedDeltas, direction, changedParts, removedEntityNames };
+}
+
+function buildComparisonFindings(ctx: FindingsContext): Finding[] {
+  const { view, reportFacts, arms, axis } = ctx;
+  const comparisonFindings: Finding[] = [];
   // Every comparison card runs through the SHARED claim policy (the seam's
   // default-deny derivation, the same one the comparison panel's banner and
   // the headline consult): a failed, request-capped, or mismatched arm means
@@ -2185,51 +2384,10 @@ export function buildFindings(
 
   if (arms && axis === "shields") {
     if (pairGate && !pairGate.allowed) {
-      findings.unshift(ineligibleComparisonFinding("shields-comparison", "This Shields comparison is not conclusive", pairGate));
+      comparisonFindings.push(ineligibleComparisonFinding("shields-comparison", "This Shields comparison is not conclusive", pairGate));
     } else {
-      // SIGNED deltas per allowed family (variant minus baseline; negative =
-      // fewer with blocking on), classified as decreased / increased / mixed
-      // / flat. Never clamped and never summed across families: a pair with
-      // more third-party requests but one fewer tracking-related service request is a
-      // MIXED result, not "fewer tracking signals".
-      const signedDeltas: { label: string; singular: string; value: number }[] = [];
-      if (rawCountsAllowed) {
-        signedDeltas.push(
-          {
-            label: "third-party requests",
-            singular: "third-party request",
-            value: arms.variant.counts.thirdPartyRequests - arms.baseline.counts.thirdPartyRequests
-          },
-          {
-            label: "third-party cookies",
-            singular: "third-party cookie",
-            value: arms.variant.counts.thirdPartyCookies - arms.baseline.counts.thirdPartyCookies
-          }
-        );
-      }
-      if (classificationAllowed) {
-        signedDeltas.push({
-          label: "tracking-related service requests",
-          singular: "tracking-related service request",
-          value:
-            trackingServiceRequests(arms.variant.evidence) -
-            trackingServiceRequests(arms.baseline.evidence)
-        });
-      }
-      if (fingerprintComparisonAllowed) {
-        signedDeltas.push({
-          label: "fingerprint-like calls",
-          singular: "fingerprint-like call",
-          value: arms.variant.counts.fingerprintEvents - arms.baseline.counts.fingerprintEvents
-        });
-      }
-      const decreased = signedDeltas.some((delta) => delta.value < 0);
-      const increased = signedDeltas.some((delta) => delta.value > 0);
-      const direction = decreased && increased ? "mixed" : decreased ? "decreased" : increased ? "increased" : "flat";
-      const changedParts = signedDeltas
-        .filter((delta) => delta.value !== 0)
-        .map((delta) => `${Math.abs(delta.value).toLocaleString("en-US")} ${delta.value < 0 ? "fewer" : "more"} ${Math.abs(delta.value) === 1 ? delta.singular : delta.label}`);
-      const removedEntityNames = classificationAllowed ? entitiesOnlyIn(arms.baseline, arms.variant) : [];
+      const { signedDeltas, direction, changedParts, removedEntityNames } =
+        buildSignedComparisonDeltas(arms, rawCountsAllowed, classificationAllowed, fingerprintComparisonAllowed);
       // The direct engine-block count is a different measurement from the total
       // reduction: blocking one script prevents its follow-on requests from
       // ever starting, so the reduction usually exceeds the direct blocks.
@@ -2253,7 +2411,7 @@ export function buildFindings(
           : "";
 
       if (signedDeltas.length === 0) {
-        findings.unshift(
+        comparisonFindings.push(
           ineligibleComparisonFinding(
             "shields-comparison",
             "This Shields comparison supports no comparable delta",
@@ -2271,7 +2429,7 @@ export function buildFindings(
         const simulationNote = view.claims.interventionAttribution
           ? "The blocking visit ran with Brave's ad-block engine and default Shields filter lists verified as actively blocking. It was a simulation in this scanner's browser, not a live Brave-browser visit."
           : "The blocking visit ran with the scanner configured to apply Brave's ad-block engine and default Shields filter lists. It was a simulation in this scanner's browser, not a live Brave-browser visit, and application was not verified.";
-        findings.unshift(limited({
+        comparisonFindings.push(limited({
           id: "shields-comparison",
           icon: "shield-check",
           level: direction === "decreased" ? "ok" : direction === "flat" ? "quiet" : "info",
@@ -2315,7 +2473,7 @@ export function buildFindings(
     const contradicted =
       arms.baseline.consent?.choiceState === "contradicted" || arms.variant.consent?.choiceState === "contradicted";
     const unverifiedCompletedPair = bothClicksDispatched && !bothChoicesVerified;
-    findings.unshift(
+    comparisonFindings.push(
       contradicted
         ? unconfirmedConsentInteractionFinding(view, arms.baseline, arms.variant)
         : pairGate && !pairGate.allowed && bothClicksDispatched
@@ -2328,53 +2486,17 @@ export function buildFindings(
 
   if (arms && axis === "gpc") {
     if (pairGate && !pairGate.allowed) {
-      findings.unshift(ineligibleComparisonFinding("gpc-comparison", "This GPC comparison is not conclusive", pairGate));
+      comparisonFindings.push(ineligibleComparisonFinding("gpc-comparison", "This GPC comparison is not conclusive", pairGate));
     } else {
       // Same signed, per-family, never-summed composition as the Shields card.
       // An ELIGIBLE GPC pair used to produce no card at all, so the headline
       // could describe the pair while the findings board narrated only the
       // baseline arm.
-      const signedDeltas: { label: string; singular: string; value: number }[] = [];
-      if (rawCountsAllowed) {
-        signedDeltas.push(
-          {
-            label: "third-party requests",
-            singular: "third-party request",
-            value: arms.variant.counts.thirdPartyRequests - arms.baseline.counts.thirdPartyRequests
-          },
-          {
-            label: "third-party cookies",
-            singular: "third-party cookie",
-            value: arms.variant.counts.thirdPartyCookies - arms.baseline.counts.thirdPartyCookies
-          }
-        );
-      }
-      if (classificationAllowed) {
-        signedDeltas.push({
-          label: "tracking-related service requests",
-          singular: "tracking-related service request",
-          value:
-            trackingServiceRequests(arms.variant.evidence) -
-            trackingServiceRequests(arms.baseline.evidence)
-        });
-      }
-      if (fingerprintComparisonAllowed) {
-        signedDeltas.push({
-          label: "fingerprint-like calls",
-          singular: "fingerprint-like call",
-          value: arms.variant.counts.fingerprintEvents - arms.baseline.counts.fingerprintEvents
-        });
-      }
-      const decreased = signedDeltas.some((delta) => delta.value < 0);
-      const increased = signedDeltas.some((delta) => delta.value > 0);
-      const direction = decreased && increased ? "mixed" : decreased ? "decreased" : increased ? "increased" : "flat";
-      const changedParts = signedDeltas
-        .filter((delta) => delta.value !== 0)
-        .map((delta) => `${Math.abs(delta.value).toLocaleString("en-US")} ${delta.value < 0 ? "fewer" : "more"} ${Math.abs(delta.value) === 1 ? delta.singular : delta.label}`);
-      const removedEntityNames = classificationAllowed ? entitiesOnlyIn(arms.baseline, arms.variant) : [];
+      const { signedDeltas, direction, changedParts, removedEntityNames } =
+        buildSignedComparisonDeltas(arms, rawCountsAllowed, classificationAllowed, fingerprintComparisonAllowed);
 
       if (signedDeltas.length === 0) {
-        findings.unshift(
+        comparisonFindings.push(
           ineligibleComparisonFinding(
             "gpc-comparison",
             "This GPC comparison supports no comparable delta",
@@ -2385,7 +2507,7 @@ export function buildFindings(
         // Honoring GPC means not selling or sharing data. Request counts cannot
         // observe that, and cannot even show the signal was received, so every
         // line here describes the two visits and stops.
-        findings.unshift({
+        comparisonFindings.push({
           id: "gpc-comparison",
           icon: "shield-check",
           level: direction === "decreased" ? "ok" : direction === "flat" ? "quiet" : "info",
@@ -2446,9 +2568,14 @@ export function buildFindings(
   // axis-less and must not receive the before/after card (its non-conclusive
   // story is the comparison panel's banner).
   if (arms && view.comparison?.temporalPair === true && pairGate && !pairGate.allowed) {
-    findings.unshift(ineligibleComparisonFinding("temporal-comparison", "This before/after comparison is not conclusive", pairGate));
+    comparisonFindings.push(ineligibleComparisonFinding("temporal-comparison", "This before/after comparison is not conclusive", pairGate));
   }
 
+  return comparisonFindings;
+}
+
+function buildSubjectFailureBottomLine(ctx: FindingsContext, findings: Finding[]): Finding | null {
+  const { facts, run, visibleDomain } = ctx;
   // A failed/blocked load (HTTP >= 400) produces low counts that are an artifact
   // of the page not loading, not a privacy result. Lead with that so the bottom
   // line never reads an error page as "few review signals".
@@ -2462,7 +2589,7 @@ export function buildFindings(
       findings,
       `The page returned HTTP ${loadFailureStatus}, so this absence describes an error or block page, not the site.`
     );
-    findings.unshift({
+    return {
       id: "bottom-line",
       icon: "alert",
       level: "info",
@@ -2472,8 +2599,7 @@ export function buildFindings(
         loadFailureStatus
       )} The request log and methodology below still show exactly what was observed.`,
       evidence: `${plural(run.counts.totalRequests, "request")} observed before or with the error response.`
-    });
-    return findings;
+    };
   }
 
   if (facts.subject.kind === "unverified") {
@@ -2481,7 +2607,7 @@ export function buildFindings(
       findings,
       "The scanner could not verify that the rendered document was the requested page, so this absence does not describe the site."
     );
-    findings.unshift({
+    return {
       id: "bottom-line",
       icon: "alert",
       level: "info",
@@ -2491,8 +2617,7 @@ export function buildFindings(
       detail:
         "Tracker, cookie, storage, and fingerprinting counts remain raw evidence from that unverified document, not a positive privacy conclusion about the site's normal behavior. Re-scan for a verified page load.",
       evidence: `${plural(run.counts.totalRequests, "request")} retained from the unverified page subject.`
-    });
-    return findings;
+    };
   }
 
   if (facts.subject.kind === "interstitial") {
@@ -2500,7 +2625,7 @@ export function buildFindings(
       findings,
       "The scanner found a suspected challenge or soft block, so this absence describes only the interstitial, not the site."
     );
-    findings.unshift({
+    return {
       id: "bottom-line",
       icon: "alert",
       level: "info",
@@ -2510,8 +2635,7 @@ export function buildFindings(
       detail:
         "Tracker, cookie, storage, and fingerprinting counts here come from an incomplete visit to that interstitial, not a positive privacy conclusion about the site's normal behavior. Re-scan for a complete page load; the request log and methodology below still show exactly what was observed.",
       evidence: `${plural(run.counts.totalRequests, "request")} retained from the suspected interstitial.`
-    });
-    return findings;
+    };
   }
 
   // A recorded failed run with no numeric status is not an unknown-but-quiet
@@ -2525,7 +2649,7 @@ export function buildFindings(
       findings,
       "The main page did not complete a trustworthy load, so this absence describes only an incomplete visit."
     );
-    findings.unshift({
+    return {
       id: "bottom-line",
       icon: "alert",
       level: "info",
@@ -2536,123 +2660,132 @@ export function buildFindings(
       detail:
         "Tracker, cookie, storage, and fingerprinting counts here are evidence retained from an incomplete visit, not a positive privacy conclusion. Re-scan when the page can complete a trustworthy load; the request log and methodology below still show what was observed.",
       evidence: `${plural(run.counts.totalRequests, "request")} retained from the failed or incomplete visit.`
-    });
-    return findings;
+    };
   }
 
+  return null;
+}
+
+function buildShieldsBlockedFinding(ctx: FindingsContext): Finding | null {
+  const { view, facts, run, axis } = ctx;
+  const shieldsMeasurement = facts.signals.shields.measurement;
+  if (!shieldsMeasurement) return null;
+  const blocked = shieldsMeasurement.count;
+  const simulated = shieldsMeasurement.kind === "engine-blocked";
+  const requestState = facts.evidence.requests.state;
+  const blockedPhrase = retainedCountPhrase(
+    blocked,
+    "request",
+    "requests",
+    requestState
+  );
+  // The same phrase where it opens a title or a sentence: a censored count
+  // reads "at least N retained", which must not open in lower case.
+  const blockedOpening = capitalizeSentence(blockedPhrase);
+  // The DENOMINATOR is the population the engine evaluated, never the
+  // retained request total. `count` is a counter over evaluated requests, so
+  // pairing it with the retained total describes two populations as one: the
+  // committed google.com report evaluated 31 requests, matched 11 and
+  // retained 55, and this card published "11 of 55". khanacademy published
+  // "4 of 154" against 216 evaluated -- more than the denominator. #132 fixed
+  // exactly this in the metric grid and PDF, so the same page already says
+  // "verified over N requests the engine evaluated" below a card that
+  // disagreed with it.
+  //
+  // A legacy v1 run records no evaluated count (`evaluated: null`). There is
+  // no honest ratio to state there, so those runs state the count alone
+  // rather than borrowing a denominator that measures something else.
+  //
+  // The evaluated count is stated EXACTLY even on a censored run. It is a
+  // route-time counter over the engine's own classifier calls, frozen at the
+  // passive boundary; request-capture censoring truncates the retained rows
+  // the classification-mode NUMERATOR is recounted from, never this counter.
+  // So the numerator keeps its "at least ... retained" hedge while the
+  // denominator carries no qualifier: hedging it as a retained-row count
+  // described the wrong population and contradicted the metric grid, which
+  // prints the same number exactly on the same page.
+  const evaluated = shieldsMeasurement.evaluated;
+  const evaluatedPhrase = evaluated === null ? null : plural(evaluated, "request");
+  const shieldsAbsence = absenceCopy(facts, "shields-blocked", {
+    title: simulated
+      ? "No requests were stopped by Brave's blocking engine"
+      : "No requests matched Brave Shields filter lists",
+    lead: "No requests matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser.",
+    retainedEvidenceLead:
+      "No request in the retained evidence matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser."
+  });
+  // Requests matched on a normal load offer a new Blocker comparison of
+  // this page (the Look closer draft's batch 2), keyed by this branch and
+  // never by the level. Not the blocking visit itself, and only where the
+  // draft's gates pass. G1: the report is a single visit or a GPC
+  // comparison, never a Blocker or consent comparison or any other pair.
+  // G2: this visit's request evidence is complete, since a cap, a budget, a
+  // stopped probe or a capture loss would likely end the new pair the same
+  // way. G3 holds by construction: a visit that did not establish the
+  // requested page (an HTTP error, an unverified subject, a suspected
+  // challenge or a failed load) returned above, before this card. G5: the
+  // visit is not a PageGraph import, the only source of an unsupported
+  // request family. Whether the report is fresh, and the page to visit again
+  // (G4), are decided where the board renders. A before-and-after pair
+  // never has an axis, so a GPC axis is never one; a legacy GPC comparison
+  // is descriptive and still has the GPC axis.
+  const offersBlockerComparison =
+    blocked > 0 &&
+    !simulated &&
+    (view.reportType === "single" || axis === "gpc") &&
+    requestEvidenceState(run) === "complete" &&
+    run.conditions.automation !== "brave-pagegraph";
+  return limited({
+    id: "shields-blocked",
+    icon: "shield-check",
+    level: blocked === 0 ? "ok" : blocked >= 10 ? "warn" : "info",
+    title:
+      blocked > 0
+        ? simulated
+          ? `Brave's blocking engine stopped ${blockedPhrase} in this visit`
+          : evaluatedPhrase === null
+            ? `${blockedOpening} matched Brave Shields filter lists`
+            : requestState === "complete"
+              ? `${blocked.toLocaleString("en-US")} of ${evaluatedPhrase} the engine evaluated matched Brave Shields filter lists`
+              : `${blockedOpening} out of ${evaluatedPhrase} the engine evaluated matched Brave Shields filter lists`
+        : shieldsAbsence.title,
+    lead:
+      blocked > 0
+        ? simulated
+          ? `Brave's ad-block engine running Shields' default filter lists stopped ${blockedPhrase} from loading, a block simulation in this scanner's browser, not a live Brave-browser visit.`
+          : `${blockedOpening} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, while loading normally.`
+        : shieldsAbsence.lead,
+    detail: simulated
+      ? "Measured with Brave's own ad-block engine and default filter lists actively blocking (network requests only, so no cosmetic or CNAME-based blocking). Blocked requests are not in this run's totals, and requests a blocked script would have made never started. This is Site Behavior Lab's list-based simulation. It applies every list to the site's own requests too, which Brave's default Standard setting mostly exempts, so results can differ."
+      : "Computed with Brave's own ad-block engine and default filter lists in classification mode: matched requests were not blocked by the scanner and remain in this report's observed request counts. This is Site Behavior Lab's list-based simulation, which applies every list to the site's own requests too. Brave's default Standard setting skips most of these lists for such requests, so its results can differ. Blocking can also prevent follow-on requests, so this number is neither a measured block count nor what a Brave visit would block.",
+    // The catalog count is run-wide: it is a separate labeling layer, not a
+    // proven subset of the Shields-matched requests, so the sentence must
+    // not chain the two sets together.
+    evidence: `The hand-curated service catalog separately matched ${retainedCountPhrase(
+      run.counts.knownTrackerRequests,
+      "request row",
+      "request rows",
+      requestState
+    )} in this visit.`,
+    ...(offersBlockerComparison ? { newVisit: { variant: "blocker-comparison" as const } } : {}),
+    claim: findingClaim(facts, "shields-blocked", blocked > 0 ? "presence" : "absence", shieldsAbsence.leadScope)
+  }, [WHOLE_FINDING_LIMITS.shieldsMatches]);
+}
+
+function buildBottomLineFinding(ctx: FindingsContext, findings: Finding[]): Finding {
+  const {
+    facts,
+    run,
+    corpus,
+    boardDescribesDisplayRun,
+    domainsBenchmarkAllowed,
+    cookiesBenchmarkAllowed
+  } = ctx;
   // A quiet result on a censored run is a floor, not a verdict: the bottom
   // line must lead with the truncation instead of "few review signals".
   // "Quiet" here means nothing warn-or-louder surfaced; the hedged absence
   // cards themselves sit at "info" on a censored run and must not read as
   // review-worthy signals.
-  // Built BEFORE the bottom line so its level is part of overallLevel. While
-  // it was spliced in afterwards, a warn-level Shields card could never raise
-  // the bottom line, so a visit with ten or more matched requests could still
-  // headline "few review signals".
-  const shieldsMeasurement = facts.signals.shields.measurement;
-  if (shieldsMeasurement) {
-    const blocked = shieldsMeasurement.count;
-    const simulated = shieldsMeasurement.kind === "engine-blocked";
-    const requestState = facts.evidence.requests.state;
-    const blockedPhrase = retainedCountPhrase(
-      blocked,
-      "request",
-      "requests",
-      requestState
-    );
-    // The same phrase where it opens a title or a sentence: a censored count
-    // reads "at least N retained", which must not open in lower case.
-    const blockedOpening = capitalizeSentence(blockedPhrase);
-    // The DENOMINATOR is the population the engine evaluated, never the
-    // retained request total. `count` is a counter over evaluated requests, so
-    // pairing it with the retained total describes two populations as one: the
-    // committed google.com report evaluated 31 requests, matched 11 and
-    // retained 55, and this card published "11 of 55". khanacademy published
-    // "4 of 154" against 216 evaluated -- more than the denominator. #132 fixed
-    // exactly this in the metric grid and PDF, so the same page already says
-    // "verified over N requests the engine evaluated" below a card that
-    // disagreed with it.
-    //
-    // A legacy v1 run records no evaluated count (`evaluated: null`). There is
-    // no honest ratio to state there, so those runs state the count alone
-    // rather than borrowing a denominator that measures something else.
-    //
-    // The evaluated count is stated EXACTLY even on a censored run. It is a
-    // route-time counter over the engine's own classifier calls, frozen at the
-    // passive boundary; request-capture censoring truncates the retained rows
-    // the classification-mode NUMERATOR is recounted from, never this counter.
-    // So the numerator keeps its "at least ... retained" hedge while the
-    // denominator carries no qualifier: hedging it as a retained-row count
-    // described the wrong population and contradicted the metric grid, which
-    // prints the same number exactly on the same page.
-    const evaluated = shieldsMeasurement.evaluated;
-    const evaluatedPhrase = evaluated === null ? null : plural(evaluated, "request");
-    const shieldsAbsence = absenceCopy(facts, "shields-blocked", {
-      title: simulated
-        ? "No requests were stopped by Brave's blocking engine"
-        : "No requests matched Brave Shields filter lists",
-      lead: "No requests matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser.",
-      retainedEvidenceLead:
-        "No request in the retained evidence matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser."
-    });
-    // Requests matched on a normal load offer a new Blocker comparison of
-    // this page (the Look closer draft's batch 2), keyed by this branch and
-    // never by the level. Not the blocking visit itself, and only where the
-    // draft's gates pass. G1: the report is a single visit or a GPC
-    // comparison, never a Blocker or consent comparison or any other pair.
-    // G2: this visit's request evidence is complete, since a cap, a budget, a
-    // stopped probe or a capture loss would likely end the new pair the same
-    // way. G3 holds by construction: a visit that did not establish the
-    // requested page (an HTTP error, an unverified subject, a suspected
-    // challenge or a failed load) returned above, before this card. G5: the
-    // visit is not a PageGraph import, the only source of an unsupported
-    // request family. Whether the report is fresh, and the page to visit again
-    // (G4), are decided where the board renders. A before-and-after pair
-    // never has an axis, so a GPC axis is never one; a legacy GPC comparison
-    // is descriptive and still has the GPC axis.
-    const offersBlockerComparison =
-      blocked > 0 &&
-      !simulated &&
-      (view.reportType === "single" || axis === "gpc") &&
-      requestEvidenceState(run) === "complete" &&
-      run.conditions.automation !== "brave-pagegraph";
-    findings.unshift(limited({
-      id: "shields-blocked",
-      icon: "shield-check",
-      level: blocked === 0 ? "ok" : blocked >= 10 ? "warn" : "info",
-      title:
-        blocked > 0
-          ? simulated
-            ? `Brave's blocking engine stopped ${blockedPhrase} in this visit`
-            : evaluatedPhrase === null
-              ? `${blockedOpening} matched Brave Shields filter lists`
-              : requestState === "complete"
-                ? `${blocked.toLocaleString("en-US")} of ${evaluatedPhrase} the engine evaluated matched Brave Shields filter lists`
-                : `${blockedOpening} out of ${evaluatedPhrase} the engine evaluated matched Brave Shields filter lists`
-          : shieldsAbsence.title,
-      lead:
-        blocked > 0
-          ? simulated
-            ? `Brave's ad-block engine running Shields' default filter lists stopped ${blockedPhrase} from loading, a block simulation in this scanner's browser, not a live Brave-browser visit.`
-            : `${blockedOpening} matched the default filter lists of Brave Shields, the ad and tracker blocker built into the Brave browser, while loading normally.`
-          : shieldsAbsence.lead,
-      detail: simulated
-        ? "Measured with Brave's own ad-block engine and default filter lists actively blocking (network requests only, so no cosmetic or CNAME-based blocking). Blocked requests are not in this run's totals, and requests a blocked script would have made never started. This is Site Behavior Lab's list-based simulation. It applies every list to the site's own requests too, which Brave's default Standard setting mostly exempts, so results can differ."
-        : "Computed with Brave's own ad-block engine and default filter lists in classification mode: matched requests were not blocked by the scanner and remain in this report's observed request counts. This is Site Behavior Lab's list-based simulation, which applies every list to the site's own requests too. Brave's default Standard setting skips most of these lists for such requests, so its results can differ. Blocking can also prevent follow-on requests, so this number is neither a measured block count nor what a Brave visit would block.",
-      // The catalog count is run-wide: it is a separate labeling layer, not a
-      // proven subset of the Shields-matched requests, so the sentence must
-      // not chain the two sets together.
-      evidence: `The hand-curated service catalog separately matched ${retainedCountPhrase(
-        run.counts.knownTrackerRequests,
-        "request row",
-        "request rows",
-        requestState
-      )} in this visit.`,
-      ...(offersBlockerComparison ? { newVisit: { variant: "blocker-comparison" as const } } : {}),
-      claim: findingClaim(facts, "shields-blocked", blocked > 0 ? "presence" : "absence", shieldsAbsence.leadScope)
-    }, [WHOLE_FINDING_LIMITS.shieldsMatches]));
-  }
-
   const censorshipNotes = runCensorshipNotes(run);
   // One sentence per recorded cause: two causes joined with "and" made a
   // sentence of about 60 words.
@@ -2759,7 +2892,7 @@ export function buildFindings(
     !quietEnough &&
     findings.some((finding) => finding.incompleteOnly === true) &&
     (observedLevel === "ok" || observedLevel === "quiet");
-  findings.unshift(limited({
+  return limited({
     id: "bottom-line",
     icon: quietEnough && !censoredQuiet && !unsupportedQuiet ? "check" : "alert",
     level: censoredQuiet || unsupportedQuiet || detectorQuiet ? "info" : overallLevel,
@@ -2806,13 +2939,7 @@ export function buildFindings(
     // The ranked string's cohort sentence opens "That cohort" and cannot
     // stand alone, so that string takes the sentence written for it.
     benchmarkScope !== null ? NEW_FINDING_LIMITS.bottomLineRanked : null
-  ));
-
-  // Emit every finding. The conditionals above bound this to at most ~9 cards,
-  // all of them meaningful; a fixed cap here silently dropped the last-pushed
-  // card (the fingerprinting finding) on Node Shields-comparison reports that
-  // also surfaced a session-recording or input-monitoring signal.
-  return findings;
+  );
 }
 
 function unconfirmedConsentInteractionFinding(view: ReportView, baseline: RunView, variant: RunView): Finding {
