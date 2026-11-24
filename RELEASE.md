@@ -31,8 +31,13 @@ The current release is `v0.6.0`, declared on 2026-09-06 and tagged on
 with its receipt durably archived at
 [`docs/release-receipts/0.6.0/release-receipt.json`](docs/release-receipts/0.6.0/release-receipt.json).
 The earlier `0.5.0` declaration was never tagged; its dated milestone remains in
-the changelog. `CITATION.cff` cites `0.6.0`, and the policy no longer carries
-`tagPending`.
+the changelog. `CITATION.cff` cites `0.6.0`.
+
+`release-policy.json` declares `1.0.0-rc.1`, a release candidate for 1.0.0,
+on 2026-11-24. It is declared and not yet tagged: no `v1.0.0-rc.1` tag and no
+receipt exist, and the policy carries `tagPending` until the receipt-archive
+PR removes it. Until then `v0.6.0` remains the current release and the
+version to cite.
 
 The governed tag authority is configured: the dedicated release App
 `sbl-release-tagger-ianon` (Integration `5055694`), its private key only on the

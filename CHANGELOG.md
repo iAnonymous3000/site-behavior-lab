@@ -2,10 +2,26 @@
 
 All notable changes to Site Behavior Lab are documented here.
 
-The format is based on Keep a Changelog. The project has not declared a stable
-public API or a 1.0 release.
+The format is based on Keep a Changelog. The project declares no stable public
+API, and a release tag never declares one. `1.0.0-rc.1` is a release candidate
+for 1.0.0; no 1.0.0 release has been declared.
 
 ## Unreleased
+
+## [1.0.0-rc.1] - 2026-11-24
+
+Release candidate for 1.0.0 under the `investigative-v1` contract
+([docs/v1-release-qualification.md](docs/v1-release-qualification.md)). It
+runs the whole 1.0 ceremony once before the final release: the candidate, the
+evidence carrier, the readiness check and the governed tag. It is not the
+final source: the owner-only investigation workspace is not finished, and it
+lands before 1.0.0. It declares no stable public API and no npm publication.
+It claims no detector error rate and no accuracy for any mode; calibration and
+A/A repeatability are deferred to 1.1.0. The report contracts do not move: v1
+is frozen, and v2/r1 and v2/r2 are byte-immutable. The date above is the
+declaration date. The tag does not exist until the ceremony in
+[RELEASE.md](RELEASE.md) completes; see
+[release status](RELEASE.md#current-release-state).
 
 ### Added
 
