@@ -65,9 +65,12 @@ import { reviewedOwnershipRelationship } from "./reviewed-ownership";
 import type { CorpusStats } from "./corpus-stats";
 import { readStoredScanReport } from "./scan-report-reader";
 import {
+  CNAME_LOOKUP_FAILED_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
-  PIXEL_DECODE_CAPTURE_LOSS_WARNING
+  KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING,
+  PIXEL_DECODE_CAPTURE_LOSS_WARNING,
+  POLICY_LINK_SEARCH_INCOMPLETE_WARNING
 } from "./scan-runtime";
 import { buildComparisonDiffV2, evaluateQuality } from "./scan-report-v2-evaluators";
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
@@ -4450,6 +4453,43 @@ test("a reject arm whose request evidence was cut short never gets the reassurin
   assert.equal(card.level, "info");
   assert.match(card.title, /cut short/);
   assert.match(card.detail, /covers only what was recorded before the cutoff/);
+});
+
+test("a quiet bottom line names the causes its visit recorded, and only those", () => {
+  // The quiet lead said nothing of an incomplete check, while the cut-short
+  // and detector-quiet leads already named each recorded cause. It now takes
+  // the same cause sentences, and with no cause it is unchanged.
+  const quietLead =
+    "The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls.";
+  const quiet = makeResult({ firstPartyDomain: "quiet.example" });
+  const uncaused = byId(buildFindings(viewFromV1Report(quiet), null), "bottom-line");
+  assert.match(uncaused.title, /few review signals/);
+  assert.equal(uncaused.lead, quietLead, "with no recorded cause the lead is unchanged");
+
+  const warnings = [KEYSTROKE_PROBE_TEST_INCOMPLETE_WARNING, CNAME_LOOKUP_FAILED_WARNING, POLICY_LINK_SEARCH_INCOMPLETE_WARNING];
+  for (const count of [1, 2, 3]) {
+    const view = viewFromV1Report({ ...quiet, warnings: warnings.slice(0, count) });
+    const notes = runCensorshipNotes(displayRunView(view));
+    assert.equal(notes.length, count, `${count}: the visit records ${count} causes`);
+    const bottomLine = byId(buildFindings(view, null), "bottom-line");
+    assert.match(bottomLine.title, /few review signals/, `${count}: the quiet branch`);
+    const expected = [
+      ` Recorded cause: ${notes[0]}.`,
+      count > 1 ? ` Another recorded cause: ${notes[1]}.` : "",
+      count > 2 ? ` The report records ${count - 2} other cause.` : ""
+    ].join("");
+    assert.equal(bottomLine.lead, `${quietLead}${expected}`, `${count}: the quiet lead and exactly its recorded causes`);
+    assert.doesNotMatch(bottomLine.lead, /\{(?:label|seg|n)\}/, `${count}: no sanitizer token`);
+    assertSentencesAtMost(bottomLine, MAX_CARD_SENTENCE_WORDS);
+  }
+  // The owner's words for the two causes a committed quiet board records.
+  const two = byId(buildFindings(viewFromV1Report({ ...quiet, warnings: warnings.slice(0, 2) }), null), "bottom-line");
+  assert.ok(
+    two.lead.endsWith(
+      " Recorded cause: the synthetic form-input probe did not complete its test, so input-capture detection is incomplete. Another recorded cause: the scanner could not complete one or more CNAME lookups for the first-party subdomains the page contacted, so CNAME cloaking findings are incomplete."
+    ),
+    "two causes read as the list shows them"
+  );
 });
 
 test("a fingerprint observer that never read a frame cannot publish a clean absence", () => {

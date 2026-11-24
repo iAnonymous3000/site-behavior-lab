@@ -2781,7 +2781,7 @@ export function buildFindings(
       : detectorQuiet
         ? `The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls. A detector did not finish, so that absence is not established for its scope; its own card states what was retained.${recordedCauses}`
       : quietEnough
-        ? "The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls."
+        ? `The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls.${recordedCauses}`
         : `The scan observed signals a non-expert should not have to decode from raw request tables.${
             activityEvidenceCensored
               ? ` Some activity evidence was also incomplete: ${activityCensoringEffects}.`
