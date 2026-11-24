@@ -233,6 +233,9 @@ test("public metric copy keeps request rows and distinct service entities separa
   // filter's own description may not promise first-party matches either.
   assert.doesNotMatch(requestTable, /Includes first-party/);
   assert.match(requestTable, /Only third-party rows are labeled/);
+  // The corpus export's note states the same scope for the same column.
+  assert.doesNotMatch(corpusExport, /first-party match/i);
+  assert.match(corpusExport, /Only third-party rows are labeled/);
   assert.match(phaseTable, /<th scope="col">Catalog-matched requests<\/th>/);
   assert.match(comparison, /Catalog-matched request and entity deltas/);
   assert.match(staticGallery, /Most retained third-party request rows/);

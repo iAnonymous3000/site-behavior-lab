@@ -43,13 +43,14 @@ export type CorpusExportRow = {
   gpcEnabled: boolean;
   consentMode: string;
   /**
-   * Which consent-banner choices the scanner dispatched a click for
+   * Which consent-banner choices each visit recorded as clicked
    * ("accept-and-reject" / "accept-only" / "reject-only" / "none"); null when no
-   * interaction was attempted. This is a dispatch field, not a verification
+   * interaction was attempted. By scanner version a recorded click is a
+   * dispatched click or a visible reaction, and it is not a verification
    * field: v1 never recorded registration, while r2 keeps its interpreter
    * observations and claim gates in the linked report. Consent rows without
-   * "accept-and-reject" have at least one run still in the pre-consent state,
-   * so their diffs do not compare the two choices.
+   * "accept-and-reject" have at least one run with no recorded click, which is
+   * not necessarily pre-consent, so their diffs do not compare the two choices.
    */
   consentClicks: string | null;
   /** Lead run's top-level HTTP status; >= 400 means an error/block page, not the site. */
@@ -170,11 +171,11 @@ export const CORPUS_EXPORT_NOTE = [
   "One row per published report. A single report records one automated, controlled Chromium visit; a comparison report pairs two such visits, one per compared condition.",
   "The corpus is a curated set of sites (popular, mostly commercial, plus a diversity seed list), not a random sample of the web, so treat cross-site statistics as describing this corpus only.",
   "Counts use the report's lead run (the unprotected baseline on Shields/GPC comparisons, the accept-all run on consent comparisons). Request and event counts are lower bounds; cookie and storage figures are end-of-visit snapshots, which an incomplete visit can leave higher or lower, so they are not lower bounds.",
-  "catalogued_service_requests counts retained request rows with any direct catalog match, including operational services and first-party matches. tracking_service_requests counts only retained third-party rows whose recorded host matched a reviewed service-catalog suffix carrying a tracking role under the named metric contract. tracker_requests and delta_tracker_requests are deprecated 1.x compatibility aliases for tracking_service_requests and delta_tracking_service_requests; they are not the broader catalogued-service metric.",
-  "On consent rows, consent_clicks records which banner choices the scanner dispatched a click for; it is a dispatch column, not a verification column.",
+  "catalogued_service_requests counts retained request rows with any direct catalog match, including operational services. Only third-party rows are labeled, so a request to the scanned site itself is never counted, even when that site is in the catalog. tracking_service_requests counts only retained third-party rows whose recorded host matched a reviewed service-catalog suffix carrying a tracking role under the named metric contract. tracker_requests and delta_tracker_requests are deprecated 1.x compatibility aliases for tracking_service_requests and delta_tracking_service_requests; they are not the broader catalogued-service metric.",
+  "On consent rows, consent_clicks records which banner choices each visit recorded as clicked. Depending on the scanner version, that means that a click was dispatched or that the clicked control visibly reacted, and no v1 report says which. It is not a verification column.",
   "consent_choice_state records the lead run's evaluator-derived verification state (the accept-all arm on consent comparisons), while variant_consent_choice_state records the comparison's variant arm (the reject-all arm on consent comparisons). Values are verified, contradicted, weak-signal, unavailable, or failed; null in JSON and blank in CSV means no verifier state was recorded, including every v1 run, never that consent succeeded.",
   "V1 never recorded whether the site registered a choice, while v2 reports (r1 and r2) carry recorded verification observations and default-deny claim gates in the linked evidence.",
-  "Every run's totals include pre-click traffic; rows without accept-and-reject have at least one run still in the pre-consent state (the scanner found no clickable control for that choice), so their diffs do not compare the two choices; an accept-only or reject-only row still mixes one visit where a click was dispatched (its recording spans pre- and post-click traffic) with one pre-consent visit.",
+  "Every run's totals include pre-click traffic; rows without accept-and-reject have at least one run with no recorded click, so their diffs do not compare the two choices. Such a run may have found no control, may not have finished its search, or may have clicked a control that did not visibly respond, so its traffic is not necessarily pre-consent. An accept-only or reject-only row still mixes one visit with a recorded click (its recording spans pre- and post-click traffic) with one without.",
   "comparison_decision_mode is the pair-level comparable or raw-only ruling and is null/blank on singles. It is never a metric-family or causal gate: a pair can be comparable while a particular metric family remains raw-only, so use the linked report's per-family decisions before interpreting a delta.",
   "compatibility_fingerprint_origin says whether the comparison's measurement-environment fingerprints were recorded or legacy-derived. compatibility_fingerprint_matched is true or false only when equality is provable and null/blank otherwise; two unknown fingerprints never match.",
   "The flattened corpus deliberately omits the raw baseline and variant fingerprint digests: they remain available in the linked full reports, while repeating stable digests here would add linkability and noise without a documented corpus consumer.",

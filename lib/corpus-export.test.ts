@@ -268,12 +268,23 @@ test("consent rows expose the dispatched click state so unclicked runs are filte
   assert.equal(rows[0].consentChoiceState, null, "v1 click dispatch never becomes a verifier state");
   assert.equal(rows[0].variantConsentChoiceState, null);
   // The note must tell researchers that anything short of accept-and-reject
-  // leaves at least one run in the pre-consent state, so the row is not a
-  // complete choice comparison. Dispatch and r2 verification stay distinct.
+  // leaves at least one run with no recorded click, so the row is not a
+  // complete choice comparison, and that such a run is not necessarily
+  // pre-consent. A recorded click and r2 verification stay distinct.
   assert.match(CORPUS_EXPORT_NOTE, /consent_clicks/);
-  assert.match(CORPUS_EXPORT_NOTE, /dispatch column, not a verification column/);
+  assert.ok(
+    CORPUS_EXPORT_NOTE.includes(
+      "On consent rows, consent_clicks records which banner choices each visit recorded as clicked. Depending on the scanner version, that means that a click was dispatched or that the clicked control visibly reacted, and no v1 report says which. It is not a verification column."
+    ),
+    "the note says what a recorded click means, by scanner version"
+  );
   assert.match(CORPUS_EXPORT_NOTE, /v2 reports \(r1 and r2\) carry recorded verification observations/);
-  assert.match(CORPUS_EXPORT_NOTE, /pre-consent state/);
+  assert.ok(
+    CORPUS_EXPORT_NOTE.includes(
+      "Every run's totals include pre-click traffic; rows without accept-and-reject have at least one run with no recorded click, so their diffs do not compare the two choices. Such a run may have found no control, may not have finished its search, or may have clicked a control that did not visibly respond, so its traffic is not necessarily pre-consent. An accept-only or reject-only row still mixes one visit with a recorded click (its recording spans pre- and post-click traffic) with one without."
+    ),
+    "the note does not call every unclicked run pre-consent"
+  );
 });
 
 test("r2 rows keep click dispatch separate from both consent-arm verification states", () => {

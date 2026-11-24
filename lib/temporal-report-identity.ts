@@ -21,9 +21,9 @@ const METRIC_CONTRACT_HISTORY_IDENTITY =
 export type ConsentClicks = "accept-and-reject" | "accept-only" | "reject-only" | "none";
 
 /**
- * Derives the dispatched consent-click state from recorded interactions.
- * Classification comes from what the scanner actually clicked, never merely
- * from the requested mode.
+ * Derives the recorded consent-click state from recorded interactions
+ * (controlActivated). Classification comes from what each visit recorded as
+ * clicked, never merely from the requested mode.
  */
 export function consentClicksForView(view: ReportView): ConsentClicks | null {
   const arms = comparisonArmViews(view);
