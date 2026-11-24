@@ -446,3 +446,12 @@ test("the status page scopes its exclusion rule to request evidence, and the exp
   assert.match(exportNote, /Request and event counts are lower bounds; cookie and storage figures are end-of-visit snapshots, which an incomplete visit can leave higher or lower, so they are not lower bounds\./);
   assert.doesNotMatch(exportNote, /consent comparisons\) and are lower bounds\./);
 });
+
+test("the homepage hint for a capped visit states its count as a floor", () => {
+  // Both webmd.com visits that recorded 980 stopped at the recording cap, and
+  // the site's own page prints "at least 980" for each. The old literal is
+  // contained in the new one, so both are held as whole hint literals.
+  const home = source("app/site-behavior-app.tsx");
+  assert.ok(home.includes('{ url: "webmd.com", hint: "at least 980 third-party requests on record" }'), "the webmd.com hint says at least");
+  assert.ok(!home.includes('hint: "980 third-party requests on record"'), "no hint states the capped count as exact");
+});

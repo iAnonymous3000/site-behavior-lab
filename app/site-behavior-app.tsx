@@ -61,7 +61,7 @@ const LazyScheduledRescans = lazy(() =>
 // promise about the next visit. Update hints only from committed reports.
 const EXAMPLES: { url: string; hint: string }[] = [
   { url: "weather.gov", hint: "typed text reached a third party" },
-  { url: "webmd.com", hint: "980 third-party requests on record" },
+  { url: "webmd.com", hint: "at least 980 third-party requests on record" },
   { url: "coolmathgames.com", hint: "kids' games, 164 third-party requests" },
   { url: "capitalone.com", hint: "bank with a cloaked tracker" },
   { url: "homedepot.com", hint: "Meta Pixel with an identity field" },
