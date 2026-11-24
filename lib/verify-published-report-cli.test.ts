@@ -39,6 +39,10 @@ function runCli(args: readonly string[], cwd = root) {
   return { status: result.status, stdout: result.stdout ?? "", stderr: result.stderr ?? "" };
 }
 
+/** The boundary item that says the ledger copy the verifier read may not be current. */
+const LEDGER_BOUNDARY_LINE =
+  "  - that the corrections ledger in this working directory (public/corrections.json) is current.";
+
 async function fixtureBundle(): Promise<{ dir: string; id: string }> {
   const ids = await listStaticReportCandidateIds(reportsDir);
   const id = ids[0];
@@ -285,6 +289,9 @@ test("a report later removed for privacy verifies against the log and says it wa
     assert.match(removed.stdout, new RegExp(`Removed for privacy: SBL-CORR-2026-001 replaced this report with a redacted copy,\\s+${replacementId}`));
     assert.match(removed.stdout, /See https:\/\/sitebehavior\.org\/corrections\/privacy-replacement\//);
     assert.match(removed.stdout, /Verified: these bytes are exactly what this project published/);
+    // A privacy removal keeps its own line and takes no correction line.
+    assert.doesNotMatch(removed.stdout, /This report was |This report has a reviewed clarification/);
+    assert.ok(removed.stdout.includes(`\n${LEDGER_BOUNDARY_LINE}\n`), "the boundary names the ledger copy");
 
     // The explanation never excuses changed bytes.
     writeFileSync(path.join(evidence, `${originalId}.json`), wire.replace("privacy@example.com", "privacy@example.org"));
@@ -294,6 +301,65 @@ test("a report later removed for privacy verifies against the log and says it wa
   } finally {
     rmSync(clone, { recursive: true, force: true });
     rmSync(evidence, { recursive: true, force: true });
+  }
+});
+
+test("the verifier prints a report's published correction from the ledger in this working directory", async () => {
+  // The report page names a report's current event; the verifier named only a
+  // privacy removal. It now prints the same event, from the ledger copy in the
+  // working directory, and says that copy may not be current.
+  const { dir, id } = await fixtureBundle();
+  const clone = mkdtempSync(path.join(tmpdir(), "verify-report-ledger-"));
+  try {
+    mkdirSync(path.join(clone, "public"), { recursive: true });
+    const ledgerPath = path.join(clone, "public", "corrections.json");
+    const ledger = (entries: object[]) => `${JSON.stringify({
+      $schema: "https://sitebehavior.org/corrections.schema.json",
+      schemaVersion: 1,
+      policy: "https://sitebehavior.org/corrections/",
+      entries
+    }, null, 2)}\n`;
+    const event = (eventId: string, state: string, publishedAt: string) => ({
+      eventId,
+      publishedAt,
+      state,
+      reportIds: [id],
+      summary: `The ${state} event's own summary.`,
+      detailsUrl: `https://sitebehavior.org/corrections/${eventId.toLowerCase()}/`
+    });
+    const corrected = (eventId: string, state: string) =>
+      `This report was ${state}: ${eventId}. The ${state} event's own summary. Read the public review record: https://sitebehavior.org/corrections/${eventId.toLowerCase()}/. Matching bytes do not lift a published correction.`;
+    const clarified = (eventId: string) =>
+      `This report has a reviewed clarification: ${eventId}. The active event's own summary. Read the public review record: https://sitebehavior.org/corrections/${eventId.toLowerCase()}/.`;
+    const cases: [string, object[] | null, string | null][] = [
+      ["no ledger file", null, null],
+      ["no event", [], null],
+      ["a correction", [event("SBL-CORR-2026-001", "corrected", "2026-07-10T12:00:00.000Z")], corrected("SBL-CORR-2026-001", "corrected")],
+      ["a superseded report", [event("SBL-CORR-2026-001", "superseded", "2026-07-10T12:00:00.000Z")], corrected("SBL-CORR-2026-001", "superseded")],
+      ["a withdrawn report", [event("SBL-CORR-2026-001", "withdrawn", "2026-07-10T12:00:00.000Z")], corrected("SBL-CORR-2026-001", "withdrawn")],
+      ["a clarification", [event("SBL-CORR-2026-001", "active", "2026-07-10T12:00:00.000Z")], clarified("SBL-CORR-2026-001")],
+      [
+        "a correction, then a clarification",
+        [event("SBL-CORR-2026-001", "corrected", "2026-07-10T12:00:00.000Z"), event("SBL-CORR-2026-002", "active", "2026-07-11T12:00:00.000Z")],
+        corrected("SBL-CORR-2026-001", "corrected")
+      ]
+    ];
+    for (const [name, entries, expected] of cases) {
+      rmSync(ledgerPath, { force: true });
+      if (entries !== null) writeFileSync(ledgerPath, ledger(entries));
+      const result = runCli([id, "--from", dir], clone);
+      assert.doesNotMatch(result.stdout, /FAIL/, `${name}: ${result.stdout}${result.stderr}`);
+      if (expected === null) {
+        assert.doesNotMatch(result.stdout, /This report was |This report has a reviewed clarification/, `${name}: no correction line`);
+      } else {
+        assert.equal(result.stdout.split(`\n${expected}\n`).length, 2, `${name}: the line, once and whole`);
+        assert.equal(result.stdout.split(/This report was |This report has a reviewed clarification/).length, 2, `${name}: one correction line only`);
+      }
+      assert.equal(result.stdout.split(`\n${LEDGER_BOUNDARY_LINE}\n`).length, 2, `${name}: the boundary names the ledger copy`);
+    }
+  } finally {
+    rmSync(clone, { recursive: true, force: true });
+    rmSync(dir, { recursive: true, force: true });
   }
 });
 

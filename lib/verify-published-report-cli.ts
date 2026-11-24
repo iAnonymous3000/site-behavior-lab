@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { parseCorrectionsLedger } from "./corrections-ledger-model";
+import { parseCorrectionsLedger, type ParsedCorrectionsLedger } from "./corrections-ledger-model";
 import { readManagedReport } from "./managed-report-reader";
 import { parseTransparencyLog, verifyTransparencyLogChain } from "./publication-transparency-log";
 import { REPORT_ID_PATTERN } from "./report-validation";
@@ -11,6 +11,7 @@ import {
   readVerifyArtifactBytesWithinLimit,
   readVerifyArtifactTextWithinLimit
 } from "./verify-published-report-fetch";
+import { LEDGER_CURRENCY_BOUNDARY, publishedCorrectionLine } from "./verify-report-corrections";
 
 /**
  * One command that checks a published report end to end, for a reader who
@@ -103,7 +104,9 @@ type ChainOutcome =
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
   const checks: Check[] = [];
-  const privacyRemoval = await privacyRemovalOf(options.reportId);
+  const ledger = await localCorrectionsLedger();
+  const privacyRemoval = privacyRemovalOf(ledger, options.reportId);
+  const correctionLine = ledger === null ? null : publishedCorrectionLine(ledger, options.reportId);
 
   // The digest is taken over the bytes as read, never over a decoded and
   // re-encoded string: a decoder that drops a byte order mark or replaces a
@@ -215,7 +218,7 @@ async function main(): Promise<void> {
   const chained = await transparencyChainCheck(options.reportId, wireDigest);
   checks.push(chained.check);
 
-  report(options, checks, chained, privacyRemoval);
+  report(options, checks, chained, privacyRemoval, correctionLine);
   process.exitCode = checks.some((check) => !check.ok)
     ? EXIT_NOT_VERIFIED
     : chained.state === "matched"
@@ -224,19 +227,27 @@ async function main(): Promise<void> {
 }
 
 /**
- * The privacy-superseded event in this clone's corrections ledger that removed
- * the report, if any. Like the transparency log, the ledger is a plain local
- * file of the checkout the reader runs this from; without it nothing is
- * explained and a removed report's checks fail as they would for any other.
+ * This clone's corrections ledger. Like the transparency log, it is a plain
+ * local file of the checkout the reader runs this from, so it is only as
+ * current as that checkout, and the boundary says so.
  */
-async function privacyRemovalOf(reportId: string): Promise<PrivacyRemoval | null> {
+async function localCorrectionsLedger(): Promise<ParsedCorrectionsLedger | null> {
   let raw: string;
   try {
     raw = await readFile(path.join(process.cwd(), "public", "corrections.json"), "utf8");
   } catch {
     return null;
   }
-  const ledger = parseCorrectionsLedger(JSON.parse(raw));
+  return parseCorrectionsLedger(JSON.parse(raw));
+}
+
+/**
+ * The privacy-superseded event in that ledger that removed the report, if
+ * any. Without the ledger nothing is explained and a removed report's checks
+ * fail as they would for any other.
+ */
+function privacyRemovalOf(ledger: ParsedCorrectionsLedger | null, reportId: string): PrivacyRemoval | null {
+  if (ledger === null) return null;
   for (const event of ledger.entries) {
     if (event.state !== "privacy-superseded") continue;
     const position = event.reportIds.indexOf(reportId);
@@ -394,7 +405,8 @@ function report(
   options: Options,
   checks: readonly Check[],
   chained: ChainOutcome,
-  privacyRemoval: PrivacyRemoval | null
+  privacyRemoval: PrivacyRemoval | null,
+  correctionLine: string | null
 ): void {
   const where = options.source.kind === "origin" ? options.source.origin : options.source.dir;
   console.log(`\nVerifying ${options.reportId} from ${where}\n`);
@@ -407,6 +419,8 @@ function report(
         `${privacyRemoval.replacementReportId}, and removed it from the site. See ${privacyRemoval.detailsUrl}`
     );
   }
+  // The event the report page names. Matching bytes say nothing about it.
+  if (correctionLine) console.log(`\n${correctionLine}`);
 
   const failed = checks.filter((check) => !check.ok);
   if (failed.length === 0 && chained.state === "matched") {
@@ -468,6 +482,9 @@ function report(
       console.log(`    clone whose ${LOG_PATH} contains this report id.`);
     }
   }
+  // The ledger read above is this working directory's copy, which can be
+  // older than the published one.
+  console.log(`  - ${LEDGER_CURRENCY_BOUNDARY}`);
   console.log("  - anything about behavior this scanner does not measure.");
   console.log("    The published boundary: https://sitebehavior.org/catalog/#coverage-boundary\n");
 }
