@@ -517,7 +517,7 @@ function cohortSplitNote(cohorts: readonly CorpusCohortIdentity[]): string {
       : differences.length === 1
         ? differences[0]
         : `${differences.slice(0, -1).join(", ")} and ${differences[differences.length - 1]}`;
-  return `. These categories were measured under ${cause}, so read each on its own rather than ranking them against each other.`;
+  return `. These categories were measured under ${cause}: they are shown highest median first, but a median is comparable within a category and not across them.`;
 }
 
 function StaticPublicPanel({

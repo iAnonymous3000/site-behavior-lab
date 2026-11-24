@@ -455,3 +455,24 @@ test("the homepage hint for a capped visit states its count as a floor", () => {
   assert.ok(home.includes('{ url: "webmd.com", hint: "at least 980 third-party requests on record" }'), "the webmd.com hint says at least");
   assert.ok(!home.includes('hint: "980 third-party requests on record"'), "no hint states the capped count as exact");
 });
+
+test("the homepage's cohort note says how the categories are ordered, not that they are unranked", () => {
+  // The homepage lists its four categories highest median first, so a note
+  // telling the reader not to rank them was contradicted by the page itself.
+  const home = source("app/site-behavior-app.tsx");
+  assert.ok(
+    home.includes(
+      "`. These categories were measured under ${cause}: they are shown highest median first, but a median is comparable within a category and not across them.`"
+    ),
+    "the note says the order and what a median compares"
+  );
+  const readerFiles = (dir: string): string[] =>
+    readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap((entry) => {
+      const file = path.join(dir, entry.name);
+      if (entry.isDirectory()) return readerFiles(file);
+      return /\.(?:tsx?|md)$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name) ? [file] : [];
+    });
+  for (const file of ["README.md", ...readerFiles("app"), ...readerFiles("lib"), ...readerFiles("docs")]) {
+    assert.ok(!source(file).includes("rather than ranking them against each other"), `${file} tells the reader not to rank`);
+  }
+});
