@@ -659,3 +659,18 @@ function readdirRecursive(dir: string): string[] {
     entry.isDirectory() ? readdirRecursive(path.join(dir, entry.name)) : [path.join(dir, entry.name)]
   );
 }
+
+test("the corrections ledger's invariants say a clarification never lifts a correction", () => {
+  // The ledger model keeps a disposition that is not active standing once
+  // published; a later active event is a clarification beside it.
+  const ledger = readFileSync(path.join(root, "docs/corrections-ledger.md"), "utf8");
+  const item =
+    "- A disposition that is not active stands once published. A later active event may sit beside it as a clarification and never lifts it.";
+  assert.equal(ledger.split(item).length, 2, "the invariants state the item once");
+  assert.ok(
+    ledger.includes(
+      `- Never edit or delete a published event. Append a new event and set\n  supersedesEventId when a prior disposition needs qualification.\n${item}\n`
+    ),
+    "the item follows the append-only item"
+  );
+});

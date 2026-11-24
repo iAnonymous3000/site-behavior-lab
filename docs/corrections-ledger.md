@@ -8,6 +8,7 @@ public/corrections.schema.json.
 
 - Never edit or delete a published event. Append a new event and set
   supersedesEventId when a prior disposition needs qualification.
+- A disposition that is not active stands once published. A later active event may sit beside it as a clarification and never lifts it.
 - Never replace a report artifact in place. A corrected measurement receives a
   new report ID and is listed in replacementReportIds.
 - The one exception that removes published evidence is privacy-superseded,
