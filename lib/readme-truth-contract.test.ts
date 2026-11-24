@@ -620,3 +620,15 @@ test("the limitations say the policy check reads one sentence at a time", () => 
   assert.equal(linesHolding(limitations, sentence), 1, "the sentence is unbroken on one line");
   assert.ok(limitations.includes(`never legal conclusions. ${sentence}`), "it follows the policy check's paragraph");
 });
+
+test("the limitations say a heading without end punctuation joins the next policy sentence", () => {
+  // The policy matcher collapses whitespace before it splits, and the page
+  // collector adds no sentence end at an element edge, so a heading or list
+  // item with no end mark is read as part of the sentence after it.
+  const limitations = readFileSync(path.join(root, "docs/limitations.md"), "utf8");
+  const sentence =
+    "The check also ends a sentence only after a period, question mark, or exclamation mark, so a heading or list item without one is read as part of the sentence after it: its words can appear in the quote and can change whether that statement matches.";
+  assert.equal(limitations.split(sentence).length, 2, "the limitations state the sentence once");
+  assert.equal(linesHolding(limitations, sentence), 1, "the sentence is unbroken on one line");
+  assert.ok(limitations.includes(`as if it were unconditional. ${sentence}`), "it follows the one-sentence-at-a-time sentence");
+});
