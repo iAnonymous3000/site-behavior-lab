@@ -55,7 +55,7 @@ const APPROVED_WHOLE: Record<keyof typeof WHOLE_FINDING_LIMITS, string> = {
   platformsMatched:
     "The domain matches identify services, not the requests' purpose, payload, or whether any profile linking occurred.",
   platformsNoneRecorded:
-    "Major-platform domains were not observed in this single passive visit; interaction-gated requests could still load for real users.",
+    "Major-platform domains were not observed in this single visit; interaction-gated requests could still load for real users.",
   platformsNotInCatalog:
     "Asset and font hosts reach this state often: the ownership map establishes who operates the domain, and nothing here establishes the request's purpose or payload.",
   platformsSameOrganization:

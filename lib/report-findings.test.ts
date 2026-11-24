@@ -1154,6 +1154,21 @@ test("card sentences stay short on branches no committed report reaches", () => 
   assertSentencesAtMost(bottomLine, MAX_CARD_SENTENCE_WORDS);
 });
 
+test("a board that names no major platform carries the approved no-platform sentence as its limit", () => {
+  // The card takes its limit only when the module's sentence is one whole
+  // sentence of its string. A copy in the card that drifted from the module
+  // would print no limit, and a check of only the limits a card does print
+  // would not see it.
+  const sentence =
+    "Major-platform domains were not observed in this single visit; interaction-gated requests could still load for real users.";
+  assert.equal(WHOLE_FINDING_LIMITS.platformsNoneRecorded, sentence);
+  const card = byId(buildFindings(viewFromV1Report(makeResult({ firstPartyDomain: "quiet.example" })), null), "named-platforms");
+  assert.equal(cardSentences(card.detail)[0], sentence, "the card's string opens with the sentence");
+  assert.equal(card.limit?.sentence, sentence, "the card takes the sentence as its limit");
+  assert.doesNotMatch(card.detail, /passive|\{(?:label|seg|n)\}/);
+  assertSentencesAtMost(card, MAX_CARD_SENTENCE_WORDS);
+});
+
 test("a policy conflict card says the match reads one sentence at a time", () => {
   // The matcher classes each policy sentence alone, so a limit stated in the
   // sentence before or after a match is not applied. No committed report

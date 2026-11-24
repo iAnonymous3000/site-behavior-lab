@@ -29,3 +29,17 @@ test("the domain chip never claims an identified operator for a framework-endpoi
   // The old shape fed every namer name into the "operator identified" copy.
   assert.doesNotMatch(table, /\bnames\.join\(", "\)\} · operator identified/);
 });
+
+test("a report table's empty line does not call the visit passive", () => {
+  // The same pages can say the scanner typed a test value, so the empty-table
+  // lines say "this visit" and no more. The methodology page keeps the term.
+  const table = readFileSync(path.join(process.cwd(), "app/_components/report-tables.tsx"), "utf8");
+  for (const line of [
+    '"No domains were recorded in this visit."',
+    '"No requests were recorded in this visit."',
+    '"No advertising-pixel events were decoded in this visit."'
+  ]) {
+    assert.equal(table.split(line).length, 2, `the table states ${line} once`);
+  }
+  assert.doesNotMatch(table, /in this passive visit/);
+});

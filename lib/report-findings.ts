@@ -1597,7 +1597,7 @@ export function buildFindings(
           ? "Cross-registrable-domain traffic remains counted in the report, but this reviewed ownership relationship does not support an outside-recipient disclosure claim. Naming the operator also does not prove request purpose."
           : uncataloguedPlatformOrganizations.length > 0
             ? `Asset and font hosts reach this state often: the ownership map establishes who operates the domain, and nothing here establishes the request's purpose or payload. These domains are not counted as catalog-matched requests.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
-            : `Major-platform domains were not observed in this single passive visit; interaction-gated requests could still load for real users.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
+            : `Major-platform domains were not observed in this single visit; interaction-gated requests could still load for real users.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence:
       headlineNames.length > 0
         ? `${capitalizeSentence(retainedCountPhrase(

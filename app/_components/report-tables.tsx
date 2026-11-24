@@ -292,7 +292,7 @@ function emptyDomains(query: string, facts: RunFacts) {
       : facts.evidence.requests.state === "censored"
         ? "No domain rows were retained before collection stopped; this is not evidence that no requests occurred."
         : facts.subject.describesSubject
-          ? "No domains were recorded in this passive visit."
+          ? "No domains were recorded in this visit."
           : "No domains were recorded for the returned document; the requested page was not established.";
 }
 
@@ -589,7 +589,7 @@ function RequestTable({
                 : facts.evidence.requests.state === "censored"
                   ? "No request rows were retained before collection stopped; this is not evidence that no requests occurred."
                   : facts.subject.describesSubject
-                    ? "No requests were recorded in this passive visit."
+                    ? "No requests were recorded in this visit."
                     : "No requests were recorded for the returned document; the requested page was not established."}
             {filtersActive && (
               <>
@@ -1247,7 +1247,7 @@ function PixelEventsList({ pixels, facts, corrected = false }: { pixels: PixelEv
           : evidenceIncomplete
           ? "No advertising-pixel events were retained; collection or decoding was incomplete, so this is not an absence finding."
           : facts.subject.describesSubject
-            ? "No advertising-pixel events were decoded in this passive visit."
+            ? "No advertising-pixel events were decoded in this visit."
             : "No advertising-pixel events were decoded in the returned document; the requested page was not established."}
       </p>
     );
