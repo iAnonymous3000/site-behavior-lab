@@ -1,5 +1,12 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
+import {
+  MEASUREMENT_CALIBRATION_CONFIDENCE_LEVEL as LEAF_CONFIDENCE_LEVEL,
+  MEASUREMENT_CALIBRATION_MAXIMUM_WORST_CASE_HALF_WIDTH as LEAF_MAX_HALF_WIDTH,
+  MEASUREMENT_CALIBRATION_MINIMUM_CLASS_DENOMINATOR as LEAF_MIN_DENOMINATOR
+} from "./calibration-publication-thresholds";
 import {
   DETECTOR_CALIBRATION_ANALYSIS_VERSION,
   type DetectorCalibrationAnalysis,
@@ -13,6 +20,7 @@ import {
   withRunApplicability
 } from "./detector-calibration-reader";
 import {
+  MEASUREMENT_CALIBRATION_CONFIDENCE_LEVEL,
   MEASUREMENT_CALIBRATION_MAXIMUM_WORST_CASE_HALF_WIDTH,
   MEASUREMENT_CALIBRATION_MINIMUM_CLASS_DENOMINATOR
 } from "./measurement-candidate-binding";
@@ -296,4 +304,34 @@ test("applicability fails closed: it can demote a rate but never promote one", (
   );
   assert.equal(claims[0]!.state, "study-recorded-not-eligible");
   assert.equal(/\d/.test(detectorCalibrationReaderSentence(claims)), false);
+});
+
+test("calibration publication thresholds live in a zero-import leaf shared by reader, page, and release verifier", () => {
+  const root = process.cwd();
+  const read = (...parts: string[]) => readFileSync(path.join(root, ...parts), "utf8");
+
+  assert.equal(MEASUREMENT_CALIBRATION_MINIMUM_CLASS_DENOMINATOR, LEAF_MIN_DENOMINATOR);
+  assert.equal(MEASUREMENT_CALIBRATION_CONFIDENCE_LEVEL, LEAF_CONFIDENCE_LEVEL);
+  assert.equal(MEASUREMENT_CALIBRATION_MAXIMUM_WORST_CASE_HALF_WIDTH, LEAF_MAX_HALF_WIDTH);
+
+  const leaf = read("lib", "calibration-publication-thresholds.ts");
+  assert.doesNotMatch(leaf, /^\s*import\s+/m, "calibration-publication-thresholds must stay free of imports");
+
+  const binding = read("lib", "measurement-candidate-binding.ts");
+  assert.match(
+    binding,
+    /export \{[\s\S]*?MEASUREMENT_CALIBRATION_MINIMUM_CLASS_DENOMINATOR[\s\S]*?\} from "\.\/calibration-publication-thresholds";/,
+    "measurement-candidate-binding must keep re-exporting the thresholds from the shared leaf"
+  );
+
+  for (const parts of [
+    ["lib", "detector-calibration-reader.ts"],
+    ["app", "methodology", "page.tsx"]
+  ]) {
+    assert.doesNotMatch(
+      read(...parts),
+      /measurement-candidate-binding/,
+      `${parts.join("/")} must read calibration thresholds from calibration-publication-thresholds, not measurement-candidate-binding`
+    );
+  }
 });

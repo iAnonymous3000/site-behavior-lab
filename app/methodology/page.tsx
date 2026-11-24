@@ -4,7 +4,7 @@ import { committedDetectorCalibrationReadiness } from "@/lib/detector-calibratio
 import {
   MEASUREMENT_CALIBRATION_MAXIMUM_WORST_CASE_HALF_WIDTH,
   MEASUREMENT_CALIBRATION_MINIMUM_CLASS_DENOMINATOR
-} from "@/lib/measurement-candidate-binding";
+} from "@/lib/calibration-publication-thresholds";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { SiteChrome } from "../_components/site-chrome";
 import "@/app/_design/reading-imports";

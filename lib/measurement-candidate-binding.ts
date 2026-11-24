@@ -18,6 +18,11 @@ import { existsSync, lstatSync, readFileSync } from "node:fs";
 import path from "node:path";
 import packageManifest from "../package.json";
 import braveListManifest from "./adblock-wasm/brave-default-filters.meta.json";
+import {
+  MEASUREMENT_CALIBRATION_CONFIDENCE_LEVEL,
+  MEASUREMENT_CALIBRATION_MAXIMUM_WORST_CASE_HALF_WIDTH,
+  MEASUREMENT_CALIBRATION_MINIMUM_CLASS_DENOMINATOR
+} from "./calibration-publication-thresholds";
 import { canonicalJson } from "./canonical-json";
 import { evaluateDetectorCausalInputs } from "./detector-causal-inputs";
 import {
@@ -82,9 +87,11 @@ export const MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_KIND =
   "site-behavior-detector-calibration-censoring-policy-assignments";
 export const MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_ID =
   "per-detector-censoring-assignments-v1";
-export const MEASUREMENT_CALIBRATION_MINIMUM_CLASS_DENOMINATOR = 100;
-export const MEASUREMENT_CALIBRATION_CONFIDENCE_LEVEL = 0.95;
-export const MEASUREMENT_CALIBRATION_MAXIMUM_WORST_CASE_HALF_WIDTH = 0.1;
+export {
+  MEASUREMENT_CALIBRATION_CONFIDENCE_LEVEL,
+  MEASUREMENT_CALIBRATION_MAXIMUM_WORST_CASE_HALF_WIDTH,
+  MEASUREMENT_CALIBRATION_MINIMUM_CLASS_DENOMINATOR
+} from "./calibration-publication-thresholds";
 export const MEASUREMENT_CANDIDATE_BINDING_KIND = "site-behavior-measurement-candidate-binding";
 export const MEASUREMENT_CANDIDATE_BINDING_VERSION = 1;
 export const MEASUREMENT_CALIBRATION_ARTIFACT_MANIFEST_KIND =

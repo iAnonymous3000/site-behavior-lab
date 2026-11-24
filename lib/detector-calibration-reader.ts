@@ -6,7 +6,7 @@ import {
 import {
   MEASUREMENT_CALIBRATION_MAXIMUM_WORST_CASE_HALF_WIDTH,
   MEASUREMENT_CALIBRATION_MINIMUM_CLASS_DENOMINATOR
-} from "./measurement-candidate-binding";
+} from "./calibration-publication-thresholds";
 import { DETECTOR_IDS, type DetectorId } from "./scan-report-v2";
 
 /**
