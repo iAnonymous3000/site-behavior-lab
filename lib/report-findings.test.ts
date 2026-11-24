@@ -1154,6 +1154,44 @@ test("card sentences stay short on branches no committed report reaches", () => 
   assertSentencesAtMost(bottomLine, MAX_CARD_SENTENCE_WORDS);
 });
 
+test("a policy conflict card says the match reads one sentence at a time", () => {
+  // The matcher classes each policy sentence alone, so a limit stated in the
+  // sentence before or after a match is not applied. No committed report
+  // reaches the conflict branch, so both kinds of conflict are built here.
+  const sentence = "The match reads one sentence at a time, so a limit stated in a nearby sentence is not applied.";
+  const counted = makeResult({ thirdPartyCookies: 3 });
+  counted.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [{ kind: "no-third-party-cookies", quote: "We do not use third-party cookies." }],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 5000
+  };
+  const pixels = makeResult({});
+  pixels.pixelEvents = [{ platform: "Meta", product: "Meta Pixel", events: ["PageView"], advancedMatching: ["email"], requests: 1 }];
+  pixels.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [{ kind: "no-selling-or-sharing", quote: "We do not sell or share your personal information." }],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 5000
+  };
+  for (const [name, result, title] of [
+    ["a conflict", counted, /^(?!.*may conflict)/],
+    ["a conditional conflict", pixels, /may conflict/]
+  ] as const) {
+    const card = byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
+    assert.match(card.title, title, `${name}: the branch under test`);
+    assert.equal(card.detail.split(sentence).length, 2, `${name}: the card states the sentence once`);
+    assert.ok(
+      card.detail.includes(`quoted so it can be verified in context. ${sentence} Policies can define terms narrowly`),
+      `${name}: the sentence follows the quote's sentence`
+    );
+    assert.doesNotMatch(card.detail, /\{(?:label|seg|n)\}/, `${name}: no sanitizer token`);
+    assertSentencesAtMost(card, MAX_CARD_SENTENCE_WORDS);
+  }
+});
+
 test("list-driven card sentences stay short whatever the lists hold", () => {
   // Worst cases from the real vocabularies: the catalog's longest tracking
   // names, every encoding the keystroke probe matches, the decoder's pixel

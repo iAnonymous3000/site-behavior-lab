@@ -604,3 +604,19 @@ test("the scan job model says how long each store keeps a job, store by store", 
   }
   assert.doesNotMatch(model, /Durable Object SQLite for 75 minutes|retained for at most 75 minutes from admission|pruned on write, hard row cap/, "no store is said to be kept for exactly or at most 75 minutes");
 });
+
+/** The number of lines of `text` that hold `sentence` whole, so a sentence broken across lines counts 0. */
+function linesHolding(text: string, sentence: string): number {
+  return text.split("\n").filter((line) => line.includes(sentence)).length;
+}
+
+test("the limitations say the policy check reads one sentence at a time", () => {
+  // The policy matcher classes each sentence alone, so a limit stated in a
+  // neighbouring sentence is not applied to a matched statement.
+  const limitations = readFileSync(path.join(root, "docs/limitations.md"), "utf8");
+  const sentence =
+    "The check also reads one sentence at a time: a limit stated in the sentence before or after a matched statement, such as a notice that applies only to job applicants, is not applied, so a limited statement can be compared as if it were unconditional.";
+  assert.equal(limitations.split(sentence).length, 2, "the limitations state the sentence once");
+  assert.equal(linesHolding(limitations, sentence), 1, "the sentence is unbroken on one line");
+  assert.ok(limitations.includes(`never legal conclusions. ${sentence}`), "it follows the policy check's paragraph");
+});
