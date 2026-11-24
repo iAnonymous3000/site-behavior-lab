@@ -1,9 +1,13 @@
 {
   "schemaVersion": 2,
   "status": "released",
-  "version": "0.6.0",
-  "releaseTag": "v0.6.0",
-  "releaseDate": "2026-09-06",
+  "version": "1.0.0",
+  "releaseTag": "v1.0.0",
+  "releaseDate": "2026-11-24",
   "stablePublicApi": false,
-  "npmPublication": "disabled"
+  "npmPublication": "disabled",
+  "tagPending": {
+    "declaredAt": "2026-11-24",
+    "note": "Declared under RELEASE.md step 1 as candidate source for investigative-v1, not a completed release. No v1.0.0 tag or release receipt exists until the v1 release binding, CI formal-verification and container artifacts, and fresh governance receipt land in the evidence carrier and Cut Release Tag succeeds. The latest receipted release remains 0.6.0."
+  }
 }

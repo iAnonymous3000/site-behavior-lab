@@ -3,9 +3,25 @@
 All notable changes to Site Behavior Lab are documented here.
 
 The format is based on Keep a Changelog. The project has not declared a stable
-public API or a 1.0 release.
+public API; `1.0.0` is declared under the `investigative-v1` qualification
+contract with its governed tag and release receipt pending.
 
 ## Unreleased
+
+## [1.0.0] - 2026-11-24
+
+Declared under [RELEASE.md](RELEASE.md#cutting-a-release) step 1 as candidate
+source for the `investigative-v1` release; the governed `v1.0.0` tag and
+release receipt are pending. This date records the source declaration, not a
+completed release. The latest receipted release remains `0.6.0`; see
+[release status](RELEASE.md#current-release-state) and
+[v1 release qualification](docs/v1-release-qualification.md).
+
+This declaration covers the `investigative-v1` scope recorded in
+`RELEASE_READINESS.json`. It preserves the frozen v1 and immutable v2/r1 and
+v2/r2 report contracts and keeps `stablePublicApi` disabled, `npmPublication`
+disabled, durable jobs, sharding, and encrypted watches disabled, and formal
+detector-calibration and A/A studies deferred to `1.1.0`.
 
 ### Added
 
