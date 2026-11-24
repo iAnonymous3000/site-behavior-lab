@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { COVERAGE_BOUNDARY_ENTRIES, coverageBoundaryMetadata } from "./detector-coverage-boundary";
@@ -632,3 +632,30 @@ test("the limitations say a heading without end punctuation joins the next polic
   assert.equal(linesHolding(limitations, sentence), 1, "the sentence is unbroken on one line");
   assert.ok(limitations.includes(`as if it were unconditional. ${sentence}`), "it follows the one-sentence-at-a-time sentence");
 });
+
+test("the limitations do not say a v1 report with no method token missed worker fingerprinting", () => {
+  // A v1 report that records no methodology token does not say which
+  // fingerprint surface it observed, so the limitations may not file it with
+  // the reports known to predate OffscreenCanvas and worker observation.
+  const limitations = readFileSync(path.join(root, "docs/limitations.md"), "utf8");
+  const older =
+    "and its fingerprint event counts omit that work.";
+  const sentence =
+    "A v1 report that records no token does not say whether it observed that work, so it may read quiet, and its counts may omit that work, in the same way.";
+  assert.equal(limitations.split(sentence).length, 2, "the limitations state the sentence once");
+  assert.equal(linesHolding(limitations, sentence), 1, "the sentence is unbroken on one line");
+  assert.ok(limitations.includes(`${older} ${sentence}`), "it follows the sentence on older reports");
+  const documents = ["README.md", ...readdirRecursive(path.join(root, "docs")).map((file) => path.relative(root, file))];
+  for (const file of documents.filter((name) => name.endsWith(".md"))) {
+    assert.ok(
+      !readFileSync(path.join(root, file), "utf8").includes("(or that records no token)"),
+      `${file} files a report with no token with the older reports`
+    );
+  }
+});
+
+function readdirRecursive(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
+    entry.isDirectory() ? readdirRecursive(path.join(dir, entry.name)) : [path.join(dir, entry.name)]
+  );
+}
