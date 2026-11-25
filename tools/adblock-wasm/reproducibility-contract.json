@@ -47,8 +47,8 @@
     },
     {
       "path": "tools/adblock-wasm/src/lib.rs",
-      "bytes": 1755,
-      "sha256": "60e9af245c1dacdcf26796b305f92e507be598ee2fe4889f7dcac98ba5f0c9b7"
+      "bytes": 9321,
+      "sha256": "c76c6a94b858abc748f0464c5c8263ff677ab79061d549074b602422965e2602"
     },
     {
       "path": "tools/adblock-wasm/build-pins.json",
@@ -59,23 +59,23 @@
   "outputs": [
     {
       "path": "lib/adblock-wasm/sbl_adblock_wasm.js",
-      "bytes": 6979,
-      "sha256": "99e31f976a0a70c68e050d6eda87648238bdb8e61ea14697a79a1d0e56acb6ed"
+      "bytes": 10013,
+      "sha256": "541d6c38dfa9c72e5a2ec2101516f5a52a74c96251ea87998a596a28f2bf63f1"
     },
     {
       "path": "lib/adblock-wasm/sbl_adblock_wasm.d.ts",
-      "bytes": 1024,
-      "sha256": "919759b3a73fc490df296a07b1685273e5c2d298c315ab6996480007de246885"
+      "bytes": 1930,
+      "sha256": "7bff1f463cc1d4f5b6ba7003d09d1406ea7be5f26c52d2d6e61be93943d4e2fe"
     },
     {
       "path": "lib/adblock-wasm/sbl_adblock_wasm_bg.wasm",
-      "bytes": 2005990,
-      "sha256": "e24f44849c65b429f63a88de371505d8a188fbc27230ace3b093caa0be3d3911"
+      "bytes": 2015326,
+      "sha256": "d18598ff997c9f713cb4bb4cffa5be5bfabc2569da9a5ecb0e5b63e8f8920e9f"
     },
     {
       "path": "lib/adblock-wasm/sbl_adblock_wasm_bg.wasm.d.ts",
-      "bytes": 824,
-      "sha256": "23b08c5df2ecd378a3dae7890f31de2ae90e3db271c3e7653b280a3123bd26b1"
+      "bytes": 1125,
+      "sha256": "92f44ee2a2e0a5db78b80328b230c0d3aa84d543163491536e0d70a69a832547"
     }
   ]
 }

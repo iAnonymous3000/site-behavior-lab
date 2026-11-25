@@ -13,6 +13,24 @@ const ADBLOCK_DIR = path.join(process.cwd(), "lib", "adblock-wasm");
 type AdblockEngineLike = {
   check(url: string, sourceUrl: string, requestType: string): boolean;
   checkWithMethod(url: string, sourceUrl: string, requestType: string, method: string): boolean;
+  checkDetailed?(url: string, sourceUrl: string, requestType: string, method: string): string;
+  sourceCount?(): number;
+};
+
+export type AdblockDetailedResult = {
+  shouldBlock: boolean;
+  shouldBlockStandard: boolean;
+  shouldBlockAggressive: boolean;
+  matched: boolean;
+  isThirdParty: boolean;
+  important: boolean;
+  filter: string | null;
+  filterList: string | null;
+  filterLine: number | null;
+  exception: string | null;
+  exceptionList: string | null;
+  redirect: string | null;
+  rewrittenUrl: string | null;
 };
 
 export type AdblockListMeta = {
@@ -98,16 +116,43 @@ function vendorRequire(): NodeRequire {
     : (eval("require") as NodeRequire);
 }
 
+type AdblockWasmGlue = {
+  AdblockEngine: {
+    new (rules: string): AdblockEngineLike;
+    newWithDebug?: (rules: string) => AdblockEngineLike;
+  };
+};
+
 let enginePromise: Promise<AdblockEngineLike | null> | null = null;
+let detailedEnginePromise: Promise<AdblockEngineLike | null> | null = null;
+
+function readVendoredFilterRules(): string {
+  const gz = readFileSync(path.join(ADBLOCK_DIR, "brave-default-filters.txt.gz"));
+  return gunzipSync(gz).toString("utf8");
+}
+
+function loadWasmGlue(): AdblockWasmGlue {
+  const runtimeRequire = vendorRequire();
+  return runtimeRequire(path.join(ADBLOCK_DIR, "sbl_adblock_wasm.js")) as AdblockWasmGlue;
+}
 
 async function loadEngine(): Promise<AdblockEngineLike | null> {
   try {
-    const runtimeRequire = vendorRequire();
-    const glue = runtimeRequire(path.join(ADBLOCK_DIR, "sbl_adblock_wasm.js")) as {
-      AdblockEngine: new (rules: string) => AdblockEngineLike;
-    };
-    const gz = readFileSync(path.join(ADBLOCK_DIR, "brave-default-filters.txt.gz"));
-    const rules = gunzipSync(gz).toString("utf8");
+    const glue = loadWasmGlue();
+    const rules = readVendoredFilterRules();
+    return new glue.AdblockEngine(rules);
+  } catch {
+    return null;
+  }
+}
+
+async function loadDetailedEngine(): Promise<AdblockEngineLike | null> {
+  try {
+    const glue = loadWasmGlue();
+    const rules = readVendoredFilterRules();
+    if (typeof glue.AdblockEngine.newWithDebug === "function") {
+      return glue.AdblockEngine.newWithDebug(rules);
+    }
     return new glue.AdblockEngine(rules);
   } catch {
     return null;
@@ -120,6 +165,91 @@ export function getAdblockEngine(): Promise<AdblockEngineLike | null> {
     enginePromise = loadEngine();
   }
   return enginePromise;
+}
+
+/**
+ * Lazily loads and caches the debug-enabled wasm adblock engine (`FilterSet::new(true)`),
+ * exposing matched rule text, list URL, exception rule, `$redirect`, `$removeparam`,
+ * and Brave Standard vs. Aggressive verdicts via {@link checkAdblockDetailed}.
+ */
+export function getDetailedAdblockEngine(): Promise<AdblockEngineLike | null> {
+  if (!detailedEnginePromise) {
+    detailedEnginePromise = loadDetailedEngine();
+  }
+  return detailedEnginePromise;
+}
+
+const EMPTY_DETAILED_RESULT: AdblockDetailedResult = {
+  shouldBlock: false,
+  shouldBlockStandard: false,
+  shouldBlockAggressive: false,
+  matched: false,
+  isThirdParty: false,
+  important: false,
+  filter: null,
+  filterList: null,
+  filterLine: null,
+  exception: null,
+  exceptionList: null,
+  redirect: null,
+  rewrittenUrl: null
+};
+
+export function checkAdblockDetailed(
+  engine: AdblockEngineLike | null,
+  url: string,
+  sourceUrl: string,
+  requestType: string,
+  method = "GET"
+): AdblockDetailedResult {
+  if (!engine) return { ...EMPTY_DETAILED_RESULT };
+  if (typeof engine.checkDetailed === "function") {
+    try {
+      const parsed = JSON.parse(engine.checkDetailed(url, sourceUrl, requestType, method)) as Partial<AdblockDetailedResult>;
+      return {
+        shouldBlock: Boolean(parsed.shouldBlock),
+        shouldBlockStandard: Boolean(parsed.shouldBlockStandard),
+        shouldBlockAggressive: Boolean(parsed.shouldBlockAggressive),
+        matched: Boolean(parsed.matched),
+        isThirdParty: Boolean(parsed.isThirdParty),
+        important: Boolean(parsed.important),
+        filter: typeof parsed.filter === "string" ? parsed.filter : null,
+        filterList: typeof parsed.filterList === "string" ? parsed.filterList : null,
+        filterLine: typeof parsed.filterLine === "number" ? parsed.filterLine : null,
+        exception: typeof parsed.exception === "string" ? parsed.exception : null,
+        exceptionList: typeof parsed.exceptionList === "string" ? parsed.exceptionList : null,
+        redirect: typeof parsed.redirect === "string" ? parsed.redirect : null,
+        rewrittenUrl: typeof parsed.rewrittenUrl === "string" ? parsed.rewrittenUrl : null
+      };
+    } catch {
+      // Fall back to boolean check below.
+    }
+  }
+  const blocked = engine.checkWithMethod(url, sourceUrl, requestType, method);
+  return {
+    ...EMPTY_DETAILED_RESULT,
+    shouldBlock: blocked,
+    shouldBlockStandard: blocked,
+    shouldBlockAggressive: blocked,
+    matched: blocked
+  };
+}
+
+/** Compact display label for a Brave filter list URL (e.g. `easyprivacy.txt`). */
+export function shortFilterListName(listUrl: string | null | undefined): string | null {
+  if (!listUrl) return null;
+  if (listUrl === "custom") return "custom";
+  try {
+    const parsed = new URL(listUrl);
+    const parts = parsed.pathname.split("/").filter(Boolean);
+    const file = parts[parts.length - 1];
+    if (!file) return parsed.hostname;
+    if (parsed.pathname.includes("/uAssets/")) return `uBlock/${file}`;
+    if (parsed.pathname.includes("/brave/adblock-lists/")) return `Brave/${file}`;
+    return file;
+  } catch {
+    return listUrl;
+  }
 }
 
 export function adblockListMeta(): AdblockListMeta | null {

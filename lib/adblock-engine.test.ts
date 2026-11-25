@@ -3,7 +3,15 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { test } from "node:test";
-import { REQUEST_TYPE_MAP, adblockEngineStatus, adblockListMeta, mapRequestType } from "./adblock-engine";
+import {
+  REQUEST_TYPE_MAP,
+  adblockEngineStatus,
+  adblockListMeta,
+  checkAdblockDetailed,
+  getDetailedAdblockEngine,
+  mapRequestType,
+  shortFilterListName
+} from "./adblock-engine";
 import { NODE_ADBLOCK_ENGINE_VERSION } from "./legacy-methodology";
 
 type VendoredMetadata = {
@@ -137,4 +145,90 @@ test("adblockEngineStatus pairs the loaded engine version with the list manifest
   assert.equal(status.engineVersion, NODE_ADBLOCK_ENGINE_VERSION);
   assert.equal(status.manifestDigest, vendored.manifestDigest);
   assert.equal(status.lists, vendored.sourceCount);
+});
+
+test("detailed adblock engine exposes matched rule, originating list, exceptions, removeparam, and Standard vs Aggressive verdicts", async () => {
+  const vendorRequire = createRequire(__filename);
+  const glue = vendorRequire(path.join(process.cwd(), "lib", "adblock-wasm", "sbl_adblock_wasm.js")) as {
+    AdblockEngine: {
+      newWithDebug: (rules: string) => {
+        check(url: string, sourceUrl: string, requestType: string): boolean;
+        checkWithMethod(url: string, sourceUrl: string, requestType: string, method: string): boolean;
+        checkDetailed(url: string, sourceUrl: string, requestType: string, method: string): string;
+        sourceCount(): number;
+      };
+    };
+  };
+
+  const rules = [
+    "! ===== source: https://easylist.to/easylist/easyprivacy.txt =====",
+    "||tracker.example^",
+    "||site.example/analytics.js",
+    "||clean.example^$removeparam=fbclid",
+    "@@||allowed.example^",
+    "||allowed.example^",
+    "! ===== source: https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/brave-firstparty.txt =====",
+    "||metrics.site.example^"
+  ].join("\n");
+
+  const engine = glue.AdblockEngine.newWithDebug(rules);
+  assert.equal(engine.sourceCount(), 2);
+
+  // Third-party tracker blocked in both Standard and Aggressive with rule + list attribution
+  const thirdParty = checkAdblockDetailed(engine, "https://tracker.example/hit.js", "https://site.example/", "script");
+  assert.equal(thirdParty.shouldBlockStandard, true);
+  assert.equal(thirdParty.shouldBlockAggressive, true);
+  assert.equal(thirdParty.filter, "||tracker.example^");
+  assert.equal(shortFilterListName(thirdParty.filterList), "easyprivacy.txt");
+
+  // Generic rule matching a first-party URL: Aggressive blocks, Standard lets through
+  const firstPartyGeneric = checkAdblockDetailed(
+    engine,
+    "https://site.example/analytics.js",
+    "https://site.example/",
+    "script"
+  );
+  assert.equal(firstPartyGeneric.isThirdParty, false);
+  assert.equal(firstPartyGeneric.shouldBlockAggressive, true);
+  assert.equal(firstPartyGeneric.shouldBlockStandard, false);
+
+  // Brave first-party list rule blocks even in Standard mode
+  const firstPartyBrave = checkAdblockDetailed(
+    engine,
+    "https://metrics.site.example/collect",
+    "https://site.example/",
+    "xmlhttprequest"
+  );
+  assert.equal(firstPartyBrave.shouldBlockStandard, true);
+  assert.equal(shortFilterListName(firstPartyBrave.filterList), "Brave/brave-firstparty.txt");
+
+  // Exception overrides blocking filter and reports both rule & exception
+  const excepted = checkAdblockDetailed(engine, "https://allowed.example/app.js", "https://site.example/", "script");
+  assert.equal(excepted.shouldBlock, false);
+  assert.equal(excepted.matched, true);
+  assert.equal(excepted.exception, "@@||allowed.example^");
+
+  // $removeparam returns rewrittenUrl
+  const stripped = checkAdblockDetailed(
+    engine,
+    "https://clean.example/page?fbclid=123&keep=1",
+    "https://site.example/",
+    "document"
+  );
+  assert.equal(stripped.shouldBlock, false);
+  assert.equal(stripped.rewrittenUrl, "https://clean.example/page?keep=1");
+
+  // Real vendored Brave lists load cleanly and attribute doubleclick.net with rule + list
+  const live = await getDetailedAdblockEngine();
+  assert.ok(live, "detailed adblock engine must load vendored Brave lists");
+  assert.equal(live.sourceCount?.(), vendoredMetadata().sourceCount);
+  const liveHit = checkAdblockDetailed(
+    live,
+    "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js",
+    "https://example.org/",
+    "script"
+  );
+  assert.equal(liveHit.shouldBlockStandard, true);
+  assert.ok(liveHit.filter && liveHit.filter.length > 0);
+  assert.ok(liveHit.filterList && liveHit.filterList.startsWith("https://"));
 });
