@@ -20,6 +20,9 @@
   ],
   "license": "AGPL-3.0-or-later",
   "private": true,
+  "bin": {
+    "sbl": "./bin/sbl.mjs"
+  },
   "packageManager": "npm@11.11.0",
   "engines": {
     "node": "24.14.1",
@@ -106,6 +109,8 @@
     "scan:ci": "node scripts/run-ci-scan.mjs",
     "featured:readjudication": "node scripts/featured-readjudication.mjs",
     "scan:featured": "node scripts/run-featured-scans.mjs",
+    "sbl": "node bin/sbl.mjs",
+    "seed:v3-corpus": "node scripts/seed-v3-corpus.mjs",
     "start": "next start",
     "test:smoke:static": "node scripts/smoke-static-site.mjs",
     "test:smoke:docker": "node scripts/smoke-docker.mjs",

@@ -1,0 +1,108 @@
+name: "Site Behavior Lab v3 Privacy Gate"
+description: "Run an automated Site Behavior Lab v3 privacy & behavior scan in CI, emit Markdown/SARIF 2.1.0 evidence, diff against a baseline, and enforce privacy regression gates."
+branding:
+  icon: "shield"
+  color: "teal"
+
+inputs:
+  url:
+    description: "Target URL to scan (e.g. staging preview URL or production site)."
+    required: true
+  device:
+    description: "Browser device profile: desktop or mobile."
+    required: false
+    default: "desktop"
+  region:
+    description: "Regional locale/timezone profile: auto, us-east, eu-central, or ap-northeast."
+    required: false
+    default: "auto"
+  compare:
+    description: "Comma-separated concurrent comparison arms (e.g. shields-standard,gpc,consent-reject)."
+    required: false
+    default: "shields-standard,gpc"
+  baseline:
+    description: "Optional path to a baseline ScanReportV3 JSON file for temporal or staging-vs-prod regression diffing."
+    required: false
+    default: ""
+  fail-on:
+    description: "Comma-separated CI policy gates (keystrokes,cname,sgtm,fingerprinting,beacon-pii,dark-patterns>=35,third-parties>20,new-entities,regressions)."
+    required: false
+    default: "keystrokes,cname"
+  sarif-output:
+    description: "Path where SARIF 2.1.0 findings JSON should be written."
+    required: false
+    default: "sbl-results.sarif"
+  report-output:
+    description: "Path where the redacted ScanReportV3 JSON artifact should be written."
+    required: false
+    default: "sbl-report.v3.json"
+  allow-loopback:
+    description: "Set to 'true' to scan a local 127.0.0.1 staging server started earlier in the job."
+    required: false
+    default: "false"
+
+outputs:
+  report-path:
+    description: "Path to the saved redacted ScanReportV3 JSON report."
+    value: ${{ inputs.report-output }}
+  sarif-path:
+    description: "Path to the generated SARIF 2.1.0 findings file."
+    value: ${{ inputs.sarif-output }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Site Behavior Lab dependencies and Chromium
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: |
+        npm ci --ignore-scripts
+        npx playwright install chromium
+
+    - name: Run Site Behavior Lab v3 scan and privacy gates
+      shell: bash
+      env:
+        SBL_URL: ${{ inputs.url }}
+        SBL_DEVICE: ${{ inputs.device }}
+        SBL_REGION: ${{ inputs.region }}
+        SBL_COMPARE: ${{ inputs.compare }}
+        SBL_BASELINE: ${{ inputs.baseline }}
+        SBL_FAIL_ON: ${{ inputs.fail-on }}
+        SBL_SARIF_OUT: ${{ inputs.sarif-output }}
+        SBL_REPORT_OUT: ${{ inputs.report-output }}
+        SBL_ALLOW_LOOPBACK: ${{ inputs.allow-loopback }}
+      run: |
+        set -euo pipefail
+        ARGS=(
+          scan "$SBL_URL"
+          --device "$SBL_DEVICE"
+          --region "$SBL_REGION"
+          --format sarif
+          --output "$SBL_SARIF_OUT"
+          --save-report "$SBL_REPORT_OUT"
+        )
+        if [ -n "$SBL_COMPARE" ]; then
+          ARGS+=(--compare "$SBL_COMPARE")
+        fi
+        if [ -n "$SBL_BASELINE" ]; then
+          ARGS+=(--diff "$SBL_BASELINE")
+        fi
+        if [ -n "$SBL_FAIL_ON" ]; then
+          ARGS+=(--fail-on "$SBL_FAIL_ON")
+        fi
+        if [ "$SBL_ALLOW_LOOPBACK" = "true" ]; then
+          ARGS+=(--allow-loopback)
+        fi
+
+        set +e
+        node "${{ github.action_path }}/bin/sbl.mjs" "${ARGS[@]}"
+        SCAN_EXIT=$?
+        set -e
+
+        if [ -f "$SBL_REPORT_OUT" ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+          if [ -n "$SBL_BASELINE" ]; then
+            node "${{ github.action_path }}/bin/sbl.mjs" diff "$SBL_BASELINE" "$SBL_REPORT_OUT" --format markdown >> "$GITHUB_STEP_SUMMARY" || true
+          fi
+        fi
+
+        exit "$SCAN_EXIT"

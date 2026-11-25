@@ -227,7 +227,18 @@ export function assertNoUnredactedSecretsV3(report: ScanReportV3, sentinels: rea
       throw new Error("Refusing to persist ScanReportV3: active probe sentinel leaked into report payload");
     }
   }
+  if (
+    report.targetUrl.includes("?") ||
+    report.targetUrl.includes("#") ||
+    report.finalUrl.includes("?") ||
+    report.finalUrl.includes("#")
+  ) {
+    throw new Error("Refusing to persist ScanReportV3: unredacted query/fragment in top-level URL");
+  }
   for (const arm of [report.leadArm, ...report.comparisonArms]) {
+    if (arm.finalUrl.includes("?") || arm.finalUrl.includes("#")) {
+      throw new Error(`Refusing to persist ScanReportV3: unredacted query/fragment in arm ${arm.armId} finalUrl`);
+    }
     for (const req of arm.network) {
       if (req.url.includes("?") || req.url.includes("#")) {
         throw new Error(`Refusing to persist ScanReportV3: unredacted query/fragment in request URL ${req.id}`);
