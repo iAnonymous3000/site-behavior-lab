@@ -1,23 +1,22 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import os from "node:os";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
-import { pathToFileURL } from "node:url";
-import { spawnSyncBounded } from "./bounded-spawn";
 
 const workflow = readFileSync(path.join(process.cwd(), ".github", "workflows", "ci.yml"), "utf8");
 const supplyChainStart = workflow.indexOf("\n  supply-chain:");
 const appStart = workflow.indexOf("\n  app:", supplyChainStart);
-const promoteStart = workflow.indexOf("\n  promote:");
-const attestStart = workflow.indexOf("\n  attest:");
-const supplyChainJob = workflow.slice(supplyChainStart, appStart);
+const typecheckStart = workflow.indexOf("\n  typecheck:");
+const testsStart = workflow.indexOf("\n  tests:");
+const pagesStart = workflow.indexOf("\n  pages:");
 const smokeStart = workflow.indexOf("\n  smoke:");
 const dockerStart = workflow.indexOf("\n  docker:");
-const formalVerificationStart = workflow.indexOf("\n  formal-verification:");
-const testsJob = workflow.slice(workflow.indexOf("\n  tests:"), formalVerificationStart);
-const formalVerificationJob = workflow.slice(formalVerificationStart, workflow.indexOf("\n  pages:"));
-const pagesJob = workflow.slice(workflow.indexOf("\n  pages:"), smokeStart);
+const attestStart = workflow.indexOf("\n  attest:");
+const promoteStart = workflow.indexOf("\n  promote:");
+const supplyChainJob = workflow.slice(supplyChainStart, appStart);
+const typecheckJob = workflow.slice(typecheckStart, testsStart);
+const testsJob = workflow.slice(testsStart, pagesStart);
+const pagesJob = workflow.slice(pagesStart, smokeStart);
 const smokeJob = workflow.slice(smokeStart, dockerStart);
 const dockerJob = workflow.slice(dockerStart, attestStart);
 const attestJob = workflow.slice(attestStart, promoteStart);
@@ -29,25 +28,16 @@ test("supply-chain CI uses a read-only job and blocks production promotion", () 
   assert.match(supplyChainJob, /runs-on: ubuntu-24\.04\n\s+timeout-minutes: 35/);
   assert.match(supplyChainJob, /permissions:\n\s+contents: read/);
   assert.doesNotMatch(supplyChainJob, /contents: write|pull-requests: write|security-events: write/);
-  // Anchored past the last entry: an appended gate would otherwise still
-  // match, and a gate present only here never reaches the fallback promotion.
   assert.match(promoteJob, /needs:\n\s+- supply-chain\n\s+- app\n\s+- docker\n\s+- smoke\n\s+- attest\n(?!\s*- )/);
 });
 
 test("every unit-suite and smoke job pins a budget below the 6-hour default", () => {
-  // The refresh lane learned this on 2026-08-03: one deadlocked test inherits
-  // the 360-minute default and burns the whole job budget. Every job that
-  // runs the suite or a live app must pin its own ceiling, like
-  // update-brave-lists.yml does for its unit-test step.
   assert.notEqual(smokeStart, -1);
-  // The two jobs that run the whole unit suite have 60 minutes. The suite
-  // took about 28 on a hosted runner on 2026-11-10, and the image build that
-  // repeats it took up to 44, so 45 no longer left room for a slow runner.
+  assert.match(typecheckJob, /\n {4}timeout-minutes: 20\n/);
   assert.match(testsJob, /\n {4}timeout-minutes: 60\n/);
-  assert.match(formalVerificationJob, /\n {4}timeout-minutes: 30\n/);
   assert.match(pagesJob, /\n {4}timeout-minutes: 45\n/);
   assert.match(smokeJob, /\n {4}timeout-minutes: 45\n/);
-  assert.match(dockerJob, /\n {4}timeout-minutes: 60\n/);
+  assert.match(dockerJob, /\n {4}timeout-minutes: 45\n/);
 });
 
 test("provenance attestation is isolated, immutable, and limited to exact evidence subjects", () => {
@@ -55,7 +45,7 @@ test("provenance attestation is isolated, immutable, and limited to exact eviden
   assert.ok(dockerStart < attestStart && attestStart < promoteStart);
   assert.match(
     attestJob,
-    /needs:\n\s+- supply-chain\n\s+- app\n\s+- docker\n\s+- smoke\n\s+- image-tests\n\s+if:/
+    /needs:\n\s+- supply-chain\n\s+- app\n\s+- docker\n\s+- smoke\n\s+if:/
   );
   assert.match(
     attestJob,
@@ -71,7 +61,7 @@ test("provenance attestation is isolated, immutable, and limited to exact eviden
   assert.equal(
     (attestJob.match(/actions\/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8\.0\.2/g) ?? [])
       .length,
-    5
+    3
   );
   assert.match(attestJob, /name: exact-sha-static-evidence-\$\{\{ github\.sha \}\}/);
   assert.match(attestJob, /name: exact-sha-container-evidence-\$\{\{ github\.sha \}\}/);
@@ -85,7 +75,7 @@ test("provenance attestation is isolated, immutable, and limited to exact eviden
 
   assert.equal(
     (attestJob.match(/actions\/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4\.2\.2/g) ?? []).length,
-    6
+    4
   );
   assert.match(
     attestJob,
@@ -115,155 +105,6 @@ test("provenance attestation is isolated, immutable, and limited to exact eviden
   assert.match(attestJob, /path: \$\{\{ runner\.temp \}\}\/site-behavior-lab-attestations\//);
   assert.match(attestJob, /if-no-files-found: error/);
   assert.match(attestJob, /retention-days: 90/);
-});
-
-/** One step of a job, from its name line to the next step or the job's end. */
-function stepOf(job: string, name: string): string {
-  const start = job.indexOf(`      - name: ${name}\n`);
-  assert.notEqual(start, -1, `no step named ${name}`);
-  assert.equal(job.indexOf(`      - name: ${name}\n`, start + 1), -1, `two steps named ${name}`);
-  const next = job.indexOf("\n      - name: ", start + 1);
-  return next === -1 ? job.slice(start) : job.slice(start, next + 1);
-}
-
-test("a job of its own writes the formal verification report for its exact commit, first and unconditionally, preserves it, and the required check waits on it", () => {
-  const job = formalVerificationJob;
-  assert.ok(formalVerificationStart > 0 && job.length > 0, "no formal-verification job between tests and pages");
-  const record = stepOf(job, "Record exact-SHA formal verification execution report");
-  const preserve = stepOf(job, "Preserve exact-SHA formal verification execution report");
-  // The producer refuses a dirty tree, so it runs on the tree npm ci left:
-  // straight after the install, and the job does nothing after keeping the file.
-  const names = [...job.matchAll(/\n      - name: ([^\n]+)\n/g)].map((match) => match[1]);
-  assert.deepEqual(names, ["Checkout", "Set up Node", "Verify exact Node and npm runtime", "Install dependencies", "Record exact-SHA formal verification execution report", "Preserve exact-SHA formal verification execution report"]);
-  assert.match(stepOf(job, "Install dependencies"), /\n        run: npm ci\n/);
-  // The suites read the repository's history, as the unit suite does.
-  assert.match(stepOf(job, "Checkout"), /\n        with:\n          fetch-depth: 0\n/);
-  // The job runs on every event the workflow runs on, never under a condition or after another job.
-  assert.doesNotMatch(job, /\n {4}(?:needs|if):|continue-on-error/);
-  // One writer: the tests job no longer writes or keeps a report of its own.
-  assert.doesNotMatch(testsJob, /formal-verification-report|formal verification/i);
-  assert.equal(workflow.split("npm run release:formal-verification-report").length - 1, 1, "the report is written in one place");
-  assert.equal(workflow.split("\n          name: exact-sha-formal-verification-report-${{ github.sha }}\n").length - 1, 2, "one upload and one download name the report");
-  // The required check is the join; it names this job and fails unless it succeeded.
-  const join = workflow.slice(appStart, workflow.indexOf("\n  tests:"));
-  assert.match(join, /\n    needs:\n      - tests\n      - pages\n      - formal-verification\n/);
-  assert.match(join, /FORMAL_VERIFICATION_RESULT: \$\{\{ needs\.formal-verification\.result \}\}\n/);
-  assert.match(join, /"\$FORMAL_VERIFICATION_RESULT" != "success"/);
-  assert.match(
-    record,
-    /\n        run: >-\n          npm run release:formal-verification-report --\n          --output "\$RUNNER_TEMP\/site-behavior-lab-formal-verification-report\.json"\n/
-  );
-  // Fail closed: a report that could not be written, or kept, fails the job.
-  for (const step of [record, preserve]) assert.doesNotMatch(step, /continue-on-error|\n\s+if:/);
-  assert.match(preserve, /uses: actions\/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7\.0\.2/);
-  assert.match(preserve, /name: exact-sha-formal-verification-report-\$\{\{ github\.sha \}\}\n/);
-  assert.match(preserve, /path: \$\{\{ runner\.temp \}\}\/site-behavior-lab-formal-verification-report\.json\n/);
-  assert.match(preserve, /if-no-files-found: error\n\s+retention-days: 90\n/);
-  // The script the step names is the producer.
-  const scripts = (JSON.parse(readFileSync(path.join(process.cwd(), "package.json"), "utf8")) as { scripts: Record<string, string> }).scripts;
-  assert.equal(scripts["release:formal-verification-report"], "node scripts/formal-verification-report.mjs");
-  // The image build runs the unit suite too and has no minutes to spare, so
-  // the report's own run of these suites stays out of test:unit.
-  assert.doesNotMatch(scripts["test:unit"], /release:formal-verification-report|formal-verification-report\.mjs/);
-});
-
-test("the attest job signs the formal verification report as a subject of its own, and keeps its bundle apart", () => {
-  const download = stepOf(attestJob, "Download exact-SHA formal verification execution report");
-  const validate = stepOf(attestJob, "Validate formal verification execution report subject");
-  const attest = stepOf(attestJob, "Attest formal verification execution report");
-  const collect = stepOf(attestJob, "Collect formal verification report attestation bundle");
-  const preserve = stepOf(attestJob, "Preserve formal verification report attestation bundle");
-  const subject = "\\$\\{\\{ runner\\.temp \\}\\}\\/site-behavior-lab-attestation-subjects\\/formal-verification";
-  assert.match(download, /name: exact-sha-formal-verification-report-\$\{\{ github\.sha \}\}\n/);
-  assert.match(download, new RegExp(`path: ${subject}\\n`));
-  assert.match(validate, new RegExp(`FORMAL_VERIFICATION_REPORT_PATH: ${subject}\\/site-behavior-lab-formal-verification-report\\.json\\n`));
-  assert.match(attest, /id: attest_formal_verification\n\s+uses: actions\/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4\.2\.2\n/);
-  assert.match(attest, new RegExp(`subject-path: ${subject}\\/site-behavior-lab-formal-verification-report\\.json\\n`));
-  assert.match(collect, /FORMAL_VERIFICATION_BUNDLE: \$\{\{ steps\.attest_formal_verification\.outputs\.bundle-path \}\}/);
-  assert.match(collect, /test -s "\$FORMAL_VERIFICATION_BUNDLE"/);
-  assert.match(collect, /bundle_dir="\$RUNNER_TEMP\/site-behavior-lab-formal-verification-attestation"\n/);
-  assert.match(collect, /install -m 600 "\$FORMAL_VERIFICATION_BUNDLE" "\$bundle_dir\/formal-verification-report\.bundle\.json"/);
-  assert.match(preserve, /name: exact-sha-formal-verification-attestation-\$\{\{ github\.sha \}\}\n/);
-  assert.match(preserve, /path: \$\{\{ runner\.temp \}\}\/site-behavior-lab-formal-verification-attestation\/\n/);
-  assert.match(preserve, /if-no-files-found: error\n\s+retention-days: 90\n/);
-  for (const step of [download, validate, attest, collect, preserve]) assert.doesNotMatch(step, /continue-on-error|\n\s+if:/);
-  // Validated before anything is signed, and signed before its bundle is kept.
-  const at = (name: string) => attestJob.indexOf(`      - name: ${name}\n`);
-  assert.ok(at("Validate formal verification execution report subject") < at("Attest static evidence manifest"));
-  assert.ok(at("Attest formal verification execution report") < at("Collect formal verification report attestation bundle"));
-  assert.ok(at("Collect formal verification report attestation bundle") < at("Preserve formal verification report attestation bundle"));
-  // The bundle artifact hosted-evidence verification reads by an exact member
-  // list keeps its three bundles and its results file, and gains nothing.
-  const bundles = stepOf(attestJob, "Collect attestation bundles and result references");
-  assert.doesNotMatch(bundles, /formal-verification|FORMAL_VERIFICATION/);
-  assert.equal((bundles.match(/install -m 600 /g) ?? []).length, 3);
-});
-
-test("the attest job's check of the formal verification report accepts the producer's bytes for this commit and nothing else", async (t) => {
-  // The step's own text is run here, as the runner would run it, on reports the
-  // producer's builder made. The attest job has no checkout, so this text is
-  // all that stands between an artifact and a signature.
-  const step = stepOf(attestJob, "Validate formal verification execution report subject");
-  const body = step.slice(step.indexOf("        run: |\n") + "        run: |\n".length);
-  assert.ok(body.length > 0 && body.split("\n").every((line) => line === "" || line.startsWith("          ")), "the step's run block is not where this test reads it");
-  const controller = body
-    .split("\n")
-    .map((line) => line.slice(10))
-    .join("\n");
-  const nativeImport = new Function("specifier", "return import(specifier)") as (specifier: string) => Promise<{
-    buildFormalVerificationReport: (input: unknown) => Record<string, unknown>;
-    serializeFormalVerificationReport: (report: unknown) => string;
-  }>;
-  const lib = await nativeImport(pathToFileURL(path.join(process.cwd(), "scripts/formal-verification-report-lib.mjs")).href);
-  const commit = "a".repeat(40);
-  const report = lib.buildFormalVerificationReport({
-    commit,
-    tree: "b".repeat(40),
-    suites: [
-      {
-        id: "lib/fv-alpha.test.ts",
-        counts: { tests: 1, passed: 1, failed: 0, cancelled: 0, skipped: 0, todo: 0, expectedFailures: 0, skippedSuites: 0, todoSuites: 0, failedSuites: 0 },
-        tests: [{ name: "a property holds", outcome: "passed" }],
-        variants: [{ variant: "one", property: "p", caughtBy: "p" }]
-      }
-    ]
-  });
-  const directory = mkdtempSync(path.join(os.tmpdir(), "attest-fv-subject-"));
-  t.after(() => rmSync(directory, { recursive: true, force: true }));
-  const file = path.join(directory, "site-behavior-lab-formal-verification-report.json");
-  const check = (bytes: string, sha: string = commit) => {
-    writeFileSync(file, bytes);
-    return spawnSyncBounded("bash", ["-c", controller], {
-      encoding: "utf8",
-      env: { PATH: process.env.PATH ?? "", FORMAL_VERIFICATION_REPORT_PATH: file, GITHUB_SHA: sha },
-      stdio: ["ignore", "pipe", "pipe"]
-    });
-  };
-  const good = lib.serializeFormalVerificationReport(report);
-  const accepted = check(good);
-  assert.equal(accepted.status, 0, accepted.stderr);
-
-  const refused = (bytes: string, message: RegExp, sha?: string) => {
-    const result = check(bytes, sha);
-    assert.notEqual(result.status, 0, `accepted: ${message}`);
-    assert.match(result.stderr, message);
-  };
-  refused(good, new RegExp(`Formal verification report identifies ${commit}, expected ${"c".repeat(40)}`), "c".repeat(40));
-  refused(JSON.stringify(report), /Formal verification report is not canonical JSON/);
-  refused(`${good}\n`, /Formal verification report is not canonical JSON/);
-  // A byte order mark before the canonical text is other bytes, and no report.
-  refused(`\uFEFF${good}`, /SyntaxError|Formal verification report is not canonical JSON/);
-  refused(lib.serializeFormalVerificationReport({ ...report, artifactKind: "exact-source-and-tested-artifact-manifest" }), /not the expected artifact kind and version/);
-  // The version before, whose shape could list a test that failed as expected as passed.
-  refused(lib.serializeFormalVerificationReport({ ...report, schemaVersion: 1 }), /not the expected artifact kind and version/);
-  refused(lib.serializeFormalVerificationReport({ ...report, schemaVersion: 3 }), /not the expected artifact kind and version/);
-  refused(lib.serializeFormalVerificationReport({ ...report, suites: [] }), /Formal verification report names no suite/);
-  refused(lib.serializeFormalVerificationReport({ ...report, source: {} }), /Formal verification report identifies no commit, expected /);
-  refused("not json\n", /SyntaxError/);
-  // An empty artifact is refused before node reads it.
-  const empty = check("");
-  assert.notEqual(empty.status, 0);
-  assert.equal(empty.stderr, "");
 });
 
 test("npm audit is online, fail-closed, and emits validated JSON", () => {
@@ -520,7 +361,7 @@ test("exact-image OS licenses are normalized, review-bound, preserved, and indep
 
 test("every CI Node job verifies the exact reviewed Node and npm runtime", () => {
   const setupCount = (workflow.match(/uses: actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1/g) ?? []).length;
-  assert.equal(setupCount, 7);
+  assert.equal(setupCount, 6);
   assert.equal((workflow.match(/node-version: 24\.14\.1/g) ?? []).length, setupCount);
   assert.equal((workflow.match(/test "\$\(node --version\)" = "v24\.14\.1"/g) ?? []).length, setupCount);
   assert.equal((workflow.match(/test "\$\(npm --version\)" = "11\.11\.0"/g) ?? []).length, setupCount);

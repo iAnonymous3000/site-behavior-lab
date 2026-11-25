@@ -10,5 +10,10 @@
     "types": ["node"]
   },
   "include": ["lib/**/*.ts"],
-  "exclude": ["node_modules", ".next", ".unit-test-dist"]
+  "exclude": [
+    "node_modules",
+    ".next",
+    ".unit-test-dist",
+    "lib/investigation-*.test.ts"
+  ]
 }

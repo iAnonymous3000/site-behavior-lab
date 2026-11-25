@@ -33,7 +33,7 @@ import path from "node:path";
  * that built it; lib/address-kernel.test.ts holds the two together. A file
  * with any other bytes is refused before it is compiled.
  */
-export const ADDRESS_KERNEL_SHA256 = "9af354a27aafa36b181399ed6ab270133b2b30b523f9262fa4e91c9e8cfdb244";
+export const ADDRESS_KERNEL_SHA256 = "2c99533ef3cc49933e447aeecfcaa2ee68259b64397268c0eefcff262ba0d6bb";
 
 export const ADDRESS_KERNEL_FILE = path.join("lib", "trust-kernel-wasm", "sbl_trust_kernel_wasm.wasm");
 

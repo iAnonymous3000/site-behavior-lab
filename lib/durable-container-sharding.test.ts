@@ -6,13 +6,22 @@ import { test } from "node:test";
 import { sliceBetween } from "./source-markers";
 import {
   DURABLE_CONTAINER_MAX_SHARDS,
+  DURABLE_SCAN_JOB_CAPACITY_PER_SHARD,
+  durableContainerExecutionCapacity,
   durableContainerShardingPlan,
   findDurableContainerShardRoute,
   pruneDurableContainerShardRoutes,
   recordDurableContainerShardRoute,
   selectDurableContainerShard
 } from "./durable-container-sharding";
-import type { DurableScanJobStoreSql } from "./durable-scan-job-store";
+import {
+  admitDurableScanJob,
+  claimDurableScanJobs,
+  createDurableScanJobAdmission,
+  createDurableScanJobLeaseCredentials,
+  importDurableScanJobEncryptionKey,
+  type DurableScanJobStoreSql
+} from "./durable-scan-job-store";
 
 test("container sharding is subordinate to the durable-jobs readiness gate", () => {
   assert.deepEqual(
@@ -236,6 +245,96 @@ test("all job-scoped execution calls share one server-owned resolver and quotas 
   assert.match(staging, /"SITE_BEHAVIOR_LAB_CONTAINER_SHARDING": "0"/);
   assert.match(staging, /"SITE_BEHAVIOR_LAB_CONTAINER_SHARD_COUNT": "1"/);
   assert.match(staging, /"max_instances": 1/);
+});
+
+test("execution capacity scales with enabled shards while claimDurableScanJobs caps each shard at 2", async () => {
+  assert.equal(
+    durableContainerExecutionCapacity(
+      durableContainerShardingPlan({
+        durableJobsFlag: "1",
+        durableJobsReady: true,
+        shardingFlag: "0",
+        shardCount: "3"
+      })
+    ),
+    DURABLE_SCAN_JOB_CAPACITY_PER_SHARD
+  );
+  assert.equal(
+    durableContainerExecutionCapacity(
+      durableContainerShardingPlan({
+        durableJobsFlag: "1",
+        durableJobsReady: true,
+        shardingFlag: "1",
+        shardCount: "3"
+      })
+    ),
+    DURABLE_SCAN_JOB_CAPACITY_PER_SHARD * 3
+  );
+
+  const key = await importDurableScanJobEncryptionKey(Buffer.alloc(32, 7).toString("base64url"));
+  const database = new DatabaseSync(":memory:");
+  try {
+    const sql: DurableScanJobStoreSql = {
+      exec<T extends Record<string, ArrayBuffer | string | number | null>>(
+        query: string,
+        ...bindings: Array<ArrayBuffer | string | number | null>
+      ) {
+        const statement = database.prepare(query);
+        const values = bindings.map((v) => (v instanceof ArrayBuffer ? new Uint8Array(v) : v));
+        const rawRows = /^\s*SELECT|^\s*PRAGMA/i.test(query) ? (statement.all(...values) as Record<string, unknown>[]) : [];
+        if (!/^\s*SELECT|^\s*PRAGMA/i.test(query)) statement.run(...values);
+        const rows = rawRows.map((row) => {
+          const converted: Record<string, unknown> = {};
+          for (const [key, val] of Object.entries(row)) {
+            converted[key] =
+              val instanceof Uint8Array
+                ? val.buffer.slice(val.byteOffset, val.byteOffset + val.byteLength)
+                : val;
+          }
+          return converted as T;
+        });
+        return { toArray: () => rows };
+      }
+    };
+    const now = 1_750_000_000_000;
+    // Enqueue 4 jobs targeting shard 0, 2 targeting shard 1, and 2 targeting shard 2.
+    const shardIds = [0, 3, 6, 9, 1, 4, 2, 5];
+    for (let i = 0; i < shardIds.length; i += 1) {
+      const jobId = idFor(shardIds[i]);
+      const reportId = idFor(100 + shardIds[i]);
+      const admission = await createDurableScanJobAdmission(key, {
+        jobId,
+        reportId,
+        createdAt: now + i,
+        payload: {
+          version: 1,
+          url: "https://example.org/",
+          device: "desktop",
+          gpcEnabled: false,
+          compareGpc: false,
+          compareShields: false,
+          compareConsent: false,
+          rateLimitCost: 1,
+          admittedAt: now + i,
+          reportMode: "r2",
+          alreadyCharged: true
+        }
+      });
+      admitDurableScanJob(sql, admission);
+      recordDurableContainerShardRoute(sql, jobId, selectDurableContainerShard(jobId, 3));
+    }
+    const credentials = await createDurableScanJobLeaseCredentials(6);
+    const claims = claimDurableScanJobs(sql, { now: now + 100, capacity: 6, maxPerShard: 2, credentials });
+    // Claims 6 total: 2 from shard 0 (skipping the 3rd & 4th), 2 from shard 1, 2 from shard 2.
+    assert.equal(claims.length, 6);
+    const claimedShards = claims.map((c) => selectDurableContainerShard(c.jobId, 3).shardIndex);
+    assert.deepEqual(
+      [0, 1, 2].map((s) => claimedShards.filter((x) => x === s).length),
+      [2, 2, 2]
+    );
+  } finally {
+    database.close();
+  }
 });
 
 function idFor(value: number): string {

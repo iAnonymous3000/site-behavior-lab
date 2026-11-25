@@ -63,9 +63,9 @@ function runBlock(step: readonly string[]): string {
  * ci.yml removes its comparison here too.
  */
 function historyGateSteps(): GateStep[] {
-  const tests = ci.slice(ci.indexOf("\n  tests:\n"), ci.indexOf("\n  pages:\n"));
+  const typecheck = ci.slice(ci.indexOf("\n  typecheck:\n"), ci.indexOf("\n  tests:\n"));
   const steps: GateStep[] = [];
-  for (const block of tests.split(/\n(?= {6}- name: )/)) {
+  for (const block of typecheck.split(/\n(?= {6}- name: )/)) {
     const run = /^ {8}run: npm run (corrections|transparency):verify-history -- "\$\{\{ steps\.corrections_baseline\.outputs\.(\w+) \}\}"$/m.exec(block);
     if (!run) {
       assert.doesNotMatch(block, /verify-history/, "a history gate step this test cannot read");

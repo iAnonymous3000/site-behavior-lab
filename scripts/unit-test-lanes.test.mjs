@@ -27,7 +27,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const runner = path.join(root, "scripts", "unit-test-lanes.mjs");
 const packageJson = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8"));
 const libTests = readdirSync(path.join(root, "lib"))
-  .filter((name) => name.endsWith(".test.ts"))
+  .filter((name) => name.endsWith(".test.ts") && !name.startsWith("investigation-"))
   .map((name) => `lib/${name}`)
   .sort();
 // A fixture run of the lanes takes well under a second. A lane that never
@@ -150,7 +150,7 @@ test("test:unit runs every compiled lib test exactly once, through the lanes, be
   const run = testUnit.indexOf(lanes);
   assert.equal(compile, 0, "test:unit must start from a clean compile");
   assert.ok(run > compile, "the lanes must run the freshly compiled tests");
-  assert.ok(run < testUnit.indexOf("npm run test:calibration-producer"), "the lanes must finish before dist/schema is built");
+  assert.ok(run < testUnit.indexOf("npm run test:pdf-reader"), "the lanes must finish before tail script suites");
 });
 
 test("every stage of test:unit that runs tests bounds each test at TEST_TIMEOUT_MS", () => {
@@ -927,7 +927,7 @@ test("a test:unit leg runs its steps in order and stops at the first that fails,
   }
 });
 
-test("CI's tests job, image-Node legs and attest each hold exactly the planner's legs, each once", () => {
+test("CI's tests job holds exactly the planner's legs, each once", () => {
   const ci = readFileSync(path.join(root, ".github", "workflows", "ci.yml"), "utf8");
   const jobText = (name) => {
     const start = ci.indexOf(`\n  ${name}:\n`);
@@ -935,32 +935,20 @@ test("CI's tests job, image-Node legs and attest each hold exactly the planner's
     const next = ci.slice(start + 1).search(/\n  [\w-]+:\n/);
     return next < 0 ? ci.slice(start) : ci.slice(start, start + 1 + next);
   };
-  for (const [name, run] of [
-    ["tests", "        run: npm run test:unit:leg -- ${{ matrix.leg }}\n"],
-    ["image-tests", '        run: docker run --rm --init "$SOURCE_IMAGE_ID" npm run test:unit:leg -- "$LEG"\n']
-  ]) {
-    const job = jobText(name);
-    const legs = /\n {6}matrix:\n {8}leg: \[([^\]\n]*)\]\n/.exec(job)?.[1]?.split(",").map((leg) => leg.trim());
-    assert.ok(legs && legs.length > 0, `${name} must list its legs in one matrix.leg line`);
-    assert.deepEqual(legs, [...LEGS], `${name}'s legs must equal scripts/unit-test-plan.mjs's LEGS, in order`);
-    assert.match(job, /\n {6}fail-fast: false\n/, `${name}: one failing leg must not cancel the others`);
-    // Each leg runs the suite through the planner alone, so ci.yml restates nothing of test:unit.
-    assert.equal(job.split(run).length - 1, 1, `${name} must run its leg exactly once, as ${run.trim()}`);
-    assert.equal(job.split("npm run test:unit").length - 1, 1, `${name} names test:unit once`);
-    for (const restated of [".unit-test-dist", "unit-test-lanes.mjs", "--only", "--shard"]) {
-      assert.ok(!job.includes(restated), `${name} restates ${restated}`);
-    }
+  const job = jobText("tests");
+  const run = "        run: npm run test:unit:leg -- ${{ matrix.leg }}\n";
+  const legs = /\n {6}matrix:\n {8}leg: \[([^\]\n]*)\]\n/.exec(job)?.[1]?.split(",").map((leg) => leg.trim());
+  assert.ok(legs && legs.length > 0, "tests must list its legs in one matrix.leg line");
+  assert.deepEqual(legs, [...LEGS], "tests's legs must equal scripts/unit-test-plan.mjs's LEGS, in order");
+  assert.match(job, /\n {6}fail-fast: false\n/, "tests: one failing leg must not cancel the others");
+  assert.equal(job.split(run).length - 1, 1, `tests must run its leg exactly once, as ${run.trim()}`);
+  assert.equal(job.split("npm run test:unit").length - 1, 1, "tests names test:unit once");
+  for (const restated of [".unit-test-dist", "unit-test-lanes.mjs", "--only", "--shard"]) {
+    assert.ok(!job.includes(restated), `tests restates ${restated}`);
   }
-  // attest expects one verdict per leg and cannot read the planner, so it
-  // names the legs itself; that list must be the planner's too.
-  const attestLegs = /\n {10}EXPECTED_LEGS: ([^\n]+)\n/.exec(jobText("attest"))?.[1]?.split(" ");
-  assert.ok(attestLegs && attestLegs.length > 0 && attestLegs.every((leg) => leg.length > 0), "attest must name the legs it expects");
-  assert.deepEqual(attestLegs, [...LEGS], "attest's expected legs must equal scripts/unit-test-plan.mjs's LEGS, in order");
-  assert.equal(ci.split("EXPECTED_LEGS:").length - 1, 1);
-  // No other job runs a leg, and no matrix leg may become a required job.
-  assert.equal(ci.split("npm run test:unit:leg").length - 1, 2);
+  assert.equal(ci.split("npm run test:unit:leg").length - 1, 1);
   const required = JSON.parse(readFileSync(path.join(root, ".github", "required-ci-jobs.json"), "utf8")).jobs;
-  for (const leg of ["Typecheck and Unit Tests", "Image-Node Unit Tests"]) {
+  for (const leg of ["Unit Tests", "Typecheck and Unit Tests"]) {
     assert.ok(!required.some((name) => name.startsWith(leg)), `a matrix leg of ${leg} cannot be a required job`);
   }
 });

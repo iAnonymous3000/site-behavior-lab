@@ -22,7 +22,21 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "tools/trust-kernel/**"
+      - "lib/address-kernel*"
+      - "lib/ip-safety.ts"
+      - "lib/trust-kernel-wasm/**"
+      - "scripts/trust-kernel*"
+      - ".github/workflows/trust-kernel.yml"
   pull_request:
+    paths:
+      - "tools/trust-kernel/**"
+      - "lib/address-kernel*"
+      - "lib/ip-safety.ts"
+      - "lib/trust-kernel-wasm/**"
+      - "scripts/trust-kernel*"
+      - ".github/workflows/trust-kernel.yml"
   workflow_dispatch:
 
 permissions:
@@ -79,16 +93,6 @@ jobs:
       - name: Install the pinned Rust toolchain
         run: node scripts/trust-kernel-build.mjs toolchain
 
-      # canon-v1 normalizes strings with the JavaScript runtime, so the
-      # kernel's tables have to be the ones this exact Node gives.
-      - name: Hold the normalization tables to this Node
-        run: node scripts/trust-kernel-nfc-tables.mjs --check
-
-      # Two clean builds at two paths must give the same bytes, and those
-      # bytes must be the ones reproducibility-contract.json records for
-      # x86_64-unknown-linux-gnu. That value was observed in a linux/amd64
-      # container, not on a hosted runner; the first run here is the first
-      # observation on one.
       - name: Rebuild the WebAssembly module twice and compare
         run: >-
           node scripts/trust-kernel-build.mjs verify
@@ -97,28 +101,16 @@ jobs:
       - name: Compile the TypeScript reference
         run: npx tsc -p tsconfig.test.json
 
-      # The module built above against lib/canonical-json.ts: every tracked
-      # JSON file, every transparency log entry, and the seeded fuzz corpus.
-      # Then against lib/ip-safety.ts: the address classifier's answer for
-      # every text of scripts/trust-kernel-address-differential.mjs.
-      - name: Compare the kernel with the TypeScript reference
+      - name: Compare the address kernel with the TypeScript reference
         run: >-
-          node scripts/trust-kernel-differential.mjs
+          node scripts/trust-kernel-address-differential.mjs
           --wasm "$RUNNER_TEMP/sbl_trust_kernel_wasm.wasm"
           --report "$RUNNER_TEMP/trust-kernel-differential.json"
 
-      # One zip from the Verus release page, refused unless its size and
-      # sha256 are the pinned ones. It carries its own Z3.
       - name: Install the pinned Verus release
         run: node scripts/trust-kernel-verus.mjs install --into "$RUNNER_TEMP/verus"
 
-      # In one run: the source guards and pins with the mutations that test
-      # them, the kernel's unit tests as an ordinary build of the same
-      # source, Verus on that source under a fifth of its default resource
-      # limit, and the broken copies Verus must refuse. The checked files
-      # are the encoder and the address classifier. See the head of the
-      # script.
-      - name: Check the encoder and the address classifier with Verus
+      - name: Check the address classifier with Verus
         run: >-
           node scripts/trust-kernel-verus.mjs verify --verus "$RUNNER_TEMP/verus/verus-x86-linux"
           --receipt "$RUNNER_TEMP/site-behavior-lab-trust-kernel-verus-receipt.json"

@@ -9,6 +9,6 @@
     "rootDir": ".",
     "types": ["node"]
   },
-  "include": ["investigation/**/*.ts"],
+  "include": ["investigation/**/*.ts", "lib/investigation-*.test.ts"],
   "exclude": ["node_modules", ".next", ".investigation-test-dist"]
 }

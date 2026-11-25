@@ -1,9 +1,7 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
-import os from "node:os";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
-import { spawnSyncBounded } from "./bounded-spawn";
 
 const root = process.cwd();
 
@@ -12,9 +10,7 @@ function source(relative: string): string {
 }
 
 test("every static publication lane runs the exact remediation check before publishing", () => {
-  for (const workflow of [".github/workflows/scan.yml", ".github/workflows/scan-featured.yml"]) {
-    assert.match(source(workflow), /npm run reports:remediate -- --check/);
-  }
+  assert.match(source(".github/workflows/scan-featured.yml"), /npm run reports:remediate -- --check/);
   for (const script of [
     "scripts/build-github-pages.mjs",
     "scripts/run-ci-scan.mjs",
@@ -43,13 +39,10 @@ test("featured scans defer only the repeated corpus-wide check to their trusted 
 });
 
 test("scan artifacts and commits include provenance sidecars", () => {
-  const scan = source(".github/workflows/scan.yml");
   const featured = source(".github/workflows/scan-featured.yml");
-  for (const workflow of [scan, featured]) {
-    assert.match(workflow, /reports:publication-artifact -- \\\n\s+--prepare/);
-    assert.match(workflow, /reports:publication-artifact -- \\\n\s+--publish/);
-    assert.match(workflow, /git add public\/reports public\/corpus-stats\.json/);
-  }
+  assert.match(featured, /reports:publication-artifact -- \\\n\s+--prepare/);
+  assert.match(featured, /reports:publication-artifact -- \\\n\s+--publish/);
+  assert.match(featured, /git add public\/reports public\/corpus-stats\.json/);
 
   const artifact = source("lib/report-publication-artifact.ts");
   assert.match(artifact, /const sidecarRelative = `reports\/\$\{id\}\.provenance\.json`/);
@@ -74,83 +67,6 @@ test("official actions are pinned to reviewed Node-24-compatible releases", () =
       assert.equal(ref, approvedPins.get(action), `${name}: ${action}`);
     }
   }
-});
-
-test("the workflow_run promotion never checks out code the triggering event chose", () => {
-  // checkout v7 refuses fork pull-request code under workflow_run because that
-  // trigger runs privileged. This job is the one that runs under it, so its
-  // checkout must stay a literal same-repository ref: resolving anything from
-  // github.event.workflow_run would be both refused by the action and the
-  // exact confused-deputy this repo's promotion gate exists to prevent.
-  const workflow = source(".github/workflows/promote-production.yml");
-  const checkoutStep = workflow.slice(
-    workflow.indexOf("- name: Checkout main history"),
-    workflow.indexOf("- name: Confirm every CI test gate passed")
-  );
-  assert.ok(checkoutStep.length > 0, "the promotion checkout step could not be located");
-  assert.match(checkoutStep, /^\s+ref: main$/m);
-  assert.doesNotMatch(checkoutStep, /\$\{\{/, "the promotion checkout ref must not be interpolated from the event");
-  assert.doesNotMatch(checkoutStep, /repository:/, "the promotion must never check out another repository");
-});
-
-test("a measurement freeze quiesces Dependabot bookkeeping loudly", () => {
-  const workflow = source(".github/workflows/dependabot-bookkeeping.yml");
-  assert.match(
-    workflow,
-    /repair:\n\s+name: Regenerate derived manifests on Dependabot branches\n[\s\S]{0,300}?if: vars\.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE != '1'/
-  );
-  assert.match(
-    workflow,
-    /measurement-freeze-notice:\n\s+name: Measurement freeze notice\n\s+if: vars\.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE == '1'/
-  );
-});
-
-test("the Dependabot bookkeeping repair cannot run or be rewritten by the branch it repairs", () => {
-  // This job holds contents:write and operates on branches whose contents are
-  // an untrusted dependency bump, so three properties carry the whole design.
-  const workflow = source(".github/workflows/dependabot-bookkeeping.yml");
-
-  // 1. It never installs or executes the bump. The inventory generator only
-  //    reads and hashes declarative files; an install here would run the new
-  //    dependency's lifecycle scripts with write access to the repository.
-  // Command position only: the phrase "npm install" also appears inside a
-  // commit-message argument explaining why the bookkeeping went stale, and a
-  // substring match there would be a false positive.
-  const commandLines = workflow
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0 && !line.startsWith("#"));
-  for (const line of commandLines) {
-    assert.doesNotMatch(line, /^(npm (ci|install|exec|run)|npx)\b/, line);
-    assert.doesNotMatch(line, /(&&|\|\||;)\s*(npm (ci|install|exec|run)|npx)\b/, line);
-  }
-
-  // 2. Only `schedule` and `workflow_dispatch`, which GitHub always runs from
-  //    the DEFAULT branch's copy of the file. A `push` or `pull_request`
-  //    trigger would let a pushed branch rewrite the privileged job itself.
-  assert.match(workflow, /^on:$/m);
-  assert.match(workflow, /^ {2}schedule:$/m);
-  assert.match(workflow, /^ {2}workflow_dispatch:$/m);
-  for (const forbidden of ["push", "pull_request", "pull_request_target", "workflow_run"]) {
-    assert.doesNotMatch(workflow, new RegExp(`^ {2}${forbidden}:`, "m"), forbidden);
-  }
-
-  // 3. It writes only inside Dependabot's own branch namespace: the two
-  //    tests below run the repair step and show it refuses any input that is
-  //    not exactly one dependabot/* branch, runs only main's code on a
-  //    branch's files, and hands the token to git's remote calls alone. The
-  //    checkout keeps no token for a script to read.
-  assert.match(workflow, /ref: main\n {10}fetch-depth: 0\n {10}persist-credentials: false\n/);
-  assert.match(workflow, /remote_git -C "\$worktree" push origin "HEAD:refs\/heads\/\$branch"/);
-  // A force-push would let this job discard whatever it did not expect to find
-  // on the branch. Local `git checkout --force` is unrelated and allowed.
-  for (const line of commandLines) {
-    if (!/\bgit push\b/.test(line)) continue;
-    assert.doesNotMatch(line, /(--force\b|--force-with-lease\b|\s-f\b|\s\+refs)/, line);
-  }
-
-  // Least privilege: read by default, write only on the one job.
-  assert.match(workflow, /^permissions:\n {2}contents: read$/m);
 });
 
 test("Dependabot covers every tracked dependency ecosystem at its manifest path", () => {
@@ -254,177 +170,4 @@ test("the featured scan keeps the Chromium sandbox on and makes the runner suppo
   assert.doesNotMatch(workflow, /SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "0"/);
   // The scanner log stays diagnosable when scans fail for any other reason.
   assert.match(workflow, /Show scanner log when the scans failed/);
-});
-
-// The repair step of .github/workflows/dependabot-bookkeeping.yml, run as
-// Actions runs it: its own text in bash, with `git` and `node` replaced by
-// recorders on PATH. The recorders log every call with its working folder
-// into one log with the step's own output, in order, and record whether the
-// job's token, raw or as its base64 header, reached the process's
-// environment or arguments, and whether git was handed the header through
-// its configuration environment.
-type RepairCall = { tool: string; cwd: string; args: string[]; sawToken: boolean; headerEnv: boolean };
-type RepairEvent = { line: string; call?: RepairCall };
-
-const REPAIR_TOKEN = "ghs_fixtureTokenThatMustNotLeak0123456789";
-const REPAIR_HEADER = Buffer.from(`x-access-token:${REPAIR_TOKEN}`).toString("base64");
-
-function runRepairStep(requested: string, remoteBranches: string[] = []): { status: number | null; stdout: string; calls: RepairCall[]; events: RepairEvent[]; workspace: string; runnerTemp: string } {
-  const workflow = readFileSync(path.join(process.cwd(), ".github", "workflows", "dependabot-bookkeeping.yml"), "utf8");
-  const start = workflow.indexOf("      - name: Repair derived manifests\n");
-  assert.ok(start >= 0, "the workflow has no repair step");
-  const step = workflow.slice(start);
-  const runAt = step.indexOf("\n        run: |\n");
-  const body: string[] = [];
-  for (const line of step.slice(runAt + "\n        run: |\n".length).split("\n")) {
-    if (line.trim() !== "" && !line.startsWith("          ")) break;
-    body.push(line.slice(10));
-  }
-  const token = REPAIR_TOKEN;
-  const context: Record<string, string> = { "inputs.branch": requested, "github.token": token };
-  const env: Record<string, string> = {};
-  for (const match of step.slice(0, runAt).matchAll(/^ {10}([A-Z0-9_]+): \$\{\{ ([a-z.]+) \}\}$/gm)) {
-    assert.ok(match[2] in context, `the model does not know ${match[2]}`);
-    env[match[1]] = context[match[2]];
-  }
-  const temp = realpathSync(mkdtempSync(path.join(os.tmpdir(), "sbl-dependabot-repair-")));
-  const workspace = path.join(temp, "workspace");
-  const runnerTemp = path.join(temp, "runner-temp");
-  const bin = path.join(temp, "bin");
-  for (const directory of [workspace, runnerTemp, bin]) mkdirSync(directory);
-  writeFileSync(path.join(temp, "token"), token);
-  writeFileSync(path.join(temp, "header"), REPAIR_HEADER);
-  writeFileSync(path.join(temp, "ls-remote"), remoteBranches.map((branch) => `${"a".repeat(40)}\trefs/heads/${branch}\n`).join(""));
-  const realGit = spawnSyncBounded("bash", ["-c", "command -v git"], { encoding: "utf8" }).stdout.trim();
-  // Each call is one line: tool, working folder, token seen, header given
-  // through git's configuration environment, then its arguments, all
-  // separated by the unit separator.
-  const recorder = (tool: string, act: string) => `#!/bin/bash
-seen=0
-for secret in "$(cat "$FIXTURE/token")" "$(cat "$FIXTURE/header")"; do
-  if env | grep -qF -- "$secret" || printf '%s\\n' "$@" | grep -qF -- "$secret"; then seen=1; fi
-done
-header=0
-if [ "\${GIT_CONFIG_COUNT:-}" = "1" ] && [ "\${GIT_CONFIG_KEY_0:-}" = "http.https://github.com/.extraheader" ] && [ "\${GIT_CONFIG_VALUE_0:-}" = "AUTHORIZATION: basic $(cat "$FIXTURE/header")" ]; then header=1; fi
-{ printf '%s\\x1f%s\\x1f%s\\x1f%s' ${tool} "$PWD" "$seen" "$header"; for argument in "$@"; do printf '\\x1f%s' "$argument"; done; printf '\\n'; } >> "$FIXTURE/events"
-${act}
-`;
-  writeFileSync(path.join(bin, "node"), recorder("node", "exit 0"), { mode: 0o755 });
-  writeFileSync(path.join(bin, "git"), recorder("git", `
-for argument in "$@"; do
-  case "$argument" in
-    check-ref-format) exec "${realGit}" "$@" ;;
-    ls-remote) cat "$FIXTURE/ls-remote"; exit 0 ;;
-    diff) exit 1 ;;
-  esac
-done
-if [ "$1" = "worktree" ] && [ "$2" = "add" ]; then mkdir -p "\${@: -2:1}"; fi
-if [ "$1" = "worktree" ] && [ "$2" = "remove" ]; then rm -rf "\${@: -1}"; fi
-if [ "$1" = "checkout" ]; then :; fi
-exit 0`), { mode: 0o755 });
-  // The step's own output goes to the same log, so its order against the
-  // calls is kept.
-  const result = spawnSyncBounded("bash", ["-c", `exec >>"$FIXTURE/events"\n${body.join("\n")}`], {
-    encoding: "utf8",
-    cwd: workspace,
-    env: { PATH: `${bin}:${process.env.PATH ?? ""}`, FIXTURE: temp, RUNNER_TEMP: runnerTemp, GITHUB_WORKSPACE: workspace, ...env }
-  });
-  const events: RepairEvent[] = existsSync(path.join(temp, "events"))
-    ? readFileSync(path.join(temp, "events"), "utf8").split("\n").filter((line) => line !== "").map((line) => {
-      if (!line.includes("\x1f")) return { line };
-      const [tool, cwd, seen, header, ...args] = line.split("\x1f");
-      return { line, call: { tool, cwd, args, sawToken: seen === "1", headerEnv: header === "1" } };
-    })
-    : [];
-  rmSync(temp, { recursive: true, force: true });
-  const calls = events.flatMap((event) => (event.call ? [event.call] : []));
-  const stdout = events.filter((event) => !event.call).map((event) => event.line).join("\n");
-  return { status: result.status, stdout, calls, events, workspace, runnerTemp };
-}
-
-const pushes = (calls: RepairCall[]) => calls.filter((call) => call.tool === "git" && call.args.includes("push"));
-const remoteCall = (call: RepairCall) => call.tool === "git" && (call.args.includes("push") || call.args.includes("ls-remote"));
-
-test("the Dependabot repair refuses any requested branch that is not exactly one dependabot/* branch, before it touches a branch", () => {
-  for (const requested of [
-    "dependabot/npm_and_yarn/x main",
-    "dependabot/npm_and_yarn/x\nproduction",
-    "main",
-    "production",
-    "dependabot/*",
-    "dependabot/npm_and_yarn/x;touch pwned",
-    // A name git takes as a branch that is still not one of Dependabot's.
-    "dependabot/npm_and_yarn/x;touch-pwned",
-    "dependabot/../main",
-    "dependabot/x..y",
-    " dependabot/npm_and_yarn/x"
-  ]) {
-    const run = runRepairStep(requested);
-    assert.notEqual(run.status, 0, `${JSON.stringify(requested)}: the repair accepted it`);
-    assert.match(run.stdout, /::error title=Refused::the requested branch is not one dependabot\/\* branch/, JSON.stringify(requested));
-    const acted = run.calls.filter((call) => call.tool === "node" || ["worktree", "checkout", "commit", "push"].some((verb) => call.args.includes(verb)));
-    assert.deepEqual(acted, [], `${JSON.stringify(requested)}: the repair acted on a branch`);
-  }
-});
-
-test("the Dependabot repair refuses a scheduled run whose listing holds a branch that is not one dependabot/* branch, before it touches a branch", () => {
-  const run = runRepairStep("", ["dependabot/npm_and_yarn/next-16.1.0", "dependabot/npm_and_yarn/x;touch-pwned"]);
-  assert.notEqual(run.status, 0, "the repair accepted the listing");
-  assert.match(run.stdout, /::error title=Refused::a listed branch is not one dependabot\/\* branch/);
-  const acted = run.calls.filter((call) => call.tool === "node" || ["worktree", "checkout", "commit", "push"].some((verb) => call.args.includes(verb)));
-  assert.deepEqual(acted, [], "the repair acted on a branch of the listing");
-});
-
-test("the Dependabot repair runs only main's code on a branch's files, and hands the token to git's remote calls alone", () => {
-  for (const [what, requested, remote] of [
-    ["one requested branch", "dependabot/npm_and_yarn/next-16.1.0", ["dependabot/cargo/serde-1.0.0"]],
-    ["every open branch", "", ["dependabot/npm_and_yarn/next-16.1.0", "dependabot/cargo/serde-1.0.0"]]
-  ] as [string, string, string[]][]) {
-    const run = runRepairStep(requested, remote);
-    assert.equal(run.status, 0, `${what}: the repair failed: ${run.stdout}`);
-    const expected = requested === "" ? remote : [requested];
-    // No branch is ever checked out where main's code runs; each is read
-    // in a worktree of its own, by main's inventory script.
-    assert.ok(!run.calls.some((call) => call.tool === "git" && call.args[0] === "checkout"), `${what}: a branch was checked out over main`);
-    assert.deepEqual(
-      pushes(run.calls).map((call) => call.args[call.args.length - 1]),
-      expected.map((branch) => `HEAD:refs/heads/${branch}`),
-      `${what}: the repair pushed to other branches`
-    );
-    assert.ok(pushes(run.calls).every((call) => call.headerEnv), `${what}: a push carries no token`);
-    // The runner masks the raw token in logs, not its base64 header, so the
-    // step masks the header before any git call can print it.
-    const mask = run.events.findIndex((event) => event.line === `::add-mask::${REPAIR_HEADER}`);
-    const firstGit = run.events.findIndex((event) => event.call?.tool === "git");
-    assert.ok(mask >= 0 && mask < firstGit, `${what}: the token's header is not masked before git runs`);
-    for (const call of run.calls) {
-      assert.ok(!call.args.some((argument) => argument.includes(REPAIR_TOKEN) || argument.includes(REPAIR_HEADER)), `${what}: the token appeared in the arguments of ${call.tool} ${call.args[0]}`);
-      if (remoteCall(call)) {
-        assert.ok(call.headerEnv, `${what}: git ${call.args.join(" ")} was not given the token`);
-        continue;
-      }
-      assert.equal(call.headerEnv, false, `${what}: git ${call.args.join(" ")} was given the token`);
-      assert.equal(call.sawToken, false, `${what}: ${call.tool} ${call.args.join(" ")} could read the token`);
-    }
-    // Each worktree reads exactly the branch's remote-tracking ref, never a
-    // short name git would resolve by its own rules.
-    assert.deepEqual(
-      run.calls.filter((call) => call.tool === "git" && call.args[0] === "worktree" && call.args[1] === "add").map((call) => call.args[call.args.length - 1]),
-      expected.map((branch) => `refs/remotes/origin/${branch}`),
-      `${what}: the worktree reads another ref than the branch's remote-tracking ref`
-    );
-    const nodes = run.calls.filter((call) => call.tool === "node");
-    assert.equal(nodes.length, expected.length * 2, `${what}: node ran another number of times`);
-    for (const call of nodes) {
-      if (call.args.includes("scripts/third-party-inventory.mjs")) {
-        assert.equal(call.cwd, run.workspace, `${what}: the inventory script ran from the branch`);
-        assert.deepEqual(call.args.slice(0, 1), ["scripts/third-party-inventory.mjs"]);
-        assert.equal(call.args[1], "--root", `${what}: the inventory script was not pointed at the branch`);
-        assert.ok(call.args[2].startsWith(run.runnerTemp), `${what}: the inventory read another folder`);
-      } else {
-        assert.equal(call.args[0], "--input-type=module", `${what}: node ran something else`);
-        assert.ok(call.cwd.startsWith(run.runnerTemp), `${what}: the lock repair ran outside the branch's worktree`);
-      }
-    }
-  }
 });

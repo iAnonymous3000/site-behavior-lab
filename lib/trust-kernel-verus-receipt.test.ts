@@ -66,19 +66,18 @@ async function goodReceipt(): Promise<{ receipt: Receipt; pins: Pins }> {
     runner: { platform: PLATFORM, node: "v24.14.1" },
     verus: { version: pins.verus.version, commit: pins.verus.commit, assetSha256: pins.verus.assets[PLATFORM].sha256 },
     checkedFiles: [
-      { path: "kernel/src/encode.rs", sha256: "c".repeat(64) },
       { path: "kernel/src/address.rs", sha256: "d".repeat(64) }
     ],
-    specifications: [{ path: "kernel/src/encode.rs", sha256: "e".repeat(64) }],
+    specifications: [{ path: "kernel/src/address.rs", sha256: "e".repeat(64) }],
     results: {
-      verifiedItems: 103,
-      pinnedItems: 103,
+      verifiedItems: 17,
+      pinnedItems: 17,
       errors: 0,
       rlimitFloor: 2,
       statementsNamed: 9,
-      guardMutationsRefused: 40,
-      cargoTestsPassed: 30,
-      verusMutationsRefused: 8,
+      guardMutationsRefused: 25,
+      cargoTestsPassed: 3,
+      verusMutationsRefused: 6,
       treeCleanBefore: true,
       treeCleanAfter: true
     }
@@ -97,7 +96,7 @@ test("the receipt the Verus step builds from these files is one the rule accepts
   const { buildReceipt, receiptProblems, PINS_PATH } = await helpers;
   const pins = JSON.parse(source(PINS_PATH)) as Pins;
   const workspace = path.join(root, "tools/trust-kernel");
-  const files = ["kernel/src/encode.rs", "kernel/src/address.rs"];
+  const files = ["kernel/src/address.rs"];
   const { receipt: good } = await goodReceipt();
   const built = buildReceipt({ source: good.source, workspace, pins, checkedFiles: files, specifications: { [files[0]]: { sha256: "e".repeat(64) } }, run: good.results });
   const head = COMMIT;
@@ -123,7 +122,7 @@ test("a receipt is refused for each way it falls short of a pass at the commit",
     ["another Verus", (r) => { r.verus.version = "0.0.0"; }, /a Verus other than the pinned one/],
     ["another archive", (r) => { r.verus.assetSha256 = "0".repeat(64); }, /archive other than the one pinned for its platform/],
     ["a platform with no pin", (r) => { r.runner.platform = "freebsd-x64"; }, /archive other than the one pinned for its platform/],
-    ["fewer items than pinned", (r) => { r.results.verifiedItems = 102; }, /verified 102 items, and 103 are pinned/],
+    ["fewer items than pinned", (r) => { r.results.verifiedItems = 16; }, /verified 16 items, and 17 are pinned/],
     ["no items", (r) => { r.results.verifiedItems = 0; r.results.pinnedItems = 0; }, /verified 0 items/],
     ["an error", (r) => { r.results.errors = 1; }, /reported 1 errors/],
     ["no guard mutation refused", (r) => { r.results.guardMutationsRefused = 0; }, /guardMutationsRefused is not a count above zero/],

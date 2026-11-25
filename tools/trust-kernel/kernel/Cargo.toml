@@ -3,7 +3,7 @@ name = "sbl-trust-kernel"
 version = "0.0.0"
 edition = "2021"
 rust-version = "1.99.1"
-description = "Canonical JSON (canon-v1) and the address classifier for Site Behavior Lab, each with a machine-checked core"
+description = "Verus-checked IPv4/IPv6 public-address classifier for Site Behavior Lab"
 license = "AGPL-3.0-or-later"
 publish = false
 

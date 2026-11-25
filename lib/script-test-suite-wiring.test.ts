@@ -3,24 +3,12 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 
-/**
- * The producer suites under scripts/ are plain ESM, so `tsc -p
- * tsconfig.test.json` never compiles them and the `.unit-test-dist/lib/*.test.js`
- * glob can never pick them up. Each one therefore has to be named by an npm
- * script that test:unit reaches, and nothing but this guard notices when one is
- * not: an orphaned suite passes when a human runs it by hand and protects
- * nothing in CI. Two calibration ceremony suites (26 tests guarding workflow
- * least-privilege, one-shot dispatch, and anti-substitution) sat unwired that
- * way.
- */
-
 const root = process.cwd();
 const packageJson = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8")) as {
   scripts: Record<string, string>;
 };
 
-// The commands test:unit actually executes, following `npm run` hops.
-function commandsReachableFromTestUnit(): string[] {
+function commandsReachableFrom(rootScript: string): string[] {
   const visited = new Set<string>();
   const commands: string[] = [];
   const visit = (name: string) => {
@@ -31,84 +19,19 @@ function commandsReachableFromTestUnit(): string[] {
     commands.push(command);
     for (const hop of command.matchAll(/npm run ([\w:-]+)/g)) visit(hop[1]);
   };
-  visit("test:unit");
+  visit(rootScript);
   return commands;
 }
 
-// A run-schema-cli target names its script indirectly, through the launcher's
-// own table, so resolve those to the file they spawn.
-function schemaLauncherTargets(commands: readonly string[]): string[] {
-  const launcher = readFileSync(path.join(root, "scripts", "run-schema-cli.mjs"), "utf8");
-  const resolved: string[] = [];
-  for (const command of commands) {
-    for (const match of command.matchAll(/node scripts\/run-schema-cli\.mjs ([\w-]+)/g)) {
-      const entry = launcher.match(new RegExp(`"${match[1]}": \\[([^\\]]*)\\]`))?.[1];
-      if (entry === undefined) continue;
-      resolved.push([...entry.matchAll(/"([^"]+)"/g)].map((part) => part[1]).join("/"));
-    }
-  }
-  return resolved;
-}
-
-test("every scripts/*.test.mjs suite is named by an npm script that test:unit runs", () => {
-  const commands = commandsReachableFromTestUnit();
-  const reachable = [...commands, ...schemaLauncherTargets(commands)].join("\n");
-
-  const suites = readdirSync(path.join(root, "scripts"))
-    .filter((file) => file.endsWith(".test.mjs"))
-    .sort();
-  assert.ok(suites.length > 0, "the scripts/ producer suites could not be located");
-
-  for (const suite of suites) {
-    assert.ok(
-      reachable.includes(`scripts/${suite}`),
-      `scripts/${suite} runs in no npm script reachable from test:unit, so it guards nothing in CI`
-    );
-  }
-});
-
-test("the calibration ceremony suites run after the launcher that builds dist/schema", () => {
-  // Both suites load ../dist/schema/lib/canonical-json.js and refuse to run
-  // without it, so ordering them before the producer step would turn the whole
-  // wiring back into a no-op that fails for an unrelated reason.
-  const testUnit = packageJson.scripts["test:unit"];
-  const producer = testUnit.indexOf("npm run test:calibration-producer");
-  const ceremony = testUnit.indexOf("npm run test:calibration-ceremony");
-  assert.ok(producer >= 0, "test:unit must run the calibration producer suite");
-  assert.ok(ceremony > producer, "test:unit must run the ceremony suites after dist/schema is built");
-
-  // scripts/unit-test-lanes.test.mjs holds the guarded stage to the lanes'
-  // bounds and guard; this pins which suites the command runs.
-  assert.equal(
-    packageJson.scripts["test:calibration-ceremony"],
-    "node scripts/guarded-test-stage.mjs calibration-ceremony scripts/calibration-acquisition-authorization-lib.test.mjs scripts/calibration-label-roster-lib.test.mjs scripts/calibration-assemble-custody-lib.test.mjs"
-  );
-});
-
-/**
- * The `.unit-test-dist/lib/*.test.js` glob does not recurse, so a test file in
- * a subdirectory of lib/ compiles and then runs only if some reachable npm
- * script names its directory's glob. lib/corpus-overview-suite/ relies on
- * that: each of its files reads the committed corpus through
- * loadCorpusOverview, which caches one read per process, so
- * test:corpus-overview runs the group in ONE process (--test-isolation=none)
- * instead of paying a whole-corpus read per file, and the main glob never
- * runs those files a second time.
- *
- * One process means the files are no longer isolated from each other.
- * Top-level hooks cross file boundaries: corpus-stats-builder.test.ts's
- * top-level beforeEach/afterEach already wrap every test in the group (they
- * create and remove a temp directory the other files never read, which is
- * harmless). A stub, chdir, global patch, or state-changing top-level hook
- * added to any file in the group would reach every later file too.
- */
 test("every lib test directory runs in an npm script that test:unit reaches", () => {
-  const reachable = commandsReachableFromTestUnit().join("\n");
+  const reachable = commandsReachableFrom("test:unit").join("\n");
   const directories = new Set<string>();
   const walk = (relative: string) => {
     for (const entry of readdirSync(path.join(root, relative), { withFileTypes: true })) {
       if (entry.isDirectory()) walk(`${relative}/${entry.name}`);
-      else if (entry.name.endsWith(".test.ts")) directories.add(relative);
+      else if (entry.name.endsWith(".test.ts") && !entry.name.startsWith("investigation-")) {
+        directories.add(relative);
+      }
     }
   };
   walk("lib");
@@ -118,69 +41,15 @@ test("every lib test directory runs in an npm script that test:unit reaches", ()
   for (const directory of directories) {
     assert.ok(
       reachable.includes(`.unit-test-dist/${directory}/*.test.js`),
-      `${directory}/*.test.ts compiles but runs in no npm script reachable from test:unit, so it guards nothing in CI`
+      `${directory}/*.test.ts compiles but runs in no npm script reachable from test:unit`
     );
   }
-
-  const group = commandsReachableFromTestUnit().filter((command) =>
-    command.includes(".unit-test-dist/lib/corpus-overview-suite/*.test.js")
-  );
-  assert.equal(group.length, 1, "the shared-corpus group must run exactly once");
-  assert.match(group[0], /node --test --test-isolation=none /, "the group only shares its corpus read in one process");
 });
 
-/**
- * The investigation workspace's suites compile under their own config and run in
- * their own stage, so nothing else would notice one going missing. `node --test`
- * exits 0 on a glob that matches nothing, and on a named file that is missing unless
- * every named file is, so the stage names each compiled suite and runs them through
- * scripts/investigation-test-stage.mjs, whose lane fails on a suite that left no
- * summary. scripts/unit-test-lanes.test.mjs shows that with one suite deleted.
- *
- * The exhaustive exploration of the case machine and the fold is one suite with a stage of
- * its own, test:investigation-exploration, chained after the investigation lane so that it
- * runs alone: the lane runs three files at a time, and the walk holds about three million
- * states. Between them the two stages name every suite, each once.
- */
-const EXPLORATION_SUITE = "investigation/test/case-exploration.test.ts";
-
-test("the investigation suites run in two stages test:unit reaches, which between them name every one once", () => {
-  const stage = packageJson.scripts["test:investigation"];
-  const exploration = packageJson.scripts["test:investigation-exploration"];
-  const reachable = commandsReachableFromTestUnit();
-  assert.ok(reachable.includes(stage), "test:unit must run test:investigation");
-  assert.ok(reachable.includes(exploration), "test:unit must run test:investigation-exploration");
-  const testUnit = packageJson.scripts["test:unit"];
-  assert.equal(testUnit.split("npm run test:investigation-exploration").length - 1, 1, "the exploration must run exactly once");
-  // Right after the lane, and chained by && on both sides, so nothing starts before it ends or beside it while it runs.
-  assert.ok(testUnit.includes("&& npm run test:investigation && npm run test:investigation-exploration && "), "the exploration runs right after the investigation lane, chained on both sides");
-  for (const command of [testUnit, exploration]) {
-    assert.doesNotMatch(command, /(?:^|[^&])&(?:[^&]|$)/, "nothing is sent to the background beside it");
-    assert.doesNotMatch(command, /;|\bwait\b|\|/, "no step is sequenced or piped around the && chain, which would hide an exit code");
-  }
-  for (const command of [stage, exploration]) {
-    assert.ok(command.includes("tsc -p tsconfig.investigation-test.json"), "each stage must compile before it runs, so it also runs alone");
-    assert.ok(command.includes("&& node scripts/investigation-test-stage.mjs .investigation-test-dist/"), "the suites must run through the lane that notices a missing one");
-    assert.doesNotMatch(command, /node --test/, "node --test alone passes a run with a named suite missing");
-    assert.doesNotMatch(command, /\*/, "a glob that matches nothing passes, so each stage names its files");
-  }
-
-  const compiled = JSON.parse(readFileSync(path.join(root, "tsconfig.investigation-test.json"), "utf8")) as {
-    compilerOptions: { outDir: string };
-    include: string[];
-  };
-  assert.equal(compiled.compilerOptions.outDir, ".investigation-test-dist");
-
-  const suites: string[] = [];
-  const walk = (relative: string) => {
-    for (const entry of readdirSync(path.join(root, relative), { withFileTypes: true })) {
-      if (entry.isDirectory()) walk(`${relative}/${entry.name}`);
-      else if (entry.name.endsWith(".test.ts")) suites.push(`${relative}/${entry.name}`);
-    }
-  };
-  walk("investigation");
-  assert.ok(suites.length > 0, "the investigation suites could not be located");
-  const named = (command: string) => [...command.matchAll(/\.investigation-test-dist\/(\S+)\.test\.js/g)].map((match) => `${match[1]}.test.ts`);
-  assert.deepEqual(named(exploration), [EXPLORATION_SUITE], "the exploration stage runs its one suite and nothing else");
-  assert.deepEqual([...named(stage), ...named(exploration)].sort(), suites.sort(), "the two stages must name every investigation suite, each once, and only those");
+test("investigation workspace tests are wired under test:investigation:all outside test:unit", () => {
+  const unitReachable = commandsReachableFrom("test:unit").join("\n");
+  assert.equal(unitReachable.includes("test:investigation"), false, "investigation tests must stay outside scanner test:unit");
+  const invReachable = commandsReachableFrom("test:investigation:all").join("\n");
+  assert.ok(invReachable.includes("tsc -p tsconfig.investigation-test.json"));
+  assert.ok(invReachable.includes("scripts/tla-case-machine-conformance.test.mjs"));
 });

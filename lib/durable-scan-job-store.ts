@@ -545,6 +545,7 @@ export function claimDurableScanJobs(
   input: Readonly<{
     now: number;
     capacity: number;
+    maxPerShard?: number;
     credentials: readonly DurableScanJobLeaseCredential[];
   }>
 ): DurableScanJobClaim[] {
@@ -558,6 +559,12 @@ export function claimDurableScanJobs(
   ) {
     throw new DurableScanJobValidationError("Invalid durable scan-job claim capacity.");
   }
+  if (
+    input.maxPerShard !== undefined &&
+    (!Number.isSafeInteger(input.maxPerShard) || input.maxPerShard < 1 || input.maxPerShard > input.capacity)
+  ) {
+    throw new DurableScanJobValidationError("Invalid durable scan-job per-shard capacity.");
+  }
   const activeCount = sql
     .exec<Record<string, SqlValue> & { count: number }>(
       "SELECT COUNT(*) AS count FROM durable_scan_jobs WHERE state IN ('leased','publishing')"
@@ -569,14 +576,63 @@ export function claimDurableScanJobs(
   const availableCapacity = Math.max(0, input.capacity - activeCount);
   const credentials = input.credentials.slice(0, availableCapacity);
   assertLeaseCredentials(credentials);
-  const rows = sql
-    .exec<DurableScanJobRow>(
-      "SELECT * FROM durable_scan_jobs WHERE state = 'queued' AND deadline_at > ? AND attempt_count < ? ORDER BY created_at ASC, job_id ASC LIMIT ?",
-      input.now,
-      DURABLE_SCAN_JOB_MAX_ATTEMPTS,
-      availableCapacity
-    )
-    .toArray();
+  if (availableCapacity === 0) return [];
+
+  const hasRouteTable =
+    input.maxPerShard !== undefined &&
+    sql
+      .exec<Record<string, SqlValue> & { name: string }>(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'durable_scan_job_container_routes' LIMIT 1"
+      )
+      .toArray().length > 0;
+
+  let rows: DurableScanJobRow[];
+  if (hasRouteTable && input.maxPerShard !== undefined) {
+    const activeByShard = new Map<number, number>();
+    const activeShardRows = sql
+      .exec<Record<string, SqlValue> & { shard_index: number; count: number }>(
+        `SELECT COALESCE(routes.shard_index, 0) AS shard_index, COUNT(*) AS count
+         FROM durable_scan_jobs jobs
+         LEFT JOIN durable_scan_job_container_routes routes ON routes.job_id = jobs.job_id
+         WHERE jobs.state IN ('leased','publishing')
+         GROUP BY COALESCE(routes.shard_index, 0)`
+      )
+      .toArray();
+    for (const entry of activeShardRows) {
+      activeByShard.set(Number(entry.shard_index), Number(entry.count));
+    }
+    const candidates = sql
+      .exec<DurableScanJobRow & { route_shard_index: number | null }>(
+        `SELECT jobs.*, routes.shard_index AS route_shard_index
+         FROM durable_scan_jobs jobs
+         LEFT JOIN durable_scan_job_container_routes routes ON routes.job_id = jobs.job_id
+         WHERE jobs.state = 'queued' AND jobs.deadline_at > ? AND jobs.attempt_count < ?
+         ORDER BY jobs.created_at ASC, jobs.job_id ASC
+         LIMIT ?`,
+        input.now,
+        DURABLE_SCAN_JOB_MAX_ATTEMPTS,
+        DURABLE_SCAN_JOB_MAX_NONTERMINAL
+      )
+      .toArray();
+    rows = [];
+    for (const candidate of candidates) {
+      if (rows.length >= availableCapacity) break;
+      const shardIndex = candidate.route_shard_index === null ? 0 : Number(candidate.route_shard_index);
+      const shardActive = activeByShard.get(shardIndex) ?? 0;
+      if (shardActive >= input.maxPerShard) continue;
+      activeByShard.set(shardIndex, shardActive + 1);
+      rows.push(candidate);
+    }
+  } else {
+    rows = sql
+      .exec<DurableScanJobRow>(
+        "SELECT * FROM durable_scan_jobs WHERE state = 'queued' AND deadline_at > ? AND attempt_count < ? ORDER BY created_at ASC, job_id ASC LIMIT ?",
+        input.now,
+        DURABLE_SCAN_JOB_MAX_ATTEMPTS,
+        availableCapacity
+      )
+      .toArray();
+  }
   const claims: DurableScanJobClaim[] = [];
   rows.forEach((row, index) => {
     const credential = credentials[index];

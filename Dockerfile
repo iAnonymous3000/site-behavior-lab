@@ -117,11 +117,6 @@ COPY . .
 # suite included. The stage boundary above adds no instruction: it names the
 # exact source tree, so hosted CI can test that image and build from it.
 FROM source AS build
-
-# .next/cache is the build's SWC and webpack cache, not runtime state: Next
-# recreates what it needs. Left in place it crosses the stage boundary with the
-# wholesale .next copy below and ships in the runtime image, where it is by far
-# the largest thing present and is never read.
 RUN npm run check && rm -rf .next/cache && npm prune --omit=dev
 
 # Hosted CI only. CI runs test:unit in separate jobs on the source image

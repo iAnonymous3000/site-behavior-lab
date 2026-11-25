@@ -57,30 +57,18 @@ test("the required-job file and the direct promotion gate name the same jobs", a
   );
 });
 
-test("the promotion gate and the release gate verify the same required jobs", async () => {
-  // This list used to be restated inline per workflow. Both paths now call one
-  // checker against one file, and neither may hard-code a job name again: two
-  // copies of a gate list are how a gate quietly stops being required on one
-  // path while still passing on the other.
+test("the release gate verifies the required jobs from .github/required-ci-jobs.json", async () => {
   const { requiredCiJobs } = await checker;
-  const promote = await source(".github/workflows/promote-production.yml");
   const release = await source(".github/workflows/release.yml");
 
-  for (const workflow of [promote, release]) {
-    assert.match(workflow, /node scripts\/verify-required-ci-jobs\.mjs/);
-  }
+  assert.match(release, /node scripts\/verify-required-ci-jobs\.mjs/);
   for (const job of requiredCiJobs(ROOT)) {
     assert.ok(
-      !promote.includes(job) && !release.includes(job),
-      `"${job}" is restated inside a workflow; the required list belongs only in .github/required-ci-jobs.json`
+      !release.includes(job),
+      `"${job}" is restated inside release.yml; the required list belongs only in .github/required-ci-jobs.json`
     );
   }
 
-  // The checker must be on disk before either workflow runs it.
-  assert.ok(
-    promote.indexOf("uses: actions/checkout") < promote.indexOf("verify-required-ci-jobs.mjs"),
-    "promote-production must check out the repository before invoking the checker"
-  );
   assert.ok(
     release.indexOf("uses: actions/checkout") < release.indexOf("verify-required-ci-jobs.mjs"),
     "release must check out the repository before invoking the checker"
@@ -148,10 +136,10 @@ test("the history baselines are explicit trusted revisions, and production is on
   // This test holds the wiring, which is text. What the wiring does is run,
   // against a real repository, by lib/append-only-history-gates.test.ts.
   const ci = await source(".github/workflows/ci.yml");
-  const tests = ci.slice(ci.indexOf("\n  tests:\n"), ci.indexOf("\n  pages:\n"));
-  const stepStart = tests.indexOf("      - name: Resolve the trusted corrections baseline\n");
-  assert.notEqual(stepStart, -1, "the tests job must resolve the history baselines");
-  const step = tests.slice(stepStart, tests.indexOf("\n      - name: ", stepStart + 1));
+  const typecheck = ci.slice(ci.indexOf("\n  typecheck:\n"), ci.indexOf("\n  tests:\n"));
+  const stepStart = typecheck.indexOf("      - name: Resolve the trusted corrections baseline\n");
+  assert.notEqual(stepStart, -1, "the typecheck job must resolve the history baselines");
+  const step = typecheck.slice(stepStart, typecheck.indexOf("\n      - name: ", stepStart + 1));
 
   // Comments may name the old fallback to explain why it went; executable
   // lines may not reintroduce it.
@@ -182,7 +170,7 @@ test("the history baselines are explicit trusted revisions, and production is on
   // gates run against both baselines. The production pair may be skipped only
   // by the event's own name, so no resolved value can leave it out.
   const gates = [
-    ...tests.matchAll(
+    ...typecheck.matchAll(
       / {6}- name: [^\n]+\n(?: {8}if: ([^\n]+)\n)? {8}run: npm run (corrections|transparency):verify-history -- "\$\{\{ steps\.corrections_baseline\.outputs\.(\w+) \}\}"\n/g
     )
   ].map((match) => `${match[2]} against ${match[3]}, ${match[1] ?? "always"}`);
@@ -192,5 +180,5 @@ test("the history baselines are explicit trusted revisions, and production is on
     "corrections against production_baseline, ${{ github.event_name != 'pull_request' }}",
     "transparency against production_baseline, ${{ github.event_name != 'pull_request' }}"
   ]);
-  assert.equal(tests.split("verify-history").length - 1, gates.length, "every history gate in the tests job must be one of the four above");
+  assert.equal(typecheck.split("verify-history").length - 1, gates.length, "every history gate in the typecheck job must be one of the four above");
 });

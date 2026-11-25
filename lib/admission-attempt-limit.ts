@@ -5,13 +5,15 @@ import { publicErrorBody } from "./public-errors";
 import type { PublicScanRateLimitResult } from "./public-scan-rate-limit-store";
 import { sha256Hex } from "./sha256";
 
-// This bounds work BEFORE body parsing, capability lookup and Siteverify.
-// Accepted browser work still consumes the separate scan quota. Both admission
-// routes share this rolling window; changing route, credential or colo does not
-// buy another allowance. The singleton DO is the authority, not a WAF counter.
+// Per-client rolling ceiling applied BEFORE body parsing, capability lookup
+// and Siteverify. Unlike the old global 100-attempt bucket, one group of
+// abusive IPs can never deny service to unrelated legitimate visitors; SQLite
+// storage stays strictly bounded by per-call expiry pruning plus oldest-row
+// LRU eviction at ADMISSION_ATTEMPT_MAX_STORED_ROWS.
 export const ADMISSION_ATTEMPT_WINDOW_MS = 10_000;
 export const ADMISSION_ATTEMPT_CLIENT_LIMIT = 10;
-export const ADMISSION_ATTEMPT_GLOBAL_LIMIT = 100;
+export const ADMISSION_ATTEMPT_MAX_STORED_ROWS = 5_000;
+const ADMISSION_ATTEMPT_PRUNE_BATCH = 200;
 
 /** Called only inside the owning Durable Object's transactionSync. */
 export function chargeAdmissionAttempt(
@@ -28,32 +30,44 @@ export function chargeAdmissionAttempt(
     charged_at INTEGER NOT NULL
   )`);
   sql.exec("CREATE INDEX IF NOT EXISTS admission_attempts_time ON admission_attempts(charged_at, id)");
+  sql.exec(
+    "CREATE INDEX IF NOT EXISTS admission_attempts_client_time ON admission_attempts(client_hash, charged_at, id)"
+  );
   const cutoff = now - ADMISSION_ATTEMPT_WINDOW_MS;
-  sql.exec(`DELETE FROM admission_attempts WHERE id IN (
-    SELECT id FROM admission_attempts WHERE charged_at <= ?
-    ORDER BY charged_at, id LIMIT ${ADMISSION_ATTEMPT_GLOBAL_LIMIT}
-  )`, cutoff);
-  // At most 100 live events can exist, so one bounded read establishes both
-  // ceilings without allocating a row for every rejected/rotating identity.
-  const rows = sql.exec<{ client_hash: string; charged_at: number }>(
-    `SELECT client_hash, charged_at FROM admission_attempts
-     WHERE charged_at > ? ORDER BY charged_at, id LIMIT ${ADMISSION_ATTEMPT_GLOBAL_LIMIT + 1}`,
+  sql.exec(
+    `DELETE FROM admission_attempts WHERE id IN (
+      SELECT id FROM admission_attempts WHERE charged_at <= ?
+      ORDER BY charged_at, id LIMIT ${ADMISSION_ATTEMPT_PRUNE_BATCH}
+    )`,
     cutoff
-  ).toArray();
-  const clientRows = rows.filter((row) => row.client_hash === clientHash);
-  const waits: number[] = [];
-  for (const [events, limit] of [
-    [rows, ADMISSION_ATTEMPT_GLOBAL_LIMIT],
-    [clientRows, ADMISSION_ATTEMPT_CLIENT_LIMIT]
-  ] as const) {
-    if (events.length >= limit) {
-      waits.push(events[events.length - limit].charged_at + ADMISSION_ATTEMPT_WINDOW_MS - now);
-    }
-  }
-  if (waits.length) {
-    return { allowed: false, retryAfterSeconds: Math.max(1, Math.ceil(Math.max(...waits) / 1_000)) };
+  );
+  const clientRows = sql
+    .exec<{ charged_at: number }>(
+      `SELECT charged_at FROM admission_attempts
+       WHERE client_hash = ? AND charged_at > ?
+       ORDER BY charged_at ASC, id ASC LIMIT ${ADMISSION_ATTEMPT_CLIENT_LIMIT + 1}`,
+      clientHash,
+      cutoff
+    )
+    .toArray();
+  if (clientRows.length >= ADMISSION_ATTEMPT_CLIENT_LIMIT) {
+    const oldest = clientRows[clientRows.length - ADMISSION_ATTEMPT_CLIENT_LIMIT];
+    const waitMs = oldest.charged_at + ADMISSION_ATTEMPT_WINDOW_MS - now;
+    return { allowed: false, retryAfterSeconds: Math.max(1, Math.ceil(waitMs / 1_000)) };
   }
   sql.exec("INSERT INTO admission_attempts (client_hash, charged_at) VALUES (?, ?)", clientHash, now);
+  const totalRow = sql
+    .exec<{ count: number }>("SELECT COUNT(*) AS count FROM admission_attempts")
+    .toArray()[0];
+  const overflow = (totalRow?.count ?? 0) - ADMISSION_ATTEMPT_MAX_STORED_ROWS;
+  if (overflow > 0) {
+    sql.exec(
+      `DELETE FROM admission_attempts WHERE id IN (
+        SELECT id FROM admission_attempts ORDER BY charged_at ASC, id ASC LIMIT ?
+      )`,
+      overflow
+    );
+  }
   return { allowed: true };
 }
 

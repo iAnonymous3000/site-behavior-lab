@@ -5,6 +5,12 @@ import type { DurableScanJobStoreSql } from "./durable-scan-job-store";
 export const DURABLE_CONTAINER_SHARDING_ENV = "SITE_BEHAVIOR_LAB_CONTAINER_SHARDING";
 export const DURABLE_CONTAINER_SHARD_COUNT_ENV = "SITE_BEHAVIOR_LAB_CONTAINER_SHARD_COUNT";
 export const DURABLE_CONTAINER_MAX_SHARDS = 3;
+export const DURABLE_SCAN_JOB_CAPACITY_PER_SHARD = 2;
+
+export function durableContainerExecutionCapacity(plan: DurableContainerShardingPlan): number {
+  const shards = plan.enabled ? plan.shardCount : 1;
+  return DURABLE_SCAN_JOB_CAPACITY_PER_SHARD * shards;
+}
 
 const CONTAINER_NAME_PREFIX = "durable-scan-shard-";
 const ROUTE_VERSION = 1;

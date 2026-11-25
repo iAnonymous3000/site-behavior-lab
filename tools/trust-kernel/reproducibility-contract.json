@@ -39,13 +39,13 @@
     },
     {
       "path": "tools/trust-kernel/kernel/Cargo.toml",
-      "bytes": 923,
-      "sha256": "3f5ef568265182c1eb17a6d57deb231f734dbf419f585048c9be1cb9aab582fe"
+      "bytes": 886,
+      "sha256": "fbc60788fa485ff9877d63e89fc593be1509a24acc17ad52b5066fe37e4a1756"
     },
     {
       "path": "tools/trust-kernel/kernel/src/lib.rs",
-      "bytes": 8390,
-      "sha256": "2a93f4498ce41f273ebef2013b64d5acc5a5baa03f7844d74c86b27322d006c4"
+      "bytes": 592,
+      "sha256": "e861af6672ad2c848136e1a404a51ff73136253e9389d5a4d4f7e296e656918f"
     },
     {
       "path": "tools/trust-kernel/kernel/src/address.rs",
@@ -58,34 +58,9 @@
       "sha256": "773ba7a9a67d0c50a7feeb259a4de086ab608ef01cb60c3f0429d239b917b1b6"
     },
     {
-      "path": "tools/trust-kernel/kernel/src/encode.rs",
-      "bytes": 56025,
-      "sha256": "0f56084c3caaf34414b918b3416a9e95228fe63185f1e4aaf6b6767805954dfc"
-    },
-    {
-      "path": "tools/trust-kernel/kernel/src/parse.rs",
-      "bytes": 8587,
-      "sha256": "f3326a71f28ef8f37838223defc604cc28d5e9b130b4aa55a35d177b0ff088e5"
-    },
-    {
-      "path": "tools/trust-kernel/kernel/src/number.rs",
-      "bytes": 8767,
-      "sha256": "f7dc663cac01bc72fd275912bda5a1f3792aa56e33d80af9fb2f8a37e3a17f5d"
-    },
-    {
-      "path": "tools/trust-kernel/kernel/src/nfc.rs",
-      "bytes": 5689,
-      "sha256": "1a1a05306281f71e83fab42072482434d64ffa24778c1756217201c891c93c45"
-    },
-    {
-      "path": "tools/trust-kernel/kernel/src/nfc_tables.rs",
-      "bytes": 107455,
-      "sha256": "898a58fa80e7035fbc58e59086369aec35f31ce5b78f6ce12d018abe243936a2"
-    },
-    {
       "path": "tools/trust-kernel/kernel/src/tests.rs",
-      "bytes": 14068,
-      "sha256": "336da1eb275230151d11044e97eb40ca1f3cc9e8ca116a5b97c14ef6aab95b77"
+      "bytes": 5007,
+      "sha256": "5070595edb3b96ab1b53df5606a075da325997ab0e08e2cb1fa199eac8f1e0e9"
     },
     {
       "path": "tools/trust-kernel/wasm/Cargo.toml",
@@ -94,21 +69,16 @@
     },
     {
       "path": "tools/trust-kernel/wasm/src/lib.rs",
-      "bytes": 5817,
-      "sha256": "81bc0dfed2be8bf0d9e95c63f1862bd7ad92a59e7b9850359fc9e83505fd8fa1"
+      "bytes": 2632,
+      "sha256": "13a87d6edf05ea4928e6906b6c95e1a058d4282f91ca2d9c6e6ba67518c46ac2"
     }
   ],
   "artifact": "sbl_trust_kernel_wasm.wasm",
   "observed": {
     "aarch64-apple-darwin": {
-      "bytes": 114113,
-      "sha256": "9af354a27aafa36b181399ed6ab270133b2b30b523f9262fa4e91c9e8cfdb244",
-      "environment": "macOS 27.2.1 (Darwin 27.2.0) on Apple silicon, native; rustup 1.29.3"
-    },
-    "x86_64-unknown-linux-gnu": {
-      "bytes": 114113,
-      "sha256": "9af354a27aafa36b181399ed6ab270133b2b30b523f9262fa4e91c9e8cfdb244",
-      "environment": "Ubuntu 24.04.5 container (docker.io/library/ubuntu@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852, linux/amd64) run by Docker Desktop on an arm64 Mac, so emulated; rustup 1.29.3; not a GitHub-hosted runner"
+      "bytes": 24243,
+      "sha256": "2c99533ef3cc49933e447aeecfcaa2ee68259b64397268c0eefcff262ba0d6bb",
+      "environment": "macOS on Apple silicon, native"
     }
   },
   "notObserved": "Any host platform that is not a key of `observed`. A GitHub-hosted runner has not built this."

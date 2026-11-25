@@ -72,11 +72,6 @@ const INPUTS = [
   "tools/trust-kernel/kernel/src/lib.rs",
   "tools/trust-kernel/kernel/src/address.rs",
   "tools/trust-kernel/kernel/src/address_text.rs",
-  "tools/trust-kernel/kernel/src/encode.rs",
-  "tools/trust-kernel/kernel/src/parse.rs",
-  "tools/trust-kernel/kernel/src/number.rs",
-  "tools/trust-kernel/kernel/src/nfc.rs",
-  "tools/trust-kernel/kernel/src/nfc_tables.rs",
   "tools/trust-kernel/kernel/src/tests.rs",
   "tools/trust-kernel/wasm/Cargo.toml",
   "tools/trust-kernel/wasm/src/lib.rs"

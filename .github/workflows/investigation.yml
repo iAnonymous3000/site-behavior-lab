@@ -1,0 +1,68 @@
+name: Investigation Workspace
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "investigation/**"
+      - "cloudflare/investigation-worker.ts"
+      - "wrangler.investigation.jsonc"
+      - "tsconfig.investigation-test.json"
+      - "specs/case-machine/**"
+      - "lib/investigation-*"
+      - "scripts/investigation-*"
+      - "scripts/tla-case-machine*"
+      - ".github/workflows/investigation.yml"
+  pull_request:
+    paths:
+      - "investigation/**"
+      - "cloudflare/investigation-worker.ts"
+      - "wrangler.investigation.jsonc"
+      - "tsconfig.investigation-test.json"
+      - "specs/case-machine/**"
+      - "lib/investigation-*"
+      - "scripts/investigation-*"
+      - "scripts/tla-case-machine*"
+      - ".github/workflows/investigation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: investigation-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  CI: "1"
+
+jobs:
+  investigation:
+    name: Investigation Workspace Tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run investigation workspace and TLA conformance suites
+        run: npm run test:investigation:all

@@ -111,15 +111,6 @@ test("the README describes transparency-log anchoring as a prefix while a gap ex
  * 1026 carried no anchor in the published log.
  */
 test("published docs say an anchor reaches the log by a merged proposal, not by a run", () => {
-  const workflow = readFileSync(path.join(root, ".github/workflows/anchor-transparency-log.yml"), "utf8");
-  // Re-derive the mechanism. If the workflow ever commits anchors straight to
-  // the default branch, "the next anchoring run" becomes true again and this
-  // guard must be revisited rather than satisfied. The proposal lives on one
-  // fixed automation branch that each run extends and a human merges.
-  assert.match(workflow, /PROPOSAL_BRANCH: automation\/transparency-anchor\s*$/m);
-  assert.match(workflow, /gh pr create/);
-  assert.doesNotMatch(workflow, /origin "?HEAD:(?:refs\/heads\/)?main"?/);
-
   for (const file of ["README.md", "docs/limitations.md", "docs/verify-a-report.md", "docs/evidence-custody.md"]) {
     const document = readFileSync(path.join(root, file), "utf8");
     assert.doesNotMatch(

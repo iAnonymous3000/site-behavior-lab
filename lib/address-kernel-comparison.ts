@@ -8,25 +8,17 @@ import {
 } from "./address-kernel";
 import { isIpAddress, isPublicIpAddress, normalizeHostname } from "./ip-safety";
 
-// Comparison mode for the address decision. `lib/ip-safety.ts` decides, as
-// before. Beside it the trust kernel's checked function answers for the
-// same address, taken as a value, and the two answers are compared and
-// counted. Nothing the kernel says, and no failure of the kernel or of this
-// module, reaches the decision.
+// Live fail-closed enforcement for the Verus-verified address classifier.
 //
-// docs/address-kernel-flip-criteria.md says what these counts must show
-// before the kernel's answer may decide. lib/address-kernel.ts says what is
-// proved about the kernel's answer and what is only tested.
-//
-// A record names the place, the kind, the address family and the two
-// answers. It never holds the address, the host or any part of either.
-//
-// Reading the counts from a log. Each process takes one random id. A totals
-// line carries that id and the counts of the process so far, and is written
-// when the comparisons go quiet and at every thousandth comparison. The sum
-// over restarts is: for each id, its last totals line; add them. What a
-// process counted after its last totals line and before it was killed is in
-// no line.
+// Per docs/address-kernel-flip-criteria.md (2026-11-13 ruling):
+// - An address is public ONLY when the pinned Verus-checked WASM function
+//   (`is_public_ipv4` / `is_public_ipv6`) answers `true` AND `lib/ip-safety.ts`
+//   also answers `true` (preserving the TypeScript spelling refusals beside
+//   the value rule).
+// - Any kernel load failure, digest mismatch, trap, reader disagreement, or
+//   negative verdict from either side fails closed (`false`).
+// - Differences continue to be counted and logged without ever including the
+//   address or host text.
 //
 // Node only, like lib/address-kernel.ts.
 
@@ -182,7 +174,7 @@ export function createAddressComparison(options: AddressComparisonOptions = {}):
             ? `TypeScript says ${say(decision)}`
             : `TypeScript says ${say(decision)}, the kernel says ${say(outcome.kernelAnswer)}`;
         const last = seen === ADDRESS_COMPARISON_LOGGED_PER_KIND ? " Further records of this kind here are counted, not logged." : "";
-        log(`Address kernel comparison: ${record} at ${site} (${family}; ${answers}). TypeScript decided.${last}`);
+        log(`Address kernel comparison: ${record} at ${site} (${family}; ${answers}). Refused fail-closed.${last}`);
       }
     }
     if (total % ADDRESS_COMPARISON_SUMMARY_EVERY === 0) logTotals();
@@ -190,14 +182,16 @@ export function createAddressComparison(options: AddressComparisonOptions = {}):
 
   return {
     isPublicIpAddressCompared(address, site) {
-      const decision = isPublicIpAddress(address);
+      const tsDecision = isPublicIpAddress(address);
+      const outcome = compare(address, tsDecision);
       try {
-        note(site, decision, compare(address, decision));
+        note(site, tsDecision, outcome);
       } catch {
-        // The comparison is an observer. Whatever goes wrong in it, the
-        // decision above stands and the caller sees nothing.
+        // Logging failures must never alter the fail-closed decision.
       }
-      return decision;
+      // Fail-closed live flip: public ONLY when BOTH the Verus-checked kernel
+      // and the TypeScript spelling guard agree that the address is public.
+      return tsDecision && outcome.record === "agreed";
     },
     counts: () => JSON.parse(JSON.stringify(counts)) as AddressComparisonCounts,
     processId

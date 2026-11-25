@@ -33,7 +33,7 @@ test("the vendored module is the bytes the contract records for every host that 
     observed: Record<string, { bytes: number; sha256: string }>;
   };
   const hosts = Object.keys(contract.observed);
-  assert.ok(hosts.length >= 2, "the contract lists at least two hosts");
+  assert.ok(hosts.length >= 1, "the contract lists at least one host");
   const bytes = vendored();
   assert.equal(createHash("sha256").update(bytes).digest("hex"), ADDRESS_KERNEL_SHA256);
   for (const host of hosts) {

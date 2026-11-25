@@ -223,57 +223,42 @@ test("an unprovisioned controlled runner allows only a loudly disclosed schedule
   }
 });
 
-test("both committed-report workflows force automated r2 and gate before scanning", () => {
-  for (const file of ["scan-featured.yml", "scan.yml"]) {
-    const workflow = readFileSync(path.join(process.cwd(), ".github", "workflows", file), "utf8");
-    const preflight = workflow.indexOf("featured-report-preflight-cli.js");
-    const provenance = workflow.indexOf("Verify server-owned acquisition provenance");
-    const chromium = workflow.indexOf("Install Chromium");
-    const build = workflow.indexOf("Build scanner app");
-    assert.equal(preflight >= 0, true, file);
-    assert.equal(provenance > preflight, true, file);
-    assert.equal(chromium > provenance, true, file);
-    assert.equal(chromium > preflight, true, file);
-    assert.equal(build > preflight, true, file);
-    assert.match(workflow, /default: r2/, file);
-    const expectedModeLine =
-      file === "scan-featured.yml"
-        ? "FEATURED_REPORT_MODE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.report_mode || (vars.FEATURED_RUNNER_LABEL && 'r2' || 'v1') }}"
-        : "FEATURED_REPORT_MODE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.report_mode || 'r2' }}";
-    assert.equal(workflow.includes(expectedModeLine), true, file);
-    if (file === "scan-featured.yml") {
-      // The fallback must be coupled to the SAME variable that routes the
-      // controlled runner, so mode and placement can never disagree.
-      assert.equal(
-        workflow.includes("FEATURED_CONTROLLED_RUNNER_CONFIGURED: ${{ vars.FEATURED_RUNNER_LABEL && '1' || '' }}"),
-        true,
-        file
-      );
-    }
-    assert.equal(workflow.includes("github.event.client_payload.report_mode"), false, file);
-    assert.equal(workflow.includes("vars.FEATURED_REPORT_MODE"), false, file);
-    assert.match(workflow, /FEATURED_R2_EGRESS_ATTESTED:/, file);
-    // Both producers bind the freeze variable so the shared preflight can
-    // refuse v1 lanes mid-freeze, and scan.yml additionally gates its
-    // publish job on the same variable.
-    assert.equal(
-      workflow.includes(
-        "SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE: ${{ vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE || '' }}"
-      ),
-      true,
-      file
-    );
-    if (file === "scan.yml") {
-      assert.match(
-        workflow,
-        /publish:\n\s+name: Validate and Publish Static Report\n[\s\S]{0,400}?if: vars\.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE != '1'/,
-        file
-      );
-    }
-    assert.match(workflow, /SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1"/, file);
-    assert.match(workflow, /runs-on:.*github\.event_name == 'workflow_dispatch'.*FEATURED_RUNNER_LABEL.*'ubuntu-24\.04'/, file);
-    assert.match(workflow, /git commit -m "Add manual v1 compatibility scan report/, file);
-  }
+test("the committed-report workflow forces automated r2 and gates before scanning", () => {
+  const file = "scan-featured.yml";
+  const workflow = readFileSync(path.join(process.cwd(), ".github", "workflows", file), "utf8");
+  const preflight = workflow.indexOf("featured-report-preflight-cli.js");
+  const provenance = workflow.indexOf("Verify server-owned acquisition provenance");
+  const chromium = workflow.indexOf("Install Chromium");
+  const build = workflow.indexOf("Build scanner app");
+  assert.equal(preflight >= 0, true, file);
+  assert.equal(provenance > preflight, true, file);
+  assert.equal(chromium > provenance, true, file);
+  assert.equal(chromium > preflight, true, file);
+  assert.equal(build > preflight, true, file);
+  assert.match(workflow, /default: r2/, file);
+  assert.equal(
+    workflow.includes("FEATURED_REPORT_MODE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.report_mode || (vars.FEATURED_RUNNER_LABEL && 'r2' || 'v1') }}"),
+    true,
+    file
+  );
+  assert.equal(
+    workflow.includes("FEATURED_CONTROLLED_RUNNER_CONFIGURED: ${{ vars.FEATURED_RUNNER_LABEL && '1' || '' }}"),
+    true,
+    file
+  );
+  assert.equal(workflow.includes("github.event.client_payload.report_mode"), false, file);
+  assert.equal(workflow.includes("vars.FEATURED_REPORT_MODE"), false, file);
+  assert.match(workflow, /FEATURED_R2_EGRESS_ATTESTED:/, file);
+  assert.equal(
+    workflow.includes(
+      "SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE: ${{ vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE || '' }}"
+    ),
+    true,
+    file
+  );
+  assert.match(workflow, /SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1"/, file);
+  assert.match(workflow, /runs-on:.*github\.event_name == 'workflow_dispatch'.*FEATURED_RUNNER_LABEL.*'ubuntu-24\.04'/, file);
+  assert.match(workflow, /git commit -m "Add manual v1 compatibility scan report/, file);
 });
 
 test("the shared preflight CLI binds the event and both workflow flag namespaces", () => {
@@ -342,57 +327,38 @@ test("every declared featured cron stays bound to the leg it selects", () => {
 
 test("scanner workflow startup gates reject stale port owners and mismatched health", () => {
   const featured = readFileSync(path.join(process.cwd(), ".github", "workflows", "scan-featured.yml"), "utf8");
-  const single = readFileSync(path.join(process.cwd(), ".github", "workflows", "scan.yml"), "utf8");
 
-  for (const workflow of [featured, single]) {
-    assert.equal(workflow.includes("Port 3100 was already occupied before startup"), true);
-    assert.equal(workflow.includes("node node_modules/next/dist/bin/next start --port 3100"), true);
-    assert.equal(workflow.includes("app_pid=$!"), true);
-    assert.equal(workflow.includes('kill -0 "$app_pid"'), true);
-    assert.equal(workflow.includes("health?.deployment === expectedSha.toLowerCase()"), true);
-    assert.equal(workflow.includes("health?.scansAvailable === true"), true);
-    const unsetRegion = workflow.indexOf("unset SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION");
-    const startScanner = workflow.indexOf("node node_modules/next/dist/bin/next start --port 3100");
-    assert.equal(unsetRegion >= 0 && unsetRegion < startScanner, true);
-    assert.match(workflow, /SITE_BEHAVIOR_LAB_BUILD_COMMIT: \$\{\{ github\.sha \}\}/);
-  }
+  assert.equal(featured.includes("Port 3100 was already occupied before startup"), true);
+  assert.equal(featured.includes("node node_modules/next/dist/bin/next start --port 3100"), true);
+  assert.equal(featured.includes("app_pid=$!"), true);
+  assert.equal(featured.includes('kill -0 "$app_pid"'), true);
+  assert.equal(featured.includes("health?.deployment === expectedSha.toLowerCase()"), true);
+  assert.equal(featured.includes("health?.scansAvailable === true"), true);
+  const unsetRegion = featured.indexOf("unset SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION");
+  const startScanner = featured.indexOf("node node_modules/next/dist/bin/next start --port 3100");
+  assert.equal(unsetRegion >= 0 && unsetRegion < startScanner, true);
+  assert.match(featured, /SITE_BEHAVIOR_LAB_BUILD_COMMIT: \$\{\{ github\.sha \}\}/);
 
   assert.equal(featured.includes('"$FEATURED_REPORT_MODE"'), true);
   assert.equal(featured.includes('"$expected_egress_region"'), true);
   assert.equal(featured.includes("health?.checks?.scannerEgressRegion === expectedRegionStatus"), true);
   assert.equal(featured.includes("health?.checks?.consentVerification === expectedConsentStatus"), true);
   assert.equal(featured.includes("health?.checks?.publicR2Reports?.status === expectedR2Status"), true);
-  assert.equal(single.includes('"$FEATURED_REPORT_MODE"'), true);
-  assert.equal(single.includes('"$expected_egress_region"'), true);
-  assert.equal(single.includes("health?.checks?.scannerEgressRegion === expectedRegionStatus"), true);
-  assert.equal(single.includes("health?.checks?.consentVerification === expectedConsentStatus"), true);
-  assert.equal(single.includes("health?.checks?.publicR2Reports?.status === expectedR2Status"), true);
-  assert.doesNotMatch(single, /SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS: "0"/);
 });
 
 test("scanner publishers fail closed instead of rebasing validated generated output", () => {
-  for (const file of ["scan-featured.yml", "scan.yml"]) {
-    const workflow = readFileSync(path.join(process.cwd(), ".github", "workflows", file), "utf8");
-    assert.equal(workflow.includes("git pull --rebase"), false);
-    assert.equal(workflow.includes("for attempt in 1 2 3"), false);
-    // The publisher proposes on a unique per-attempt automation/* branch, so
-    // it never rewrites its source branch and never needs a retry loop; a base
-    // branch that advanced surfaces as a merge conflict on the pull request.
-    // The push-target contract itself is pinned in
-    // lib/report-publication-workflow.test.ts; this test keeps only the
-    // fail-closed properties so the two files cannot disagree about the target.
-    assert.equal(workflow.includes('git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"'), false);
-    assert.equal(workflow.includes("surfaces as an ordinary merge conflict"), true);
-  }
+  const workflow = readFileSync(path.join(process.cwd(), ".github", "workflows", "scan-featured.yml"), "utf8");
+  assert.equal(workflow.includes("git pull --rebase"), false);
+  assert.equal(workflow.includes("for attempt in 1 2 3"), false);
+  assert.equal(workflow.includes('git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"'), false);
+  assert.equal(workflow.includes("surfaces as an ordinary merge conflict"), true);
 });
 
 test("embedded startup health validators accept only the requested producer contract", () => {
   const featured = readFileSync(path.join(process.cwd(), ".github", "workflows", "scan-featured.yml"), "utf8");
-  const single = readFileSync(path.join(process.cwd(), ".github", "workflows", "scan.yml"), "utf8");
   const directory = mkdtempSync(path.join(tmpdir(), "site-behavior-workflow-health-"));
   const healthPath = path.join(directory, "health.json");
   const featuredValidator = embeddedHealthValidator(featured);
-  const singleValidator = embeddedHealthValidator(single);
 
   try {
     const r2Health = {
@@ -408,7 +374,6 @@ test("embedded startup health validators accept only the requested producer cont
     };
     writeFileSync(healthPath, JSON.stringify(r2Health));
     assert.equal(runHealthValidator(featuredValidator, [healthPath, COMMIT, "r2", "iad-egress-1"]), 0);
-    assert.equal(runHealthValidator(singleValidator, [healthPath, COMMIT, "r2", "iad-egress-1"]), 0);
 
     writeFileSync(healthPath, JSON.stringify({ ...r2Health, deployment: "b".repeat(40) }));
     assert.notEqual(runHealthValidator(featuredValidator, [healthPath, COMMIT, "r2", "iad-egress-1"]), 0);
@@ -432,9 +397,8 @@ test("embedded startup health validators accept only the requested producer cont
     };
     writeFileSync(healthPath, JSON.stringify(v1Health));
     assert.equal(runHealthValidator(featuredValidator, [healthPath, COMMIT, "v1", ""]), 0);
-    assert.equal(runHealthValidator(singleValidator, [healthPath, COMMIT, "v1", ""]), 0);
     writeFileSync(healthPath, JSON.stringify({ ...v1Health, scansAvailable: false }));
-    assert.notEqual(runHealthValidator(singleValidator, [healthPath, COMMIT, "v1", ""]), 0);
+    assert.notEqual(runHealthValidator(featuredValidator, [healthPath, COMMIT, "v1", ""]), 0);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

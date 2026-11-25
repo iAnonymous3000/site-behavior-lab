@@ -7,6 +7,7 @@ import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
 import { Log, LogLevel, Miniflare, Response as MiniflareResponse, type Request as MiniflareRequest } from "miniflare";
 import {
+  ADMISSION_ATTEMPT_MAX_STORED_ROWS,
   chargeAdmissionAttempt,
   enforceAdmissionAttemptLimit,
   isAdmissionAttempt
@@ -40,18 +41,31 @@ test("attempts obey a rolling ten-second ceiling across wall-clock boundaries", 
   } finally { db.close(); }
 });
 
-test("rotating identities cannot exceed the global budget or grow rejected-client storage", () => {
+test("rotating attacker identities never lock out legitimate clients and storage stays bounded", () => {
   const { db, sql } = database();
   try {
-    for (let n = 0; n < 100; n++) assert.deepEqual(chargeAdmissionAttempt(sql, client(n), 1_000), { allowed: true });
-    for (let n = 100; n < 1_000; n++) assert.deepEqual(chargeAdmissionAttempt(sql, client(n), 1_001), { allowed: false, retryAfterSeconds: 10 });
-    assert.equal(db.prepare("SELECT COUNT(*) AS n FROM admission_attempts").get()?.n, 100);
-    assert.deepEqual(chargeAdmissionAttempt(sql, client(1_001), 11_000), { allowed: true });
-    assert.equal(db.prepare("SELECT COUNT(*) AS n FROM admission_attempts").get()?.n, 1);
+    // 200 distinct rotating IPs sending 10 attempts each (2,000 attempts in 1ms)
+    // must NEVER deny service to an unrelated legitimate client.
+    for (let ip = 0; ip < 200; ip++) {
+      for (let attempt = 0; attempt < 10; attempt++) {
+        assert.deepEqual(chargeAdmissionAttempt(sql, client(ip), 1_000), { allowed: true });
+      }
+      // Each individual abusive IP is still capped at 10 per 10s.
+      assert.deepEqual(chargeAdmissionAttempt(sql, client(ip), 1_001), { allowed: false, retryAfterSeconds: 10 });
+    }
+    assert.deepEqual(chargeAdmissionAttempt(sql, client(999_999), 1_001), { allowed: true });
+
+    // A massive rotating flood cannot grow SQLite storage past ADMISSION_ATTEMPT_MAX_STORED_ROWS.
+    for (let ip = 1_000; ip < 1_000 + ADMISSION_ATTEMPT_MAX_STORED_ROWS + 500; ip++) {
+      assert.deepEqual(chargeAdmissionAttempt(sql, client(ip), 1_500), { allowed: true });
+    }
+    assert.ok(
+      Number(db.prepare("SELECT COUNT(*) AS n FROM admission_attempts").get()?.n) <= ADMISSION_ATTEMPT_MAX_STORED_ROWS
+    );
   } finally { db.close(); }
 });
 
-test("SQL decisions agree with an independent event-history oracle over interleaved clients and expiries", () => {
+test("SQL decisions agree with an independent per-client event-history oracle over interleaved clients and expiries", () => {
   const { db, sql } = database();
   const accepted: Array<{ at: number; who: number }> = [];
   let seed = 29;
@@ -61,14 +75,16 @@ test("SQL decisions agree with an independent event-history oracle over interlea
       seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
       now += seed % 71;
       const who = seed % 19;
-      const live = accepted.filter((event) => event.at > now - 10_000);
-      const expected = live.length < 100 && live.filter((event) => event.who === who).length < 10;
+      const liveForClient = accepted.filter((event) => event.who === who && event.at > now - 10_000);
+      const expected = liveForClient.length < 10;
       const decision = chargeAdmissionAttempt(sql, client(who), now);
       assert.equal(decision.allowed, expected, `event ${n} at ${now}`);
       if (expected) accepted.push({ at: now, who });
       else if (!decision.allowed) assert.ok(decision.retryAfterSeconds >= 1 && decision.retryAfterSeconds <= 10);
     }
-    assert.ok(Number(db.prepare("SELECT COUNT(*) AS n FROM admission_attempts").get()?.n) <= 100);
+    assert.ok(
+      Number(db.prepare("SELECT COUNT(*) AS n FROM admission_attempts").get()?.n) <= ADMISSION_ATTEMPT_MAX_STORED_ROWS
+    );
   } finally { db.close(); }
 });
 

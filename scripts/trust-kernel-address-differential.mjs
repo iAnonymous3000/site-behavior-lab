@@ -38,10 +38,11 @@
 // reference stays held by written-out cases in its own unit tests and by
 // this comparison, and by nothing stronger.
 
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import net from "node:net";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 export const ADDRESS_FUZZ_SEED = 0x1b4dd2e5;
 
@@ -80,10 +81,12 @@ export function addressKernel(exports) {
     }
     if (!ascii) {
       const bytes = encoder.encode(input);
-      new Uint8Array(memory.buffer, sbl_input(bytes.length), bytes.length).set(bytes);
+      const ptr = sbl_input(bytes.length);
+      new Uint8Array(memory.buffer, ptr, bytes.length).set(bytes);
       return;
     }
-    const view = new Uint8Array(memory.buffer, sbl_input(input.length), input.length);
+    const ptr = sbl_input(input.length);
+    const view = new Uint8Array(memory.buffer, ptr, input.length);
     for (let index = 0; index < input.length; index += 1) view[index] = input.charCodeAt(index);
   };
   return function ask(input) {
@@ -91,7 +94,8 @@ export function addressKernel(exports) {
     const answer = sbl_classify_address();
     const family = sbl_read_address();
     const length = sbl_output_length();
-    const value = Buffer.from(new Uint8Array(memory.buffer, sbl_output(), length)).toString("hex");
+    const outPtr = sbl_output();
+    const value = Buffer.from(new Uint8Array(memory.buffer, outPtr, length)).toString("hex");
     return { answer, family, value };
   };
 }
@@ -841,4 +845,24 @@ export function runAddressComparison({ root, exports, scale }) {
     },
     differences: sections.flatMap((tally) => tally.differences)
   };
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const args = process.argv.slice(2);
+  const opt = (flag, fallback) => {
+    const i = args.indexOf(flag);
+    return i === -1 ? fallback : args[i + 1];
+  };
+  const root = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
+  const wasmPath = path.resolve(opt("--wasm", path.join(root, "lib/trust-kernel-wasm/sbl_trust_kernel_wasm.wasm")));
+  const reportPath = opt("--report", null);
+  const scale = Number(opt("--scale", "1"));
+  const instance = new WebAssembly.Instance(new WebAssembly.Module(readFileSync(wasmPath)), {});
+  const { report, differences } = runAddressComparison({ root, exports: instance.exports, scale });
+  if (reportPath) writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+  console.log(`Address differential: ${report.totals.cases} cases, ${report.totals.differences} differences.`);
+  if (differences.length > 0 || report.totals.differences > 0) {
+    console.error(JSON.stringify(differences.slice(0, 10), null, 2));
+    process.exitCode = 1;
+  }
 }

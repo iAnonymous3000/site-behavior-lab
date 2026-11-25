@@ -58,13 +58,11 @@ import { buildReceipt, checkoutSource, treeClean, writeReceipt } from "./trust-k
 const ROOT = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const WORKSPACE = path.join(ROOT, "tools/trust-kernel");
 const PINS = JSON.parse(readFileSync(path.join(WORKSPACE, "pins.json"), "utf8"));
-const ENCODER = "kernel/src/encode.rs";
 const ADDRESS = "kernel/src/address.rs";
 const ADDRESS_TEXT = "kernel/src/address_text.rs";
-// The files Verus reads. Each is one `verus!` block from its first item to
-// its last line. Every other file of the crate is ordinary Rust and may
-// hold no Verus source at all.
-const CHECKED_FILES = [ENCODER, ADDRESS];
+// The file Verus reads: one `verus!` block from its first item to its last line.
+// Every other file of the crate is ordinary Rust and may hold no Verus source.
+const CHECKED_FILES = [ADDRESS];
 
 // The kernel crate and the WebAssembly crate are these files and no other.
 // A file that is not listed (a build script, a second module, a cargo
@@ -73,12 +71,7 @@ const CRATE_FILES = [
   "kernel/Cargo.toml",
   "kernel/src/address.rs",
   "kernel/src/address_text.rs",
-  "kernel/src/encode.rs",
   "kernel/src/lib.rs",
-  "kernel/src/nfc.rs",
-  "kernel/src/nfc_tables.rs",
-  "kernel/src/number.rs",
-  "kernel/src/parse.rs",
   "kernel/src/tests.rs",
   "wasm/Cargo.toml",
   "wasm/src/lib.rs"
@@ -137,60 +130,10 @@ const TESTS_MODULE = "#[cfg(test)]\nmod tests;\n";
 // passed at 2 and failed at 0.3 with an error that names no resource
 // limit.
 const RLIMIT_FLOOR = 2;
-// 86 items of the encoder and 17 of the address classifier.
-const VERIFIED_ITEMS = 103;
+// 17 items of the address classifier.
+const VERIFIED_ITEMS = 17;
 
-// The checked statements, word for word: signature, `requires`, `ensures`.
-const ENCODER_STATEMENTS = [
-  `pub proof fn theorem_encoding_is_injective(t1: Tree, t2: Tree)
-    requires
-        numbers_are_tokens(t1),
-        numbers_are_tokens(t2),
-        encode(t1) == encode(t2),
-    ensures
-        t1 == t2,`,
-  `pub proof fn theorem_admitted_numbers_are_tokens(t: Tree)
-    requires
-        admitted(t),
-    ensures
-        numbers_are_tokens(t),
-    decreases t,`,
-  `pub proof fn theorem_admitted_trees_never_share_bytes(t1: Tree, t2: Tree)
-    requires
-        admitted(t1),
-        admitted(t2),
-        encode(t1) == encode(t2),
-    ensures
-        t1 == t2,`,
-  `pub proof fn theorem_key_order_is_strict(a: Seq<u16>)
-    ensures
-        !key_less(a, a),`,
-  `pub proof fn theorem_key_order_is_transitive(a: Seq<u16>, b: Seq<u16>, c: Seq<u16>)
-    requires
-        key_less(a, b),
-        key_less(b, c),
-    ensures
-        key_less(a, c),`,
-  `pub proof fn theorem_admitted_object_has_no_key_twice(m: Seq<(Seq<u16>, Tree)>, i: int, j: int)
-    requires
-        admitted(Tree::Object(m)),
-        0 <= i < j < m.len(),
-    ensures
-        key_less(m[i].0, m[j].0),
-        m[i].0 != m[j].0,
-    decreases j - i,`,
-  `pub fn encode_admitted(v: &Value) -> (r: Option<Vec<u8>>)
-    ensures
-        match r {
-            Some(bytes) => admitted(tree_of(*v)) && bytes@ == encode(tree_of(*v)),
-            None => !admitted(tree_of(*v)),
-        },`
-];
-// The address classifier's. The first two are the theorems: each executable
-// classifier returns, for every value of its type, exactly what the
-// specification says. The third bounds what the text layer's two facts
-// about spelling can do. The rest are statements about the specification
-// itself.
+// The address classifier's checked statements, word for word.
 const ADDRESS_STATEMENTS = [
   `pub fn is_public_ipv4(v: u32) -> (r: bool)
     ensures
@@ -258,26 +201,10 @@ const ADDRESS_STATEMENTS = [
         !ipv6_public(0x0000_0000_0000_0000_0000_0000_0000_0001),
         !ipv6_public(0x0000_0000_0000_0000_0000_ffff_7f00_0001),`
 ];
-const STATEMENTS = { [ENCODER]: ENCODER_STATEMENTS, [ADDRESS]: ADDRESS_STATEMENTS };
+const STATEMENTS = { [ADDRESS]: ADDRESS_STATEMENTS };
 /** The name Verus's report gives a function of a checked file. */
 const reportName = (file, statement) => `sbl_trust_kernel::${path.basename(file, ".rs")}::${/fn (\w+)\(/.exec(statement)[1]}`;
-// The specification of each checked file, by sha256 of its text between two
-// marks. This text is what the statements above mean.
-// - src/encode.rs from `verus! {` up to the line that opens the injectivity
-//   argument: the value types, `tree_of`, `encode` and the rest of the
-//   encoding, `admitted`, `numbers_are_tokens`, `key_less`.
-// - src/address.rs from `verus! {` up to the line that opens the statements
-//   about the specification: the IPv4 table with its sources
-//   (`ipv4_in_table`), `ipv4_public`, `block6`, the IPv6 rule
-//   (`ipv6_public` and the predicates it names), and what it means for a
-//   line to be a block. A changed range, a dropped line and a changed
-//   comment on a source all move it.
 const SPECIFICATIONS = {
-  [ENCODER]: {
-    from: "verus! {\n",
-    to: "// ---------------------------------------------------------------------------\n// Injectivity.\n",
-    sha256: "ea3a9f91fc41edc174599cf85e7693d3280ab65522a3bd44368ac9390080e0c7"
-  },
   [ADDRESS]: {
     from: "verus! {\n",
     to: "// ---------------------------------------------------------------------------\n// Checked statements about the specification itself.\n",
@@ -378,8 +305,7 @@ function checkWorkspace(workspace) {
       if (pattern.test(source)) throw new GuardRefusal("escape", `${file} holds ${pattern}, which lets a claim through unchecked`);
     }
     const axioms = source.split("axiom").length - 1;
-    const allowed = file === ENCODER ? source.split(ALLOWED_AXIOM).length - 1 : 0;
-    if (axioms !== allowed) throw new GuardRefusal("escape", `${file} names an axiom other than the one library fact the encoder may call`);
+    if (axioms !== 0) throw new GuardRefusal("escape", `${file} names an axiom; the address classifier uses none`);
     if (!CHECKED_FILES.includes(file)) {
       for (const pattern of VERUS_MARKS) {
         if (pattern.test(source)) throw new GuardRefusal("verus-outside-checked-files", `${file} holds Verus source (${pattern}); only ${CHECKED_FILES.join(" and ")} may`);
@@ -462,15 +388,6 @@ function checkWorkspace(workspace) {
 // Mutations: changes the guards, or Verus, must refuse
 // ---------------------------------------------------------------------------
 
-const MAIN_LEMMA_FIRST_LINE = "    lemma_first_byte(t1);\n    lemma_first_byte(t2);\n    lemma_first_of_concat(encode(t1), r1);";
-const ENTRY_POINT_CHECK = "    if !admitted_exec(v) {\n        return None;\n    }\n    let mut out: Vec<u8> = Vec::new();";
-const KEY_ORDER_CLAUSE =
-  "        Tree::Object(m) => (forall|i: int| 0 <= i < m.len() ==> admitted((#[trigger] m[i]).1)) && (\n" +
-  "        forall|i: int| 0 < i < m.len() ==> key_less(m[i - 1].0, (#[trigger] m[i]).0)),";
-const PUSH_TWO =
-  "fn push_two(out: &mut Vec<u8>, a: u8, b: u8)\n    ensures\n        final(out)@ == old(out)@ + seq![a, b],\n{\n" +
-  "    out.push(a);\n    out.push(b);\n    assert(out@ =~= old(out)@ + seq![a, b]);\n}\n";
-const THEOREM_REQUIRES = "        numbers_are_tokens(t2),\n        encode(t1) == encode(t2),\n    ensures\n        t1 == t2,\n{\n    let none = Seq::<u8>::empty();";
 // Places in src/address.rs that the self-tests change.
 const IPV4_OCTETS = "    let a = (v >> 24) as u8;\n    let b = (v >> 16) as u8;\n    let c = (v >> 8) as u8;\n";
 const IPV4_TABLE_LINE = "    // 192.88.99.0/24, deprecated 6to4 relay anycast. RFC 7526; registry.\n     || within(v, quad(192, 88, 99, 0), quad(192, 88, 99, 255))\n";
@@ -479,94 +396,11 @@ const IPV6_RULE_LINE = "        // 2001:db8::/32, documentation. RFC 3849.\n    
 const IPV6_CODE_LINE = "    if first == 0x2001 && second == 0x0db8 {\n        return false;\n    }\n";
 const IPV6_FIRST_WORD = "    let first = (v >> 112) as u16;\n";
 
-/**
- * Text changes the source guards must refuse, each with the rule that has
- * to fire. The first seven are the independent review's: M5, M6b, M9 and
- * M12 passed the first version of this script with a green result; M4, M8
- * and M2 were caught then (M2 only by accident, through the resource limit).
- * The entries named "address:" make the same kinds of change to the second
- * checked file and to its text layer, so each rule is shown to reach them.
- */
 const GUARD_MUTATIONS = [
-  {
-    name: "M5: an unproved lemma in another file, called from the main lemma",
-    rule: "escape",
-    edits: [
-      { file: ENCODER, from: MAIN_LEMMA_FIRST_LINE, to: `    crate::number::lemma_digits();\n${MAIN_LEMMA_FIRST_LINE}` },
-      {
-        file: "kernel/src/number.rs",
-        append: "\nuse vstd::prelude::*;\nverus! {\n#[verifier::external_body]\npub proof fn lemma_digits()\n    ensures false,\n{\n}\n}\n"
-      }
-    ]
-  },
-  {
-    name: "M5 without the attribute: Verus source in another file",
-    rule: "verus-outside-checked-files",
-    edits: [{ file: "kernel/src/number.rs", append: "\nuse vstd::prelude::*;\nverus! {\npub proof fn lemma_digits()\n{\n}\n}\n" }]
-  },
-  {
-    name: "M6b: false among the hypotheses of the injectivity theorem",
-    rule: "statement",
-    edits: [{ file: ENCODER, from: THEOREM_REQUIRES, to: THEOREM_REQUIRES.replace("encode(t1) == encode(t2),", "encode(t1) == encode(t2),\n        false,") }]
-  },
-  {
-    name: "M9: a cfg gives the ordinary build another push_two than the checked one",
-    rule: "cfg",
-    edits: [
-      {
-        file: ENCODER,
-        from: PUSH_TWO,
-        to: `#[cfg(verus_keep_ghost)]\n${PUSH_TWO}\n#[cfg(not(verus_keep_ghost))]\nfn push_two(out: &mut Vec<u8>, a: u8, _b: u8) {\n    out.push(a);\n}\n`
-      }
-    ]
-  },
-  {
-    name: "M12: the entry point taken out of verification with the older attribute spelling",
-    rule: "escape",
-    edits: [
-      { file: ENCODER, from: "pub fn encode_admitted(v: &Value) -> (r: Option<Vec<u8>>)", to: "#[verifier(external)]\npub fn encode_admitted(v: &Value) -> (r: Option<Vec<u8>>)" },
-      { file: ENCODER, from: ENTRY_POINT_CHECK, to: "    let mut out: Vec<u8> = Vec::new();" }
-    ]
-  },
-  {
-    name: "M4: assume(false) in the main lemma",
-    rule: "escape",
-    edits: [{ file: ENCODER, from: MAIN_LEMMA_FIRST_LINE, to: `    assume(false);\n${MAIN_LEMMA_FIRST_LINE}` }]
-  },
   {
     name: "M8: the manifest tells cargo verus not to verify the crate",
     rule: "manifest",
     edits: [{ file: "kernel/Cargo.toml", from: "verify = true", to: "verify = false" }]
-  },
-  {
-    name: "M2: the key order clause dropped from the admitted domain",
-    rule: "specification",
-    edits: [{ file: ENCODER, from: KEY_ORDER_CLAUSE, to: "        Tree::Object(m) => (forall|i: int| 0 <= i < m.len() ==> admitted((#[trigger] m[i]).1))," }]
-  },
-  {
-    name: "the entry point's promise weakened back to nothing on a refusal",
-    rule: "statement",
-    edits: [{ file: ENCODER, from: "            None => !admitted(tree_of(*v)),", to: "            None => true," }]
-  },
-  {
-    name: "admit() in the main lemma",
-    rule: "escape",
-    edits: [{ file: ENCODER, from: MAIN_LEMMA_FIRST_LINE, to: `    admit();\n${MAIN_LEMMA_FIRST_LINE}` }]
-  },
-  {
-    name: "a declared axiom",
-    rule: "escape",
-    edits: [{ file: ENCODER, append: "\nverus! {\npub axiom fn everything()\n    ensures false;\n}\n" }]
-  },
-  {
-    name: "a function given a resource limit of its own",
-    rule: "escape",
-    edits: [{ file: ENCODER, from: "proof fn lemma_encode_injective(", to: "#[verifier::rlimit(1000)]\nproof fn lemma_encode_injective(" }]
-  },
-  {
-    name: "a checked statement moved into a comment, the function gone",
-    rule: "escape",
-    edits: [{ file: ENCODER, from: "/// Every admitted tree is in the domain of the theorem above.\n", to: "/*\n" }, { file: ENCODER, from: "/// Two admitted trees with the same bytes are the same tree.\n", to: "*/\n" }]
   },
   {
     name: "a build script",
@@ -721,51 +555,7 @@ const GUARD_MUTATIONS = [
   }
 ];
 
-/**
- * Changes Verus itself must refuse. The first writes a quote with no
- * escape, so two strings share bytes. M7 is the review's: before the entry
- * point promised anything about a refusal, Verus accepted it. M2 passed
- * Verus under a higher resource limit while injectivity was the only
- * statement; the key order statements now need the clause. M1 drops the
- * comma between items in the specification and in the code.
- */
 const VERUS_MUTATIONS = [
-  {
-    name: "a quote written with no escape",
-    edits: [{ file: ENCODER, from: "    if u == 0x22 {\n        seq![0x5cu8, 0x22u8]\n    } else if u == 0x5c {", to: "    if u == 0x22 {\n        seq![0x22u8]\n    } else if u == 0x5c {" }]
-  },
-  {
-    name: "M7: the entry point refuses everything",
-    edits: [{ file: ENCODER, from: ENTRY_POINT_CHECK, to: ENTRY_POINT_CHECK.replace("if !admitted_exec(v) {", "if !admitted_exec(v) || true {") }]
-  },
-  {
-    name: "M2: the key order clause dropped, in the specification and in the code",
-    edits: [
-      { file: ENCODER, from: KEY_ORDER_CLAUSE, to: "        Tree::Object(m) => (forall|i: int| 0 <= i < m.len() ==> admitted((#[trigger] m[i]).1))," },
-      { file: ENCODER, from: "                    forall|j: int| 0 < j < i ==> key_less(members[j - 1].0, (#[trigger] members[j]).0),\n", to: "" },
-      {
-        file: ENCODER,
-        from: "                if i > 0 && !key_less_exec(&m[i - 1].0, &m[i].0) {\n                    assert(!key_less(members[i - 1].0, members[i as int].0));\n                    return false;\n                }\n",
-        to: ""
-      }
-    ]
-  },
-  {
-    name: "M1: no comma between items, in the specification and in the code",
-    edits: [
-      { file: ENCODER, from: "    if i > 0 {\n        seq![0x2cu8]\n    } else {\n        Seq::empty()\n    }", to: "    Seq::empty()" },
-      {
-        file: ENCODER,
-        from: "        if i > 0 {\n            out.push(0x2c);\n        }\n        assert(out@ =~= before + separator(i as int));\n        proof {",
-        to: "        assert(out@ =~= before + separator(i as int));\n        proof {"
-      },
-      {
-        file: ENCODER,
-        from: "        if i > 0 {\n            out.push(0x2c);\n        }\n        assert(out@ =~= before + separator(i as int));\n        out.push(0x22);",
-        to: "        assert(out@ =~= before + separator(i as int));\n        out.push(0x22);"
-      }
-    ]
-  },
   // The address classifier. Each change makes the code and the specification
   // disagree, or makes a statement about the specification false.
   {
@@ -863,8 +653,6 @@ function runTests(scratch) {
   const output = `${result.stdout ?? ""}${result.stderr ?? ""}`;
   const summary = /^test result: ok\. (\d+) passed; 0 failed; 0 ignored; 0 measured; 0 filtered out/m.exec(output);
   const named = [
-    "tests::the_encoder_returns_bytes_exactly_for_admitted_trees ... ok",
-    "tests::an_admitted_tree_need_not_be_canonical ... ok",
     "tests::an_address_reads_as_the_reference_reads_it ... ok",
     "tests::a_verdict_follows_the_spelling_where_the_reference_makes_it ... ok",
     "tests::a_text_is_read_as_the_value_it_names ... ok"

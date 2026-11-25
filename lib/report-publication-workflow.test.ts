@@ -4,14 +4,10 @@ import path from "node:path";
 import { test } from "node:test";
 
 const workflowsDir = path.join(process.cwd(), ".github", "workflows");
-const single = readFileSync(path.join(workflowsDir, "scan.yml"), "utf8");
 const featured = readFileSync(path.join(workflowsDir, "scan-featured.yml"), "utf8");
 
 test("hostile-site acquisition jobs have read-only authority and a fail-closed sandbox", () => {
-  for (const [name, source, id] of [
-    ["single", single, "scan"],
-    ["featured", featured, "scan-featured"]
-  ] as const) {
+  for (const [name, source, id] of [["featured", featured, "scan-featured"]] as const) {
     const acquisition = job(source, id);
     assert.match(acquisition, /permissions:\n\s+contents: read/);
     assert.doesNotMatch(acquisition, /contents: write|actions: write|issues: write/);
@@ -43,7 +39,7 @@ test("committed r2 provenance is server-owned and publisher-enforced", () => {
 });
 
 test("trusted publishers validate bounded data before a non-rebasing branch push", () => {
-  for (const [name, source] of [["single", single], ["featured", featured]] as const) {
+  for (const [name, source] of [["featured", featured]] as const) {
     const publisher = job(source, "publish");
     assert.match(publisher, /runs-on: ubuntu-24\.04/);
     assert.match(publisher, /permissions:\n\s+contents: write\n[\s\S]*?actions: write/);

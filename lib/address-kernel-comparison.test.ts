@@ -16,10 +16,10 @@ import {
 import { isPublicIpAddress } from "./ip-safety";
 import { assertPublicHttpUrlShape } from "./url-safety";
 
-// Comparison mode is an observer: these tests hold that the decision is the
-// TypeScript one whatever the kernel says or does, that every outcome is
-// counted where a test and an operator can read it, and that a record never
-// carries the address.
+// Live fail-closed enforcement: an address is public ONLY when BOTH the pinned
+// Verus-checked WASM kernel and lib/ip-safety.ts agree it is public. Any
+// disagreement, reader failure, or kernel unavailability fails closed (false)
+// and is counted/logged without ever leaking the address text.
 
 const SAMPLE = [
   "8.8.8.8", "10.0.0.1", "192.168.1.1", "1.1.1.1", "127.0.0.1", "[2606:4700:4700::1111]", "fc00::1", "::1",
@@ -27,7 +27,7 @@ const SAMPLE = [
 ];
 
 const LINE =
-  /^Address kernel comparison: (decision-differs|reader-differs|kernel-unavailable) at (url-resolved-addresses|url-address-literal|proxy-connect-addresses) \((ipv4|ipv6|none); TypeScript says (not )?public(, the kernel says (not )?public)?\)\. TypeScript decided\.( Further records of this kind here are counted, not logged\.)?$/;
+  /^Address kernel comparison: (decision-differs|reader-differs|kernel-unavailable) at (url-resolved-addresses|url-address-literal|proxy-connect-addresses) \((ipv4|ipv6|none); TypeScript says (not )?public(, the kernel says (not )?public)?\)\. Refused fail-closed\.( Further records of this kind here are counted, not logged\.)?$/;
 
 const TOTALS =
   /^Address kernel comparison totals: process ([0-9a-f]{16}), (\d+) comparisons: agreed (\d+) \(ipv4 (\d+), ipv6 (\d+), none (\d+)\), not-an-address (\d+) \(ipv4 (\d+), ipv6 (\d+), none (\d+)\), decision-differs (\d+) \(ipv4 (\d+), ipv6 (\d+), none (\d+)\), reader-differs (\d+) \(ipv4 (\d+), ipv6 (\d+), none (\d+)\), kernel-unavailable (\d+) \(ipv4 (\d+), ipv6 (\d+), none (\d+)\)\.$/;
@@ -101,12 +101,13 @@ test("with the vendored kernel every sampled address agrees, and nothing is logg
   assert.deepEqual(comparison.counts()["url-address-literal"].agreed, { ipv4: 0, ipv6: 0, none: 0 });
 });
 
-test("a kernel that answers the opposite changes no decision, and each difference is recorded without the address", async () => {
+test("a kernel that disagrees fails closed (never admits when either side refuses), and records without the address", async () => {
   const { loadAddressKernel } = await import("./address-kernel");
   const { lines, log } = collect();
   const comparison = createAddressComparison({ loadKernel: () => opposite(loadAddressKernel()), log });
   for (const address of SAMPLE) {
-    assert.equal(comparison.isPublicIpAddressCompared(address, "url-resolved-addresses"), isPublicIpAddress(address), address);
+    // Since the flipped kernel always disagrees with TS, fail-closed MUST refuse every address.
+    assert.equal(comparison.isPublicIpAddressCompared(address, "url-resolved-addresses"), false, address);
   }
   const counts = comparison.counts()["url-resolved-addresses"];
   assert.deepEqual(counts["decision-differs"], { ipv4: 6, ipv6: 7, none: 0 });
@@ -114,7 +115,7 @@ test("a kernel that answers the opposite changes no decision, and each differenc
   assert.equal(lines.length, ADDRESS_COMPARISON_LOGGED_PER_KIND);
   assert.equal(
     lines[0],
-    "Address kernel comparison: decision-differs at url-resolved-addresses (ipv4; TypeScript says public, the kernel says not public). TypeScript decided."
+    "Address kernel comparison: decision-differs at url-resolved-addresses (ipv4; TypeScript says public, the kernel says not public). Refused fail-closed."
   );
   for (const line of lines) {
     assert.match(line, LINE);
@@ -126,17 +127,17 @@ test("a kernel that answers the opposite changes no decision, and each differenc
   assert.match(lines[ADDRESS_COMPARISON_LOGGED_PER_KIND - 1], /counted, not logged\.$/);
 });
 
-test("the reference refuses a spelling the value rule admits, and that is recorded as a difference", () => {
+test("the reference refuses a spelling the value rule admits, and live enforcement keeps the refusal", () => {
   const { lines, log } = collect();
   const comparison = createAddressComparison({ log });
   assert.equal(comparison.isPublicIpAddressCompared("0:0:0:0:0:ffff:8.8.8.8", "url-address-literal"), false);
   assert.deepEqual(comparison.counts()["url-address-literal"]["decision-differs"], { ipv4: 0, ipv6: 1, none: 0 });
   assert.deepEqual(lines, [
-    "Address kernel comparison: decision-differs at url-address-literal (ipv6; TypeScript says not public, the kernel says public). TypeScript decided."
+    "Address kernel comparison: decision-differs at url-address-literal (ipv6; TypeScript says not public, the kernel says public). Refused fail-closed."
   ]);
 });
 
-test("a kernel that cannot load, or throws, changes no decision and is tried once", () => {
+test("a kernel that cannot load, or throws, fails closed (returns false) and is tried once", () => {
   for (const failure of ["load", "call"] as const) {
     const { lines, log } = collect();
     let loads = 0;
@@ -156,7 +157,7 @@ test("a kernel that cannot load, or throws, changes no decision and is tried onc
       }
     });
     for (const address of SAMPLE) {
-      assert.equal(comparison.isPublicIpAddressCompared(address, "proxy-connect-addresses"), isPublicIpAddress(address), address);
+      assert.equal(comparison.isPublicIpAddressCompared(address, "proxy-connect-addresses"), false, address);
     }
     assert.equal(loads, 1, failure);
     assert.deepEqual(comparison.counts()["proxy-connect-addresses"]["kernel-unavailable"], { ipv4: 6, ipv6: 7, none: 0 }, failure);
@@ -166,7 +167,7 @@ test("a kernel that cannot load, or throws, changes no decision and is tried onc
   }
 });
 
-test("a text the two readers do not agree is an address is recorded, and the kernel is not asked", () => {
+test("a text the two readers do not agree is an address fails closed, and the kernel is not asked", () => {
   let asked = 0;
   const kernel: AddressKernel = { isPublicIpv4: () => (asked += 1) > 0, isPublicIpv6: () => (asked += 1) > 0 };
   const cases: [string, () => ReturnType<typeof import("./address-kernel").readAddressValue>, string][] = [
@@ -177,7 +178,7 @@ test("a text the two readers do not agree is an address is recorded, and the ker
   for (const [address, readValue, family] of cases) {
     const { lines, log } = collect();
     const comparison = createAddressComparison({ loadKernel: () => kernel, readValue, log });
-    assert.equal(comparison.isPublicIpAddressCompared(address, "url-resolved-addresses"), isPublicIpAddress(address));
+    assert.equal(comparison.isPublicIpAddressCompared(address, "url-resolved-addresses"), false);
     const counts = comparison.counts()["url-resolved-addresses"]["reader-differs"];
     assert.equal(counts[family as "none" | "ipv4"], 1);
     assert.equal(lines.length, 1);
@@ -188,15 +189,13 @@ test("a text the two readers do not agree is an address is recorded, and the ker
 
 test("a log that throws changes no decision", () => {
   const comparison = createAddressComparison({
-    loadKernel: () => {
-      throw new Error("absent");
-    },
     log: () => {
       throw new Error("log");
     }
   });
   assert.equal(comparison.isPublicIpAddressCompared("8.8.8.8", "url-address-literal"), true);
   assert.equal(comparison.isPublicIpAddressCompared("10.0.0.1", "url-address-literal"), false);
+  assert.equal(comparison.isPublicIpAddressCompared("0:0:0:0:0:ffff:8.8.8.8", "url-address-literal"), false);
 });
 
 test("the totals are logged once for each thousand comparisons, with the process id", () => {

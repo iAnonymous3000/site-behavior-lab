@@ -170,6 +170,7 @@ import {
   recoverDurableScanJobSnapshotResponse
 } from "../lib/durable-scan-job-recovery";
 import {
+  DURABLE_SCAN_JOB_MAX_ATTEMPTS,
   DurableScanJobCapacityError,
   DurableScanJobStateError,
   admitDurableScanJob,
@@ -254,6 +255,8 @@ import {
 import {
   DURABLE_CONTAINER_SHARD_COUNT_ENV,
   DURABLE_CONTAINER_SHARDING_ENV,
+  DURABLE_SCAN_JOB_CAPACITY_PER_SHARD,
+  durableContainerExecutionCapacity,
   durableContainerShardingPlan,
   findDurableContainerShardRoute,
   pruneDurableContainerShardRoutes,
@@ -359,7 +362,7 @@ const turnstileConfigurationProbes = createTurnstileProbeCache({
 const MAX_BODY_BYTES = 4_096;
 const MAX_COORDINATOR_BODY_BYTES = 32_768;
 const DURABLE_SCAN_JOB_PUMP_CALLBACK = "pumpDurableScanJobs";
-const DURABLE_SCAN_JOB_EXECUTION_CAPACITY = 2;
+const DURABLE_SCAN_JOB_EXECUTION_CAPACITY = DURABLE_SCAN_JOB_CAPACITY_PER_SHARD;
 
 /**
  * Minimum turn time a single encrypted-watch claim must be able to fund before
@@ -1695,16 +1698,31 @@ export class ScannerContainer extends Container<Env> {
     });
   }
 
+  private durableExecutionCapacity(): { total: number; perShard: number } {
+    const sharding = durableContainerShardingPlan({
+      durableJobsFlag: this.env[DURABLE_SCAN_JOBS_ENV],
+      durableJobsReady: true,
+      shardingFlag: this.env[DURABLE_CONTAINER_SHARDING_ENV],
+      shardCount: this.env[DURABLE_CONTAINER_SHARD_COUNT_ENV]
+    });
+    return {
+      total: durableContainerExecutionCapacity(sharding),
+      perShard: DURABLE_SCAN_JOB_CAPACITY_PER_SHARD
+    };
+  }
+
   private async dispatchDurablePumpCore(context: DurableScanJobPumpTaskContext): Promise<void> {
     throwIfDurablePumpAborted(context.signal);
     // The callback-entry prearm is already a durable immediate recovery driver,
     // so claiming does not depend on another uncancellable schedule() await.
-    const credentials = await createDurableScanJobLeaseCredentials(DURABLE_SCAN_JOB_EXECUTION_CAPACITY);
+    const executionCapacity = this.durableExecutionCapacity();
+    const credentials = await createDurableScanJobLeaseCredentials(executionCapacity.total);
     throwIfDurablePumpAborted(context.signal);
     const claims = this.ctx.storage.transactionSync(() =>
       claimDurableScanJobs(this.ctx.storage.sql, {
         now: Date.now(),
-        capacity: DURABLE_SCAN_JOB_EXECUTION_CAPACITY,
+        capacity: executionCapacity.total,
+        maxPerShard: executionCapacity.perShard,
         credentials
       })
     );
@@ -2676,22 +2694,55 @@ export class ScannerContainer extends Container<Env> {
       // Hard/non-publishing work is classified separately so a publishing
       // backoff can never postpone an expired ordinary lease, deadline, queued
       // capacity wake, or immutable purge boundary.
-      const store = this.ctx.storage.sql
-        .exec<{ wake_at: number | null }>(
-          `SELECT MIN(wake_at) AS wake_at FROM (
-             SELECT ? AS wake_at FROM durable_scan_jobs
-             WHERE state = 'queued' AND deadline_at > ? AND (
-               SELECT COUNT(*) FROM durable_scan_jobs WHERE state IN ('leased','publishing')
-             ) < ?
-             UNION ALL SELECT lease_expires_at FROM durable_scan_jobs WHERE state = 'leased'
-             UNION ALL SELECT deadline_at FROM durable_scan_jobs WHERE state IN ('queued','leased')
-             UNION ALL SELECT purge_at FROM durable_scan_jobs
-           )`,
-          now,
-          now,
-          DURABLE_SCAN_JOB_EXECUTION_CAPACITY
-        )
-        .toArray()[0];
+      const executionCapacity = this.durableExecutionCapacity();
+      const hasRouteTable =
+        this.ctx.storage.sql
+          .exec<{ name: string }>(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'durable_scan_job_container_routes' LIMIT 1"
+          )
+          .toArray().length > 0;
+      const store = hasRouteTable
+        ? this.ctx.storage.sql
+            .exec<{ wake_at: number | null }>(
+              `SELECT MIN(wake_at) AS wake_at FROM (
+                 SELECT ? AS wake_at FROM durable_scan_jobs q
+                 LEFT JOIN durable_scan_job_container_routes qr ON qr.job_id = q.job_id
+                 WHERE q.state = 'queued' AND q.deadline_at > ? AND q.attempt_count < ?
+                   AND (SELECT COUNT(*) FROM durable_scan_jobs WHERE state IN ('leased','publishing')) < ?
+                   AND (
+                     SELECT COUNT(*) FROM durable_scan_jobs a
+                     LEFT JOIN durable_scan_job_container_routes ar ON ar.job_id = a.job_id
+                     WHERE a.state IN ('leased','publishing')
+                       AND COALESCE(ar.shard_index, 0) = COALESCE(qr.shard_index, 0)
+                   ) < ?
+                 UNION ALL SELECT lease_expires_at FROM durable_scan_jobs WHERE state = 'leased'
+                 UNION ALL SELECT deadline_at FROM durable_scan_jobs WHERE state IN ('queued','leased')
+                 UNION ALL SELECT purge_at FROM durable_scan_jobs
+               )`,
+              now,
+              now,
+              DURABLE_SCAN_JOB_MAX_ATTEMPTS,
+              executionCapacity.total,
+              executionCapacity.perShard
+            )
+            .toArray()[0]
+        : this.ctx.storage.sql
+            .exec<{ wake_at: number | null }>(
+              `SELECT MIN(wake_at) AS wake_at FROM (
+                 SELECT ? AS wake_at FROM durable_scan_jobs
+                 WHERE state = 'queued' AND deadline_at > ? AND attempt_count < ? AND (
+                   SELECT COUNT(*) FROM durable_scan_jobs WHERE state IN ('leased','publishing')
+                 ) < ?
+                 UNION ALL SELECT lease_expires_at FROM durable_scan_jobs WHERE state = 'leased'
+                 UNION ALL SELECT deadline_at FROM durable_scan_jobs WHERE state IN ('queued','leased')
+                 UNION ALL SELECT purge_at FROM durable_scan_jobs
+               )`,
+              now,
+              now,
+              DURABLE_SCAN_JOB_MAX_ATTEMPTS,
+              executionCapacity.total
+            )
+            .toArray()[0];
       // For each publishing row, a matching future backoff replaces its
       // already-due settlement wake. Stale-generation or elapsed backoff rows
       // are ignored, and the hard job deadline always wins.

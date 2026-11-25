@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { test } from "node:test";
@@ -736,82 +735,6 @@ test("short-run budget exceptions preserve exact v2 evidence caps but never appl
     false,
     "an unknown v2 digest cannot borrow the frozen exception"
   );
-});
-
-test("the scheduled fidelity workflow handles one-off manual runs and pins attempted-run provenance", () => {
-  const workflow = readFileSync(
-    path.join(process.cwd(), ".github", "workflows", "scanner-fidelity.yml"),
-    "utf8"
-  );
-  assert.match(workflow, /shard: \[0, 1\]/);
-  assert.match(workflow, /SCANNER_FIDELITY_SHARD_COUNT: "2"/);
-  assert.match(workflow, /SCANNER_FIDELITY_MODE: \$\{\{ matrix\.mode \}\}/);
-  assert.match(workflow, /SCANNER_FIDELITY_DEVICE: \$\{\{ inputs\.device \|\| 'desktop' \}\}/);
-
-  // The schedule leg passes no inputs, so scheduled coverage is exactly the
-  // fallback arm of the mode matrix. Pin every scan shape there: the
-  // comparison modes (shields, gpc, consent) caught the worst reader-facing
-  // defects when dispatched by hand, and dropping one from the matrix would
-  // silently return it to manual-only coverage.
-  assert.match(workflow, /\bschedule:\n\s+- cron: "35 4 \* \* \*"/);
-  assert.match(workflow, /fail-fast: false/);
-  const modeMatrix = workflow.match(
-    /mode: \$\{\{ inputs\.mode && fromJSON\(format\('\["\{0\}"\]', inputs\.mode\)\) \|\| fromJSON\('(\[[^']*\])'\) \}\}/
-  );
-  assert.ok(modeMatrix, "the mode matrix must honor a dispatch and fan out on the schedule");
-  const scheduledModes = JSON.parse(modeMatrix[1]) as string[];
-  assert.deepEqual(scheduledModes, ["single", "shields", "gpc", "consent"]);
-  // The matrix restates the harness's mode vocabulary, so tie the two
-  // declarations together instead of trusting them to agree.
-  const smoke = readFileSync(
-    path.join(process.cwd(), "scripts", "smoke-scanner-fidelity.mjs"),
-    "utf8"
-  );
-  const harnessModes = smoke.match(/const MODES = new Set\((\[[^\]]*\])\);/);
-  assert.ok(harnessModes, "the harness must declare its accepted modes");
-  assert.deepEqual(scheduledModes, JSON.parse(harnessModes[1]));
-  // A manual dispatch of any scheduled mode must remain expressible.
-  const modeInput = workflow.slice(workflow.indexOf("      mode:"), workflow.indexOf("      device:"));
-  for (const mode of scheduledModes) {
-    assert.match(modeInput, new RegExp(`- ${mode}\\n`));
-  }
-  // Eight matrix jobs upload eight ledgers; a shard-only artifact name would
-  // collide across modes and fail every upload after the first.
-  assert.match(
-    workflow,
-    /name: scanner-fidelity-attempts-\$\{\{ matrix\.mode \}\}-\$\{\{ matrix\.shard \}\}/
-  );
-  assert.match(
-    workflow,
-    /SCANNER_FIDELITY_OUTPUT: \$\{\{ runner\.temp \}\}\/scanner-fidelity-attempts-\$\{\{ matrix\.mode \}\}-\$\{\{ matrix\.shard \}\}\.json/
-  );
-  assert.match(workflow, /SCANNER_FIDELITY_REPETITIONS: \$\{\{ inputs\.repetitions \|\| '2' \}\}/);
-  assert.match(
-    workflow,
-    /SCANNER_FIDELITY_MIN_REPEATABLE_TARGETS: \$\{\{ inputs\.repetitions == '1' && '0' \|\| '1' \}\}/
-  );
-  assert.match(workflow, /SCANNER_FIDELITY_OUTPUT:/);
-  const startStep = workflow.slice(
-    workflow.indexOf("- name: Start the scanner"),
-    workflow.indexOf("- name: Assert scanner invariants against real sites")
-  );
-  const assertStep = workflow.slice(
-    workflow.indexOf("- name: Assert scanner invariants against real sites"),
-    workflow.indexOf("- name: Upload the complete attempted-run ledger")
-  );
-  assert.match(startStep, /SITE_BEHAVIOR_LAB_BUILD_COMMIT: \$\{\{ github\.sha \}\}/);
-  assert.match(assertStep, /SITE_BEHAVIOR_LAB_BUILD_COMMIT: \$\{\{ github\.sha \}\}/);
-  assert.equal(
-    [...workflow.matchAll(/SITE_BEHAVIOR_LAB_BUILD_COMMIT: \$\{\{ github\.sha \}\}/g)].length,
-    2
-  );
-  assert.match(workflow, /kernel\.apparmor_restrict_unprivileged_userns=0/);
-  assert.ok(
-    workflow.indexOf("kernel.apparmor_restrict_unprivileged_userns=0") <
-      workflow.indexOf("npx playwright install --with-deps chromium")
-  );
-  assert.doesNotMatch(workflow, /--no-sandbox/);
-  assert.match(workflow, /actions\/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9/);
 });
 
 function wireRun(thirdPartyRequests: number, domain: string) {
