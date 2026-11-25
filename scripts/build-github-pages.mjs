@@ -54,7 +54,11 @@ const serverOnlyAppDirs = [
   // ceiling. Moving it onto Pages means deleting this entry, adding the route
   // to runtimeReportRouteFiles below, updating lib/print-route-contract.test.ts
   // in the same change, and reading the gate's own number from one real build.
-  path.join(rootDir, "app", "reports", "[id]", "print")
+  path.join(rootDir, "app", "reports", "[id]", "print"),
+  // Dynamic D1/R2-backed v3 report permalinks & site history routes require
+  // the Node/Cloudflare runtime and stay excluded from static GitHub Pages.
+  path.join(rootDir, "app", "v3", "reports"),
+  path.join(rootDir, "app", "v3", "sites")
 ];
 const runtimeReportRouteFiles = [
   path.join("app", "reports", "[id]", "page.tsx"),
