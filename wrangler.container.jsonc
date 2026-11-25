@@ -91,6 +91,17 @@
     "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX": "1"
   },
 
+  // Site Behavior Lab v3 Cloudflare-native storage & offloaded PDF notes:
+  // - D1 metadata/corpus index schema: `lib/v3/storage/d1-schema.sql` (attach
+  //   a `d1_databases` binding named `V3_INDEX` when provisioning Cloudflare D1).
+  // - R2 blobs (`v3/reports/*.json`, `v3/pdfs/*.pdf`): O(1) PUT/GET with native
+  //   R2 bucket object-lifecycle expiry (no ListObjectsV2/HEAD pruning).
+  // - Offloaded PDFs: set `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_API_TOKEN`
+  //   secrets to route `/api/v3/reports/[id]/pdf` through Cloudflare Browser
+  //   Rendering and cache outputs in R2.
+  // - Optional regional scan workers: set `SITE_BEHAVIOR_LAB_REGIONAL_WORKERS_JSON`
+  //   with HMAC-signed HTTPS endpoints for `us-east` / `eu-central` / `ap-northeast`.
+
   "containers": [
     {
       "class_name": "ScannerContainer",

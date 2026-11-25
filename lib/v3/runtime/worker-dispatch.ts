@@ -1,0 +1,151 @@
+/**
+ * Clean HTTP scan-worker dispatch seam & regional egress profile selector for
+ * Site Behavior Lab v3.
+ *
+ * Default deployment is 100% pure Cloudflare (Containers + Workers + D1 + R2).
+ * When operators optionally add regional scan workers (e.g. Fly.io / Cloud Run
+ * in EU/US/APAC with kernel-level L3/L4 `nftables` SSRF firewalls), they simply
+ * register regional HTTPS endpoints + shared HMAC secret via environment config —
+ * zero code changes required!
+ */
+
+import { createHmac, timingSafeEqual } from "node:crypto";
+import type { ScanReportV3 } from "../schema";
+import type { ScanRequestV3 } from "../scanner";
+
+export type ScanRegionIdV3 = "auto" | "us-east" | "eu-central" | "ap-northeast";
+
+export type RegionalEgressProfileV3 = {
+  region: Exclude<ScanRegionIdV3, "auto">;
+  label: string;
+  locale: string;
+  timezone: string;
+  regulatoryContext: string;
+};
+
+export const REGIONAL_EGRESS_PROFILES_V3: Readonly<Record<Exclude<ScanRegionIdV3, "auto">, RegionalEgressProfileV3>> = {
+  "us-east": {
+    region: "us-east",
+    label: "United States (East)",
+    locale: "en-US",
+    timezone: "America/New_York",
+    regulatoryContext: "US / CCPA / GPC"
+  },
+  "eu-central": {
+    region: "eu-central",
+    label: "European Union (Frankfurt)",
+    locale: "de-DE",
+    timezone: "Europe/Berlin",
+    regulatoryContext: "EU / GDPR / ePrivacy"
+  },
+  "ap-northeast": {
+    region: "ap-northeast",
+    label: "Asia-Pacific (Tokyo)",
+    locale: "ja-JP",
+    timezone: "Asia/Tokyo",
+    regulatoryContext: "APAC / APPI"
+  }
+};
+
+export type RegionalWorkerUpstreamConfigV3 = {
+  region: Exclude<ScanRegionIdV3, "auto">;
+  endpointUrl: string;
+  hmacSecret: string;
+  timeoutMs?: number;
+};
+
+export type DispatchScanOptionsV3 = {
+  region?: ScanRegionIdV3;
+  upstreams?: readonly RegionalWorkerUpstreamConfigV3[];
+  /** Default pure-Cloudflare / local Container executor. */
+  defaultExecutor: (request: ScanRequestV3) => Promise<ScanReportV3>;
+  fetchImpl?: typeof fetch;
+  nowMs?: () => number;
+};
+
+/** Resolve matching locale & timezone for an explicit regional scan request. */
+export function applyRegionalProfileV3(request: ScanRequestV3, region: ScanRegionIdV3 = "auto"): ScanRequestV3 {
+  if (region === "auto") return request;
+  const profile = REGIONAL_EGRESS_PROFILES_V3[region];
+  return {
+    ...request,
+    egressRegion: request.egressRegion ?? profile.region,
+    locale: request.locale ?? profile.locale,
+    timezone: request.timezone ?? profile.timezone
+  };
+}
+
+/** Compute deterministic HMAC-SHA256 dispatch signature (`timestamp.body`). */
+export function signWorkerDispatchPayloadV3(secret: string, timestampSec: string, body: string): string {
+  return createHmac("sha256", secret).update(`${timestampSec}.${body}`).digest("hex");
+}
+
+/** Constant-time verification for regional worker endpoints receiving dispatched scan requests. */
+export function verifyWorkerDispatchSignatureV3(input: {
+  secret: string;
+  timestampSec: string;
+  signatureHex: string;
+  body: string;
+  nowMs?: number;
+  maxSkewSec?: number;
+}): boolean {
+  const ts = Number(input.timestampSec);
+  const nowSec = Math.floor((input.nowMs ?? Date.now()) / 1000);
+  const maxSkew = input.maxSkewSec ?? 60;
+  if (!Number.isFinite(ts) || Math.abs(nowSec - ts) > maxSkew) return false;
+  if (!/^[a-f0-9]{64}$/i.test(input.signatureHex)) return false;
+
+  const expected = signWorkerDispatchPayloadV3(input.secret, input.timestampSec, input.body);
+  return timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(input.signatureHex, "hex"));
+}
+
+/**
+ * Dispatch a v3 scan to a configured regional HTTP worker when the requested
+ * region matches one, falling back cleanly to the pure-Cloudflare default
+ * container executor otherwise.
+ */
+export async function dispatchScanV3(
+  request: ScanRequestV3,
+  options: DispatchScanOptionsV3
+): Promise<{ report: ScanReportV3; backend: "cloudflare-default" | "regional-http-worker" }> {
+  const region = options.region ?? "auto";
+  const enriched = applyRegionalProfileV3(request, region);
+
+  const upstream =
+    region !== "auto"
+      ? options.upstreams?.find((u) => u.region === region)
+      : undefined;
+
+  if (!upstream) {
+    const report = await options.defaultExecutor(enriched);
+    return { report, backend: "cloudflare-default" };
+  }
+
+  const body = JSON.stringify(enriched);
+  const timestampSec = String(Math.floor((options.nowMs ?? Date.now)() / 1000));
+  const signature = signWorkerDispatchPayloadV3(upstream.hmacSecret, timestampSec, body);
+  const fetchFn = options.fetchImpl ?? fetch;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), upstream.timeoutMs ?? 60_000);
+  try {
+    const resp = await fetchFn(`${upstream.endpointUrl.replace(/\/+$/, "")}/internal/v3/scan`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-sbl-dispatch-ts": timestampSec,
+        "x-sbl-dispatch-sig": signature,
+        "x-sbl-region": upstream.region
+      },
+      body,
+      signal: controller.signal
+    });
+    if (!resp.ok) {
+      throw new Error(`Regional worker (${upstream.region}) failed with HTTP ${resp.status}`);
+    }
+    const report = (await resp.json()) as ScanReportV3;
+    return { report, backend: "regional-http-worker" };
+  } finally {
+    clearTimeout(timer);
+  }
+}

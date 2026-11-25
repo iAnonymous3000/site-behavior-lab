@@ -3085,6 +3085,33 @@ export default {
     );
     if (reportRouteAnswer) return reportRouteAnswer;
 
+    // Gate v3 scan submissions at the edge with the same Turnstile + Durable Object
+    // rate-limit and access-token controls as POST /api/scan so v3 never bypasses
+    // public-ingress protection on Cloudflare.
+    if (request.method === "POST" && url.pathname === "/api/v3/scan") {
+      const body = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES);
+      if (body === null) {
+        return gateErrorResponse(
+          new EdgeScanGateError("The scan request is too large.", 413, "request-rejected"),
+          request,
+          env
+        );
+      }
+      try {
+        await gateScanRequest(request, body, env, "charge", undefined, request.signal);
+      } catch (error) {
+        return gateErrorResponse(error, request, env);
+      }
+      const forwardedHeaders = scanForwardHeaders(request.headers);
+      const forwarded = new Request(request.url, {
+        method: "POST",
+        headers: forwardedHeaders,
+        body,
+        signal: request.signal
+      });
+      return forwardToContainer(forwarded, env);
+    }
+
     // Non-scan routes forward only after any route-specific edge controls.
     if (!isScan) {
       return forwardToContainer(request, env);
