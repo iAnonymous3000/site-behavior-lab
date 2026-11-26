@@ -2,8 +2,11 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
 import playwrightPackage from "playwright/package.json" with { type: "json" };
+import { REPORT_PDF_MAX_BYTES } from "../lib/report-pdf-limits.ts";
 import {
+  readResponseBytesWithinLimit,
   readResponseJsonWithinLimit,
+  readResponseTextWithinLimit,
   withHttpOperationDeadline
 } from "./http-response.mjs";
 
@@ -13,6 +16,7 @@ const scanReportSchemaVersion = 3;
 const scanOperationTimeoutMs = 5 * 60_000;
 const controlOperationTimeoutMs = 30_000;
 const jsonResponseMaxBytes = 32 * 1024 * 1024;
+const htmlResponseMaxBytes = 16 * 1024 * 1024;
 
 function pass(message) {
   console.log(`PASS ${message}`);
@@ -80,6 +84,40 @@ async function requestJson(url, init, label, timeoutMs = controlOperationTimeout
   );
 }
 
+async function requestBytes(
+  url,
+  init,
+  label,
+  maxBytes = REPORT_PDF_MAX_BYTES,
+  timeoutMs = controlOperationTimeoutMs
+) {
+  return withHttpOperationDeadline(
+    { timeoutMs, label },
+    async (signal) => {
+      const response = await fetch(url, { ...init, redirect: "error", signal });
+      const bytes = await readResponseBytesWithinLimit(response, { maxBytes, label });
+      return { response, bytes: Buffer.from(bytes) };
+    }
+  );
+}
+
+async function requestText(
+  url,
+  init,
+  label,
+  maxBytes = htmlResponseMaxBytes,
+  timeoutMs = controlOperationTimeoutMs
+) {
+  return withHttpOperationDeadline(
+    { timeoutMs, label },
+    async (signal) => {
+      const response = await fetch(url, { ...init, redirect: "error", signal });
+      const text = await readResponseTextWithinLimit(response, { maxBytes, label });
+      return { response, text };
+    }
+  );
+}
+
 async function apiChecks() {
   const { value: health } = await requestJson(`${baseUrl}/api/health`, {}, "/api/health");
   if (!health.ok || !health.checks?.reportStore || !Array.isArray(health.warnings)) {
@@ -136,8 +174,11 @@ async function apiChecks() {
   if (savedClean.schemaVersion !== scanReportSchemaVersion || savedClean.reportId !== clean.reportId) {
     fail("saved v3 report JSON endpoint did not return the scan report");
   }
-  const cleanPdf = await fetch(`${baseUrl}${clean.pdfPath}`, { headers: { accept: "application/pdf" } });
-  const cleanPdfBytes = Buffer.from(await cleanPdf.arrayBuffer());
+  const { response: cleanPdf, bytes: cleanPdfBytes } = await requestBytes(
+    `${baseUrl}${clean.pdfPath}`,
+    { headers: { accept: "application/pdf" } },
+    clean.pdfPath
+  );
   if (!cleanPdf.ok || !cleanPdfBytes.subarray(0, 5).equals(Buffer.from("%PDF-"))) {
     fail(`saved v3 report PDF endpoint failed (${cleanPdf.status})`);
   }
@@ -229,8 +270,11 @@ async function apiChecks() {
   if (historicalJson.share?.id !== historicalId && historicalJson.id !== historicalId) {
     fail(`historical report API readback for ${historicalId} did not match`);
   }
-  const historicalPage = await fetch(`${baseUrl}/reports/${historicalId}`);
-  const historicalHtml = await historicalPage.text();
+  const { response: historicalPage, text: historicalHtml } = await requestText(
+    `${baseUrl}/reports/${historicalId}`,
+    {},
+    `/reports/${historicalId}`
+  );
   if (!historicalPage.ok || !historicalHtml.includes(historicalId)) {
     fail(`historical report permalink /reports/${historicalId} failed (${historicalPage.status})`);
   }
@@ -381,8 +425,11 @@ async function uiChecks() {
     if (savedV3Json.schemaVersion !== 3 || savedV3Json.reportId !== reportId) {
       fail("saved v3 report JSON readback did not match");
     }
-    const pdfRes = await fetch(`${baseUrl}/api/v3/reports/${reportId}/pdf`);
-    const pdfBuf = Buffer.from(await pdfRes.arrayBuffer());
+    const { response: pdfRes, bytes: pdfBuf } = await requestBytes(
+      `${baseUrl}/api/v3/reports/${reportId}/pdf`,
+      { headers: { accept: "application/pdf" } },
+      `/api/v3/reports/${reportId}/pdf`
+    );
     if (!pdfRes.ok || !pdfBuf.subarray(0, 5).equals(Buffer.from("%PDF-"))) {
       fail(`v3 PDF export failed (${pdfRes.status})`);
     }

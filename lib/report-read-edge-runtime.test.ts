@@ -150,21 +150,18 @@ test(
       }
       assert.equal((await forwarded()).length, containerRequests, "a refused read must not reach the container");
 
-      // The Worker's own reads. With this reader's JSON budget spent, a status
-      // poll for each job still makes the Worker read that job's saved report
-      // from the container: the read is forwarded, it is not refused, and it
-      // spends nothing.
+      // Retired legacy /api/scans/* polls are answered 410 Gone at the edge,
+      // even when the reader's JSON budget is spent, spending zero report quota
+      // and forwarding nothing to the container.
       const { jobs } = await state();
       const jsonLedgerBefore = await ledger();
       for (const job of [jobs.durable, jobs.registered]) {
         const poll = await send("GET", `/api/scans/${job.jobId}`);
-        assert.notEqual(poll.status, 429, "the poll is not a report read and must not meet the report quota");
-        assert.ok(
-          (await forwarded()).includes(`GET /api/reports/${job.reportId}`),
-          `the Worker did not read the saved report of job ${job.jobId} itself; this test no longer exercises that read`
-        );
+        assert.equal(poll.status, 410, "retired scan-job polls return 410 Gone at the edge");
+        assert.equal(JSON.parse(poll.text).migration, "/api/v3/scan");
       }
-      assert.deepEqual(await ledger(), jsonLedgerBefore, "the Worker's own report reads must not spend a reader's quota");
+      assert.equal((await forwarded()).length, containerRequests, "retired scan-job polls must not reach the container");
+      assert.deepEqual(await ledger(), jsonLedgerBefore, "retired scan-job polls must not spend a reader's quota");
 
       // The page budget is untouched by all of the above, and a page read
       // spends only it.
@@ -286,7 +283,7 @@ test(
 );
 
 test(
-  "a HEAD of a scan job is answered at the edge and never reaches the container",
+  "retired /api/scans requests (HEAD and GET) are answered 410 Gone at the edge and never reach the container",
   { timeout: 90_000 },
   async () => {
     const harness = await startHarnessWorker();
@@ -296,29 +293,28 @@ test(
       const { jobs } = await state();
       const unknownJobId = `20260101-${"f".repeat(32)}`;
       for (const jobId of [jobs.durable.jobId, jobs.registered.jobId, unknownJobId]) {
-        const answer = await harness.mf.dispatchFetch(`https://scanner.invalid/api/scans/${jobId}`, {
+        const headAnswer = await harness.mf.dispatchFetch(`https://scanner.invalid/api/scans/${jobId}`, {
           method: "HEAD",
           headers: { "cf-connecting-ip": READER, origin: "https://sitebehavior.org" }
         });
-        assert.equal(answer.status, 405, `HEAD of job ${jobId}`);
-        assert.equal(answer.headers.get("allow"), "GET, DELETE, OPTIONS");
-        assert.equal(answer.headers.get("cache-control"), "no-store");
-        assert.equal(answer.headers.get("access-control-allow-origin"), "https://sitebehavior.org");
-        assert.equal(await answer.text(), "");
-      }
-      assert.deepEqual((await state()).forwarded, [], "a HEAD of a scan job must not reach the container");
+        assert.equal(headAnswer.status, 410, `HEAD of retired job ${jobId}`);
+        assert.equal(headAnswer.headers.get("cache-control"), "no-store");
+        assert.equal(headAnswer.headers.get("access-control-allow-origin"), "https://sitebehavior.org");
+        assert.equal(await headAnswer.text(), "");
 
-      // The poll itself is unchanged: a GET of the finished durable job is
-      // answered from the Durable Object and the saved report.
-      const poll = await harness.mf.dispatchFetch(`https://scanner.invalid/api/scans/${jobs.durable.jobId}`, {
-        headers: { "cf-connecting-ip": READER }
-      });
-      assert.notEqual(poll.status, 405);
-      await poll.text();
-      assert.deepEqual(
-        (await state()).forwarded.map((entry) => `${entry.method} ${entry.path}`),
-        [`GET /api/reports/${jobs.durable.reportId}`]
-      );
+        const getAnswer = await harness.mf.dispatchFetch(`https://scanner.invalid/api/scans/${jobId}`, {
+          method: "GET",
+          headers: { "cf-connecting-ip": READER, origin: "https://sitebehavior.org" }
+        });
+        assert.equal(getAnswer.status, 410, `GET of retired job ${jobId}`);
+        assert.equal(getAnswer.headers.get("cache-control"), "no-store");
+        assert.equal(getAnswer.headers.get("access-control-allow-origin"), "https://sitebehavior.org");
+        const body = (await getAnswer.json()) as { ok?: unknown; migration?: unknown; cause?: unknown };
+        assert.equal(body.ok, false);
+        assert.equal(body.migration, "/api/v3/scan");
+        assert.equal(body.cause, "feature-unavailable");
+      }
+      assert.deepEqual((await state()).forwarded, [], "retired /api/scans requests must not reach the container");
     } catch (error) {
       if (harness.runtimeOutput()) console.error(harness.runtimeOutput());
       throw error;

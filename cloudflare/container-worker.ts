@@ -4566,23 +4566,24 @@ function malformedScanJobPathResponse(request: Request, env: Env): Response {
 }
 
 function retiredLegacyScanApiResponse(request: Request, env: Env): Response {
-  return new Response(
-    JSON.stringify({
-      ok: false,
-      error: "The legacy v1/v2 scan endpoint has been retired. Submit scans to POST /api/v3/scan.",
-      migration: "/api/v3/scan",
-      cause: "feature-unavailable"
-    }),
-    {
-      status: 410,
-      headers: {
-        ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),
-        "content-type": "application/json; charset=utf-8",
-        "cache-control": "no-store",
-        "x-content-type-options": "nosniff"
-      }
+  const body =
+    request.method === "HEAD"
+      ? null
+      : JSON.stringify({
+          ok: false,
+          error: "The legacy v1/v2 scan endpoint has been retired. Submit scans to POST /api/v3/scan.",
+          migration: "/api/v3/scan",
+          cause: "feature-unavailable"
+        });
+  return new Response(body, {
+    status: 410,
+    headers: {
+      ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store",
+      "x-content-type-options": "nosniff"
     }
-  );
+  });
 }
 
 function privateRouteNotFound(): Response {
