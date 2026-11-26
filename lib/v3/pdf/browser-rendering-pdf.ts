@@ -212,7 +212,7 @@ export async function renderReportV3Pdf(
       });
 
       if (!resp.ok) {
-        await resp.body?.cancel().catch(() => {});
+        void resp.body?.cancel().catch(() => {});
         throw new Error(`Cloudflare Browser Rendering PDF failed with HTTP ${resp.status}`);
       }
       const contentType = (resp.headers.get("content-type") ?? "").toLowerCase();
@@ -259,4 +259,116 @@ function esc(value: string): string {
 
 function signed(n: number): string {
   return n > 0 ? `+${n}` : String(n);
+}
+
+// ---------------------------------------------------------------------------
+// Bounded local Playwright HTML -> PDF fallback (strictly offline, 1-slot,
+// 60s idle shutdown, cached in R2 by `renderReportV3Pdf` on completion).
+// ---------------------------------------------------------------------------
+
+const LOCAL_PDF_IDLE_SHUTDOWN_MS = 60_000;
+const LOCAL_PDF_MAX_BYTES = 24 * 1024 * 1024;
+let localPdfActive = 0;
+let localPdfBrowserPromise: Promise<import("playwright").Browser> | null = null;
+let localPdfIdleTimer: ReturnType<typeof setTimeout> | null = null;
+
+function scheduleLocalPdfBrowserShutdown(): void {
+  if (localPdfIdleTimer) clearTimeout(localPdfIdleTimer);
+  localPdfIdleTimer = setTimeout(() => {
+    localPdfIdleTimer = null;
+    if (localPdfActive > 0) return;
+    const p = localPdfBrowserPromise;
+    localPdfBrowserPromise = null;
+    void p?.then((b) => b.close()).catch(() => {});
+  }, LOCAL_PDF_IDLE_SHUTDOWN_MS);
+  localPdfIdleTimer.unref?.();
+}
+
+export async function renderHtmlToPdfLocallyV3(
+  html: string,
+  options: { signal?: AbortSignal } = {}
+): Promise<Uint8Array> {
+  if (options.signal?.aborted) {
+    throw new Error("PDF render aborted by caller.");
+  }
+  if (localPdfActive >= 1) {
+    throw new Error("Local PDF renderer busy; retry shortly or append ?format=html.");
+  }
+  localPdfActive += 1;
+  if (localPdfIdleTimer) {
+    clearTimeout(localPdfIdleTimer);
+    localPdfIdleTimer = null;
+  }
+
+  let context: import("playwright").BrowserContext | null = null;
+  try {
+    const [{ chromium }, { chromiumSandboxEnabled }, { browserProcessEnvironment }] = await Promise.all([
+      import("playwright"),
+      import("../../chromium-sandbox"),
+      import("../../browser-process-env")
+    ]);
+
+    if (!localPdfBrowserPromise) {
+      localPdfBrowserPromise = chromium.launch({
+        headless: true,
+        chromiumSandbox: chromiumSandboxEnabled(),
+        env: browserProcessEnvironment(),
+        args: ["--disable-background-networking", "--disable-sync", "--metrics-recording-only"]
+      });
+      localPdfBrowserPromise.catch(() => {
+        localPdfBrowserPromise = null;
+      });
+    }
+    const browser = await localPdfBrowserPromise;
+    if (!browser.isConnected()) {
+      localPdfBrowserPromise = null;
+      throw new Error("Local PDF browser disconnected.");
+    }
+
+    context = await browser.newContext({ javaScriptEnabled: false, offline: true });
+    const page = await context.newPage();
+    await page.route("**/*", (route) => route.abort("blockedbyclient"));
+
+    const renderPromise = (async () => {
+      await page.setContent(html, { waitUntil: "load", timeout: 15_000 });
+      const pdf = await page.pdf({
+        format: "A4",
+        printBackground: true,
+        preferCSSPageSize: true,
+        outline: true,
+        tagged: true
+      });
+      if (pdf.byteLength === 0 || pdf.byteLength > LOCAL_PDF_MAX_BYTES) {
+        throw new Error(`Local PDF renderer produced an invalid payload size (${pdf.byteLength} bytes).`);
+      }
+      return new Uint8Array(pdf);
+    })();
+
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    let onAbort: (() => void) | undefined;
+    try {
+      return await Promise.race([
+        renderPromise,
+        new Promise<never>((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error("Local PDF render timed out.")), PDF_RENDER_TIMEOUT_MS);
+        }),
+        ...(options.signal
+          ? [
+              new Promise<never>((_, reject) => {
+                onAbort = () => reject(new Error("PDF render aborted by caller."));
+                if (options.signal!.aborted) onAbort();
+                else options.signal!.addEventListener("abort", onAbort, { once: true });
+              })
+            ]
+          : [])
+      ]);
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (onAbort && options.signal) options.signal.removeEventListener("abort", onAbort);
+    }
+  } finally {
+    localPdfActive -= 1;
+    if (localPdfActive === 0) scheduleLocalPdfBrowserShutdown();
+    void context?.close().catch(() => {});
+  }
 }

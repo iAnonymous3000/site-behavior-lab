@@ -102,7 +102,9 @@ async function handleCorpusQueryV3(request: Request): Promise<Response> {
     return NextResponse.json({ ok: true, ...result });
   } catch (error) {
     const publicError = toPublicError(error);
-    return NextResponse.json({ ok: false, error: publicError.message }, { status: publicError.status });
+    const headers: Record<string, string> = { "x-content-type-options": "nosniff" };
+    if (publicError.status === 429) headers["retry-after"] = "60";
+    return NextResponse.json({ ok: false, error: publicError.message }, { status: publicError.status, headers });
   }
 }
 

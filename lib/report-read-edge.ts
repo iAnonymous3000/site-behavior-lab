@@ -154,7 +154,11 @@ export function parsePublicReportReadPath(method: string, pathname: string): Pub
   const segments = rawSegments.map(decodePathSegment);
   if (segments.some((segment) => segment === null)) return null;
   const [reportId, routeResource] = segments as string[];
-  if (!REPORT_ID_PATTERN.test(reportId)) return null;
+  // Legacy v1/v2 routes use exact 32-hex IDs (`REPORT_ID_PATTERN`), while v3
+  // routes accept 16-64 hex IDs (`V3_REPORT_ID_RE`); align the edge matcher
+  // so valid non-32-hex v3 report IDs can never bypass Durable Object quotas.
+  const idPattern = route.v3 === "reports" ? /^[0-9]{8}-[0-9a-f]{16,64}$/ : REPORT_ID_PATTERN;
+  if (!idPattern.test(reportId)) return null;
   if (route.family === "api") {
     if (routeResource === undefined) return { reportId, resource: "json", quota: "report-json-read" };
     if (routeResource === "pdf") return { reportId, resource: "pdf", quota: "report-pdf" };

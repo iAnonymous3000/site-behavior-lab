@@ -16,10 +16,16 @@ import { randomBytes } from "node:crypto";
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { AwsClient } from "aws4fetch";
+import { readDurableScanJobInternalResponseBytes } from "../../durable-scan-job-internal-response";
 import { redactScanReportV3 } from "../redaction";
 import { validateScanReportV3, type ScanReportV3 } from "../schema";
 
-const R2_FETCH_TIMEOUT_MS = 30_000;
+const R2_FETCH_TIMEOUT_MS = 10_000;
+const R2_CONTROL_RESPONSE_MAX_BYTES = 64 * 1024;
+const R2_BLOB_JSON_MAX_BYTES = 24 * 1024 * 1024;
+const R2_BLOB_BINARY_MAX_BYTES = 24 * 1024 * 1024;
+const R2_RETRY_DELAYS_MS = [250];
+const R2_RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
 
 export type BlobStoreV3 = {
   putJson(key: string, body: string): Promise<void>;
@@ -104,75 +110,108 @@ export function createS3R2BlobStoreV3(config: {
   bucket: string;
   accessKeyId: string;
   secretAccessKey: string;
+  timeoutMs?: number;
+  fetchImpl?: typeof fetch;
 }): BlobStoreV3 {
   const aws = new AwsClient({
     accessKeyId: config.accessKeyId,
     secretAccessKey: config.secretAccessKey,
     service: "s3",
-    region: "auto"
+    region: "auto",
+    retries: 0
   });
+  const doFetch = config.fetchImpl ?? fetch;
+  const timeoutMs = Math.max(1_000, Math.min(60_000, config.timeoutMs ?? R2_FETCH_TIMEOUT_MS));
   const baseUrl = `${config.endpoint.replace(/\/+$/, "")}/${encodeURIComponent(config.bucket)}`;
   const urlFor = (key: string) => `${baseUrl}/${key.split("/").map(encodeURIComponent).join("/")}`;
 
+  async function signedFetchBytes(
+    url: string,
+    init: { method: string; headers?: Record<string, string>; body?: string | Uint8Array },
+    successMaxBytes: number
+  ): Promise<{ status: number; ok: boolean; bytes: Uint8Array }> {
+    let lastError: unknown = null;
+    for (let attempt = 0; attempt <= R2_RETRY_DELAYS_MS.length; attempt += 1) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(new Error(`R2 ${init.method} timed out after ${timeoutMs}ms`)), timeoutMs);
+      try {
+        const reqInit: RequestInit = {
+          method: init.method,
+          ...(init.headers ? { headers: init.headers } : {}),
+          ...(init.body !== undefined ? { body: typeof init.body === "string" ? init.body : Buffer.from(init.body) } : {}),
+          signal: controller.signal
+        };
+        const signed = await aws.sign(url, reqInit);
+        const resp = await doFetch(signed, { signal: controller.signal });
+        // Always drain small control/error/404 bodies through the bounded reader
+        // instead of awaiting `resp.body.cancel()`, which can stall until timeout
+        // on Node/undici 8 HTTP responses.
+        const maxBytes = resp.ok
+          ? successMaxBytes
+          : Math.min(successMaxBytes, R2_CONTROL_RESPONSE_MAX_BYTES);
+        const bytes = await readDurableScanJobInternalResponseBytes(resp, controller.signal, maxBytes);
+        if (R2_RETRYABLE_STATUSES.has(resp.status) && attempt < R2_RETRY_DELAYS_MS.length) {
+          clearTimeout(timer);
+          await new Promise((resolve) => setTimeout(resolve, R2_RETRY_DELAYS_MS[attempt]));
+          continue;
+        }
+        return { status: resp.status, ok: resp.ok, bytes };
+      } catch (err) {
+        lastError = err;
+        if (attempt < R2_RETRY_DELAYS_MS.length) {
+          clearTimeout(timer);
+          await new Promise((resolve) => setTimeout(resolve, R2_RETRY_DELAYS_MS[attempt]));
+          continue;
+        }
+        throw err;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+    throw lastError ?? new Error(`R2 ${init.method} failed`);
+  }
+
   return {
     async putJson(key, body) {
-      const resp = await aws.fetch(urlFor(key), {
-        method: "PUT",
-        headers: { "content-type": "application/json; charset=utf-8" },
-        body,
-        signal: AbortSignal.timeout(R2_FETCH_TIMEOUT_MS)
-      });
-      await resp.body?.cancel().catch(() => {});
-      if (!resp.ok) throw new Error(`R2 PUT ${key} failed with HTTP ${resp.status}`);
+      const res = await signedFetchBytes(
+        urlFor(key),
+        {
+          method: "PUT",
+          headers: { "content-type": "application/json; charset=utf-8" },
+          body
+        },
+        R2_CONTROL_RESPONSE_MAX_BYTES
+      );
+      if (!res.ok) throw new Error(`R2 PUT ${key} failed with HTTP ${res.status}`);
     },
     async getJson(key) {
-      const resp = await aws.fetch(urlFor(key), {
-        method: "GET",
-        signal: AbortSignal.timeout(R2_FETCH_TIMEOUT_MS)
-      });
-      if (resp.status === 404) {
-        await resp.body?.cancel().catch(() => {});
-        return null;
-      }
-      if (!resp.ok) {
-        await resp.body?.cancel().catch(() => {});
-        throw new Error(`R2 GET ${key} failed with HTTP ${resp.status}`);
-      }
-      return resp.text();
+      const res = await signedFetchBytes(urlFor(key), { method: "GET" }, R2_BLOB_JSON_MAX_BYTES);
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error(`R2 GET ${key} failed with HTTP ${res.status}`);
+      return new TextDecoder("utf-8", { fatal: true }).decode(res.bytes);
     },
     async putBinary(key, bytes, contentType) {
-      const resp = await aws.fetch(urlFor(key), {
-        method: "PUT",
-        headers: { "content-type": contentType },
-        body: Buffer.from(bytes),
-        signal: AbortSignal.timeout(R2_FETCH_TIMEOUT_MS)
-      });
-      await resp.body?.cancel().catch(() => {});
-      if (!resp.ok) throw new Error(`R2 PUT ${key} failed with HTTP ${resp.status}`);
+      const res = await signedFetchBytes(
+        urlFor(key),
+        {
+          method: "PUT",
+          headers: { "content-type": contentType },
+          body: bytes
+        },
+        R2_CONTROL_RESPONSE_MAX_BYTES
+      );
+      if (!res.ok) throw new Error(`R2 PUT ${key} failed with HTTP ${res.status}`);
     },
     async getBinary(key) {
-      const resp = await aws.fetch(urlFor(key), {
-        method: "GET",
-        signal: AbortSignal.timeout(R2_FETCH_TIMEOUT_MS)
-      });
-      if (resp.status === 404) {
-        await resp.body?.cancel().catch(() => {});
-        return null;
-      }
-      if (!resp.ok) {
-        await resp.body?.cancel().catch(() => {});
-        throw new Error(`R2 GET ${key} failed with HTTP ${resp.status}`);
-      }
-      return new Uint8Array(await resp.arrayBuffer());
+      const res = await signedFetchBytes(urlFor(key), { method: "GET" }, R2_BLOB_BINARY_MAX_BYTES);
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error(`R2 GET ${key} failed with HTTP ${res.status}`);
+      return res.bytes;
     },
     async delete(key) {
-      const resp = await aws.fetch(urlFor(key), {
-        method: "DELETE",
-        signal: AbortSignal.timeout(R2_FETCH_TIMEOUT_MS)
-      });
-      await resp.body?.cancel().catch(() => {});
-      if (!resp.ok && resp.status !== 404) {
-        throw new Error(`R2 DELETE ${key} failed with HTTP ${resp.status}`);
+      const res = await signedFetchBytes(urlFor(key), { method: "DELETE" }, R2_CONTROL_RESPONSE_MAX_BYTES);
+      if (!res.ok && res.status !== 404) {
+        throw new Error(`R2 DELETE ${key} failed with HTTP ${res.status}`);
       }
     }
   };

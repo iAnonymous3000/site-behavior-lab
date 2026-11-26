@@ -22,6 +22,7 @@ import type {
   ScanReportV3,
   ServiceCategoryV3
 } from "../schema";
+import { pdfBlobKeyV3, type BlobStoreV3 } from "./blob-store";
 
 export type {
   CorpusOverviewStatsV3,
@@ -228,41 +229,58 @@ export class D1ReportIndexStoreV3 {
       );
 
       await this.db.run(`DELETE FROM report_entities WHERE report_id = ?`, [report.reportId]);
-      for (const ent of entitiesToIndex) {
-        await this.db.run(
-          `INSERT OR REPLACE INTO report_entities (
-            report_id, canonical_domain, scanned_at, entity, parent_org, category, request_count, domain_count
-          ) VALUES (?,?,?,?,?,?,?,?)`,
-          [
+      // Batch multi-row inserts (10 rows * 8 params = 80 params, safely under D1's 100-param query limit)
+      // to reduce stateless D1 HTTP REST round-trips by ~10x.
+      const ENTITY_BATCH_SIZE = 10;
+      const canonicalLower = report.canonicalDomain.toLowerCase();
+      for (let i = 0; i < entitiesToIndex.length; i += ENTITY_BATCH_SIZE) {
+        const chunk = entitiesToIndex.slice(i, i + ENTITY_BATCH_SIZE);
+        const placeholders = chunk.map(() => `(?,?,?,?,?,?,?,?)`).join(",");
+        const values: unknown[] = [];
+        for (const ent of chunk) {
+          values.push(
             report.reportId,
-            report.canonicalDomain.toLowerCase(),
+            canonicalLower,
             report.scannedAt,
             ent.entity,
             ent.parentOrg,
             ent.category,
             ent.requests,
             ent.domains
-          ]
+          );
+        }
+        await this.db.run(
+          `INSERT OR REPLACE INTO report_entities (
+            report_id, canonical_domain, scanned_at, entity, parent_org, category, request_count, domain_count
+          ) VALUES ${placeholders}`,
+          values
         );
       }
 
       await this.db.run(`DELETE FROM report_beacons WHERE report_id = ?`, [report.reportId]);
-      for (const beacon of report.leadArm.beacons) {
-        await this.db.run(
-          `INSERT OR REPLACE INTO report_beacons (
-            report_id, canonical_domain, platform, format, endpoint_host,
-            server_side_tagging, has_identifiers, request_count
-          ) VALUES (?,?,?,?,?,?,?,?)`,
-          [
+      const BEACON_BATCH_SIZE = 10;
+      for (let i = 0; i < report.leadArm.beacons.length; i += BEACON_BATCH_SIZE) {
+        const chunk = report.leadArm.beacons.slice(i, i + BEACON_BATCH_SIZE);
+        const placeholders = chunk.map(() => `(?,?,?,?,?,?,?,?)`).join(",");
+        const values: unknown[] = [];
+        for (const beacon of chunk) {
+          values.push(
             report.reportId,
-            report.canonicalDomain.toLowerCase(),
+            canonicalLower,
             beacon.platform,
             beacon.format,
             beacon.endpointHost,
             beacon.serverSideTagging ? 1 : 0,
             beacon.identifierCategories.length > 0 ? 1 : 0,
             beacon.requests
-          ]
+          );
+        }
+        await this.db.run(
+          `INSERT OR REPLACE INTO report_beacons (
+            report_id, canonical_domain, platform, format, endpoint_host,
+            server_side_tagging, has_identifiers, request_count
+          ) VALUES ${placeholders}`,
+          values
         );
       }
       if (inTxn) await this.db.exec("COMMIT");
@@ -306,8 +324,11 @@ export class D1ReportIndexStoreV3 {
 
     if (filters.latestPerSite !== false) {
       if (vis === "all-public") {
+        // Curated `corpus` records always take precedence over ad-hoc `public`
+        // scans for the same domain so public submissions cannot overwrite
+        // curated corpus baselines.
         clauses.push(
-          `r.report_id = (SELECT r2.report_id FROM reports r2 WHERE r2.canonical_domain = r.canonical_domain AND r2.visibility IN ('public', 'corpus') ORDER BY r2.scanned_at DESC, r2.report_id DESC LIMIT 1)`
+          `r.report_id = (SELECT r2.report_id FROM reports r2 WHERE r2.canonical_domain = r.canonical_domain AND r2.visibility IN ('public', 'corpus') ORDER BY CASE WHEN r2.visibility = 'corpus' THEN 0 ELSE 1 END, r2.scanned_at DESC, r2.report_id DESC LIMIT 1)`
         );
       } else {
         clauses.push(
@@ -408,7 +429,7 @@ export class D1ReportIndexStoreV3 {
          AND r.report_id = (
            SELECT r2.report_id FROM reports r2
            WHERE r2.canonical_domain = r.canonical_domain AND r2.visibility IN ('public', 'corpus')
-           ORDER BY r2.scanned_at DESC, r2.report_id DESC LIMIT 1
+           ORDER BY CASE WHEN r2.visibility = 'corpus' THEN 0 ELSE 1 END, r2.scanned_at DESC, r2.report_id DESC LIMIT 1
          )
          AND (lower(e.entity) = lower(?) OR lower(e.parent_org) = lower(?))`,
       [trimmed, trimmed]
@@ -431,7 +452,7 @@ export class D1ReportIndexStoreV3 {
          AND r.report_id = (
            SELECT r2.report_id FROM reports r2
            WHERE r2.canonical_domain = r.canonical_domain AND r2.visibility IN ('public', 'corpus')
-           ORDER BY r2.scanned_at DESC, r2.report_id DESC LIMIT 1
+           ORDER BY CASE WHEN r2.visibility = 'corpus' THEN 0 ELSE 1 END, r2.scanned_at DESC, r2.report_id DESC LIMIT 1
          )
          AND (lower(e.entity) = lower(?) OR lower(e.parent_org) = lower(?))
        GROUP BY e.canonical_domain, e.report_id, e.scanned_at
@@ -468,7 +489,7 @@ export class D1ReportIndexStoreV3 {
           AND r.report_id = (
             SELECT r2.report_id FROM reports r2
             WHERE r2.canonical_domain = r.canonical_domain AND r2.visibility IN ('public', 'corpus')
-            ORDER BY r2.scanned_at DESC, r2.report_id DESC LIMIT 1
+            ORDER BY CASE WHEN r2.visibility = 'corpus' THEN 0 ELSE 1 END, r2.scanned_at DESC, r2.report_id DESC LIMIT 1
           )
       )`;
 
@@ -537,7 +558,7 @@ export class D1ReportIndexStoreV3 {
     };
   }
 
-  /** Clean up expired report metadata rows (blobs expire natively via R2 object lifecycle). */
+  /** Clean up expired report metadata rows (blobs expire natively via R2 object lifecycle or `pruneExpiredReports`). */
   async deleteExpiredRows(nowIso = new Date().toISOString()): Promise<number> {
     await this.db.run(
       `DELETE FROM report_entities WHERE report_id IN (SELECT report_id FROM reports WHERE expires_at IS NOT NULL AND expires_at <= ?)`,
@@ -552,6 +573,40 @@ export class D1ReportIndexStoreV3 {
       [nowIso]
     );
     return res.changes;
+  }
+
+  /**
+   * Delete expired report JSON + cached PDF blobs from `blobStore` and remove
+   * their index metadata rows so the 7-day retention window is enforced even
+   * when an R2 lifecycle rule has not yet been attached to the `v3/` prefix.
+   */
+  async pruneExpiredReports(
+    blobStore: Pick<BlobStoreV3, "delete">,
+    nowIso = new Date().toISOString(),
+    limit = 100
+  ): Promise<number> {
+    const expired = await this.db.all<{ report_id: string; r2_key: string }>(
+      `SELECT report_id, r2_key FROM reports WHERE expires_at IS NOT NULL AND expires_at <= ? LIMIT ?`,
+      [nowIso, Math.max(1, Math.min(500, limit))]
+    );
+    if (expired.length === 0) return 0;
+
+    let removed = 0;
+    for (const row of expired) {
+      const reportId = String(row.report_id);
+      const r2Key = String(row.r2_key);
+      try {
+        await blobStore.delete(r2Key);
+        await blobStore.delete(pdfBlobKeyV3(reportId)).catch(() => {});
+        await this.db.run(`DELETE FROM report_entities WHERE report_id = ?`, [reportId]);
+        await this.db.run(`DELETE FROM report_beacons WHERE report_id = ?`, [reportId]);
+        const res = await this.db.run(`DELETE FROM reports WHERE report_id = ?`, [reportId]);
+        removed += res.changes;
+      } catch {
+        // Leave the row in place so the next retention pass retries blob deletion.
+      }
+    }
+    return removed;
   }
 }
 
@@ -681,6 +736,11 @@ export async function openNodeSqliteReportIndex(dbFilePath: string): Promise<{
   }
   const { DatabaseSync } = await import("node:sqlite");
   const sqlite = new DatabaseSync(dbFilePath);
+  if (dbFilePath !== ":memory:") {
+    try {
+      sqlite.exec("PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;");
+    } catch {}
+  }
   const executor: SqlExecutorV3 = {
     exec(sql: string) {
       sqlite.exec(sql);

@@ -460,6 +460,12 @@ export function summarizeBeaconEventsV3(inputs: readonly BeaconInputV3[]): Beaco
         }
       }
     } else {
+      const dedupedGcm: GoogleConsentModeSignalV3[] = [];
+      for (const gcm of decoded.consentModeSignals) {
+        if (!dedupedGcm.some((c) => JSON.stringify(c) === JSON.stringify(gcm))) {
+          dedupedGcm.push(gcm);
+        }
+      }
       groups.set(key, {
         platform: decoded.platform,
         product: decoded.product,
@@ -470,7 +476,7 @@ export function summarizeBeaconEventsV3(inputs: readonly BeaconInputV3[]): Beaco
         phases: [input.phase],
         events: [...new Set(decoded.events)],
         scrollDepths: [...new Set(decoded.scrollDepths)],
-        consentModeSignals: [...decoded.consentModeSignals],
+        consentModeSignals: dedupedGcm,
         identifierCategories: [...new Set(decoded.identifierCategories)],
         requests: 1,
         complete: decoded.complete
@@ -502,9 +508,8 @@ function decodeGa4(
   const events: string[] = [];
   const scrollDepths: number[] = [];
   const consentSignals: GoogleConsentModeSignalV3[] = [];
+  const seenGcm = new Set<string>();
   const ids = new Set<IdentifierCategoryV3>(extractIdentifiersFromParams(parsed.searchParams));
-  const gcm = parseGoogleConsentMode(parsed.searchParams);
-  if (gcm) consentSignals.push(gcm);
 
   const collectEvent = (params: URLSearchParams) => {
     for (const rawName of params.getAll("en")) {
@@ -527,7 +532,13 @@ function decodeGa4(
       }
     }
     const lineGcm = parseGoogleConsentMode(params);
-    if (lineGcm) consentSignals.push(lineGcm);
+    if (lineGcm) {
+      const sigKey = JSON.stringify(lineGcm);
+      if (!seenGcm.has(sigKey)) {
+        seenGcm.add(sigKey);
+        consentSignals.push(lineGcm);
+      }
+    }
     for (const id of extractIdentifiersFromParams(params)) ids.add(id);
   };
 

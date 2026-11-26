@@ -162,12 +162,14 @@ test("v3 CDP-native scanner executes concurrent multi-arm scans against a live f
   assert.equal(docReq?.responseHeaders.contentSecurityPolicyPresent, true);
   const httpCookie = lead.cookies.find((c) => c.name === "session_id");
   assert.ok(httpCookie && httpCookie.httpOnly === true && httpCookie.setVia === "http");
+  assert.equal(httpCookie.phase, "passive-load", "initial HTTP cookie must be attributed to passive-load");
   assert.ok(httpCookie.ttlDays !== null && httpCookie.ttlDays > 300);
   const jsCookie = lead.cookies.find((c) => c.name === "js_tracker_id");
   assert.ok(jsCookie && jsCookie.setVia === "js");
+  assert.equal(jsCookie.phase, "passive-load", "initial JS cookie must be attributed to passive-load");
   assert.equal(JSON.stringify(report).includes("abc123"), false, "cookie value must never persist");
   assert.equal(JSON.stringify(report).includes("dark-mode-value-secret"), false, "storage value must never persist");
-  assert.ok(lead.storage.some((s) => s.area === "localStorage" && s.keyOrStore === "visitor_pref"));
+  assert.ok(lead.storage.some((s) => s.area === "localStorage" && s.keyOrStore === "visitor_pref" && s.phase === "passive-load"));
 
   // 4. First-party sGTM GA4 + scroll-depth + Meta CAPI beacons decoded!
   const ga = lead.beacons.find((b) => b.format === "ga4");

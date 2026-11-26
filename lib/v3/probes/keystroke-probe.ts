@@ -119,6 +119,18 @@ export function tryDecompressBodyV3(
   return { text: plain.slice(0, MAX_INSPECTED_CHARS), wasCompressed: false };
 }
 
+const SEARCH_AUTOCOMPLETE_ENDPOINTS: readonly RegExp[] = [
+  /^https:\/\/(?:clients\d+|suggestqueries)\.google\.com\/complete\/search\b/i,
+  /^https:\/\/geocode\.arcgis\.com\/arcgis\/rest\/services\/.*\/(?:suggest|findAddressCandidates)\b/i,
+  /^https:\/\/nominatim\.openstreetmap\.org\/search\b/i,
+  /^https:\/\/api\.bing\.com\/osjson\.aspx\b/i,
+  /^https:\/\/[a-z0-9-]+\.algolia(?:net)?\.(?:com|net)\/1\/indexes\b/i
+];
+
+function isKnownSearchAutocompleteUrl(url: string): boolean {
+  return SEARCH_AUTOCOMPLETE_ENDPOINTS.some((re) => re.test(url));
+}
+
 /**
  * Inspect captured HTTP requests & WebSocket frames for keystroke canary leaks.
  * Flags third-party recipients AND first-party hosts that are CNAME-cloaked to
@@ -144,7 +156,7 @@ export function detectKeystrokeLeaksV3(
       const { text } = tryDecompressBodyV3(candidate.body, candidate.contentEncoding);
       if (text) surfaces.push({ transport: "websocket", raw: text });
     } else {
-      if (candidate.url) {
+      if (candidate.url && (Boolean(cnameTarget) || !isKnownSearchAutocompleteUrl(candidate.url))) {
         surfaces.push({
           transport: candidate.resourceType === "ping" ? "beacon" : "http-url",
           raw: candidate.url.slice(0, MAX_INSPECTED_CHARS)
@@ -205,9 +217,37 @@ export type InPageTypingResultV3 = {
  * form, and returns counts + field types.
  */
 export function typeCanaryInDocument(args: { canary: string; maxFields: number }): InPageTypingResultV3 {
-  const ALLOWED_TYPES = new Set(["text", "email", "search", "tel", "url", ""]);
+  // Exclude search boxes and autocomplete/location lookup widgets because typing
+  // into them legitimately fires search-suggest/geocoding requests (not covert
+  // pre-submit form exfiltration).
+  const ALLOWED_TYPES = new Set(["text", "email", "tel", "url", ""]);
+  const SEARCH_WIDGET_RE = /\b(?:search|query|lookup|find|location|city|zip|postal|weather|forecast|autocomplete|site[-_]?search|gsc)\b/i;
+  const PERSONAL_FORM_RE = /\b(?:email|e-mail|name|first|last|phone|tel|newsletter|subscribe|signup|sign[-_]?up|comment|message|contact|account|login|user)\b/i;
   const found: { el: HTMLInputElement | HTMLTextAreaElement; inShadow: boolean; fieldType: string }[] = [];
   const visitedRoots = new Set<Document | ShadowRoot>();
+
+  const isSearchOrAutocompleteField = (el: HTMLInputElement | HTMLTextAreaElement, rawType: string): boolean => {
+    if (rawType === "search") return true;
+    const role = (el.getAttribute("role") || "").toLowerCase();
+    if (role === "searchbox" || role === "combobox") return true;
+    const ariaAutocomplete = (el.getAttribute("aria-autocomplete") || "").toLowerCase();
+    if (ariaAutocomplete && ariaAutocomplete !== "none") return true;
+    if (el.closest("form[role='search'], [role='search'], search")) return true;
+    if (rawType === "text" || rawType === "") {
+      const attrs = [
+        el.getAttribute("name") || "",
+        el.getAttribute("id") || "",
+        el.getAttribute("placeholder") || "",
+        el.getAttribute("aria-label") || "",
+        el.getAttribute("title") || "",
+        el.className || ""
+      ].join(" ");
+      if (SEARCH_WIDGET_RE.test(attrs) && !PERSONAL_FORM_RE.test(attrs)) return true;
+      const formAction = (el.form?.getAttribute("action") || "").toLowerCase();
+      if (/\/search\b|\bq=/.test(formAction) && !PERSONAL_FORM_RE.test(attrs)) return true;
+    }
+    return false;
+  };
 
   const collect = (root: Document | ShadowRoot, inShadow: boolean) => {
     if (visitedRoots.has(root) || found.length >= args.maxFields) return;
@@ -220,6 +260,7 @@ export function typeCanaryInDocument(args: { canary: string; maxFields: number }
       const tag = el.tagName.toLowerCase();
       const rawType = tag === "textarea" ? "textarea" : (el.getAttribute("type") || "text").toLowerCase();
       if (tag === "input" && !ALLOWED_TYPES.has(rawType)) continue;
+      if (isSearchOrAutocompleteField(el, rawType)) continue;
       const rect = el.getBoundingClientRect();
       if (rect.width <= 1 || rect.height <= 1) continue;
       const style = window.getComputedStyle(el);

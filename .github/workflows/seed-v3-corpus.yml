@@ -55,6 +55,9 @@ jobs:
       - name: Run curated v3 corpus seed
         env:
           SEED_LIMIT: ${{ github.event.inputs.limit || '20' }}
+          SITE_BEHAVIOR_LAB_BUILD_COMMIT: ${{ github.sha }}
+          SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION: github-actions-ubuntu
+          SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1"
         run: |
           set -euo pipefail
           node scripts/seed-v3-corpus.mjs --public-seed --limit "$SEED_LIMIT" --out-dir "$RUNNER_TEMP/v3-seed"
@@ -150,8 +153,27 @@ jobs:
           if (totalBytes > 25 * 1024 * 1024) {
             throw new Error(`v3 seed bundle exceeds 25 MiB cap (${totalBytes} bytes).`);
           }
+          const snapshotRaw = fs.readFileSync(path.join(srcDir, "corpus-snapshot.json"), "utf8");
+          if (Buffer.byteLength(snapshotRaw, "utf8") > 1024 * 1024) {
+            throw new Error("corpus-snapshot.json exceeds 1 MiB cap.");
+          }
+          const snapshot = JSON.parse(snapshotRaw);
+          if (
+            snapshot?.schemaVersion !== 1 ||
+            !snapshot?.stats ||
+            !Array.isArray(snapshot?.items) ||
+            snapshot.items.length !== manifest.reports.length
+          ) {
+            throw new Error("Invalid corpus-snapshot.json structure or item count mismatch.");
+          }
+          const manifestIds = new Set(manifest.reports.map((e) => e.reportId));
+          for (const item of snapshot.items) {
+            if (!manifestIds.has(item?.reportId)) {
+              throw new Error(`corpus-snapshot.json references unexpected reportId: ${item?.reportId}`);
+            }
+          }
           fs.copyFileSync(path.join(srcDir, "manifest.json"), path.join(destDir, "manifest.json"));
-          fs.copyFileSync(path.join(srcDir, "corpus-snapshot.json"), path.join(destDir, "corpus-snapshot.json"));
+          fs.writeFileSync(path.join(destDir, "corpus-snapshot.json"), snapshotRaw, "utf8");
           console.log(`Validated ${manifest.reports.length} reports (${(totalBytes / 1024 / 1024).toFixed(2)} MiB).`);
           NODE
 

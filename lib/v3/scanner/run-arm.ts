@@ -14,6 +14,7 @@
 import type { Browser, BrowserContext, Page } from "playwright";
 import { checkAdblockDetailed, mapRequestType } from "../../adblock-engine";
 import { partyKey } from "../../domain-utils";
+import { isTrackingCategoryV3 } from "../entity-catalog";
 import { summarizeBeaconEventsV3 } from "../probes/beacons";
 import {
   defaultResolveCnameChainV3,
@@ -129,11 +130,18 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
 
   let collector: CdpSessionCollectorV3 | null = null;
   let deadlineTimer: ReturnType<typeof setTimeout> | undefined;
+  let deadlineExceeded = false;
+  const assertNotAborted = () => {
+    if (options.signal?.aborted) {
+      throw new Error("Scan arm aborted by caller");
+    }
+  };
   const onAbort = () => {
     void context.close().catch(() => {});
   };
   options.signal?.addEventListener("abort", onAbort, { once: true });
   deadlineTimer = setTimeout(() => {
+    deadlineExceeded = true;
     void context.close().catch(() => {});
   }, armDeadlineMs);
 
@@ -171,10 +179,12 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
       probes.serviceWorkers = { status: "unavailable", reason: "cdp-attach-failed" };
     }
 
-    // Optional Shields enforcement route (Standard vs Aggressive + $removeparam rewriting)
+    // Optional Shields enforcement route at BrowserContext level (Standard vs
+    // Aggressive + $removeparam rewriting) so ServiceWorker fetches and the
+    // separate privacy-policy page are also covered.
     if (options.conditions.shieldsMode !== "off" && options.adblockEngine) {
       const activeCollector = collector;
-      await page.route("**/*", async (route) => {
+      await context.route("**/*", async (route) => {
         try {
           const req = route.request();
           const url = req.url();
@@ -182,14 +192,22 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
             await route.continue();
             return;
           }
-          const frame = req.frame();
-          const isMainNav = req.resourceType() === "document" && frame === page.mainFrame();
+          let isMainNav = false;
+          let isSubFrame = false;
+          try {
+            const frame = req.frame();
+            const ownerPage = frame.page();
+            isMainNav = req.resourceType() === "document" && frame === ownerPage.mainFrame();
+            isSubFrame = frame !== ownerPage.mainFrame();
+          } catch {
+            // Service worker or detached frame requests have no owning frame
+          }
           if (isMainNav) {
             await route.continue();
             return;
           }
           const sourceUrl = page.url().startsWith("http") ? page.url() : options.targetUrl;
-          const adblockType = mapRequestType(req.resourceType(), { subFrame: frame !== page.mainFrame() });
+          const adblockType = mapRequestType(req.resourceType(), { subFrame: isSubFrame });
           const detailed = checkAdblockDetailed(options.adblockEngine, url, sourceUrl, adblockType, req.method());
           const block =
             options.conditions.shieldsMode === "standard"
@@ -235,6 +253,7 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
       }
       await page.waitForLoadState("networkidle", { timeout: Math.min(4_000, passiveDwellMs) }).catch(() => {});
       await sleep(Math.min(passiveDwellMs, 1_500));
+      await collector.snapshotPhaseState();
       phases.push({
         name: "passive-load",
         startedAtMs: passiveStart,
@@ -242,8 +261,9 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
         status: loadOutcome === "ok" ? "completed" : "partial"
       });
     } catch (err) {
+      assertNotAborted();
       const msg = err instanceof Error ? err.message : String(err);
-      loadOutcome = /timeout/i.test(msg) ? "timeout" : "navigation-error";
+      loadOutcome = deadlineExceeded || /timeout/i.test(msg) ? "timeout" : "navigation-error";
       phases.push({
         name: "passive-load",
         startedAtMs: passiveStart,
@@ -253,15 +273,18 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
       });
     }
 
+    assertNotAborted();
+
     // --- Phase 2: Consent banner audit & optional 1st/2nd-layer interaction ---
     let consent: ConsentSummaryV3 = emptyConsentSummaryV3(options.conditions.consentMode);
     const consentStart = Date.now() - startedAt;
     collector.setPhase("consent-choice");
-    if (loadOutcome === "ok") {
+    if (loadOutcome === "ok" && !deadlineExceeded) {
       try {
         consent = await runConsentPhaseInPage(page, options.conditions.consentMode);
         if (consent.interaction.clicked) {
           await sleep(1_200);
+          await collector.snapshotPhaseState();
         }
         phases.push({
           name: "consent-choice",
@@ -270,6 +293,7 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
           status: "completed"
         });
       } catch {
+        assertNotAborted();
         probes.consent = { status: "partial", reason: "consent-probe-error" };
         phases.push({
           name: "consent-choice",
@@ -279,22 +303,25 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
         });
       }
     } else {
-      probes.consent = { status: "skipped", reason: loadOutcome };
+      probes.consent = { status: "skipped", reason: deadlineExceeded ? "arm-deadline-exceeded" : loadOutcome };
       phases.push({
         name: "consent-choice",
         startedAtMs: consentStart,
         endedAtMs: Date.now() - startedAt,
         status: "skipped",
-        reason: loadOutcome
+        reason: deadlineExceeded ? "arm-deadline-exceeded" : loadOutcome
       });
     }
+
+    assertNotAborted();
 
     // --- Phase 3: Lightweight persisted scroll-interaction phase ---
     const scrollStart = Date.now() - startedAt;
     collector.setPhase("scroll-interaction");
-    if (options.conditions.scrollCheck && loadOutcome === "ok") {
+    if (options.conditions.scrollCheck && loadOutcome === "ok" && !deadlineExceeded) {
       try {
         await runBoundedScroll(page, scrollDwellMs);
+        await collector.snapshotPhaseState();
         phases.push({
           name: "scroll-interaction",
           startedAtMs: scrollStart,
@@ -302,6 +329,7 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
           status: "completed"
         });
       } catch {
+        assertNotAborted();
         phases.push({
           name: "scroll-interaction",
           startedAtMs: scrollStart,
@@ -314,9 +342,12 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
         name: "scroll-interaction",
         startedAtMs: scrollStart,
         endedAtMs: Date.now() - startedAt,
-        status: "skipped"
+        status: "skipped",
+        ...(deadlineExceeded ? { reason: "arm-deadline-exceeded" } : {})
       });
     }
+
+    assertNotAborted();
 
     // --- Phase 4: Active keystroke / input-exfiltration probe ---
     const inputStart = Date.now() - startedAt;
@@ -327,7 +358,7 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
     const fieldTypeSet = new Set<string>();
     let canary: string | null = null;
 
-    if (options.conditions.activeInputProbe && loadOutcome === "ok") {
+    if (options.conditions.activeInputProbe && loadOutcome === "ok" && !deadlineExceeded) {
       try {
         canary = createKeystrokeCanaryV3();
         sentinelsUsed.push(canary);
@@ -357,6 +388,7 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
         if (fieldsTyped > 0) {
           // Trigger visibilitychange/pagehide beacons gently only after short dwell
           await sleep(inputDwellMs);
+          await collector.snapshotPhaseState();
         }
         phases.push({
           name: "active-input",
@@ -365,6 +397,7 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
           status: "completed"
         });
       } catch {
+        assertNotAborted();
         probes.keystrokes = { status: "partial", reason: "input-probe-error" };
         phases.push({
           name: "active-input",
@@ -374,13 +407,19 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
         });
       }
     } else {
+      if (deadlineExceeded && options.conditions.activeInputProbe) {
+        probes.keystrokes = { status: "skipped", reason: "arm-deadline-exceeded" };
+      }
       phases.push({
         name: "active-input",
         startedAtMs: inputStart,
         endedAtMs: Date.now() - startedAt,
-        status: "skipped"
+        status: "skipped",
+        ...(deadlineExceeded ? { reason: "arm-deadline-exceeded" } : {})
       });
     }
+
+    assertNotAborted();
 
     // --- Collect final CDP storage, cookies, fingerprint telemetry, and consent APIs ---
     const collected = await collector.collectStorageCookiesAndTelemetry();
@@ -470,17 +509,31 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
     let policy: PolicySummaryV3 | null = null;
     const policyStart = Date.now() - startedAt;
     collector.setPhase("policy-check");
-    if (options.conditions.policyCheck && loadOutcome === "ok") {
+    if (options.conditions.policyCheck && loadOutcome === "ok" && !deadlineExceeded) {
       try {
         const candidates = await collectPolicyLinkCandidates(page);
         const selected = selectPrivacyPolicyUrlV3(candidates, firstPartyReg, partyKey);
         if (selected) {
           const fetched = await fetchPolicyTextShared(context, selected.url, options.sharedCaches);
           if (fetched) {
+            // Cross-check ONLY curated tracking entities (advertising, analytics,
+            // session-replay, CDP, identity brokers, tag managers, marketing automation,
+            // sGTM) and CNAME-cloaked trackers — never flag CDNs, CMPs, anti-bot,
+            // error monitors, or uncurated gov/infra domains as undisclosed trackers.
             const observedEntities = [
               ...new Set([
-                ...network.filter((r) => r.thirdParty && r.entity).map((r) => r.entity!.entity),
-                ...cnameOutcome.cloaks.map((c) => c.entity.entity)
+                ...network
+                  .filter(
+                    (r) =>
+                      r.thirdParty &&
+                      r.entity &&
+                      r.entity.confidence === "curated" &&
+                      isTrackingCategoryV3(r.entity.category)
+                  )
+                  .map((r) => r.entity!.entity),
+                ...cnameOutcome.cloaks
+                  .filter((c) => isTrackingCategoryV3(c.entity.category))
+                  .map((c) => c.entity.entity)
               ])
             ];
             policy = analyzePolicyTextV3({
@@ -490,6 +543,9 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
               fromIframe: selected.fromIframe,
               observedEntities
             });
+            if (!policy) {
+              probes.policy = { status: "unavailable", reason: "policy-text-unreadable" };
+            }
           } else {
             probes.policy = { status: "unavailable", reason: "policy-fetch-failed" };
           }
@@ -503,6 +559,7 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
           status: policy ? "completed" : "partial"
         });
       } catch {
+        assertNotAborted();
         probes.policy = { status: "unavailable", reason: "policy-probe-error" };
         phases.push({
           name: "policy-check",
@@ -512,12 +569,26 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
         });
       }
     } else {
+      if (deadlineExceeded && options.conditions.policyCheck) {
+        probes.policy = { status: "skipped", reason: "arm-deadline-exceeded" };
+      }
       phases.push({
         name: "policy-check",
         startedAtMs: policyStart,
         endedAtMs: Date.now() - startedAt,
-        status: "skipped"
+        status: "skipped",
+        ...(deadlineExceeded ? { reason: "arm-deadline-exceeded" } : {})
       });
+    }
+
+    assertNotAborted();
+    if (deadlineExceeded) {
+      if (loadOutcome === "ok") loadOutcome = "timeout";
+      for (const probeName of Object.keys(probes) as ProbeName[]) {
+        if (probes[probeName].status === "complete") {
+          probes[probeName] = { status: "partial", reason: "arm-deadline-exceeded" };
+        }
+      }
     }
 
     const keystrokes = {

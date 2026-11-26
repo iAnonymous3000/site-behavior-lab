@@ -340,16 +340,16 @@ export function CorpusExplorerV3() {
               />
             </label>
             <label className={styles.fieldLabel}>
-              Egress Region
+              Locale &amp; Timezone Profile
               <select
                 className={styles.select}
                 value={region}
                 onChange={(e) => setRegion(e.target.value as ScanRegionIdV3)}
               >
-                <option value="auto">Auto (Default)</option>
-                <option value="us-east">US East (CCPA / GPC)</option>
-                <option value="eu-central">EU Frankfurt (GDPR)</option>
-                <option value="ap-northeast">APAC Tokyo (APPI)</option>
+                <option value="auto">Auto (Default Egress)</option>
+                <option value="us-east">US East Profile (en-US)</option>
+                <option value="eu-central">EU Frankfurt Profile (de-DE)</option>
+                <option value="ap-northeast">APAC Tokyo Profile (ja-JP)</option>
               </select>
             </label>
             <label className={styles.fieldLabel}>

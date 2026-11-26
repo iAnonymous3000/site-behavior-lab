@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { staticAssetPath } from "@/app/client-runtime";
 import { SiteChrome } from "@/app/_components/site-chrome";
 import { SiteHistoryViewV3 } from "@/app/_components/v3/SiteHistoryViewV3";
 import styles from "@/app/v3/v3.module.css";
@@ -54,9 +54,9 @@ export default async function V3SiteHistoryPage(context: {
       <div className={styles.page}>
         <nav className="page-breadcrumbs" aria-label="Breadcrumb">
           <ol>
-            <li><Link href="/">Home</Link></li>
+            <li><a href={staticAssetPath("/")}>Home</a></li>
             <li aria-hidden="true">/</li>
-            <li><Link href="/directory/">Scanned sites</Link></li>
+            <li><a href={staticAssetPath("/directory/")}>Scanned sites</a></li>
             <li aria-hidden="true">/</li>
             <li aria-current="page">{normalized}</li>
           </ol>

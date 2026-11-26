@@ -162,16 +162,16 @@ export function DeepScanWorkbenchV3({
             />
           </label>
           <label className={styles.fieldLabel}>
-            Egress region
+            Locale &amp; timezone profile
             <select
               className={styles.select}
               value={region}
               onChange={(e) => setRegion(e.target.value as ScanRegionIdV3)}
             >
-              <option value="auto">Auto (default)</option>
-              <option value="us-east">US East (CCPA / GPC)</option>
-              <option value="eu-central">EU Frankfurt (GDPR)</option>
-              <option value="ap-northeast">APAC Tokyo (APPI)</option>
+              <option value="auto">Auto (default scanner egress)</option>
+              <option value="us-east">US East profile (en-US)</option>
+              <option value="eu-central">EU Frankfurt profile (de-DE)</option>
+              <option value="ap-northeast">APAC Tokyo profile (ja-JP)</option>
             </select>
           </label>
           <label className={styles.fieldLabel}>

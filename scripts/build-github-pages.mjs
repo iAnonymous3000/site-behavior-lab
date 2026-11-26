@@ -58,7 +58,11 @@ const serverOnlyAppDirs = [
   // Dynamic D1/R2-backed v3 report permalinks & site history routes require
   // the Node/Cloudflare runtime and stay excluded from static GitHub Pages.
   path.join(rootDir, "app", "v3", "reports"),
-  path.join(rootDir, "app", "v3", "sites")
+  path.join(rootDir, "app", "v3", "sites"),
+  // Raw v3 seed report blobs (public/v3/reports/*.json) are read only by the
+  // container runtime; static Pages consumes the compact corpus-snapshot.json
+  // so excluding them avoids shipping ~15 MiB of unused JSON in out/.
+  path.join(rootDir, "public", "v3", "reports")
 ];
 const runtimeReportRouteFiles = [
   path.join("app", "reports", "[id]", "page.tsx"),

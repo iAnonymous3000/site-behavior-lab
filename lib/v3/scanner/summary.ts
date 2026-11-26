@@ -152,9 +152,12 @@ export function buildArmSummaryV3(input: {
   const longLivedCookies = input.cookies.filter((c) => c.ttlDays !== null && c.ttlDays > 30).length;
   const partitionedCookies = input.cookies.filter((c) => c.partitionKey !== null).length;
   const serverSideTaggingEndpoints = input.beacons.filter((b) => b.serverSideTagging).length;
-  // Plain JS document.cookie writes are kept in telemetry for cookie provenance,
-  // but must NOT be counted as browser fingerprinting.
-  const fingerprintKindsCount = input.fingerprinting.filter((f) => f.kind !== "document-cookie-writes").length;
+  // Plain JS document.cookie writes and routine UA-CH Client Hints calls
+  // (made by standard analytics libraries for Chromium UA-reduction) remain in
+  // telemetry for inspection, but must NOT inflate active fingerprinting counts.
+  const fingerprintKindsCount = input.fingerprinting.filter(
+    (f) => f.kind !== "document-cookie-writes" && f.kind !== "client-hints-high-entropy"
+  ).length;
 
   return {
     totalRequests: input.network.length,

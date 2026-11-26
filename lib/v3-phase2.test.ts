@@ -27,8 +27,10 @@ import {
   createFsBlobStoreV3,
   createLayeredBlobStoreV3,
   createReadOnlySeedBlobStoreV3,
+  createS3R2BlobStoreV3,
   createWorkerR2BlobStoreV3,
   loadReportV3,
+  pdfBlobKeyV3,
   reportBlobKeyV3,
   saveReportV3
 } from "./v3/storage/blob-store";
@@ -494,13 +496,15 @@ test("dispatchScanV3 supports pure-Cloudflare default + HMAC-signed regional wor
     egressRegion: "eu-central"
   });
 
-  // Regional profile enrichment
+  // Regional profile enrichment sets locale & timezone without fabricating
+  // physical egress unless verifiedEgress is true.
   const euReq = applyRegionalProfileV3({ url: "https://eu-site.example/" }, "eu-central");
-  assert.equal(euReq.egressRegion, "eu-central");
+  assert.equal(euReq.egressRegion, undefined);
   assert.equal(euReq.locale, "de-DE");
   assert.equal(euReq.timezone, "Europe/Berlin");
+  assert.equal(applyRegionalProfileV3({ url: "https://eu-site.example/" }, "eu-central", { verifiedEgress: true }).egressRegion, "eu-central");
 
-  // Default path when no upstream matches
+  // Default path when no upstream matches must NOT forge egressRegion
   const defaultRes = await dispatchScanV3(
     { url: "https://eu-site.example/" },
     {
@@ -508,6 +512,7 @@ test("dispatchScanV3 supports pure-Cloudflare default + HMAC-signed regional wor
       upstreams: [],
       defaultExecutor: async (req) => {
         assert.equal(req.locale, "de-DE");
+        assert.equal(req.egressRegion, undefined);
         return sampleReport;
       }
     }
@@ -690,9 +695,19 @@ test("createCloudflareD1HttpExecutorV3 sends parameterized queries without BEGIN
   const sample = makeReport({
     reportId: "20261125-00000000000000000000000000000001",
     canonicalDomain: "d1-example.org",
-    scannedAt: "2026-11-25T10:00:00.000Z"
+    scannedAt: "2026-11-25T10:00:00.000Z",
+    topEntities: Array.from({ length: 25 }, (_, i) => ({
+      entity: `Entity-${i}`,
+      parentOrg: `Org-${i}`,
+      category: "analytics" as const,
+      requests: i + 1,
+      domains: 1
+    }))
   });
+  const callsBeforeIndex = seenCalls.length;
   await store.indexReport(sample, { r2Key: reportBlobKeyV3(sample.reportId), visibility: "corpus" });
+  const indexCalls = seenCalls.length - callsBeforeIndex;
+  assert.ok(indexCalls <= 8, `Expected batched multi-row D1 inserts (<= 8 HTTP calls for 25 entities), got ${indexCalls}`);
   const ids = await store.listIndexedReportIds();
   assert.equal(ids.has(sample.reportId), true);
 
@@ -841,6 +856,88 @@ test("layered blob store & cold-start seed hydration verify digests and protect 
       await resetV3RuntimeContextForTests();
     }
   } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("hardening: S3 R2 blob store drains 404 XML fast without awaiting body.cancel, corpus beats public, and pruneExpiredReports deletes blobs", async () => {
+  // 1. S3 R2 404 body drain must NOT invoke or await stream cancel() (which can stall on undici 8)
+  let cancelCalled = false;
+  const r2 = createS3R2BlobStoreV3({
+    endpoint: "https://r2.invalid",
+    bucket: "test-bucket",
+    accessKeyId: "ak",
+    secretAccessKey: "sk",
+    fetchImpl: async () => {
+      const xmlBytes = new TextEncoder().encode("<Error><Code>NoSuchKey</Code></Error>");
+      const stream = new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(xmlBytes);
+          controller.close();
+        },
+        cancel() {
+          cancelCalled = true;
+          return new Promise<void>(() => {});
+        }
+      });
+      return new Response(stream, {
+        status: 404,
+        headers: { "content-type": "application/xml", "content-length": String(xmlBytes.byteLength) }
+      });
+    }
+  });
+  const missing = await r2.getJson("v3/reports/20261125-00000000000000000000000000000000.json");
+  assert.equal(missing, null);
+  assert.equal(cancelCalled, false, "R2 404 miss must drain the small XML error body instead of calling body.cancel()");
+
+  // 2. Curated `corpus` records take precedence over newer `public` submissions for the same domain,
+  //    and `pruneExpiredReports` deletes both JSON + PDF blobs and index rows.
+  const dir = await mkdtemp(path.join(tmpdir(), "sbl-v3-hardening-"));
+  const { store, close } = await openNodeSqliteReportIndex(":memory:");
+  try {
+    const blobStore = createFsBlobStoreV3(dir);
+    const corpusRep = makeReport({
+      reportId: "20261120-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      canonicalDomain: "protected.example",
+      scannedAt: "2026-11-20T10:00:00.000Z",
+      thirdPartyDomains: 22
+    });
+    const publicOverrideAttempt = makeReport({
+      reportId: "20261125-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      canonicalDomain: "protected.example",
+      scannedAt: "2026-11-25T10:00:00.000Z",
+      thirdPartyDomains: 0
+    });
+    const expiringRep = makeReport({
+      reportId: "20261110-cccccccccccccccccccccccccccccccc",
+      canonicalDomain: "transient.example",
+      scannedAt: "2026-11-10T10:00:00.000Z",
+      thirdPartyDomains: 4
+    });
+
+    await store.indexReport(corpusRep, { r2Key: reportBlobKeyV3(corpusRep.reportId), visibility: "corpus" });
+    await store.indexReport(publicOverrideAttempt, {
+      r2Key: reportBlobKeyV3(publicOverrideAttempt.reportId),
+      visibility: "public"
+    });
+    const expKey = await saveReportV3(blobStore, expiringRep);
+    await blobStore.putBinary(pdfBlobKeyV3(expiringRep.reportId), new Uint8Array(Buffer.from("%PDF-1.7\n")), "application/pdf");
+    await store.indexReport(expiringRep, {
+      r2Key: expKey,
+      visibility: "unlisted",
+      expiresAt: "2026-11-17T10:00:00.000Z"
+    });
+
+    const latest = await store.queryCorpus({ latestPerSite: true });
+    assert.equal(latest.items.find((i) => i.canonicalDomain === "protected.example")?.reportId, corpusRep.reportId);
+
+    const pruned = await store.pruneExpiredReports(blobStore, "2026-11-25T12:00:00.000Z");
+    assert.equal(pruned, 1);
+    assert.equal(await loadReportV3(blobStore, expiringRep.reportId), null);
+    assert.equal(await blobStore.getBinary(pdfBlobKeyV3(expiringRep.reportId)), null);
+    assert.equal(await store.getReportMeta(expiringRep.reportId), null);
+  } finally {
+    close();
     await rm(dir, { recursive: true, force: true });
   }
 });

@@ -52,6 +52,11 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Set up pinned Node runtime
+      uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version: "24.14.1"
+
     - name: Install Site Behavior Lab dependencies and Chromium
       shell: bash
       working-directory: ${{ github.action_path }}
@@ -72,6 +77,7 @@ runs:
         SBL_SARIF_OUT: ${{ inputs.sarif-output }}
         SBL_REPORT_OUT: ${{ inputs.report-output }}
         SBL_ALLOW_LOOPBACK: ${{ inputs.allow-loopback }}
+        SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1"
       run: |
         set -euo pipefail
         ARGS=(
@@ -104,7 +110,7 @@ runs:
           if [ -n "$SBL_BASELINE" ]; then
             node "$SBL_ACTION_PATH/bin/sbl.mjs" diff "$SBL_BASELINE" "$SBL_REPORT_OUT" --format markdown >> "$GITHUB_STEP_SUMMARY" || true
           else
-            node "$SBL_ACTION_PATH/bin/sbl.mjs" verify "$SBL_REPORT_OUT" >> "$GITHUB_STEP_SUMMARY" || true
+            node "$SBL_ACTION_PATH/bin/sbl.mjs" summary "$SBL_REPORT_OUT" >> "$GITHUB_STEP_SUMMARY" || true
           fi
         fi
 

@@ -23,10 +23,10 @@ import { runSblCli } from "./v3/cli/index";
 import { reportToSarifV3 } from "./v3/cli/sarif";
 import { rootInitiatorDomainV3 } from "./v3/dev-mode";
 import { renderReportV3Pdf } from "./v3/pdf/browser-rendering-pdf";
-import { decodeBeaconRequestV3, parseGoogleConsentMode } from "./v3/probes/beacons";
+import { decodeBeaconRequestV3, parseGoogleConsentMode, summarizeBeaconEventsV3 } from "./v3/probes/beacons";
 import { CMP_RULES_V3 } from "./v3/probes/consent-probe";
 import { analyzeFingerprintTelemetryV3 } from "./v3/probes/fingerprint-probe";
-import { buildSentinelEncodingsV3 } from "./v3/probes/keystroke-probe";
+import { buildSentinelEncodingsV3, detectKeystrokeLeaksV3 } from "./v3/probes/keystroke-probe";
 import { analyzePolicyTextV3 } from "./v3/probes/policy-probe";
 import { assertNoUnredactedSecretsV3, redactScanReportV3, redactUrlV3 } from "./v3/redaction";
 import { resolveRegionalUpstreamsFromEnv, resolveV3DataDir } from "./v3/runtime/store-context";
@@ -552,4 +552,145 @@ test("H6/M1/M7/L1: CLI policy gates fail closed, SARIF has partialFingerprints, 
     parseV3ScannerHealth({ ok: true, turnstile: true, authenticated: false, scansAvailable: true }),
     { reachable: true, scansAvailable: true, authenticated: false, turnstileRequired: true }
   );
+});
+
+test("Hardening audit regressions: non-32-hex v3 edge metering, false-positive filters, GA4 GCM dedup, and sentinel/header redaction", () => {
+  // 1. Edge rate-limit matcher covers valid 16-64 hex v3 report IDs (not only 32-hex)
+  const shortV3Id = "20261125-0123456789abcdef";
+  const longV3Id = `20261125-${"f".repeat(48)}`;
+  assert.equal(parsePublicReportReadPath("GET", `/api/v3/reports/${shortV3Id}`)?.quota, "report-json-read");
+  assert.equal(parsePublicReportReadPath("GET", `/api/v3/reports/${longV3Id}/pdf`)?.quota, "report-pdf");
+  assert.equal(parsePublicReportReadPath("GET", `/v3/reports/${shortV3Id}`)?.quota, "report-read");
+  // Legacy v1/v2 routes still require exact 32-hex IDs
+  assert.equal(parsePublicReportReadPath("GET", `/api/reports/${shortV3Id}`), null);
+
+  // 2. Public search/geocoding autocomplete GET URLs are excluded from keystroke exfiltration,
+  //    while genuine third-party POST exfiltration is still detected.
+  const canary = "sblcanarydeadbeef1234";
+  const enc = buildSentinelEncodingsV3(canary);
+  const leaks = detectKeystrokeLeaksV3(enc, [
+    {
+      domain: "geocode.arcgis.com",
+      registrableDomain: "arcgis.com",
+      thirdParty: true,
+      url: `https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/suggest?text=${canary}`,
+      phase: "active-input"
+    },
+    {
+      domain: "clients1.google.com",
+      registrableDomain: "google.com",
+      thirdParty: true,
+      url: `https://clients1.google.com/complete/search?q=${canary}`,
+      phase: "active-input"
+    },
+    {
+      domain: "ingest.replay.example",
+      registrableDomain: "replay.example",
+      thirdParty: true,
+      url: "https://ingest.replay.example/events",
+      body: JSON.stringify({ input: canary }),
+      phase: "active-input"
+    }
+  ]);
+  assert.equal(leaks.length, 1);
+  assert.equal(leaks[0].domain, "ingest.replay.example");
+
+  // 3. Single-call non-text canvas readback (e.g. WebP feature check) and low-entropy-only
+  //    Client Hints do NOT false-positive, and routine UA-CH does not inflate fingerprintKindsCount.
+  const benignFps = analyzeFingerprintTelemetryV3([
+    { api: "canvas.toDataURL", realm: "main", scriptDomain: "www.cdc.gov", detail: { w: 300, h: 150 } },
+    { api: "clientHints.getHighEntropyValues", realm: "main", scriptDomain: "www.cdc.gov", detail: { hints: "brands,mobile,platform" } }
+  ]);
+  assert.equal(benignFps.length, 0);
+
+  const uachOnly = analyzeFingerprintTelemetryV3([
+    { api: "clientHints.getHighEntropyValues", realm: "main", scriptDomain: "www.googletagmanager.com", detail: { hints: "platformVersion,model" } }
+  ]);
+  assert.equal(uachOnly.length, 1);
+  const sum = buildArmSummaryV3({
+    network: [],
+    websockets: [],
+    serviceWorkers: [],
+    cookies: [],
+    storage: [],
+    beacons: [],
+    cnameCloaks: [],
+    fingerprinting: uachOnly,
+    keystrokes: { fieldsTyped: 0, iframeFieldsTyped: 0, shadowDomFieldsTyped: 0, fieldTypes: [], leaks: [] },
+    consent: minimalReport("20261125-dddddddddddddddddddddddddddddddd", "a.example").leadArm.consent
+  });
+  assert.equal(sum.fingerprintKindsCount, 0);
+
+  // 4. GA4 consentModeSignals must NOT duplicate when gcs is in query string
+  const gaSummary = summarizeBeaconEventsV3([
+    {
+      url: "https://www.google-analytics.com/g/collect?v=2&tid=G-TEST1&en=page_view&gcs=G111",
+      thirdParty: true,
+      phase: "passive-load"
+    }
+  ]);
+  assert.equal(gaSummary.length, 1);
+  assert.equal(gaSummary[0].consentModeSignals.length, 1);
+
+  // 5. Redaction scrubs reflected active-probe sentinels, cookie paths, prefixed tokens, and non-allowlisted headers
+  const rep = minimalReport("20261125-abababababababababababababababab", "redact.example");
+  rep.leadArm.network.push({
+    id: 1,
+    phase: "active-input",
+    url: `https://api.redact.example/echo/${canary}/tok_${"a1b2c3d4e5f60718293a4b5c6d7e"}`,
+    domain: "api.redact.example",
+    registrableDomain: "redact.example",
+    method: "GET",
+    resourceType: "fetch",
+    status: 200,
+    thirdParty: false,
+    protocol: "h2",
+    encodedBytes: 0,
+    startedAtMs: 1,
+    durationMs: 1,
+    redirectChain: [],
+    requestHeaders: { origin: "https://redact.example", authorization: "Bearer LEAK" } as unknown as Record<string, string>,
+    responseHeaders: { referrerPolicy: "no-referrer", setCookie: "sid=LEAK" } as unknown as Record<string, string>,
+    entity: null,
+    shields: {
+      matched: false,
+      shouldBlockStandard: false,
+      shouldBlockAggressive: false,
+      blocked: false,
+      rule: null,
+      list: null,
+      exception: null,
+      redirect: null,
+      rewrittenUrl: null,
+      important: false
+    },
+    initiator: null
+  });
+  rep.leadArm.cookies.push({
+    name: `c_${canary}`,
+    domain: "redact.example",
+    registrableDomain: "redact.example",
+    path: `/u/alice@example.com/${canary}`,
+    sameSite: "Lax",
+    secure: true,
+    httpOnly: false,
+    session: true,
+    thirdParty: false,
+    ttlDays: null,
+    partitionKey: null,
+    setVia: "js",
+    phase: "passive-load",
+    entity: null
+  });
+  const scrubbed = redactScanReportV3(rep, [canary]);
+  assert.doesNotThrow(() => assertNoUnredactedSecretsV3(scrubbed, [canary]));
+  assert.equal(scrubbed.leadArm.network[0].url, "https://api.redact.example/echo/[redacted-sentinel]/[redacted-token]");
+  assert.equal("authorization" in scrubbed.leadArm.network[0].requestHeaders, false);
+  assert.equal("setCookie" in scrubbed.leadArm.network[0].responseHeaders, false);
+  assert.equal(scrubbed.leadArm.cookies[0].path, "/u/[redacted-email]/[redacted-sentinel]");
+
+  // 6. v3 Chromium launch args MUST block non-proxied WebRTC UDP (preventing UDP SSRF)
+  const { readFileSync } = require("node:fs") as typeof import("node:fs");
+  const scannerSrc = readFileSync(require("node:path").join(process.cwd(), "lib/v3/scanner/index.ts"), "utf8");
+  assert.match(scannerSrc, /--force-webrtc-ip-handling-policy=disable_non_proxied_udp/);
 });

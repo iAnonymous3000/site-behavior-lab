@@ -18,11 +18,20 @@ const V3_LOCATION = {
   basePath: STATIC_BASE_PATH
 };
 
+type StaticVendorSiteStat = {
+  domain: string;
+  requests: number;
+  domains: number;
+  category?: string;
+};
+
 type StaticCorpusSnapshotForCatalog = {
   schemaVersion: 1;
   items: IndexedReportRowV3[];
   entityDomains?: Record<string, string[]>;
   parentOrgDomains?: Record<string, string[]>;
+  entitySiteStats?: Record<string, StaticVendorSiteStat[]>;
+  parentOrgSiteStats?: Record<string, StaticVendorSiteStat[]>;
 };
 
 let cachedCatalogSnapshotPromise: Promise<StaticCorpusSnapshotForCatalog | null> | null = null;
@@ -46,29 +55,54 @@ function footprintFromSnapshot(
   vendorName: string
 ): EntityFootprintResultV3 {
   const target = vendorName.trim().toLowerCase();
-  const domainSet = new Set<string>();
-  for (const [k, domains] of Object.entries(snapshot.entityDomains ?? {})) {
-    if (k.toLowerCase() === target) {
-      for (const d of domains) domainSet.add(d);
-    }
-  }
-  for (const [k, domains] of Object.entries(snapshot.parentOrgDomains ?? {})) {
-    if (k.toLowerCase() === target) {
-      for (const d of domains) domainSet.add(d);
-    }
-  }
   const byDomain = new Map(snapshot.items.map((row) => [row.canonicalDomain, row]));
-  const sites = [...domainSet]
-    .map((domain) => {
+  const statByDomain = new Map<string, { requests: number; domains: number; category: string }>();
+
+  for (const source of [snapshot.entitySiteStats, snapshot.parentOrgSiteStats]) {
+    if (!source) continue;
+    for (const [k, entries] of Object.entries(source)) {
+      if (k.toLowerCase() !== target) continue;
+      for (const entry of entries) {
+        const cur = statByDomain.get(entry.domain);
+        if (!cur || entry.requests > cur.requests) {
+          statByDomain.set(entry.domain, {
+            requests: Math.max(0, entry.requests),
+            domains: Math.max(1, entry.domains),
+            category: entry.category ?? "tracked"
+          });
+        }
+      }
+    }
+  }
+
+  if (statByDomain.size === 0) {
+    const domainSet = new Set<string>();
+    for (const [k, domains] of Object.entries(snapshot.entityDomains ?? {})) {
+      if (k.toLowerCase() === target) {
+        for (const d of domains) domainSet.add(d);
+      }
+    }
+    for (const [k, domains] of Object.entries(snapshot.parentOrgDomains ?? {})) {
+      if (k.toLowerCase() === target) {
+        for (const d of domains) domainSet.add(d);
+      }
+    }
+    for (const domain of domainSet) {
+      statByDomain.set(domain, { requests: 0, domains: 1, category: "tracked" });
+    }
+  }
+
+  const sites = [...statByDomain.entries()]
+    .map(([domain, stat]) => {
       const row = byDomain.get(domain);
       if (!row) return null;
       return {
         canonicalDomain: row.canonicalDomain,
         reportId: row.reportId,
         scannedAt: row.scannedAt,
-        category: "tracked",
-        requestCount: Math.max(1, row.trackingRequests),
-        domainCount: Math.max(1, row.thirdPartyDomains)
+        category: stat.category,
+        requestCount: stat.requests,
+        domainCount: stat.domains
       };
     })
     .filter((s): s is NonNullable<typeof s> => s !== null)
@@ -137,6 +171,7 @@ export function CatalogExplorerV3({
 
     const controller = new AbortController();
     let cancelled = false;
+    let settled = false;
     async function fetchMissing() {
       setLoadingVendor(true);
       setLookupError(null);
@@ -160,6 +195,7 @@ export function CatalogExplorerV3({
           })
         );
         if (cancelled) return;
+        settled = true;
         const additions = fetched.filter((pair): pair is readonly [string, EntityFootprintResultV3] => pair !== null);
         if (additions.length > 0) {
           setFootprints((prev) => {
@@ -168,10 +204,12 @@ export function CatalogExplorerV3({
             return next;
           });
         } else {
+          for (const v of missing) attemptedVendorsRef.current.delete(v);
           setLookupError("Live corpus lookup is currently unavailable.");
         }
       } catch (err) {
         if (!cancelled && !(err instanceof DOMException && err.name === "AbortError")) {
+          for (const v of missing) attemptedVendorsRef.current.delete(v);
           setLookupError(err instanceof Error ? err.message : "Live corpus lookup is unavailable.");
         }
       } finally {
@@ -181,9 +219,15 @@ export function CatalogExplorerV3({
     void fetchMissing();
     return () => {
       cancelled = true;
+      if (!settled) {
+        for (const v of missing) attemptedVendorsRef.current.delete(v);
+      }
       controller.abort();
     };
   }, [selectedVendors]);
+
+  const hasPendingVendor = selectedVendors.some((v) => !(v in footprints));
+  const isResolvingVendor = loadingVendor || (hasPendingVendor && !lookupError);
 
   function toggleVendor(name: string) {
     setSelectedVendors((prev) =>
@@ -259,11 +303,11 @@ export function CatalogExplorerV3({
                 Block impact simulation: {selectedVendors.join(" + ")}
               </h3>
               <p className={styles.subtitle} style={{ marginTop: 4 }}>
-                {loadingVendor
+                {isResolvingVendor
                   ? "Querying corpus footprint…"
                   : lookupError
                     ? lookupError
-                    : `Observed on ${simulation.impactedSites.length} of ${simulation.corpusSites} indexed sites (${simulation.pct}%), accounting for ${simulation.totalRequestsPrevented.toLocaleString()} baseline requests across the indexed corpus.`}
+                    : `Observed on ${simulation.impactedSites.length} of ${simulation.corpusSites} indexed sites (${simulation.pct}%)${simulation.totalRequestsPrevented > 0 ? `, accounting for ${simulation.totalRequestsPrevented.toLocaleString()} baseline requests across the indexed corpus` : ""}.`}
               </p>
             </div>
             <button type="button" className={styles.btn} onClick={() => setSelectedVendors([])}>
@@ -287,7 +331,7 @@ export function CatalogExplorerV3({
                     <tr key={s.domain}>
                       <td className={styles.mono}>{s.domain}</td>
                       <td>{s.vendors.join(", ")}</td>
-                      <td className={styles.num}>{s.requests.toLocaleString()}</td>
+                      <td className={styles.num}>{s.requests > 0 ? s.requests.toLocaleString() : "—"}</td>
                       <td>
                         <a
                           href={resolveV3DynamicPageUrl(`/v3/reports/${s.reportId}`, V3_LOCATION)}
@@ -302,7 +346,7 @@ export function CatalogExplorerV3({
               </table>
             </div>
           ) : (
-            !loadingVendor && (
+            !isResolvingVendor && (
               <div className={styles.emptyState}>
                 No indexed sites currently contact {selectedVendors.join(", ")}.
               </div>

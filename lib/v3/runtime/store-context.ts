@@ -69,6 +69,23 @@ export type V3RuntimeContext = {
 
 let cachedContextPromise: Promise<V3RuntimeContext> | null = null;
 let cachedDataDirKey: string | null = null;
+let lastExpiredPruneAtMs = 0;
+const EXPIRED_PRUNE_INTERVAL_MS = 10 * 60_000;
+
+/**
+ * Throttled, best-effort cleanup of expired non-corpus v3 reports (both blobs
+ * and metadata rows) so the 7-day retention window holds even without a
+ * dedicated R2 lifecycle rule on `v3/`.
+ */
+export async function maybePruneExpiredV3Reports(ctx: V3RuntimeContext, nowMs = Date.now()): Promise<number> {
+  if (nowMs - lastExpiredPruneAtMs < EXPIRED_PRUNE_INTERVAL_MS) return 0;
+  lastExpiredPruneAtMs = nowMs;
+  try {
+    return await ctx.reportIndex.pruneExpiredReports(ctx.blobStore, new Date(nowMs).toISOString(), 100);
+  } catch {
+    return 0;
+  }
+}
 
 export function resolveV3DataDir(env: NodeJS.ProcessEnv = process.env): string {
   const configured = env.SITE_BEHAVIOR_LAB_V3_DATA_DIR?.trim();
@@ -299,7 +316,7 @@ export async function getV3RuntimeContext(env: NodeJS.ProcessEnv = process.env):
       }
     }
 
-    return {
+    const runtimeCtx: V3RuntimeContext = {
       blobStore,
       reportIndex,
       indexBackend,
@@ -309,6 +326,8 @@ export async function getV3RuntimeContext(env: NodeJS.ProcessEnv = process.env):
       dataDir,
       close
     };
+    void maybePruneExpiredV3Reports(runtimeCtx);
+    return runtimeCtx;
   })();
 
   cachedContextPromise.catch(() => {

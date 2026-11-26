@@ -250,7 +250,8 @@ export function analyzeFingerprintTelemetryV3(
     scriptDomains: [...new Set(matched.map((e) => e.scriptDomain).filter((d): d is string => Boolean(d)))].sort()
   });
 
-  // 1. Canvas fingerprinting (readback + either text writes or non-trivial canvas)
+  // 1. Canvas fingerprinting: require text rendering + readback OR repeated
+  //    non-trivial readbacks (eliminating single-call icon/WebP feature checks).
   const canvasReads = events.filter(
     (e) =>
       e.api === "canvas.toDataURL" ||
@@ -260,7 +261,10 @@ export function analyzeFingerprintTelemetryV3(
       e.api === "offscreen2d.getImageData"
   );
   const canvasText = events.filter((e) => e.api === "canvas2d.fillText" || e.api === "offscreen2d.fillText");
-  if (canvasReads.length > 0 && (canvasText.length > 0 || canvasReads.some((e) => Number(e.detail?.w ?? 0) >= 16))) {
+  const hasNonTrivialReadback = canvasReads.some(
+    (e) => Number(e.detail?.w ?? 0) >= 16 && Number(e.detail?.h ?? 0) >= 16
+  );
+  if (canvasReads.length > 0 && (canvasText.length > 0 || (canvasReads.length >= 2 && hasNonTrivialReadback))) {
     const combined = [...canvasReads, ...canvasText];
     detections.push({
       kind: "canvas",
@@ -327,10 +331,15 @@ export function analyzeFingerprintTelemetryV3(
     });
   }
 
-  // 6. High-Entropy Client Hints (allowlist standard W3C hint tokens to prevent page string injection)
+  // 6. High-Entropy Client Hints (allowlist standard W3C hint tokens and require
+  //    at least one genuinely high-entropy hint beyond low-entropy brands/mobile/platform)
   const ALLOWED_HINTS = new Set([
     "architecture", "bitness", "brands", "formFactors", "fullVersionList",
     "mobile", "model", "platform", "platformVersion", "uaFullVersion", "wow64"
+  ]);
+  const HIGH_ENTROPY_HINTS = new Set([
+    "architecture", "bitness", "formFactors", "fullVersionList",
+    "model", "platformVersion", "uaFullVersion", "wow64"
   ]);
   const chEvents = events.filter((e) => e.api === "clientHints.getHighEntropyValues");
   if (chEvents.length > 0) {
@@ -342,15 +351,17 @@ export function analyzeFingerprintTelemetryV3(
           .filter((h) => ALLOWED_HINTS.has(h))
       )
     ].sort();
-    detections.push({
-      kind: "client-hints-high-entropy",
-      count: chEvents.length,
-      ...collectMeta(chEvents),
-      evidence: {
-        calls: chEvents.length,
-        requestedHints
-      }
-    });
+    if (requestedHints.some((h) => HIGH_ENTROPY_HINTS.has(h))) {
+      detections.push({
+        kind: "client-hints-high-entropy",
+        count: chEvents.length,
+        ...collectMeta(chEvents),
+        evidence: {
+          calls: chEvents.length,
+          requestedHints
+        }
+      });
+    }
   }
 
   // 7. DOM / CSS font enumeration (`document.fonts.check` bursts >= 10 distinct fonts)

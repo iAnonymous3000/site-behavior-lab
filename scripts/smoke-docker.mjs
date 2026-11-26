@@ -161,6 +161,7 @@ async function runPublicR2ImageSmoke() {
     });
     assertPublicR2Bundles(smokeR2.snapshot());
     await assertPrintableReportRoute(scanner.baseUrl, smokeR2.snapshot());
+    await assertV3RuntimeEndpoints(scanner.baseUrl);
     console.log(`Docker public-v2/R2 smoke passed for ${image} at ${scanner.baseUrl}.`);
   } catch (error) {
     await printScannerLogs(scanner.containerId);
@@ -554,6 +555,80 @@ function assertSandboxEnabled(health) {
   if (health.checks?.chromiumSandbox !== "enabled") {
     throw new Error("Docker health did not confirm that the Chromium sandbox is enabled.");
   }
+}
+
+async function assertV3RuntimeEndpoints(baseUrl) {
+  const stats = await withHttpOperationDeadline(
+    { timeoutMs: 10_000, label: "v3 corpus stats" },
+    async (signal) => {
+      const response = await fetch(`${baseUrl}/api/v3/corpus?view=stats`, { signal });
+      if (response.status !== 200) throw new Error(`GET /api/v3/corpus?view=stats answered ${response.status}.`);
+      return readResponseJsonWithinLimit(response, { maxBytes: 1024 * 1024, label: "v3 corpus stats" });
+    }
+  );
+  if (!stats?.ok || !stats?.stats || stats.stats.distinctSites < 1) {
+    throw new Error("v3 corpus stats did not hydrate committed seed reports on cold start.");
+  }
+
+  const list = await withHttpOperationDeadline(
+    { timeoutMs: 10_000, label: "v3 corpus list" },
+    async (signal) => {
+      const response = await fetch(`${baseUrl}/api/v3/corpus?limit=1`, { signal });
+      if (response.status !== 200) throw new Error(`GET /api/v3/corpus?limit=1 answered ${response.status}.`);
+      return readResponseJsonWithinLimit(response, { maxBytes: 1024 * 1024, label: "v3 corpus list" });
+    }
+  );
+  const reportId = list?.items?.[0]?.reportId;
+  if (typeof reportId !== "string" || !/^\d{8}-[a-f0-9]{16,64}$/.test(reportId)) {
+    throw new Error("v3 corpus list returned no valid seeded reportId.");
+  }
+
+  // Must finish quickly (proving R2 404 misses do not stall for 30s on undici).
+  const started = Date.now();
+  const report = await withHttpOperationDeadline(
+    { timeoutMs: 10_000, label: `v3 report JSON ${reportId}` },
+    async (signal) => {
+      const response = await fetch(`${baseUrl}/api/v3/reports/${reportId}`, { signal });
+      if (response.status !== 200) throw new Error(`GET /api/v3/reports/${reportId} answered ${response.status}.`);
+      return readResponseJsonWithinLimit(response, { maxBytes: 16 * 1024 * 1024, label: `v3 report JSON ${reportId}` });
+    }
+  );
+  if (report?.schemaVersion !== 3 || report?.reportId !== reportId) {
+    throw new Error(`v3 report JSON ${reportId} failed schemaVersion/reportId check.`);
+  }
+  const elapsedMs = Date.now() - started;
+  if (elapsedMs > 8_000) {
+    throw new Error(`v3 report JSON ${reportId} took ${elapsedMs}ms (expected < 8000ms).`);
+  }
+
+  const pdfBytes = await withHttpOperationDeadline(
+    { timeoutMs: 45_000, label: `v3 report PDF ${reportId}` },
+    async (signal) => {
+      const response = await fetch(`${baseUrl}/api/v3/reports/${reportId}/pdf`, {
+        headers: { accept: "application/pdf" },
+        signal
+      });
+      if (response.status !== 200) {
+        throw new Error(`GET /api/v3/reports/${reportId}/pdf answered ${response.status}.`);
+      }
+      const ct = (response.headers.get("content-type") || "").toLowerCase();
+      if (!ct.includes("application/pdf")) {
+        throw new Error(`v3 report PDF returned unexpected content-type: ${ct}`);
+      }
+      return readResponseBytesWithinLimit(response, { maxBytes: reportPdfMaxBytes, label: `v3 report PDF ${reportId}` });
+    }
+  );
+  if (
+    pdfBytes.byteLength < 5 ||
+    pdfBytes[0] !== 0x25 ||
+    pdfBytes[1] !== 0x50 ||
+    pdfBytes[2] !== 0x44 ||
+    pdfBytes[3] !== 0x46 ||
+    pdfBytes[4] !== 0x2d
+  ) {
+    throw new Error(`v3 report PDF ${reportId} did not start with %PDF- magic bytes.`);
+  }
+  console.log(`Docker v3 runtime endpoints passed (${stats.stats.distinctSites} seeded sites, JSON ${elapsedMs}ms, PDF ${pdfBytes.byteLength} B).`);
 }
 
 function assertPublicR2Bundles(objects) {

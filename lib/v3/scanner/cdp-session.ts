@@ -136,6 +136,7 @@ export class CdpSessionCollectorV3 {
   private retainedPostDataBytes = 0;
 
   private readonly requestsByCdpId = new Map<string, MutableRequest>();
+  private readonly requestsByUrl = new Map<string, MutableRequest[]>();
   private readonly orderedRequests: MutableRequest[] = [];
   private readonly blockedUrlSet = new Set<string>();
   private readonly websocketsById = new Map<string, MutableWebSocket>();
@@ -144,6 +145,9 @@ export class CdpSessionCollectorV3 {
   private readonly serviceWorkers = new Map<string, ServiceWorkerRecordV3>();
   private readonly attachedWorkers = new Map<string, AttachedWorkerSession>();
   private readonly workerTelemetry: RawFingerprintEventV3[] = [];
+  private readonly firstSeenCookiePhase = new Map<string, ScanPhaseName>();
+  private readonly firstSeenStoragePhase = new Map<string, ScanPhaseName>();
+  private readonly instrumentedWorkers = new WeakSet<object>();
 
   constructor(options: CdpCollectorOptionsV3) {
     this.page = options.page;
@@ -179,8 +183,95 @@ export class CdpSessionCollectorV3 {
 
   markRouteBlocked(url: string): void {
     this.blockedUrlSet.add(url);
-    for (const req of this.orderedRequests) {
-      if (req.rawUrl === url) req.blockedByRoute = true;
+    const matched = this.requestsByUrl.get(url);
+    if (matched) {
+      for (const req of matched) req.blockedByRoute = true;
+    }
+  }
+
+  /**
+   * Snapshot newly observed cookies and frame localStorage/sessionStorage keys
+   * at the end of each visit phase so every entry records the FIRST phase in
+   * which it appeared (instead of attributing every item to the final phase).
+   */
+  async snapshotPhaseState(): Promise<void> {
+    const phase = this.currentPhase;
+    // 1. Cookies via CDP `Storage.getCookies` (or Playwright fallback)
+    let rawCookies: Array<{ name?: unknown; domain?: unknown; path?: unknown }> = [];
+    if (this.cdp) {
+      try {
+        const res = await raceTimeout(
+          this.cdp.send("Storage.getCookies") as unknown as Promise<{ cookies?: Array<Record<string, unknown>> }>,
+          1_500,
+          null
+        );
+        rawCookies = res?.cookies ?? [];
+      } catch {
+        rawCookies = [];
+      }
+    }
+    if (rawCookies.length === 0) {
+      try {
+        rawCookies = await raceTimeout(this.context.cookies(), 1_500, []);
+      } catch {
+        rawCookies = [];
+      }
+    }
+    for (const raw of rawCookies.slice(0, MAX_V3_COOKIES)) {
+      const name = String(raw.name ?? "");
+      const domain = String(raw.domain ?? "").replace(/^\./, "").toLowerCase();
+      const cookiePath = typeof raw.path === "string" ? raw.path : "/";
+      if (!name || !domain) continue;
+      const key = `${domain}|${cookiePath}|${name}`;
+      if (!this.firstSeenCookiePhase.has(key)) {
+        this.firstSeenCookiePhase.set(key, phase);
+      }
+    }
+
+    // 2. Frame localStorage / sessionStorage keys
+    for (const frame of this.page.frames().slice(0, 12)) {
+      const frameUrl = frame.url();
+      if (!frameUrl.startsWith("http://") && !frameUrl.startsWith("https://")) continue;
+      let origin: string;
+      try {
+        origin = new URL(frameUrl).origin;
+      } catch {
+        continue;
+      }
+      try {
+        const snap = await raceTimeout(
+          frame.evaluate(() => {
+            const local: string[] = [];
+            const session: string[] = [];
+            try {
+              for (let i = 0; i < Math.min(window.localStorage.length, 200); i++) {
+                const k = window.localStorage.key(i);
+                if (k !== null) local.push(k);
+              }
+            } catch {}
+            try {
+              for (let i = 0; i < Math.min(window.sessionStorage.length, 200); i++) {
+                const k = window.sessionStorage.key(i);
+                if (k !== null) session.push(k);
+              }
+            } catch {}
+            return { local, session };
+          }),
+          1_200,
+          null
+        );
+        if (!snap) continue;
+        for (const k of snap.local) {
+          const sk = `${origin}|localStorage|${k}`;
+          if (!this.firstSeenStoragePhase.has(sk)) this.firstSeenStoragePhase.set(sk, phase);
+        }
+        for (const k of snap.session) {
+          const sk = `${origin}|sessionStorage|${k}`;
+          if (!this.firstSeenStoragePhase.has(sk)) this.firstSeenStoragePhase.set(sk, phase);
+        }
+      } catch {
+        // Cross-origin frame detached or still loading
+      }
     }
   }
 
@@ -193,6 +284,7 @@ export class CdpSessionCollectorV3 {
   }
 
   async attach(): Promise<boolean> {
+    this.bindPlaywrightWorkerHooks();
     try {
       const cdp = await this.context.newCDPSession(this.page);
       this.cdp = cdp;
@@ -214,6 +306,30 @@ export class CdpSessionCollectorV3 {
     }
   }
 
+  private bindPlaywrightWorkerHooks(): void {
+    const injectWorker = (
+      worker: { evaluate<R, A>(fn: string | ((arg: A) => R), arg?: A): Promise<R> },
+      realm: FingerprintRealmV3
+    ) => {
+      if (this.instrumentedWorkers.has(worker)) return;
+      this.instrumentedWorkers.add(worker);
+      void worker.evaluate(buildFingerprintInitScriptV3(realm)).catch(() => {});
+    };
+
+    for (const worker of this.page.workers()) {
+      injectWorker(worker, "dedicated-worker");
+    }
+    this.page.on("worker", (worker) => {
+      injectWorker(worker, "dedicated-worker");
+    });
+    for (const sw of this.context.serviceWorkers()) {
+      injectWorker(sw, "service-worker");
+    }
+    this.context.on("serviceworker", (sw) => {
+      injectWorker(sw, "service-worker");
+    });
+  }
+
   async detach(): Promise<void> {
     if (!this.cdp) return;
     try {
@@ -225,7 +341,10 @@ export class CdpSessionCollectorV3 {
   }
 
   private bindCdpListeners(cdp: CDPSession): void {
-    // 1. Auto-attached child targets (OOPIFs + Dedicated / Shared / Service Workers)
+    // 1. Track auto-attached child targets (OOPIFs + Dedicated / Shared / Service Workers).
+    // Note: With `flatten: true`, Chromium rejects legacy `Target.sendMessageToTarget`;
+    // worker instrumentation is performed via Playwright's native `page.on("worker")`
+    // and `context.on("serviceworker")` hooks in `bindPlaywrightWorkerHooks()`.
     cdp.on("Target.attachedToTarget", (params) => {
       const type = String(params.targetInfo?.type ?? "");
       const sessionId = String(params.sessionId ?? "");
@@ -238,9 +357,6 @@ export class CdpSessionCollectorV3 {
               ? "service-worker"
               : "dedicated-worker";
         this.attachedWorkers.set(sessionId, { sessionId, targetType: type, realm });
-        void this.instrumentAttachedTarget(sessionId, realm);
-      } else if (type === "iframe") {
-        void this.sendToChild(sessionId, "Network.enable", { maxPostDataSize: MAX_TRANSIENT_BODY_CHARS });
       }
     });
 
@@ -324,22 +440,12 @@ export class CdpSessionCollectorV3 {
     });
   }
 
-  private async instrumentAttachedTarget(sessionId: string, realm: FingerprintRealmV3): Promise<void> {
-    await this.sendToChild(sessionId, "Network.enable", { maxPostDataSize: MAX_TRANSIENT_BODY_CHARS });
-    await this.sendToChild(sessionId, "Runtime.evaluate", {
-      expression: buildFingerprintInitScriptV3(realm),
-      silent: true
-    });
-  }
-
-  private async sendToChild(sessionId: string, method: string, params?: Record<string, unknown>): Promise<unknown> {
-    if (!this.cdp) return null;
-    try {
-      // Playwright CDPSession supports flattened sessionId routing via internal transport or Target.sendMessageToTarget.
-      const msg = JSON.stringify({ id: Date.now() % 1_000_000, method, params: params ?? {} });
-      return await this.cdp.send("Target.sendMessageToTarget", { sessionId, message: msg });
-    } catch {
-      return null;
+  private indexRequestByUrl(url: string, record: MutableRequest): void {
+    const existing = this.requestsByUrl.get(url);
+    if (existing) {
+      if (existing.length < 32) existing.push(record);
+    } else {
+      this.requestsByUrl.set(url, [record]);
     }
   }
 
@@ -352,8 +458,9 @@ export class CdpSessionCollectorV3 {
     const existing = this.requestsByCdpId.get(requestId);
     const redirectResponse = params.redirectResponse as Record<string, unknown> | undefined;
     if (existing && redirectResponse) {
-      existing.redirectChain.push(existing.rawUrl);
+      if (existing.redirectChain.length < 16) existing.redirectChain.push(existing.rawUrl);
       existing.rawUrl = rawUrl;
+      this.indexRequestByUrl(rawUrl, existing);
       const host = safeHostname(rawUrl);
       if (host) {
         existing.domain = host;
@@ -415,6 +522,7 @@ export class CdpSessionCollectorV3 {
     };
 
     this.requestsByCdpId.set(requestId, record);
+    this.indexRequestByUrl(rawUrl, record);
     this.orderedRequests.push(record);
   }
 
@@ -721,7 +829,7 @@ export class CdpSessionCollectorV3 {
             area: "localStorage",
             keyOrStore: item.key,
             valueBytes: item.bytes,
-            phase: this.currentPhase,
+            phase: this.firstSeenStoragePhase.get(`${origin}|localStorage|${item.key}`) ?? this.currentPhase,
             entity
           });
         }
@@ -733,7 +841,7 @@ export class CdpSessionCollectorV3 {
             area: "sessionStorage",
             keyOrStore: item.key,
             valueBytes: item.bytes,
-            phase: this.currentPhase,
+            phase: this.firstSeenStoragePhase.get(`${origin}|sessionStorage|${item.key}`) ?? this.currentPhase,
             entity
           });
         }
@@ -742,8 +850,9 @@ export class CdpSessionCollectorV3 {
       }
     }
 
-    // 1b. Read dedicated worker fingerprint telemetry via Playwright's worker API
-    for (const worker of this.page.workers()) {
+    // 1b. Read dedicated worker & service worker fingerprint telemetry via Playwright's worker API
+    const allWorkers = [...this.page.workers(), ...this.context.serviceWorkers()];
+    for (const worker of allWorkers) {
       try {
         const wSnap = await raceTimeout(
           worker.evaluate(
@@ -883,11 +992,12 @@ export class CdpSessionCollectorV3 {
           ? "js"
           : "unknown";
 
+      const cookiePath = typeof raw.path === "string" ? raw.path : "/";
       cookies.push({
         name,
         domain,
         registrableDomain: reg,
-        path: typeof raw.path === "string" ? raw.path : "/",
+        path: cookiePath,
         sameSite: typeof raw.sameSite === "string" ? raw.sameSite : "None",
         secure: Boolean(raw.secure),
         httpOnly,
@@ -896,7 +1006,7 @@ export class CdpSessionCollectorV3 {
         ttlDays,
         partitionKey,
         setVia,
-        phase: this.currentPhase,
+        phase: this.firstSeenCookiePhase.get(`${domain}|${cookiePath}|${name}`) ?? this.currentPhase,
         entity: attributeDomainV3(domain, { registrableDomain: reg })
       });
     }

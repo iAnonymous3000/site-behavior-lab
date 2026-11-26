@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { staticAssetPath } from "@/app/client-runtime";
 import { SiteChrome } from "@/app/_components/site-chrome";
 import { ReportViewV3 } from "@/app/_components/v3/ReportViewV3";
 import styles from "@/app/v3/v3.module.css";
@@ -18,7 +18,14 @@ export const dynamic = "force-dynamic";
 const loadCachedReportV3 = cache(async (id: string) => {
   if (!V3_REPORT_ID_RE.test(id)) return null;
   const ctx = await getV3RuntimeContext();
-  return loadReportV3(ctx.blobStore, id);
+  const [report, meta] = await Promise.all([
+    loadReportV3(ctx.blobStore, id),
+    ctx.reportIndex.getReportMeta(id)
+  ]);
+  if (!report || (meta?.expiresAt && Date.parse(meta.expiresAt) <= Date.now())) {
+    return null;
+  }
+  return report;
 });
 
 export async function generateMetadata(context: {
@@ -48,9 +55,9 @@ export default async function V3ReportPage(context: {
       <div className={styles.page}>
         <nav className="page-breadcrumbs" aria-label="Breadcrumb">
           <ol>
-            <li><Link href="/">Home</Link></li>
+            <li><a href={staticAssetPath("/")}>Home</a></li>
             <li aria-hidden="true">/</li>
-            <li><Link href="/directory/">Scanned sites</Link></li>
+            <li><a href={staticAssetPath("/directory/")}>Scanned sites</a></li>
             <li aria-hidden="true">/</li>
             <li aria-current="page">{report.canonicalDomain}</li>
           </ol>

@@ -35,8 +35,11 @@ async function handleGetReportV3(
       loadReportV3(ctx.blobStore, id),
       ctx.reportIndex.getReportMeta(id)
     ]);
-    if (!report) {
-      return NextResponse.json({ ok: false, error: "Report not found." }, { status: 404 });
+    if (!report || (meta?.expiresAt && Date.parse(meta.expiresAt) <= Date.now())) {
+      return NextResponse.json(
+        { ok: false, error: "Report not found." },
+        { status: 404, headers: { "x-content-type-options": "nosniff" } }
+      );
     }
 
     const cacheControl =
@@ -49,11 +52,14 @@ async function handleGetReportV3(
       headers: {
         "content-type": "application/json; charset=utf-8",
         "cache-control": cacheControl,
+        "x-content-type-options": "nosniff",
         "x-robots-tag": "noindex, noarchive"
       }
     });
   } catch (error) {
     const publicError = toPublicError(error);
-    return NextResponse.json({ ok: false, error: publicError.message }, { status: publicError.status });
+    const headers: Record<string, string> = { "x-content-type-options": "nosniff" };
+    if (publicError.status === 429) headers["retry-after"] = "60";
+    return NextResponse.json({ ok: false, error: publicError.message }, { status: publicError.status, headers });
   }
 }

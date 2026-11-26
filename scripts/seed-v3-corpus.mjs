@@ -143,6 +143,8 @@ async function runPublicSeed(opts, modules, targets) {
   const staged = [];
   const entityDomains = new Map();
   const parentOrgDomains = new Map();
+  const entitySiteStats = new Map();
+  const parentOrgSiteStats = new Map();
   let failed = 0;
 
   try {
@@ -190,14 +192,39 @@ async function runPublicSeed(opts, modules, targets) {
 
         const allEntities =
           clean.leadArm.network.length > 0 ? extractAllArmEntitiesV3(clean.leadArm) : clean.leadArm.summary.topEntities;
+        const parentAgg = new Map();
         for (const ent of allEntities) {
           const eSet = entityDomains.get(ent.entity) ?? new Set();
           eSet.add(clean.canonicalDomain);
           entityDomains.set(ent.entity, eSet);
 
+          const eStats = entitySiteStats.get(ent.entity) ?? [];
+          eStats.push({
+            domain: clean.canonicalDomain,
+            requests: ent.requests,
+            domains: ent.domains,
+            category: ent.category
+          });
+          entitySiteStats.set(ent.entity, eStats);
+
           const pSet = parentOrgDomains.get(ent.parentOrg) ?? new Set();
           pSet.add(clean.canonicalDomain);
           parentOrgDomains.set(ent.parentOrg, pSet);
+
+          const curParent = parentAgg.get(ent.parentOrg) ?? { requests: 0, domains: 0, category: ent.category };
+          curParent.requests += ent.requests;
+          curParent.domains += ent.domains;
+          parentAgg.set(ent.parentOrg, curParent);
+        }
+        for (const [parentOrg, agg] of parentAgg.entries()) {
+          const pStats = parentOrgSiteStats.get(parentOrg) ?? [];
+          pStats.push({
+            domain: clean.canonicalDomain,
+            requests: agg.requests,
+            domains: agg.domains,
+            category: agg.category
+          });
+          parentOrgSiteStats.set(parentOrg, pStats);
         }
 
         staged.push({ report: clean, serialized, sha256 });
@@ -256,7 +283,19 @@ async function runPublicSeed(opts, modules, targets) {
       stats,
       items,
       entityDomains: Object.fromEntries([...entityDomains.entries()].map(([k, s]) => [k, [...s].sort()])),
-      parentOrgDomains: Object.fromEntries([...parentOrgDomains.entries()].map(([k, s]) => [k, [...s].sort()]))
+      parentOrgDomains: Object.fromEntries([...parentOrgDomains.entries()].map(([k, s]) => [k, [...s].sort()])),
+      entitySiteStats: Object.fromEntries(
+        [...entitySiteStats.entries()].map(([k, arr]) => [
+          k,
+          arr.sort((a, b) => b.requests - a.requests || a.domain.localeCompare(b.domain))
+        ])
+      ),
+      parentOrgSiteStats: Object.fromEntries(
+        [...parentOrgSiteStats.entries()].map(([k, arr]) => [
+          k,
+          arr.sort((a, b) => b.requests - a.requests || a.domain.localeCompare(b.domain))
+        ])
+      )
     };
     await writeFile(path.join(opts.outDir, "corpus-snapshot.json"), JSON.stringify(snapshot), "utf8");
 
@@ -286,6 +325,16 @@ async function runPublicSeed(opts, modules, targets) {
 async function main() {
   const opts = parseArgs(process.argv.slice(2));
   const targets = await resolveTargets(opts);
+
+  // Stamp real git commit provenance when SITE_BEHAVIOR_LAB_BUILD_COMMIT is not set.
+  if (!process.env.SITE_BEHAVIOR_LAB_BUILD_COMMIT?.trim()) {
+    try {
+      const sha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
+      if (/^[0-9a-f]{40}$/i.test(sha)) {
+        process.env.SITE_BEHAVIOR_LAB_BUILD_COMMIT = sha.toLowerCase();
+      }
+    } catch {}
+  }
 
   // Compile TypeScript sources once into .unit-test-dist so Node executes the exact v3 scanner.
   const tscBin = path.join(ROOT, "node_modules", ".bin", process.platform === "win32" ? "tsc.cmd" : "tsc");

@@ -54,6 +54,7 @@ export const SBL_CLI_HELP = `Site Behavior Lab CLI (${SCANNER_V3_VERSION})
 Usage:
   sbl scan <url> [options]
   sbl diff <before.json> <after.json> [options]
+  sbl summary <report.json>
   sbl verify <report.json> [--json]
   sbl catalog [query] [--json]
 
@@ -91,6 +92,7 @@ export async function runSblCli(argv: readonly string[], deps: SblCliDeps = {}):
   const [command, ...rest] = argv;
   if (command === "scan") return handleScanCommand(rest, deps, out, err);
   if (command === "diff") return handleDiffCommand(rest, out, err);
+  if (command === "summary") return handleSummaryCommand(rest, out, err);
   if (command === "verify") return handleVerifyCommand(rest, out, err);
   if (command === "catalog") return handleCatalogCommand(rest, out);
 
@@ -297,6 +299,26 @@ async function handleDiffCommand(
     return 0;
   } catch (error) {
     err(`sbl diff failed: ${error instanceof Error ? error.message : String(error)}\n`);
+    return 1;
+  }
+}
+
+async function handleSummaryCommand(
+  args: string[],
+  out: (s: string) => void,
+  err: (s: string) => void
+): Promise<number> {
+  const filePath = args[0] && !args[0].startsWith("-") ? args[0] : "";
+  if (!filePath) {
+    err("Usage: sbl summary <report.json>\n");
+    return 1;
+  }
+  try {
+    const report = await loadReportJsonFile(filePath);
+    out(formatReportMarkdownV3(report));
+    return 0;
+  } catch (error) {
+    err(`sbl summary failed: ${error instanceof Error ? error.message : String(error)}\n`);
     return 1;
   }
 }

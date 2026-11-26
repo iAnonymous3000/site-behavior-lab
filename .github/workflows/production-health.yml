@@ -656,6 +656,79 @@ jobs:
           retention-days: 90
           compression-level: 0
 
+      - name: Verify live v3 corpus, report read latency, and PDF export
+        if: steps.rollout.outputs.pending != 'true'
+        env:
+          SCAN_BASE_URL: https://scan.sitebehavior.org
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const base = process.env.SCAN_BASE_URL;
+          async function timedFetch(url, timeoutMs, accept) {
+            const t0 = Date.now();
+            const resp = await fetch(url, {
+              headers: accept ? { accept } : undefined,
+              signal: AbortSignal.timeout(timeoutMs)
+            });
+            return { resp, elapsedMs: Date.now() - t0 };
+          }
+          (async () => {
+            const { resp: statsResp, elapsedMs: statsMs } = await timedFetch(`${base}/api/v3/corpus?view=stats`, 10_000);
+            if (!statsResp.ok) throw new Error(`GET /api/v3/corpus?view=stats failed with HTTP ${statsResp.status}`);
+            const statsData = await statsResp.json();
+            if (!statsData?.ok || !statsData?.stats || statsData.stats.distinctSites < 1) {
+              throw new Error(`v3 corpus stats invalid: ${JSON.stringify(statsData).slice(0, 200)}`);
+            }
+
+            const { resp: listResp } = await timedFetch(`${base}/api/v3/corpus?limit=1`, 10_000);
+            if (!listResp.ok) throw new Error(`GET /api/v3/corpus?limit=1 failed with HTTP ${listResp.status}`);
+            const listData = await listResp.json();
+            const reportId = listData?.items?.[0]?.reportId;
+            if (typeof reportId !== "string" || !/^\d{8}-[a-f0-9]{16,64}$/.test(reportId)) {
+              throw new Error("v3 corpus list did not return a valid seeded reportId");
+            }
+
+            const { resp: repResp, elapsedMs: repMs } = await timedFetch(`${base}/api/v3/reports/${reportId}`, 10_000);
+            if (!repResp.ok) throw new Error(`GET /api/v3/reports/${reportId} failed with HTTP ${repResp.status}`);
+            const rep = await repResp.json();
+            if (rep?.schemaVersion !== 3 || rep?.reportId !== reportId) {
+              throw new Error(`GET /api/v3/reports/${reportId} returned invalid v3 payload`);
+            }
+
+            const { resp: pdfResp, elapsedMs: pdfMs } = await timedFetch(
+              `${base}/api/v3/reports/${reportId}/pdf`,
+              45_000,
+              "application/pdf"
+            );
+            if (!pdfResp.ok) throw new Error(`GET /api/v3/reports/${reportId}/pdf failed with HTTP ${pdfResp.status}`);
+            const pdfBytes = new Uint8Array(await pdfResp.arrayBuffer());
+            if (
+              pdfBytes.byteLength < 5 ||
+              pdfBytes[0] !== 0x25 ||
+              pdfBytes[1] !== 0x50 ||
+              pdfBytes[2] !== 0x44 ||
+              pdfBytes[3] !== 0x46 ||
+              pdfBytes[4] !== 0x2d
+            ) {
+              throw new Error(`GET /api/v3/reports/${reportId}/pdf did not return valid %PDF- bytes`);
+            }
+
+            console.log(
+              `v3 production health ok: ${statsData.stats.distinctSites} sites (stats ${statsMs}ms, report ${repMs}ms, pdf ${pdfMs}ms, ${pdfBytes.byteLength} B).`
+            );
+            const fs = require("node:fs");
+            if (process.env.GITHUB_STEP_SUMMARY) {
+              fs.appendFileSync(
+                process.env.GITHUB_STEP_SUMMARY,
+                `- v3 corpus & report endpoints: **ok** (${statsData.stats.distinctSites} sites, report JSON ${repMs}ms, PDF ${pdfMs}ms)\n`
+              );
+            }
+          })().catch((err) => {
+            console.error(`::error title=v3 production health regression::${err instanceof Error ? err.message : String(err)}`);
+            process.exit(1);
+          });
+          NODE
+
       - name: Resolve synthetic-monitor activation
         id: synthetic_monitor
         if: >-

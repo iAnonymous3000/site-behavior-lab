@@ -9,7 +9,7 @@ import {
   clientKeyFromRequest,
   MAX_BODY_BYTES
 } from "@/lib/scan-limits";
-import { getV3RuntimeContext } from "@/lib/v3/runtime/store-context";
+import { getV3RuntimeContext, maybePruneExpiredV3Reports } from "@/lib/v3/runtime/store-context";
 import { dispatchScanV3, type ScanRegionIdV3 } from "@/lib/v3/runtime/worker-dispatch";
 import { scanSiteV3, type ScanRequestV3 } from "@/lib/v3/scanner";
 import type { ComparisonAxisV3, ConsentModeV3, ScanDeviceV3, ShieldsModeV3 } from "@/lib/v3/schema";
@@ -83,13 +83,18 @@ async function handleScanV3(request: Request): Promise<Response> {
         ? (raw.region as ScanRegionIdV3)
         : "auto";
 
-    let visibility: IndexedReportVisibilityV3 =
+    const visibility: IndexedReportVisibilityV3 =
       typeof raw.visibility === "string" && VALID_VISIBILITY.has(raw.visibility as IndexedReportVisibilityV3)
         ? (raw.visibility as IndexedReportVisibilityV3)
         : "unlisted";
-    // Prevent unauthenticated callers from poisoning the curated "corpus" tier.
-    if (visibility === "corpus" && !isOperatorAuthenticated) {
-      throw new PublicScanError("Curated corpus visibility requires operator authorization.", 403, "request-rejected");
+    // Prevent unauthenticated callers from poisoning the public directory or
+    // curated corpus tier; public/corpus indexing requires operator authorization.
+    if ((visibility === "corpus" || visibility === "public") && !isOperatorAuthenticated) {
+      throw new PublicScanError(
+        "Public and curated corpus indexing require operator authorization; unauthenticated scans are unlisted.",
+        403,
+        "request-rejected"
+      );
     }
 
     const comparisons: ComparisonAxisV3[] = [];
@@ -145,25 +150,35 @@ async function handleScanV3(request: Request): Promise<Response> {
         : dispatchedReport;
 
     const r2Key = await saveReportV3(ctx.blobStore, report);
+    const expiresAt =
+      visibility === "corpus" ? null : new Date(Date.now() + 7 * 86_400_000).toISOString();
     await ctx.reportIndex.indexReport(report, {
       r2Key,
-      visibility
+      visibility,
+      expiresAt
     });
+    void maybePruneExpiredV3Reports(ctx);
 
-    return NextResponse.json({
-      ok: true,
-      backend,
-      reportId: report.reportId,
-      sharePath: `/v3/reports/${report.reportId}`,
-      apiPath: `/api/v3/reports/${report.reportId}`,
-      pdfPath: `/api/v3/reports/${report.reportId}/pdf`,
-      report
-    });
+    return NextResponse.json(
+      {
+        ok: true,
+        backend,
+        reportId: report.reportId,
+        sharePath: `/v3/reports/${report.reportId}`,
+        apiPath: `/api/v3/reports/${report.reportId}`,
+        pdfPath: `/api/v3/reports/${report.reportId}/pdf`,
+        report
+      },
+      { headers: { "x-content-type-options": "nosniff" } }
+    );
   } catch (error) {
     const publicError = toPublicError(error);
+    const headers: Record<string, string> = { "x-content-type-options": "nosniff" };
+    if (publicError.status === 429) headers["retry-after"] = "60";
+    else if (publicError.status === 503) headers["retry-after"] = "10";
     return NextResponse.json(
       { ok: false, error: publicError.message, cause: publicError.cause },
-      { status: publicError.status }
+      { status: publicError.status, headers }
     );
   } finally {
     if (releaseSlot) releaseSlot();

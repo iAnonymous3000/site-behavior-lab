@@ -67,16 +67,40 @@ export type ScanSiteV3Deps = {
 };
 
 const MAX_CONCURRENT_ARMS_PER_SCAN = 3;
+const SHARED_BROWSER_IDLE_SHUTDOWN_MS = 90_000;
 
 let sharedBrowserPromise: Promise<Browser> | null = null;
+let sharedBrowserIdleTimer: ReturnType<typeof setTimeout> | null = null;
+let activeScansV3 = 0;
+
+function scheduleSharedBrowserIdleShutdown(): void {
+  if (sharedBrowserIdleTimer) clearTimeout(sharedBrowserIdleTimer);
+  sharedBrowserIdleTimer = setTimeout(() => {
+    sharedBrowserIdleTimer = null;
+    if (activeScansV3 > 0) return;
+    void closeSharedBrowserV3();
+  }, SHARED_BROWSER_IDLE_SHUTDOWN_MS);
+  sharedBrowserIdleTimer.unref?.();
+}
 
 async function acquireSharedBrowser(): Promise<Browser> {
+  if (sharedBrowserIdleTimer) {
+    clearTimeout(sharedBrowserIdleTimer);
+    sharedBrowserIdleTimer = null;
+  }
   if (!sharedBrowserPromise) {
     sharedBrowserPromise = chromium.launch({
       headless: true,
       chromiumSandbox: chromiumSandboxEnabled(),
       env: browserProcessEnvironment(),
-      args: ["--disable-background-networking", "--disable-sync", "--metrics-recording-only"]
+      args: [
+        "--disable-background-networking",
+        "--disable-sync",
+        "--metrics-recording-only",
+        // Block non-proxied WebRTC UDP ICE/STUN so scanned pages cannot probe
+        // RFC1918/loopback/internal container addresses outside PublicScanProxy.
+        "--force-webrtc-ip-handling-policy=disable_non_proxied_udp"
+      ]
     });
     sharedBrowserPromise.catch(() => {
       sharedBrowserPromise = null;
@@ -91,6 +115,10 @@ async function acquireSharedBrowser(): Promise<Browser> {
 }
 
 export async function closeSharedBrowserV3(): Promise<void> {
+  if (sharedBrowserIdleTimer) {
+    clearTimeout(sharedBrowserIdleTimer);
+    sharedBrowserIdleTimer = null;
+  }
   if (!sharedBrowserPromise) return;
   const p = sharedBrowserPromise;
   sharedBrowserPromise = null;
@@ -120,6 +148,7 @@ export async function scanSiteV3(request: ScanRequestV3, deps: ScanSiteV3Deps = 
     proxy = await startPublicScanProxy();
   }
 
+  activeScansV3 += 1;
   try {
     const adblockEngine = await getDetailedAdblockEngine();
     const browser = deps.browser ?? (await acquireSharedBrowser());
@@ -217,6 +246,44 @@ export async function scanSiteV3(request: ScanRequestV3, deps: ScanSiteV3Deps = 
       }
     }
 
+    // Surface proxy traffic/byte-budget truncation or local socket failures into
+    // probe coverage so truncated visits are never falsely marked "complete".
+    if (proxy) {
+      const diag = proxy.getDiagnostics();
+      const proxyLossCount =
+        (diag.trafficBudget.captureLoss?.count ?? 0) +
+        (diag.responseByteBudget.captureLoss?.count ?? 0) +
+        (diag.uploadByteBudget.captureLoss?.count ?? 0);
+      const localProxyFailures = proxy.blockedTargets.filter(
+        (b) => b.reason === "local-upstream-failure" || b.reason === "resource-limit"
+      ).length;
+      const nonPublicBlocks = proxy.blockedTargets.filter((b) => b.reason === "non-public-address").length;
+      const totalProxyImpact = proxyLossCount + localProxyFailures;
+      if (totalProxyImpact > 0 || nonPublicBlocks > 0) {
+        const reason =
+          proxyLossCount > 0
+            ? "proxy-capture-limit-reached"
+            : localProxyFailures > 0
+              ? "proxy-upstream-failure"
+              : "proxy-non-public-target-blocked";
+        for (const res of armResults) {
+          const prevOmitted = res.arm.probes.network.omittedCount ?? 0;
+          if (res.arm.probes.network.status === "complete") {
+            res.arm.probes.network = {
+              status: "partial",
+              reason,
+              omittedCount: prevOmitted + totalProxyImpact + nonPublicBlocks
+            };
+          } else {
+            res.arm.probes.network = {
+              ...res.arm.probes.network,
+              omittedCount: prevOmitted + totalProxyImpact + nonPublicBlocks
+            };
+          }
+        }
+      }
+    }
+
     const [leadResult, ...comparisonResults] = armResults;
     const allSentinels = armResults.flatMap((r) => r.sentinelsUsed);
     const comparisons = comparisonResults.map((res, idx) =>
@@ -244,40 +311,49 @@ export async function scanSiteV3(request: ScanRequestV3, deps: ScanSiteV3Deps = 
     const ymd = now.toISOString().slice(0, 10).replace(/-/g, "");
     const reportId = `${ymd}-${randomBytes(16).toString("hex")}`;
 
-    const preRedactedReport: ScanReportV3 = redactScanReportV3({
-      schemaVersion: SCAN_REPORT_V3_SCHEMA_VERSION,
-      reportId,
-      scannedAt: now.toISOString(),
-      targetUrl,
-      finalUrl: leadResult.arm.finalUrl,
-      canonicalDomain,
-      provenance: {
+    const preRedactedReport: ScanReportV3 = redactScanReportV3(
+      {
         schemaVersion: SCAN_REPORT_V3_SCHEMA_VERSION,
-        scannerVersion: SCANNER_V3_VERSION,
-        buildCommit: process.env.SITE_BEHAVIOR_LAB_BUILD_COMMIT || "local-dev",
-        engineVersions: {
-          chromium: browser.version(),
-          playwright: NODE_PLAYWRIGHT_VERSION,
-          adblockRust: NODE_ADBLOCK_ENGINE_VERSION,
-          filterListsDigest: listMeta?.manifestDigest ?? "unknown",
-          entityCatalogDigest: GLOBAL_ENTITY_CATALOG_V3_STATS.digest
+        reportId,
+        scannedAt: now.toISOString(),
+        targetUrl,
+        finalUrl: leadResult.arm.finalUrl,
+        canonicalDomain,
+        provenance: {
+          schemaVersion: SCAN_REPORT_V3_SCHEMA_VERSION,
+          scannerVersion: SCANNER_V3_VERSION,
+          buildCommit: process.env.SITE_BEHAVIOR_LAB_BUILD_COMMIT?.trim() || "local-dev",
+          engineVersions: {
+            chromium: browser.version(),
+            playwright: NODE_PLAYWRIGHT_VERSION,
+            adblockRust: NODE_ADBLOCK_ENGINE_VERSION,
+            filterListsDigest: listMeta?.manifestDigest ?? "unknown",
+            entityCatalogDigest: GLOBAL_ENTITY_CATALOG_V3_STATS.digest
+          },
+          egressRegion:
+            request.egressRegion?.trim() ||
+            process.env.SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION?.trim() ||
+            "local",
+          locale: request.locale ?? "en-US",
+          timezone: request.timezone ?? "America/New_York",
+          acquisition: request.acquisition ?? "live-api"
         },
-        egressRegion: request.egressRegion ?? process.env.SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION ?? "local",
-        locale: request.locale ?? "en-US",
-        timezone: request.timezone ?? "America/New_York",
-        acquisition: request.acquisition ?? "live-api"
+        leadArm: leadResult.arm,
+        comparisonArms: comparisonResults.map((r) => r.arm),
+        comparisons,
+        highlights: []
       },
-      leadArm: leadResult.arm,
-      comparisonArms: comparisonResults.map((r) => r.arm),
-      comparisons,
-      highlights: []
-    });
+      allSentinels
+    );
 
     // Build highlights AFTER arm redaction so policy URLs & prose never carry raw query strings
-    const redacted: ScanReportV3 = redactScanReportV3({
-      ...preRedactedReport,
-      highlights: buildReportHighlightsV3(preRedactedReport.leadArm)
-    });
+    const redacted: ScanReportV3 = redactScanReportV3(
+      {
+        ...preRedactedReport,
+        highlights: buildReportHighlightsV3(preRedactedReport.leadArm)
+      },
+      allSentinels
+    );
     assertNoUnredactedSecretsV3(redacted, allSentinels);
     const issues = validateScanReportV3(redacted);
     if (issues.length > 0) {
@@ -286,6 +362,10 @@ export async function scanSiteV3(request: ScanRequestV3, deps: ScanSiteV3Deps = 
 
     return redacted;
   } finally {
+    activeScansV3 = Math.max(0, activeScansV3 - 1);
+    if (activeScansV3 === 0 && !deps.browser) {
+      scheduleSharedBrowserIdleShutdown();
+    }
     if (proxy) {
       await proxy.close().catch(() => {});
     }

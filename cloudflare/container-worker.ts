@@ -3108,19 +3108,31 @@ export default {
     );
     if (reportRouteAnswer) return reportRouteAnswer;
 
+    // Answer CORS preflights for /api/v3/scan at the edge so OPTIONS never wakes a cold container.
+    if (request.method === "OPTIONS" && decodedPathname === "/api/v3/scan") {
+      return new Response(null, {
+        status: 204,
+        headers: scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN)
+      });
+    }
+
     // Gate v3 scan submissions at the edge with the same Turnstile + Durable Object
     // rate-limit and access-token controls as POST /api/scan so v3 never bypasses
     // public-ingress protection on Cloudflare (using decoded canonical segments).
     if (request.method === "POST" && decodedPathname === "/api/v3/scan") {
-      const body = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES);
-      if (body === null) {
-        return gateErrorResponse(
-          new EdgeScanGateError("The scan request is too large.", 413, "request-rejected"),
-          request,
-          env
-        );
-      }
+      let body: string | null;
       try {
+        body = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES, {
+          signal: request.signal,
+          timeoutMs: REQUEST_BODY_OPERATION_TIMEOUT_MS
+        });
+        if (body === null) {
+          return gateErrorResponse(
+            new EdgeScanGateError("The scan request is too large.", 413, "request-rejected"),
+            request,
+            env
+          );
+        }
         await gateScanRequest(request, body, env, "charge", undefined, request.signal);
       } catch (error) {
         return gateErrorResponse(error, request, env);

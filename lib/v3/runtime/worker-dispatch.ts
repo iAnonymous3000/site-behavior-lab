@@ -65,13 +65,24 @@ export type DispatchScanOptionsV3 = {
   signal?: AbortSignal;
 };
 
-/** Resolve matching locale & timezone for an explicit regional scan request. */
-export function applyRegionalProfileV3(request: ScanRequestV3, region: ScanRegionIdV3 = "auto"): ScanRequestV3 {
+/**
+ * Resolve matching locale & timezone for a regional profile request.
+ *
+ * Security / provenance invariant: `egressRegion` is ONLY set when
+ * `verifiedEgress: true` (i.e. dispatched to an authenticated regional worker
+ * physically located in that region) — client locale/timezone emulation MUST
+ * NEVER fabricate physical egress geography in SHA-256-digested reports.
+ */
+export function applyRegionalProfileV3(
+  request: ScanRequestV3,
+  region: ScanRegionIdV3 = "auto",
+  options?: { verifiedEgress?: boolean }
+): ScanRequestV3 {
   if (region === "auto") return request;
   const profile = REGIONAL_EGRESS_PROFILES_V3[region];
   return {
     ...request,
-    egressRegion: request.egressRegion ?? profile.region,
+    ...(options?.verifiedEgress ? { egressRegion: profile.region } : { egressRegion: undefined }),
     locale: request.locale ?? profile.locale,
     timezone: request.timezone ?? profile.timezone
   };
@@ -113,12 +124,12 @@ export async function dispatchScanV3(
   options: DispatchScanOptionsV3
 ): Promise<{ report: ScanReportV3; backend: "cloudflare-default" | "regional-http-worker" }> {
   const region = options.region ?? "auto";
-  const enriched = applyRegionalProfileV3(request, region);
-
   const upstream =
     region !== "auto"
       ? options.upstreams?.find((u) => u.region === region)
       : undefined;
+
+  const enriched = applyRegionalProfileV3(request, region, { verifiedEgress: Boolean(upstream) });
 
   if (!upstream) {
     const report = await options.defaultExecutor(enriched);
@@ -159,7 +170,7 @@ export async function dispatchScanV3(
       signal: controller.signal
     });
     if (!resp.ok) {
-      await resp.body?.cancel().catch(() => {});
+      void resp.body?.cancel().catch(() => {});
       throw new Error(`Regional worker (${upstream.region}) failed with HTTP ${resp.status}`);
     }
     const rawReport = (await resp.json()) as ScanReportV3;
