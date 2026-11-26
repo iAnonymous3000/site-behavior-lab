@@ -6,8 +6,6 @@ on:
       - main
     paths:
       - "investigation/**"
-      - "cloudflare/investigation-worker.ts"
-      - "wrangler.investigation.jsonc"
       - "tsconfig.investigation-test.json"
       - "specs/case-machine/**"
       - "lib/investigation-*"
@@ -17,8 +15,6 @@ on:
   pull_request:
     paths:
       - "investigation/**"
-      - "cloudflare/investigation-worker.ts"
-      - "wrangler.investigation.jsonc"
       - "tsconfig.investigation-test.json"
       - "specs/case-machine/**"
       - "lib/investigation-*"

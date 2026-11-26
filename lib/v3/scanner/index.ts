@@ -12,6 +12,8 @@
 import { randomBytes } from "node:crypto";
 import { chromium, type Browser } from "playwright";
 import { adblockListMeta, getDetailedAdblockEngine } from "../../adblock-engine";
+import { browserProcessEnvironment } from "../../browser-process-env";
+import { chromiumSandboxEnabled } from "../../chromium-sandbox";
 import { partyKey } from "../../domain-utils";
 import { NODE_ADBLOCK_ENGINE_VERSION, NODE_PLAYWRIGHT_VERSION } from "../../legacy-methodology";
 import { startPublicScanProxy, type PublicScanProxy } from "../../public-scan-proxy";
@@ -70,10 +72,10 @@ let sharedBrowserPromise: Promise<Browser> | null = null;
 
 async function acquireSharedBrowser(): Promise<Browser> {
   if (!sharedBrowserPromise) {
-    const useSandbox = process.env.SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX !== "0";
     sharedBrowserPromise = chromium.launch({
       headless: true,
-      chromiumSandbox: useSandbox,
+      chromiumSandbox: chromiumSandboxEnabled(),
+      env: browserProcessEnvironment(),
       args: ["--disable-background-networking", "--disable-sync", "--metrics-recording-only"]
     });
     sharedBrowserPromise.catch(() => {

@@ -79,6 +79,11 @@
       "bytes": 24243,
       "sha256": "2c99533ef3cc49933e447aeecfcaa2ee68259b64397268c0eefcff262ba0d6bb",
       "environment": "macOS on Apple silicon, native"
+    },
+    "x86_64-unknown-linux-gnu": {
+      "bytes": 24243,
+      "sha256": "2c99533ef3cc49933e447aeecfcaa2ee68259b64397268c0eefcff262ba0d6bb",
+      "environment": "GitHub Actions ubuntu-24.04 x86_64 runner (run 45729358890)"
     }
   },
   "notObserved": "Any host platform that is not a key of `observed`. A GitHub-hosted runner has not built this."
