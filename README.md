@@ -37,14 +37,12 @@ current behavior.*
   in the top frame only; IndexedDB and Cache Storage are not read. The input
   probe does not scroll to offscreen fields. The service catalog is a curated,
   US-biased list, not an inventory.
-- **A report's visit never scrolls.** An on-demand check after scrolling,
-  opened from a fresh result, is a separate visit. It shows the third-party
-  hosts its page first contacted after scrolling began, and the GA4 and Adobe
-  Analytics events it saw sent, in its immediate result only, never in a
-  report. It knows those events by their collection paths, so a renamed
-  collection endpoint and Adobe's newer Web SDK go unread. It counts only
-  requests that got an answer. Its list matches are computed while the page
-  loads normally; they are not measured blocks.
+- **A live scan's default visit does not scroll.** Live scans on `main`
+  default to ScanReport v3 (`POST /api/v3/scan`), which supports optional
+  bounded scroll-phase observation within the v3 arm; the legacy v1/v2
+  `POST /api/scan` route, along with its ephemeral after-scrolling check and
+  connection-inspection visit, has been retired (`410 Gone`). Historical
+  v1/v2 reports under `public/reports/` never scrolled.
 - **A failed or challenged load is not a clean result.** Sites that refuse
   undisguised automated browsers are reported as refusals, never evaded.
 - **No detector accuracy is published.** No claim-bearing detector has an
@@ -56,13 +54,11 @@ current behavior.*
 - **Attribution is not causation.** The script-to-request map records the
   initiator Chromium reported. That initiator may itself have been told what
   to fetch, may be a fetch or XHR wrapper credited with another script's
-  request, and may be a name the script gave itself. A request made by a
-  dedicated worker is recorded, but its initiator is not observed, so a URL a
-  worker requests carries no attribution on any row.
-  A fresh result's request log can open an on-demand inspection visit. It
-  shows the call-stack hosts of its own requests to one address, in its
-  immediate result only, never in a report. A request it shows with no stack
-  is not shown to have been started without a script.
+  request, and may be a name the script gave itself. Requests whose Chromium
+  initiator is `"other"` without a source script or stack stay explicitly
+  labeled unknown rather than being attributed to the HTML parser. A request
+  made by a dedicated worker is recorded, but its initiator is not observed,
+  so a URL a worker requests carries no attribution on any row.
 - **Consent evidence spans the click.** Even a verified reject-all visit
   records traffic from before and after the choice. So a tracker seen there
   may be pre-choice, strictly necessary, or claimed under legitimate interest.
@@ -86,11 +82,11 @@ whether a test enforces it against the scanner source or it rests on review.
 **Version.** `0.6.0` is the current release, tagged
 [`v0.6.0`](https://github.com/iAnonymous3000/site-behavior-lab/tree/v0.6.0).
 This README describes `main`, which the public instance follows. `main` is
-ahead of that tag: the after-scrolling check, the connection inspection, and
-the measurement identity named below are on `main` and not in `v0.6.0`. For
-the tag, read the README at the tag. Product versions are independent of the
-report contracts: v1 is frozen, and v2/r1 and v2/r2 are byte-immutable. See
-the [changelog](CHANGELOG.md) and
+ahead of that tag: ScanReport v3 (`POST /api/v3/scan`, `/v3/reports/:id`) is
+now the default live scan path while legacy `POST /api/scan` is retired
+(`410 Gone`). For the tag, read the README at the tag. Product versions are
+independent of the historical report contracts: v1 is frozen, and v2/r1 and
+v2/r2 are byte-immutable. See the [changelog](CHANGELOG.md) and
 [release status](RELEASE.md#current-release-state).
 
 ## What it does
@@ -125,41 +121,40 @@ One scan is one automated visit from one place at one time. The scanner:
 - reads the site's privacy policy (HTML or a direct PDF, through the same
   network guard), quotes sentences the evidence contradicts, and lists
   observed tracking companies the policy does not appear to name;
-- can pair two visits, in a random order it discloses: GPC off and on, a
-  plain visit and a Brave Shields block simulation (Brave's ad-block engine
-  over a pinned snapshot of its default lists, not a live Brave browser), or
-  accept-all and reject-all consent;
-- can, from a fresh result, check a page after scrolling in a separate
-  visit. Nothing from that visit is saved, shared, exported or printed. Its
-  limits are stated above; the [API](#api) section describes its result.
+- can pair visits across conditions: GPC off and on, a plain visit and a Brave
+  Shields block simulation (Brave's ad-block engine over a pinned snapshot of
+  its default lists, not a live Brave browser), or accept-all and reject-all
+  consent.
 
-Each report has a page (a plain-language headline over severity-ranked
-findings), its JSON, a request CSV bundled with the source report and its
-correction context, and a printable PDF. The public instance keeps reports
-for a bounded window. A curated corpus of committed reports under
-`public/reports/` drives the directory, per-site history, category pages, and
-the corpus percentiles a report is ranked against. Each publication is
-appended to a transparency log. The log's head is anchored with
-OpenTimestamps through a weekly proposal that a maintainer merges.
+Each live v3 scan produces a shareable report page (`/v3/reports/:id`), JSON
+(`/api/v3/reports/:id`), and printable PDF (`/api/v3/reports/:id/pdf`), kept on
+the public instance for a bounded window. Weekly corpus refreshes publish
+redacted v3 seed snapshots under `public/v3/` via
+`.github/workflows/seed-v3-corpus.yml`. The committed historical corpus under
+`public/reports/` stays read-only and continues to drive `/reports/:id/`, the
+directory, per-site history, category pages, and corpus percentiles. Each
+committed historical publication is appended to a transparency log whose head
+is anchored with OpenTimestamps through a weekly proposal that a maintainer
+merges.
 
 ## Limits you should know before depending on it
 
-Hard bounds in the Node scanner (`lib/scanner.ts`, `lib/scan-runtime.ts`,
-`lib/public-scan-proxy.ts`, `lib/scan-limits.ts`):
+Hard bounds in the Node scanner (`lib/v3/scanner/index.ts`, `lib/scanner.ts`,
+`lib/scan-runtime.ts`, `lib/public-scan-proxy.ts`, `lib/scan-limits.ts`):
 
 | Bound | Value |
 |---|---|
-| Scan duration, per visit | 45 s (navigation 30 s); an after-scrolling check then runs for up to about 45 s more |
-| Recorded requests, per visit | 1,000; an after-scrolling check may send up to 500 more, none of them saved |
+| Scan duration, per visit | 45 s (navigation 30 s) |
+| Recorded requests, per visit | 1,000 |
 | Proxy transactions / unique targets, per visit | 2,000 / 256 |
 | Response bytes / upload bytes through the proxy, per visit | 64 MiB / 16 MiB |
 | Concurrent scans per Node process, queued waiters, queue wait | 2, 8, 15 s |
 | Async job queue (when enabled), all clients | 32 |
 | Scan request body | 4 KiB |
-| Scan tokens, per client per minute | 20; a comparison or an after-scrolling check costs two |
+| Scan tokens, per client per minute | 20; a comparison costs two |
 | Report JSON reads, PDF renders, per client per minute | 120, 10 (one render slot) |
 | Privacy-policy PDF | 8 MiB, 64 pages |
-| Public instance, per client (edge quota) | 6 scan tokens per minute, 120 per day; a comparison or an after-scrolling check costs two |
+| Public instance, per client (edge quota) | 6 scan tokens per minute, 120 per day; a comparison costs two |
 
 "Per client" in the Node scanner means one bucket shared by every caller
 unless `SITE_BEHAVIOR_LAB_TRUST_PROXY_HEADERS=1`. Without that setting, the
@@ -232,9 +227,10 @@ Git history and earlier release archives keep the original bytes.
 
 5. Open `http://127.0.0.1:3000`. Development needs no environment variables.
 
-A local scan uses the production scanner, proxy, and limits. By default it
-produces the legacy v1 report format. The public r2 format is a fail-closed
-opt-in (see `SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS` in `docs/configuration.md`).
+A local scan uses the production v3 scanner, SSRF-pinned proxy, and limits,
+storing reports locally under `.sbl-v3-data/` and serving them at
+`/v3/reports/:id`. The committed historical archive under `public/reports/`
+remains readable at `/reports/:id/`.
 
 To run anything that runs `next build`, set the public origin. The build
 refuses to guess one:
@@ -296,7 +292,7 @@ checkout, run `npm ci` and then `node scripts/chromium-hsts-preload-cutoff.mjs`.
 
 | Variable | Default | What it decides |
 |---|---|---|
-| `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | unset | When set, `/api/scan` requires it as `Authorization: Bearer`, `x-site-behavior-lab-access-token`, or the legacy `x-sbl-scan-token`. Leave it unset only for trusted local use or a deliberately open deployment with other abuse controls. Unset, with the default allowed origin below, any web page open in a browser that can reach the scanner can start scans from the scanner's address and read their results (see `SECURITY.md`). |
+| `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` | unset | When set, `/api/v3/scan` requires it as `Authorization: Bearer`, `x-site-behavior-lab-access-token`, or the legacy `x-sbl-scan-token`. Leave it unset only for trusted local use or a deliberately open deployment with other abuse controls. Unset, with the default allowed origin below, any web page open in a browser that can reach the scanner can start scans from the scanner's address and read their results (see `SECURITY.md`). |
 
 `docs/configuration.md` is the reference for every variable the application
 code reads. It covers the public r2 format and its consent verification, the
@@ -315,8 +311,9 @@ Runbooks:
 [sitebehavior.org](https://sitebehavior.org) is a static Cloudflare Pages
 export of this repository. [scan.sitebehavior.org](https://scan.sitebehavior.org)
 runs the container scanner on Cloudflare Containers behind a front Worker
-that enforces Turnstile and an atomic per-client quota, stores reports in R2,
-and emits public r2. Both track the `production` branch, which CI fast-forwards to
+that enforces Turnstile and an atomic per-client quota on `POST /api/v3/scan`,
+stores live v3 reports in R2/D1, and returns `410 Gone` for the retired legacy
+`POST /api/scan` route. Both track the `production` branch, which CI fast-forwards to
 the exact SHA it tested only after five gates pass: supply-chain security,
 typecheck and unit tests and build, Chromium smoke, Docker runtime and public
 R2 smoke, and exact-SHA evidence attestation. The production workflows deploy
@@ -333,31 +330,19 @@ removed on 2026-11-11, the scheduled workflows, and the Brave list refresh.
 
 ## API
 
-Send a scan:
+Send a live v3 scan:
 
-- `POST /api/scan` with a JSON body of `url`, `device` (`desktop` or
-  `mobile`), `gpcEnabled`, and at most one of `compareGpc`,
-  `compareShields`, `compareConsent`.
-- To inspect one connection, add `inspect` to a single scan. Give a request
-  row's published address without its query. The immediate result carries
-  what that visit recorded about the call stacks of its requests to the
-  address, in `ephemeral.inspection`, which is never saved.
-- To check the page after scrolling, add `check: "scroll"` to a single scan
-  instead. It costs two rate-limit tokens, as a comparison does. The
-  immediate result carries the check's evidence in `ephemeral.scrollCheck`.
-  The evidence includes:
-  - call-stack hosts for the hosts it first contacted while scrolling;
-  - the GA4 and Adobe Analytics events it saw sent;
-  - its count of requests that got no answer;
-  - its same-visit list matches.
-
-  Nothing from that visit is saved, so it has no share.
-
-Read the answer:
-
-- A synchronous deployment answers with the report.
-- An async deployment answers `202` with `jobId` and `statusPath`.
-  `DELETE /api/scans/:id` cancels cooperatively until publication begins.
+- `POST /api/v3/scan` with a JSON body of `url`, `device` (`desktop` or
+  `mobile`), optional `gpcEnabled`, `shieldsMode` (`off`, `standard`,
+  `aggressive`), `consentMode` (`observe`, `accept-all`, `reject-all`), and
+  optional `comparisons` (`shields-standard`, `shields-aggressive`, `gpc`,
+  `consent-accept`, `consent-reject`).
+- Returns synchronous JSON with `reportId`, `sharePath` (`/v3/reports/:id`),
+  `apiPath` (`/api/v3/reports/:id`), `pdfPath` (`/api/v3/reports/:id/pdf`), and
+  the redacted `report`.
+- The legacy `POST /api/scan` route is retired and returns HTTP `410 Gone` JSON
+  pointing callers to `POST /api/v3/scan`. `/api/scans/:id`, connection
+  inspection, and after-scrolling checks have been removed.
 
 Refusals:
 
@@ -365,9 +350,10 @@ Refusals:
 |---|---|
 | `400` | An invalid or non-public target. |
 | `401` | A missing token. |
+| `410` | Calling the retired legacy `POST /api/scan` route. |
 | `413` | An oversize body. |
 | `429` | The per-client limit. |
-| `503` | The scanner is busy (or already running an after-scrolling check), a producer is misconfigured or cannot carry what was asked for, or public-host verification could not complete. |
+| `503` | The scanner is busy, a producer is misconfigured or cannot carry what was asked for, or public-host verification could not complete. |
 
 Failures, after a scan started (none of these makes a report):
 
@@ -380,8 +366,10 @@ Failures, after a scan started (none of these makes a report):
 
 Other routes:
 
-- `GET /api/reports/:id` returns the stored wire byte for byte.
-- `GET /api/reports/:id/pdf` renders it.
+- `GET /api/v3/reports/:id` returns a stored v3 report JSON.
+- `GET /api/v3/reports/:id/pdf` renders a v3 report PDF.
+- `GET /api/v3/corpus`, `GET /api/v3/diff`, `GET /api/v3/sites/:domain`, and `GET /api/v3/catalog` query the v3 index, regression diffs, site history, and vendor catalog.
+- `GET /api/reports/:id` and `GET /api/reports/:id/pdf` serve and render preserved historical v1/v2 reports.
 - `GET /api/health` reports readiness, the build commit, and the effective
   state of every producer flag.
 

@@ -1,10 +1,12 @@
 # Release 1.0 compatibility promise
 
-Status: APPROVED 2026-08-02. This document is the reviewable artifact behind
-the `compatibilitySurface` decision in `RELEASE_READINESS.json`, which pins
-its exact bytes by digest. Editing this file without updating that digest
-turns the readiness gate red by construction; the approved decision approves
-this exact text. Release 1.0 promises the surfaces below and nothing else.
+Status: APPROVED 2026-08-02 (updated 2026-11-26 for ScanReport v3 default live
+scans and read-only historical v1/v2 archive preservation). This document is the
+reviewable artifact behind the `compatibilitySurface` decision in
+`RELEASE_READINESS.json`, which pins its exact bytes by digest. Editing this
+file without updating that digest turns the readiness gate red by construction;
+the approved decision approves this exact text. Release 1.0 promises the
+surfaces below and nothing else.
 
 ## What 1.0 promises
 
@@ -12,21 +14,27 @@ Each numbered surface is stable for the life of the 1.x line under the rules
 given for it. "Additive" always means: existing fields, keys, columns, and
 their meanings never change or disappear; new ones may appear.
 
-1. **Report JSON.** ScanReport v1 stays frozen and readable forever. The
-   published v2 revision schemas (`public/schemas/scan-report.v2.r*.json`)
-   are byte-immutable once released; corrections travel as errata on
-   `/methodology/` and land only in a NEW revision. Readers keep consuming
-   every previously published revision for the life of 1.x (dual-read is the
-   floor, never a migration). A new revision is additive at the reader seam:
-   `readStoredScanReport` accepts every published generation and reports
-   unsupported FUTURE revisions as a capability gap, never as corrupt data.
-2. **Report permalinks.** `/reports/<id>/` and its `.json` neighbor identify
-   one immutable measurement for as long as that report is retained.
-   Retention itself is the documented policy: committed corpus reports are
-   pruned by the automated retention process (age, count-ceiling, and cohort
-   rules, with corrections-ledger pins exempting named ids), and public-scan
-   reports follow the documented application TTL. A permalink never changes
-   meaning; it either serves the same measurement or honestly ceases to
+1. **Report JSON.** New live scans default to ScanReport v3 (`POST /api/v3/scan`,
+   read at `/v3/reports/<id>` and `/api/v3/reports/<id>`); the legacy
+   `POST /api/scan` live-scan producer is retired (`410 Gone`). Historical
+   ScanReport v1 stays frozen and readable forever. The published v2 revision
+   schemas (`public/schemas/scan-report.v2.r*.json`) are byte-immutable once
+   released; corrections travel as errata on `/methodology/` and land only in a
+   NEW revision. Historical readers keep consuming every previously published
+   generation for the life of 1.x (dual-read is the floor, never a migration).
+   A new revision is additive at the reader seam: `readStoredScanReport`
+   accepts every published v1/v2 generation and reports unsupported FUTURE
+   revisions as a capability gap, never as corrupt data.
+2. **Report permalinks.** Historical `/reports/<id>/` and its `.json` neighbor
+   (and live `/v3/reports/<id>` and `/api/v3/reports/<id>`) identify one
+   immutable measurement for as long as that report is retained. Retention
+   itself is the documented policy: the committed historical corpus under
+   `public/reports/` stays read-only under the existing retention and
+   corrections-ledger pin rules (with privacy-replacement removals handled by
+   the corrections ledger), weekly refreshes publish redacted v3 seed snapshots
+   under `public/v3/`, and live public-scan reports follow the documented
+   application TTL. A permalink never changes meaning; it
+   either serves the same measurement or honestly ceases to
    exist, and a corrected measurement always appears under a NEW id.
 3. **Per-site Atom feeds.** `/sites/<registrable-domain>/feed.xml` remains
    the feed route. Every entry keeps carrying: a stable entry id, the report

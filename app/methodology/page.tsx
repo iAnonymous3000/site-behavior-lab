@@ -66,15 +66,17 @@ export default function MethodologyPage() {
           real users, regions, accounts, or network locations, so results are evidence to check, not a verdict.
         </p>
         <p>
-          An on-demand check after scrolling, offered from a fresh result, is a separate visit that scrolls its page by
-          script only once its own report is built, and shows the third-party hosts the page first contacted after
-          scrolling began in that immediate result only. For the hosts it first contacted while scrolling, it can also
-          show call-stack hosts: which scripts the visit requested were on the call stack of their requests. It can also
-          show the GA4 and Adobe Analytics events it saw the page send in each window, including those sent to
-          collection addresses on the site itself, in that immediate result only. It counts only requests that got an
-          answer, and can show, for each host it lists and each destination, whether the requests it counted matched
-          the default filter lists of Brave Shields in that same visit, a match computed while the page loads normally,
-          not a measured block. Nothing from that visit is saved, shared, exported or printed.
+          New live scans from the homepage and <code>POST /api/v3/scan</code> run the v3 scanner (<code>ScanReportV3</code>),
+          which supports paired baseline, Brave Shields, GPC, and consent arms and saves shareable reports at{" "}
+          <code>/v3/reports/&lt;id&gt;</code>. The legacy <code>POST /api/scan</code> route is retired (<code>410 Gone</code>),
+          while the committed historical corpus under <code>public/reports/</code> remains readable under its frozen v1
+          and byte-immutable v2/r2 schemas.
+        </p>
+        <p>
+          A historical on-demand check after scrolling (retired alongside legacy <code>POST /api/scan</code>) ran as a
+          separate visit that scrolled its page by script only once its own report was built, showing third-party hosts
+          first contacted after scrolling began, call-stack hosts, GA4 and Adobe Analytics events, and same-visit
+          Brave Shields list matches in its immediate result only — never saved, shared, exported, or printed.
         </p>
         <p>
           The scanner never disguises itself: it is an honest automated browser. Sites that block automation are
@@ -304,11 +306,10 @@ export default function MethodologyPage() {
           represented only by failed or block-page visits was attempted but is outside that loaded coverage count.
         </p>
         <p>
-          Nearly all committed corpus reports today are frozen schema v1: they predate or fall back from the
-          controlled v2 collection lane, carry no recorded producer build commit and no consent-registration
-          readback, and support descriptive claims only, never causal ones. Live scans from this site&apos;s scan form
-          emit the current v2 wire with those recorded facts. The corpus shifts toward v2 only as controlled
-          collection replaces the disclosed v1 lane, and each report page states its own schema generation, so no
+          Nearly all committed historical corpus reports under <code>public/reports/</code> are frozen schema v1 or
+          byte-immutable v2/r2 snapshots preserved read-only alongside the weekly v3 corpus refreshes under{" "}
+          <code>public/v3/</code>. Live scans from this site&apos;s scan form emit ScanReport v3 (<code>/v3/reports/&lt;id&gt;</code>),
+          and each report page states its own schema generation, so no
           reader needs this paragraph to know which kind they are looking at.
           Each metric&apos;s measured sample can be narrower still when that evidence family was censored.
           Percentile wording activates only after both the exact methodology cohort and that metric&apos;s own

@@ -49,7 +49,6 @@ import { scanMeasurementEnvelopeWithR2Run } from "./scan-report-v2-runtime-fixtu
 import { writeV2ShadowArtifact } from "./scan-report-v2-shadow-store";
 import { publicWireForExportOrPersistence, readScanTransportPayload, type LoadedReport } from "./scan-report-view";
 import { isSeamVisit, refuseSeamOption, refuseSeamVisit, SEAM_VISIT_MARKER, SeamVisitRefusal } from "./seam-visit-mark";
-import type { ScanSiteOptions } from "./scanner";
 import { SCROLL_CHECK_DEADLINE_MARGIN_MS } from "./scroll-check";
 import type { ScanReport, ScanResult } from "./types";
 
@@ -117,17 +116,6 @@ function envelopeAround(result: ScanResult): NodeScanMeasurementEnvelope {
 }
 
 const isRefusal = (error: unknown): boolean => error instanceof SeamVisitRefusal;
-
-const SINGLE: PreparedScanRequest = {
-  clientKey: "seam",
-  url: "https://www.example.com/",
-  device: "desktop",
-  gpcEnabled: false,
-  compareGpc: false,
-  compareShields: false,
-  compareConsent: false,
-  rateLimitCost: 1
-};
 
 test("a seam's description says which hooks are set, its two bounds and the init script's sha256, and never the script", () => {
   const initScript = "window.__logger = []; /* a secret marker: 4f1c */";

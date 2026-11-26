@@ -7,7 +7,11 @@ or certify evidence that has not been collected.
 
 `RELEASE_READINESS.json` selects `investigative-v1`. Its complete gate set is
 enforced: deleting a gate or changing its kind is a refusal. It has nine
-gates. Two research gates (`detector-calibration` and `aa-repeatability`) are
+gates. Live public scans default to ScanReport v3 (`POST /api/v3/scan`, served
+at `/v3/reports/<id>`); the legacy `POST /api/scan` producer is retired (`410 Gone`),
+while the committed historical v1/v2 corpus under `public/reports/` stays
+readable and checked by `published-corpus-consistency`. Two research gates
+(`detector-calibration` and `aa-repeatability`) are
 deferred to 1.1.0 and held by name in `deferredGates`: removing a deferral
 record, or restoring one of those gates without the reviewed edit to
 `scripts/v1-release-contract.mjs`, is also a refusal. So is a manifest that
@@ -89,8 +93,11 @@ suites hold, each claim over a stated domain. The gate requires evidence that
 those suites ran at the candidate.
 
 - **The required suites.** The gate's `requiredSuites` in
-  `RELEASE_READINESS.json` names every test file the register cites, each with
-  a pinned minimum of tests that passed and of catches recorded
+  `RELEASE_READINESS.json` names the 12 active test files the register cites
+  (shared trust-kernel and IP-safety suites, historical archive reader and
+  consistency suites, and investigation workspace suites; the 9 retired
+  v1/v2 live-scan producer suites were dropped when `/api/scan` was retired),
+  each with a pinned minimum of tests that passed and of catches recorded
   (`minimumVariants` counts catches, not distinct variants).
   `scripts/v1-release-contract.mjs` pins the same list. Removing the gate,
   changing its kind, dropping an entry or lowering a minimum is a refusal. The

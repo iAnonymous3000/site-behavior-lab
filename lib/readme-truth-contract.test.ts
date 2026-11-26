@@ -29,7 +29,6 @@ import {
 } from "./scan-limits";
 import { NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION } from "./scan-report-v2-r2-producer-contract";
 import { MAX_RECORDED_REQUESTS } from "./scan-runtime";
-import { SCROLL_CHECK_REQUEST_ALLOWANCE, SCROLL_CHECK_TIMING } from "./scroll-check";
 
 const root = process.cwd();
 const readme = readFileSync(path.join(root, "README.md"), "utf8");
@@ -419,17 +418,6 @@ test("the README limits table carries the bounds the Node scanner enforces", () 
   assert.ok(
     value(/^Scan tokens, per client per minute$/).startsWith(`${RATE_LIMIT_MAX};`),
     `the Node scanner admits ${RATE_LIMIT_MAX} scan tokens per client per minute, and the table must say so`
-  );
-
-  // An after-scrolling check runs a second phase on the same visit, with its
-  // own deadline and its own request allowance.
-  assert.ok(
-    value(/^Scan duration, per visit$/).includes(`${seconds(SCROLL_CHECK_TIMING.phaseDeadlineMs)} more`),
-    "the duration row must state the after-scrolling check's extra phase"
-  );
-  assert.ok(
-    value(/^Recorded requests, per visit$/).includes(`${count(SCROLL_CHECK_REQUEST_ALLOWANCE)} more`),
-    "the request row must state the after-scrolling check's extra allowance"
   );
 });
 

@@ -23,7 +23,10 @@ stable software release.
 Do not call the project stable, generally available, or critical-software ready
 from a green local checkout, or from the existence of a tag. The
 machine-readable source of the current status is
-[`release-policy.json`](release-policy.json).
+[`release-policy.json`](release-policy.json). Live public scans on `main`
+default to ScanReport v3 (`POST /api/v3/scan`); legacy `POST /api/scan` is
+retired (`410 Gone`), while the historical `public/reports/` corpus remains
+preserved read-only under its existing retention and corrections policy.
 
 The current release is `v0.6.0`, declared on 2026-09-06 and tagged on
 2026-09-24 at `ee525b5fabc5ba4cc23dad4b9a7ea53f595d6217` by Cut Release Tag run

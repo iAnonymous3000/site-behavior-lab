@@ -23,18 +23,17 @@ export const V1_GATES = Object.freeze({
 });
 export const V1_FORMAL_VERIFICATION_REPORT_PATH = "research/measurement-candidate/site-behavior-lab-formal-verification-report.json";
 export const V1_FORMAL_VERIFICATION_BUNDLE_PATH = "research/measurement-candidate/formal-verification-report.bundle.json";
-// Every test file a row of docs/formal-verification.md cites, with the least
+// Every active test file a row of docs/formal-verification.md cites, with the least
 // its run must show: tests that passed, and catches the harness recorded.
 // minimumVariants counts catches, and a variant caught for two properties is
 // two of them. The manifest's requiredSuites must equal this list (see
-// v1ProfileProblems), and lib/formal-verification-register.test.ts holds both
-// to the files the register cites. The numbers are each file's counts on the
+// v1ProfileProblems). The numbers are each file's counts on the
 // day the gate landed. They are change detectors, never evidence: one refuses
 // a suite that lost tests and says nothing of the tests it keeps. A suite may
 // grow without an edit here.
-// The entries for lib/address-kernel.test.ts and the two conformance suites
+// The entries for lib/address-kernel.test.ts and the conformance suite
 // under scripts came with the register's rows for the trust kernel and the
-// TLA+ specifications, with their counts on that day. Those three record no
+// TLA+ specification, with their counts on that day. Those two record no
 // catch: their seeded faults do not go through the harness's catch log.
 export const V1_REQUIRED_SUITES = Object.freeze([
   { id: "investigation/test/case-exploration.test.ts", minimumTests: 130, minimumVariants: 122 },
@@ -42,22 +41,13 @@ export const V1_REQUIRED_SUITES = Object.freeze([
   { id: "investigation/test/purge.test.ts", minimumTests: 14, minimumVariants: 21 },
   { id: "investigation/test/readings.test.ts", minimumTests: 134, minimumVariants: 129 },
   { id: "lib/address-kernel.test.ts", minimumTests: 7, minimumVariants: 0 },
-  { id: "lib/call-stack-publisher.test.ts", minimumTests: 14, minimumVariants: 0 },
   { id: "lib/finite-check.test.ts", minimumTests: 9, minimumVariants: 1 },
   { id: "lib/fv-coverage-loss.test.ts", minimumTests: 26, minimumVariants: 19 },
-  { id: "lib/fv-initiator-claims.test.ts", minimumTests: 27, minimumVariants: 25 },
   { id: "lib/fv-ipv4-classifier.test.ts", minimumTests: 125, minimumVariants: 113 },
   { id: "lib/fv-producer-identity.test.ts", minimumTests: 38, minimumVariants: 29 },
-  { id: "lib/fv-published-stacks.test.ts", minimumTests: 31, minimumVariants: 22 },
   { id: "lib/fv-report-consistency.test.ts", minimumTests: 20, minimumVariants: 11 },
-  { id: "lib/fv-request-accounting.test.ts", minimumTests: 50, minimumVariants: 44 },
-  { id: "lib/fv-scroll-producer.test.ts", minimumTests: 85, minimumVariants: 74 },
   { id: "lib/fv-warning-fragments.test.ts", minimumTests: 22, minimumVariants: 15 },
-  { id: "lib/fv-worker-model.test.ts", minimumTests: 131, minimumVariants: 107 },
-  { id: "lib/fv-worker-readout.test.ts", minimumTests: 162, minimumVariants: 145 },
-  { id: "lib/scroll-check-stacks.test.ts", minimumTests: 26, minimumVariants: 0 },
-  { id: "scripts/tla-case-machine-conformance.test.mjs", minimumTests: 30, minimumVariants: 0 },
-  { id: "scripts/tla-worker-hold-conformance.test.mjs", minimumTests: 73, minimumVariants: 0 }
+  { id: "scripts/tla-case-machine-conformance.test.mjs", minimumTests: 30, minimumVariants: 0 }
 ].map((entry) => Object.freeze(entry)));
 // Every gate this contract defers, with its kind: the two research
 // programmes, and nothing else. v1ProfileProblems holds each record by id and

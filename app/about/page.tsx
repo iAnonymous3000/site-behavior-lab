@@ -114,8 +114,8 @@ export default function AboutPage() {
           <ul>
           <li>
           <strong>A scanner.</strong> Enter any public URL on the <Link href="/">home page</Link> and get
-          a report. You can also compare two visits: with and without a privacy signal, with and without
-          ad blocking, or accepting versus rejecting a cookie banner.
+          a live ScanReport v3 report. You can also compare two visits: with and without a privacy signal, with and
+          without Brave Shields list blocking, or accepting versus rejecting a cookie banner.
           </li>
           <li>
           <strong>Reports already run for you.</strong> The{" "}

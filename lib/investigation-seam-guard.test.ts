@@ -453,8 +453,8 @@ test("no formal-verification suite sets the seam, so each of the register's rows
     gates: { "formal-verification": { requiredSuites: { id: string }[] } };
   };
   const suites = manifest.gates["formal-verification"].requiredSuites.map((suite) => suite.id);
-  assert.equal(suites.length, 21);
-  assert.ok(suites.includes("lib/fv-scroll-producer.test.ts") && suites.includes("lib/fv-worker-readout.test.ts"));
+  assert.equal(suites.length, 12);
+  assert.ok(suites.includes("lib/fv-ipv4-classifier.test.ts") && suites.includes("lib/fv-report-consistency.test.ts"));
   // The option by any of its names, and the two fields only a seam hands a check.
   const seamNames = /investigationSeam|deadlineMarginMs|\bboundary\s*[:=(]|\.boundary\b/i;
   for (const suite of suites) {

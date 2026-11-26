@@ -29,7 +29,6 @@ import { redactScanReportV1, redactScanResultV1 } from "./redact-scan-report-v1"
 import { prepareScanReportBundle } from "./report-store";
 import { BUILD_COMMIT_ENV } from "./runtime-scan-report";
 import { MAX_SCAN_DURATION_MS } from "./scan-deadlines";
-import { resetScanLimitStateForTests } from "./scan-limits";
 import { readStoredScanReport } from "./scan-report-reader";
 import { toPublicScanReportV1 } from "./scan-report-v1-projection";
 import { buildRuntimeComparisonScanReportV2R2, buildRuntimeScanReportV2R2 } from "./scan-report-v2-runtime-builder";
@@ -670,17 +669,6 @@ function unmarked<T>(value: T): T {
   delete copy[SEAM_VISIT_MARKER];
   return copy as T;
 }
-
-const SINGLE: PreparedScanRequest = {
-  clientKey: "seam-setting",
-  url: "http://www.example.com/page",
-  device: "desktop",
-  gpcEnabled: false,
-  compareGpc: false,
-  compareShields: false,
-  compareConsent: false,
-  rateLimitCost: 1
-};
 
 test("S3 mark: each publishing step refuses a real seam visit and its copies by its own check, and takes the same visit with the mark taken off", { timeout: 120_000 }, async () => {
   // The r2 builders need a build commit, and a visit made with consent verification on, as the fixture test makes its own.

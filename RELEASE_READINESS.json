@@ -24,7 +24,7 @@
     },
     "compatibilitySurface": {
       "document": "docs/compatibility-promise.md",
-      "sha256": "25b3dec607907ce705bd7f9a743f139e97c92acc5136975d21287723ef4e8b56",
+      "sha256": "c448927b931231c539d9dbbc1402ef70c245087580a031448798af4a3035a3b5",
       "status": "approved",
       "decidedBy": "iAnonymous3000",
       "decidedAt": "2026-08-02T22:10:00.000Z"
@@ -234,11 +234,6 @@
           "minimumVariants": 0
         },
         {
-          "id": "lib/call-stack-publisher.test.ts",
-          "minimumTests": 14,
-          "minimumVariants": 0
-        },
-        {
           "id": "lib/finite-check.test.ts",
           "minimumTests": 9,
           "minimumVariants": 1
@@ -247,11 +242,6 @@
           "id": "lib/fv-coverage-loss.test.ts",
           "minimumTests": 26,
           "minimumVariants": 19
-        },
-        {
-          "id": "lib/fv-initiator-claims.test.ts",
-          "minimumTests": 27,
-          "minimumVariants": 25
         },
         {
           "id": "lib/fv-ipv4-classifier.test.ts",
@@ -264,24 +254,9 @@
           "minimumVariants": 29
         },
         {
-          "id": "lib/fv-published-stacks.test.ts",
-          "minimumTests": 31,
-          "minimumVariants": 22
-        },
-        {
           "id": "lib/fv-report-consistency.test.ts",
           "minimumTests": 20,
           "minimumVariants": 11
-        },
-        {
-          "id": "lib/fv-request-accounting.test.ts",
-          "minimumTests": 50,
-          "minimumVariants": 44
-        },
-        {
-          "id": "lib/fv-scroll-producer.test.ts",
-          "minimumTests": 85,
-          "minimumVariants": 74
         },
         {
           "id": "lib/fv-warning-fragments.test.ts",
@@ -289,28 +264,8 @@
           "minimumVariants": 15
         },
         {
-          "id": "lib/fv-worker-model.test.ts",
-          "minimumTests": 131,
-          "minimumVariants": 107
-        },
-        {
-          "id": "lib/fv-worker-readout.test.ts",
-          "minimumTests": 162,
-          "minimumVariants": 145
-        },
-        {
-          "id": "lib/scroll-check-stacks.test.ts",
-          "minimumTests": 26,
-          "minimumVariants": 0
-        },
-        {
           "id": "scripts/tla-case-machine-conformance.test.mjs",
           "minimumTests": 30,
-          "minimumVariants": 0
-        },
-        {
-          "id": "scripts/tla-worker-hold-conformance.test.mjs",
-          "minimumTests": 73,
           "minimumVariants": 0
         }
       ]

@@ -151,13 +151,11 @@ full commit id, of type commit, an ancestor of the checked-out commit, in whose
 tree each cited test and family is present, and in whose first parent none is.
 It does not say where a test first appeared in history: a test deleted and
 added again, a file renamed, a merge whose second parent held the test, and
-members a family gained after its Commit all pass. `npm run test:unit` reruns
-the lib suites in its unit lanes, the workspace suites in
+members a family gained after its Commit all pass. `npm run test:unit` reruns the lib suites in its unit lanes, while
+`npm run test:investigation:all` runs the workspace suites in
 `npm run test:investigation`, the case exploration in
-`npm run test:investigation-exploration` and the conformance suites in
-`npm run test:tla-worker-hold` and `npm run test:tla-case-machine`, wherever it
-runs; the guard reads
-that wiring from `package.json`. A row states what its tests hold at the commit
+`npm run test:investigation-exploration`, and the conformance suite in
+`npm run test:tla-case-machine`, wherever it runs. A row states what its tests hold at the commit
 that holds this file, and a test may have held less, or held a different rule,
 at its Commit. What binds a run of the cited tests to a release candidate is
 the signed execution report the Release status section describes.
@@ -267,27 +265,27 @@ those runs at the release's commit.
 The finite-check harness is `lib/finite-check.ts`, with its own test
 `lib/finite-check.test.ts`. Its catch log, which the Release status section
 describes, has a test of its own outside this register's rows,
-`lib/finite-check-catch-log.test.ts`. The suites are `lib/fv-producer-identity.test.ts`,
-`lib/fv-coverage-loss.test.ts`, `lib/fv-request-accounting.test.ts`,
-`lib/fv-published-stacks.test.ts`, `lib/fv-initiator-claims.test.ts`,
-`lib/fv-warning-fragments.test.ts`, `lib/fv-worker-readout.test.ts`,
-`lib/fv-scroll-producer.test.ts`, `lib/fv-worker-model.test.ts`,
-`lib/fv-ipv4-classifier.test.ts`, `lib/fv-report-consistency.test.ts` and
-`investigation/test/case-exploration.test.ts`. The worker model is
-`lib/fv-worker-model.ts`, replayed through the real code by
-`lib/fv-worker-model-replay.ts`. The case exploration's walks and checks are
-in `investigation/test/case-exploration-walk.ts`, run in worker threads by
-`investigation/test/case-exploration-worker.ts`, with a planted fault for its
-self-tests in `investigation/test/case-exploration-plant-worker.ts`.
+`lib/finite-check-catch-log.test.ts`. The 12 active required suites are
+`lib/fv-producer-identity.test.ts`, `lib/fv-coverage-loss.test.ts`,
+`lib/fv-warning-fragments.test.ts`, `lib/fv-ipv4-classifier.test.ts`,
+`lib/fv-report-consistency.test.ts`, `lib/address-kernel.test.ts`,
+`lib/finite-check.test.ts`, `investigation/test/case-exploration.test.ts`,
+`investigation/test/evidence-model.test.ts`, `investigation/test/purge.test.ts`,
+`investigation/test/readings.test.ts`, and
+`scripts/tla-case-machine-conformance.test.mjs`. The case exploration's walks
+and checks are in `investigation/test/case-exploration-walk.ts`, run in worker
+threads by `investigation/test/case-exploration-worker.ts`, with a planted
+fault for its self-tests in `investigation/test/case-exploration-plant-worker.ts`.
 
-The specifications are under `specs/worker-hold` and `specs/case-machine`. Their
-conformance suites are `scripts/tla-worker-hold-conformance.test.mjs` and
-`scripts/tla-case-machine-conformance.test.mjs`, which read the committed
-exports `specs/worker-hold/conformance.json` and
-`specs/case-machine/conformance.json`. The trust kernel is under
-`tools/trust-kernel`. `scripts/trust-kernel-verus.mjs` runs Verus on it, and
-the unit suite's test of the module the scanner loads is
-`lib/address-kernel.test.ts`.
+The active TLA+ specification is under `specs/case-machine`. Its conformance
+suite is `scripts/tla-case-machine-conformance.test.mjs`, which reads the
+committed export `specs/case-machine/conformance.json`. The trust kernel is
+under `tools/trust-kernel`. `scripts/trust-kernel-verus.mjs` runs Verus on it,
+and the unit suite's test of the module the scanner loads is
+`lib/address-kernel.test.ts`. (Nine suites that previously verified retired
+v1/v2 live-scan producers—ephemeral scroll-check, connection-inspection,
+initiator-claims, and legacy worker-hold suites—were retired when `POST /api/scan`
+was replaced by `POST /api/v3/scan`.)
 
 ## Claims from F1: producer identity, coverage loss and request accounting
 
@@ -427,23 +425,6 @@ the unit suite's test of the module the scanner loads is
   - `lib/fv-coverage-loss.test.ts`: "CL4 catches a variant: the contract moves a detail to another family"
 - **Commit:** af6c9568efe3f9cbf2503a8d9b3086fd8b240167
 
-### RA1.RA2. The join conserves counted requests and pairs nothing across a shortfall
-
-- **Property:** Every counted request lands in exactly one bucket and an uncounted one in none; when the session missed a request and only some are counted, no counted request takes an observation; otherwise the nth request takes the nth observation; joins on one tally add up across a recorder's URLs.
-- **Code:** `joinObservations` and `StackTally` in `lib/call-stack-publisher.ts`.
-- **Domain:** Page requests, observations over every category kind, dropped observations, and every mask of which requests are counted; for the tally, every pair of joins within the smaller bounds. The distinct groups are the suite's sample of group keys.
-- **Bounds:** up to 5 page requests, 5 observations and 5 dropped observations; for pairs of joins, up to 2 requests, 2 observations and 1 dropped observation each.
-- **Axioms:** none
-- **Method:** bounded, sampled, restatement
-- **Not claimed:** The position rule restates the join's own docblock. What `lib/scroll-check-stacks.ts`, Inspect or a browser hands the join is outside this row; RA7 holds what Inspect hands it, and RA6 what the check's recorders hand it.
-- **Tests:**
-  - `lib/fv-request-accounting.test.ts`: "RA1 and RA2: the join conserves counted requests and never pairs across a shortfall"
-  - `lib/fv-request-accounting.test.ts`: "RA1: joins add up across a recorder's URLs, over every pair of small joins"
-- **Variants:**
-  - `lib/fv-request-accounting.test.ts`: names beginning "RA1 and RA2 catch a variant"
-  - `lib/fv-request-accounting.test.ts`: "RA1 catches a variant: each join starts its tally over"
-- **Commit:** af6c9568efe3f9cbf2503a8d9b3086fd8b240167
-
 ### F1-H. The finite-check harness refuses what it should
 
 - **Property:** `holds` names the property and the input and builds the input only on failure; `assertCaughtBy` accepts only a counterexample for the named property, and refuses a variant the check passes, one caught for another property, and one that breaks the check itself; `loadVariant` applies its edits to a separate instance, resolves the variant's own imports, keeps a replacement literal, and refuses an edit that does not land exactly once.
@@ -465,103 +446,7 @@ the unit suite's test of the module the scanner loads is
 - **Variants:** none: each case tests a refusal or an acceptance of the harness directly.
 - **Commit:** af6c9568efe3f9cbf2503a8d9b3086fd8b240167
 
-## Claims from F2: published stacks, initiator claims and warning fragments
-
-### RA3. What one call stack publishes
-
-- **Property:** A stack publishes only requested frames' hosts, at most four, innermost first, with no consecutive repeat, and nothing when no frame was requested; it names each script once, only from requested frames, and stops naming where it stops listing hosts; a recorder's host cache changes nothing it publishes; a recorder that publishes hosts only names no script.
-- **Code:** `publishedStack` and `RequestedCodeUrls` in `lib/call-stack-publisher.ts`.
-- **Domain:** Every stack over the suite's `SYMBOLS` (requested scripts on several hosts, one host with more than one script, a frame the visit did not request on a requested host, one on another host, and an empty frame URL), published hosts only and with scripts; for the host cache, every stack over a smaller alphabet that holds a URL too long to hold as itself. The symbols are the suite's sample of frame addresses.
-- **Bounds:** stacks of up to 6 frames over 9 symbols; for the host cache, up to 4 frames.
-- **Axioms:** `publishedHost` and `publishedScript` are taken as given, so a regression in either moves both sides, and nothing here says how a real address redacts.
-- **Method:** bounded, sampled, restatement
-- **Tests:**
-  - `lib/fv-published-stacks.test.ts`: "the symbols span the bound: five hosts, one with two scripts, and frames the visit did not request"
-  - `lib/fv-published-stacks.test.ts`: "RA3: a stack publishes only requested frames' hosts, at most four, innermost first, no consecutive repeat"
-  - `lib/fv-published-stacks.test.ts`: "RA3: a stack names each script once, and stops naming where it stops listing hosts"
-  - `lib/fv-published-stacks.test.ts`: "RA3: a recorder's host cache changes nothing it publishes"
-- **Variants:**
-  - `lib/fv-published-stacks.test.ts`: names beginning "RA3 catches a variant"
-  - `lib/fv-published-stacks.test.ts`: "RA3 catches a variant: the host cache reads the held key and not the URL"
-  - `lib/fv-published-stacks.test.ts`: "RA3 catches a variant: the host cache keeps a different host"
-- **Commit:** 8cd96197eb96efc3dcd38efbb7dbf18876ec0093
-
-### RA3-C. Every observation falls in its one category, and the code set keeps its bound
-
-- **Property:** Every observation falls in its one category, a group keeps the stack that keyed it, and past the code bound nothing is named; the code set holds to its bound and says when it has gone past it.
-- **Code:** `categorizeObservation` and `RequestedCodeUrls` in `lib/call-stack-publisher.ts`.
-- **Domain:** Exhaustive over a redirect hop or not, each stack shape (absent, empty, naming a requested script, naming none), and the code set open or past its bound; sampled for the stack that stands for each shape and for the addresses, which the suite writes out. Bounded over the code set filled one address at a time to its bound, then an address it already holds, and one address past the bound.
-- **Bounds:** the code set's own bound, `MAX_REQUESTED_CODE_URLS`.
-- **Axioms:** none
-- **Method:** exhaustive, bounded, sampled, restatement
-- **Tests:**
-  - `lib/fv-published-stacks.test.ts`: "RA3: every observation falls in its one category, and past the code bound nothing is named"
-  - `lib/fv-published-stacks.test.ts`: "RA3: the code set holds to its bound and says when it has gone past it"
-- **Variants:**
-  - `lib/fv-published-stacks.test.ts`: names beginning "RA3 catches a variant"
-  - `lib/fv-published-stacks.test.ts`: "RA3 catches a variant: a group forgets the stack that keyed it"
-- **Commit:** 8cd96197eb96efc3dcd38efbb7dbf18876ec0093
-
-### RA3-S. A stack's script bound, an unpublishable frame and a long URL
-
-- **Property:** A stack keeps its first eight scripts, however many it holds; a requested frame with no published address lists its host and names no script; a URL too long to hold as itself is held by its digest, so its frame still lists its host, and a URL one character past it is not taken for it.
-- **Code:** `publishedStack` and `RequestedCodeUrls` in `lib/call-stack-publisher.ts`.
-- **Domain:** The scripts the suite writes out across the hosts a stack keeps, each count of them, repeated; one blob frame beside a requested script; one long URL.
-- **Bounds:** none beyond those cases.
-- **Axioms:** `publishedHost` and `publishedScript` are taken as given.
-- **Method:** sampled
-- **Tests:**
-  - `lib/fv-published-stacks.test.ts`: "RA3: a stack keeps its first eight scripts, however many it holds"
-  - `lib/fv-published-stacks.test.ts`: "RA3: a frame with no published address lists its host and names no script"
-  - `lib/fv-published-stacks.test.ts`: "RA3: a URL too long to hold as itself is still named, by its digest"
-- **Variants:**
-  - `lib/fv-published-stacks.test.ts`: "RA3 catches a variant: the script bound is gone"
-  - `lib/fv-published-stacks.test.ts`: "RA3 catches a variant: a frame with no published address names a script"
-- **Commit:** 8cd96197eb96efc3dcd38efbb7dbf18876ec0093
-
-### RA7. Inspect's counts do not depend on pairing
-
-- **Property:** With every request counted, the join refuses nothing, and which observation pairs with which moves no count; through Inspect's real recorder the evidence is the first observations in arrival order, against a table spelled out in the test, whichever pairs with which. Arrival order still decides what a surplus takes, so Inspect is stable under pairing and not under a reordering that moves a surplus observation ahead of a taken one.
-- **Code:** `joinObservations` and `StackTally` in `lib/call-stack-publisher.ts`, and `ConnectionInspectionRecorder` in `lib/connection-inspection.ts`.
-- **Domain:** Request counts, dropped observations and observation sequences over every category kind, with every request counted; for the recorder, request counts and sequences over the suite's observation shapes, each with every order of what it takes. The observation shapes are the suite's sample.
-- **Bounds:** up to 5 requests, 5 dropped observations and 5 observations; through the recorder, up to 3 requests and 3 observations.
-- **Axioms:** none
-- **Method:** bounded, sampled, restatement
-- **Tests:**
-  - `lib/fv-request-accounting.test.ts`: "RA7: with every request counted, nothing is refused and pairing moves no count"
-  - `lib/fv-request-accounting.test.ts`: "RA7: Inspect's real recorder takes the first observations, whichever pairs with which"
-- **Variants:**
-  - `lib/fv-request-accounting.test.ts`: names beginning "RA7 catches a variant"
-- **Commit:** 8cd96197eb96efc3dcd38efbb7dbf18876ec0093
-
-### RA7-P. Where Inspect and a check part
-
-- **Property:** When a URL is observed more often than it was requested, with differing categories, Inspect's one request takes the first observation, and a check, which cannot tell which observation was its request's, takes neither and reads the request as unobserved.
-- **Code:** `ConnectionInspectionRecorder` in `lib/connection-inspection.ts` and `ScrollCheckStackRecorder` in `lib/scroll-check-stacks.ts`.
-- **Domain:** The one stream the test writes out: a page request observed more often than it was requested, under different scripts.
-- **Bounds:** none beyond that case.
-- **Axioms:** none
-- **Method:** sampled
-- **Tests:**
-  - `lib/call-stack-publisher.test.ts`: "Inspect and the check part when a URL is observed more often than it was requested, with differing categories"
-- **Variants:** none: the test pins where the recorders part, which RA7's bounded check leaves to arrival order.
-- **Commit:** 8cd96197eb96efc3dcd38efbb7dbf18876ec0093
-
-### RA8. When a request row may name its initiator
-
-- **Property:** Every claim lands in at most one outcome, and in none when no observation of its URL names an initiator; an answer rests on every observation and request of its URL, names only what every observation named, covers no more requests than observations, and consumes nothing; held to the counts alone, it does not depend on which stream arrives first; past either table's bound nothing is claimed, and the loss is counted.
-- **Code:** the attribution refusal rule in `lib/request-initiator.ts`.
-- **Domain:** Every order of events over the suite's `URLS`, each event one observation (with one of the suite's `INITIATORS`, or none) or one request the page reported; for the bounds, each table filled to `MAX_TRACKED_INITIATORS` and then passed. The URLs and initiators are the suite's sample.
-- **Bounds:** orders of up to 5 events.
-- **Axioms:** none
-- **Method:** bounded, sampled, restatement
-- **Not claimed:** The rule, not its parser. Whether a preflight's initiator differs from its request's, and whether a page-side URL can carry a fragment the observation's does not, stay measurements.
-- **Tests:**
-  - `lib/fv-initiator-claims.test.ts`: "RA8: every claim lands in one outcome, and an answer rests on every observation and request of its URL"
-  - `lib/fv-initiator-claims.test.ts`: "RA8: nothing past a table's bound is claimed, and the loss is counted"
-- **Variants:**
-  - `lib/fv-initiator-claims.test.ts`: names beginning "RA8 catches a variant"
-- **Commit:** 8cd96197eb96efc3dcd38efbb7dbf18876ec0093
+## Claims from F2: warning fragments
 
 ### CL6. Which warning lines each loss predicate reads
 
@@ -586,406 +471,6 @@ the unit suite's test of the module the scanner loads is
   - `lib/fv-warning-fragments.test.ts`: "CL6 catches a new predicate with no pinned row"
   - `lib/fv-warning-fragments.test.ts`: "CL6 catches a variant: a whole-line predicate starts reading substrings"
 - **Commit:** 8cd96197eb96efc3dcd38efbb7dbf18876ec0093
-
-## Claims from the RA6 rule
-
-### RA6. A request in the window shows nothing a later report gave it
-
-- **Property:** A request in the check's scroll window shows nothing it did not have because of what the page reported after the window: every counted request to a URL the page reported again from the window's end on reads as unobserved; a report after the window changes no window; a report to another URL on the host leaves this one as it was; a report the recorder lost, past its bound in a window or after the freeze, or unreadable, costs the check its stacks, and nothing else does; with none lost, the join hears every report.
-- **Code:** `ScrollCheckRecorder` in `lib/scroll-check.ts` and `ScrollCheckStackRecorder` in `lib/scroll-check-stacks.ts`, through the join.
-- **Domain:** Exhaustive over: one of the suite's checked URLs (short, past the held URL's length, or on a host that publishes as another name), with one request or a pair of requests from the suite's window requests in the window, at least one counted, each made by the page under one of the suite's scripts or with no stack, or by a worker the session never observes; then the suite's later worlds, none, one later report from any of those, a redirect hop, a main-frame navigation or a refused request, or a pair of reports from the worker or the scripts, each in the window's last millisecond or after the freeze, to the URL, to the URL with a fragment, or to another URL on the host. An uncounted request was sent and never answered. Sampled over lost reports: the window recorder's bound at the small sizes the suite sets, each with the counts, repeats, schemes and unreadable addresses the suite writes out; the stack recorder's bound is not varied.
-- **Bounds:** none beyond those enumerations; neither recorder bound is walked in the first part.
-- **Axioms:** The session observes every request of the page and none of a worker; each observation arrives before the page's event, in request order; every report arrives before the evidence is built.
-- **Method:** exhaustive, sampled, restatement
-- **Not claimed:** The cases where those axioms fail, pinned open below. The case the F2 commit described, a worker's request taking the stack of a page request to the same URL after the window, is the one this rule closes; by the message of the commit that landed the rule, the real-Chromium fixture produced it only while a slow request held the check's settle open, which no cited test shows. How often a browser produces any of this is not measured.
-- **Tests:**
-  - `lib/fv-request-accounting.test.ts`: "RA6: a request in the window shows nothing it did not have, whatever the page reports after the window"
-  - `lib/fv-request-accounting.test.ts`: "RA6: a report the recorder lost costs the check its stacks, and nothing else does"
-- **Variants:**
-  - `lib/fv-request-accounting.test.ts`: names beginning "RA6 catches a variant"
-- **Commit:** 0931b39082ba9e682e9b9ac0cded7da38b483930
-
-## Claims from F3: the worker readout's kernels and the scroll producer
-
-### CL8a. The readout's classifier over the whole view domain
-
-- **Property:** The shared classifier holds over every view, and of fingerprint-observer@11's exclusions fingerprint-observer@12 moves only the views of a worker gone held, to unread; a shared worker unread at the freeze, or ended at once, stays so whatever the drain's end shows; a shared worker's stream lands where the world's text says; the dedicated classifier holds over every view: for a worker held at its attach it is unchanged since @11, and for one already running at its attach it is never an exclusion at the freeze and differs from @11 only where @11 excluded, which is attached late.
-- **Code:** the kernels `freezeDedicatedRealm`, `freezeSharedRealm`, `resolveSharedRealm` (with `resolveReachingRealm` and `resolveHeldRealm`), `streamAtFreeze`, `dedicatedLandedTerm` and `sharedLandedTerm` in `lib/worker-fingerprint-realm.ts`.
-- **Domain:** Shared views over the hold, the detach flags, channel loss, the install outcome, attachment after the freeze or not, the lifetime against the ended-at-once bound, the last word and a break; each view that waits on the drain against each end the suite moves (hold, detach flags, channel loss and lifetime), and each that reads its stream against every slot, loss, break and credit; for staying settled, the shared views with no last word and no break, against the same ends; dedicated views over whether the worker was held at its attach, the release, the detach flags, channel loss, the install outcome, the last word, a break, the owner, frame trees read or not, the slot, and loss and break at the drain's end. Combinations the mirror never produces are walked too. Sampled for the lifetime, at the values the Bounds name, and for the text of a snapshot, which the suite writes out.
-- **Bounds:** none beyond those products; the lifetime takes none, under the bound, at it and one past it.
-- **Axioms:** none: the only premise is that a view's fields are what the kernels are handed.
-- **Method:** exhaustive, sampled, restatement
-- **Not claimed:** That a view is true of the worker, which is the model's question (F4); that a browser behaves as the model says; that excluded means no page code ran, which is not in the view. The @11 reference is spelled out from git and catches drift from what @12 and @14 said they changed, not a wrong rule at @11.
-- **Tests:**
-  - `lib/fv-worker-readout.test.ts`: "CL8a: the shared classifier holds over every view, and @12 moves only what it said it moved"
-  - `lib/fv-worker-readout.test.ts`: "CL8a: a worker settled at the freeze stays settled, whatever the drain's end shows"
-  - `lib/fv-worker-readout.test.ts`: "CL8a: a shared worker's stream lands where the world's text says"
-  - `lib/fv-worker-readout.test.ts`: "CL8a: the dedicated classifier holds over every view"
-- **Variants:**
-  - `lib/fv-worker-readout.test.ts`: names beginning "CL8a catches a variant"
-- **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
-
-### CL8a-M. The classifier through the real mirror and readout
-
-- **Property:** Through the real mirror and readout, a shared worker attached on a stream that missed a commit is credited to nothing, read in full or not, and one attached before that loss keeps what it read.
-- **Code:** `SharedWorkerVisitChannel` in `lib/shared-worker-attacher.ts` and the readout in `lib/worker-fingerprint-realm.ts`.
-- **Domain:** Sampled over a stream that missed a commit: the worlds the suite writes out, commits never watched and the page's session lost before or after the attach, beside commits watched.
-- **Bounds:** none beyond that enumeration; these worlds read with the drain's settle set to nothing, so production's timer ends the drain at once.
-- **Axioms:** as CL7: the attacher's thread is scripted and reports in the order it posted, and each scripted answer stands for the browser's.
-- **Method:** sampled, restatement
-- **Not claimed:** Which way the readout's rule has moved since fingerprint-observer@11, through the real mirror: row CL8b holds that.
-- **Tests:**
-  - `lib/fv-worker-readout.test.ts`: "CL8a: a shared worker attached on a stream that missed a commit is credited to nothing"
-- **Variants:**
-  - `lib/fv-worker-readout.test.ts`: names beginning "CL8a catches a variant"
-  - `lib/fv-worker-readout.test.ts`: "CL8a catches a variant: a creation document read on a stream that missed a commit is kept"
-- **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
-
-### CL8b. No shared worker is excluded
-
-- **Property:** The shared classifier excludes no view. Each view fingerprint-observer@11 called paused at the readout is unread as a hold the freeze cannot place: released and attached after the freeze; reaching at the freeze and released by the drain's end; seen held, and released or still held at the drain's end. Nothing else differs from @11 but fingerprint-observer@12's views of a worker gone held. Through the real mirror and readout, @12 and fingerprint-observer@14 together move each of @11's exclusions, toward unread or toward the stream, and nothing else; with no loss of the channel, a worker the mirror heard released in the drain, or still saw held at its end, is an unread realm, whether the freeze found it held, found it reaching or had not heard of it.
-- **Code:** the kernels `freezeSharedRealm`, `resolveSharedRealm` (with `resolveReachingRealm` and `resolveHeldRealm`) and `sharedLandedTerm`, and the readout, in `lib/worker-fingerprint-realm.ts`; `SharedWorkerVisitChannel` in `lib/shared-worker-attacher.ts`.
-- **Domain:** For the kernels, the shared views of CL8a, each that waits on the drain against each end the suite moves. For the real mirror and readout, every cut of every prefix of the suite's written-out report paths, each prefix with an answered install crossed with each stream, barrier answer and credit, each with each way the channel is lost, less those a loss before the freeze leaves unreported.
-- **Bounds:** none beyond those enumerations; the worlds read with the drain's settle set to nothing, so production's timer ends the drain at once.
-- **Axioms:** none for the kernels: the only premise is that a view's fields are what the kernels are handed. For the worlds, as CL7: the attacher's thread is scripted and reports in the order it posted, and each scripted answer stands for the browser's.
-- **Method:** exhaustive, restatement
-- **Not claimed:** That a worker landed so ran page code before the freeze: the term says the readout cannot tell, and a worker that ran nothing lands so too. How often a page lands a worker so, which is a measurement. That a view is true of the worker, which is the model's question (F4-NOEXCL). The @11 reference is spelled out from git and catches drift from what @12 and @14 said they changed, not a wrong rule at @11.
-- **Tests:**
-  - `lib/fv-worker-readout.test.ts`: "CL8a: no shared view is excluded, and @14 moves only the views @11 called paused at the readout, each to a hold the freeze cannot place"
-  - `lib/fv-worker-readout.test.ts`: "CL8a: through the real mirror and readout, @12 and @14 move every one of @11's exclusions toward unread or toward the stream, and nothing else"
-- **Variants:**
-  - `lib/fv-worker-readout.test.ts`: names beginning "CL8b catches a variant of the kernels"
-  - `lib/fv-worker-readout.test.ts`: names beginning "CL8b catches a variant in the readout"
-- **Commit:** 2b6189b38f851e7c155d09c64591b1ea25df04bd
-
-### CL7. Every attached worker lands in one term
-
-- **Property:** Every dedicated worker attached before the freeze, and every shared worker the attacher reported, lands in exactly one term of the real readout's diagnostics, for a dedicated worker the term its world says, and the terms add up to what the readout publishes; the drain waits for each thing it names and ends when that arrives; an emission in the drain moves no freeze point already passed.
-- **Code:** the readout in `lib/worker-fingerprint-realm.ts`, `SharedWorkerVisitChannel` in `lib/shared-worker-attacher.ts`, and `DedicatedWorkerAttachSession` in `lib/devtools-worker-channel.ts`.
-- **Domain:** Sampled over the dedicated worlds: a quiet worker with one thing varied at a time (its start, which is paused, running, held by an earlier installer, or running with an earlier installer still at work; each failing install, each later stream with each barrier answer) crossed with each way of going away and each owner state, under each channel mode the suite lists, except that the starts with an earlier installer take the current owner only; then workers started by others, no channel, and witness counts that disagree with what attached. Exhaustive over the shared worlds: every cut of every prefix of the suite's written-out report paths, each prefix with an answered install crossed with each stream, barrier answer and credit, with the reports the mirror must ignore after late, under each way the channel is lost. Sampled over the drain: the things the suite lists for it to wait for, and the emissions the suite writes out.
-- **Bounds:** none beyond those enumerations. The accounting worlds read with the drain's settle set to nothing, so production's timer ends the drain at once; the drain and emission worlds read with a settle that never expires in the test, so each case is decided by order.
-- **Axioms:** The attacher's thread is scripted and reports in the order it posted, so F4 replays the real thread; each scripted answer stands for the browser's and arrives in the turn it was sent unless a world holds it; a detach reaches the session before the installer; an earlier installer holds until told to, which the real GPC installer does not once its channel closes.
-- **Method:** exhaustive, sampled, restatement
-- **Not claimed:** A dedicated worker attached in the drain, which row CL7-D holds. The dedicated worlds take a worker an earlier installer holds as excluded, the reading OPEN-F3.6 pins open, and within one script address witness counts and attaches are joined by number only (OPEN-F3.4); CL7-J holds the join across addresses. Whether a browser produces a path, and what a term says of a site. The expected terms restate the docblocks of the diagnostics and of the readout. A shared worker on the dedicated channel stays out of these terms, `shared.diedPaused` is written by nothing since @12, and `shared.pausedAtReadout` by nothing since @14.
-- **Tests:**
-  - `lib/fv-worker-readout.test.ts`: "CL7: every dedicated worker lands in one term of the real readout, the one its world says, and the terms add up"
-  - `lib/fv-worker-readout.test.ts`: "CL7: every shared worker the attacher reported lands in one term of the real readout, and the terms add up"
-  - `lib/fv-worker-readout.test.ts`: "CL7: the drain waits for each thing it names and ends when that arrives, at a bound that never expires"
-  - `lib/fv-worker-readout.test.ts`: "CL7: an emission in the drain moves no freeze point"
-- **Variants:**
-  - `lib/fv-worker-readout.test.ts`: names beginning "CL7 catches a variant"
-- **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
-
-### CL7-D. A dedicated worker attached in the drain lands by its attach
-
-- **Property:** A dedicated worker whose attach arrives in the drain lands in a single term of the real readout's diagnostics and in no other, by its attach alone: held at that attach, it is paused at the readout, an exclusion, and no unread realm; already running at it, it is attached late and an unread realm, as the same worker attached before the call is. What its install, an earlier installer or the channel did afterwards changes neither landing, a worker attached before the call beside it keeps its own term, and a witnessed worker that never attached is still unattached.
-- **Code:** the readout in `lib/worker-fingerprint-realm.ts` and `DedicatedWorkerAttachSession` in `lib/devtools-worker-channel.ts`.
-- **Domain:** Sampled: a worker attached in the drain, by each start (paused, running, held by an earlier installer, or running with an earlier installer still at work), a paused worker with its install answered or left unanswered, alone or beside a quiet worker attached before the call, with every witnessed worker attached or a further witnessed worker that never attached, under each channel mode the suite lists for it (alive, alive with frame trees that cannot be read, lost in the drain).
-- **Bounds:** none beyond that enumeration; the worlds read with the drain's settle set to nothing, and the attach is delivered in the turn of the call, so each case is decided by order.
-- **Axioms:** as CL7. The attach's own word on whether the worker waits for the debugger is taken as the browser gave it.
-- **Method:** sampled, restatement
-- **Not claimed:** Whether Chromium attaches an already running worker in a drain, which is not measured. That a worker held at an attach heard after the freeze ran nothing before the freeze rests on A4, a worker the debugger holds at its start running nothing until released, which F4-TABLE holds of the dedicated model and no test holds of a browser. Within one script address the witness and the attaches are joined by number only (OPEN-F3.4), so an unwitnessed worker of that address attached in the drain stands in for a witnessed worker of it that never attached.
-- **Tests:**
-  - `lib/fv-worker-readout.test.ts`: "CL7: a dedicated worker attached in the drain lands in one term, by its attach: held there it is excluded, and already running it is an unread realm"
-- **Variants:**
-  - `lib/fv-worker-readout.test.ts`: names beginning "CL7 catches a variant in the drain's attaches"
-- **Commit:** 2b6189b38f851e7c155d09c64591b1ea25df04bd
-
-### CL7-J. A witnessed worker is joined to an attach of its own address
-
-- **Property:** The real readout joins the browser-side witness to the channel's dedicated attaches by script address: a witnessed worker is unattached, and an unread realm, unless an attach of its own address pairs with it, so an attach of another address, before the call or in the drain, never stands in for it; within one address more attaches than witnessed workers floor that address's part at nothing and take nothing from another; the dedicated drain waits until no address is short of attaches and ends when the missing attach arrives; and the readout returns only the parts the collection reads and its diagnostics, every diagnostic a number, and no witnessed or attached address in what it returns.
-- **Code:** `unattachedByUrl` and the readout in `lib/worker-fingerprint-realm.ts`, and `DedicatedWorkerAttachSession` in `lib/devtools-worker-channel.ts`.
-- **Domain:** Sampled: a witnessed worker of one address with no attach of it, beside unwitnessed attaches of another address before the call, a single one or a pair, or a single one in the drain; a pair of attaches of an address against a single witnessed worker of it, alone or beside a witnessed worker of another address; for the drain, a witnessed worker of one address not yet attached beside an attached worker of another, whose attach then arrives; and for what the readout returns, workers of a pair of addresses witnessed and attached before the call and in the drain. Each with the channel alive and the frame trees read.
-- **Bounds:** none beyond that enumeration; the accounting worlds read with the drain's settle set to nothing and the drain world with a settle that never expires in the test, so each case is decided by order.
-- **Axioms:** as CL7. The address a scripted attach names stands for Chromium's `targetInfo.url`, and the witness's for Playwright's `Worker.url()`.
-- **Method:** sampled, restatement
-- **Not claimed:** That Chromium and Playwright give one worker the same address on every worker kind: a loopback measurement found them equal on the worker kinds it read, and the scanner suite holds those kinds on real Chromium in a test outside this register. Workers of one address are matched by number only (OPEN-F3.4). A worker neither side reported, such as one started and terminated at once, has nothing to join. The GPC accounting reads the witness's total and is not joined by address.
-- **Tests:**
-  - `lib/fv-worker-readout.test.ts`: "CL7: an unwitnessed worker of another address, attached before the freeze or in the drain, does not mask a witnessed worker that never attached"
-  - `lib/fv-worker-readout.test.ts`: "CL7: the join's addresses stay inside the scanner"
-- **Variants:** none: its variants are members of the families CL7 cites ("CL7 catches a variant" and "CL7 catches a variant in the dedicated drain"), whose tables landed before this row's tests, so this row cannot cite them by their Commit.
-- **Commit:** 75c10ab9aad903132d2b02c3cd7122aee0ed8b27
-
-### RA4. The scroll producer passes its validator and keeps what it earned
-
-- **Property:** Through the real recorders and the real `runScrollCheck`, every check validates and keeps each part its world earned (its stacks, labels, counts and outcome); a fact that throws costs that fact's part and no other; past each recorder's bound the check stays whole and loses its stacks only for a report it lost; within the domain, the window relations and the counting rule hold.
-- **Code:** `runScrollCheck` and `ScrollCheckRecorder` in `lib/scroll-check.ts`, `ScrollCheckStackRecorder` in `lib/scroll-check-stacks.ts`, and `isScrollCheckEvidence` in `lib/scroll-check-evidence.ts`.
-- **Domain:** Each run through the whole check at the production timing, on a scripted page and clock. Exhaustive over: every subset of the request buckets but the empty one and the one holding only an unanswered request, in each of the suite's URL forms; every subset of what a window does not count, around what it does; every ordered pair of the host forms in the suite's table; every combination of counts but the empty one, under the suite's per-shape bound, of the stack shapes it lists. Sampled over: the host-form table itself; the stack shapes; the worlds the counting rule turns on; the window recorder's host and request bounds at the small sizes the suite sets, not at production's; the stack recorder's script-address and dropped-URL bounds at production's own; the list bound across site sizes; each ending with a scroll window and the listed ways to have none; and facts that throw, one at a time.
-- **Bounds:** none beyond those enumerations.
-- **Axioms:** Every observation arrives before its page event, except in the settle's one world, which says otherwise; the session reports a URL without its fragment; Node's URL and the page's agree on a host.
-- **Method:** exhaustive, sampled, restatement
-- **Not claimed:** Analytics events beyond the one beacon of each kind `lib/scroll-check-events.test.ts` walks; requests after the window, which RA6 holds; a recording that failed or a session that never opened; timings other than production's; host forms beyond the table, and the forms the validator refuses, pinned open below.
-- **Tests:**
-  - `lib/fv-scroll-producer.test.ts`: "RA4: every bucket and every subset of them leaves the check its stacks"
-  - `lib/fv-scroll-producer.test.ts`: "RA4: the worlds the counting rule turns on say what their windows should"
-  - `lib/fv-scroll-producer.test.ts`: "RA4: a fact that throws costs the check that fact's part and no other"
-  - `lib/fv-scroll-producer.test.ts`: "RA4: what a window does not count, around what it does, leaves the check whole and counted"
-  - `lib/fv-scroll-producer.test.ts`: "RA4: past each of the recorders' bounds the check stays whole, and loses its stacks only for a report it lost"
-  - `lib/fv-scroll-producer.test.ts`: "RA4: every count of every stack shape leaves the check its stacks, whatever the group bound keeps"
-  - `lib/fv-scroll-producer.test.ts`: "RA4: every host form in the table leaves the check its stacks, as a listed host, a pair of them, and a pair of frames"
-  - `lib/fv-scroll-producer.test.ts`: "RA4: the list bound, with the window's other counts and each way to have list facts, leaves the check whole"
-  - `lib/fv-scroll-producer.test.ts`: "RA4: each ending validates and keeps what it earned"
-- **Variants:**
-  - `lib/fv-scroll-producer.test.ts`: names beginning "RA4 catches a variant"
-- **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
-
-## Claims from F4: the shared-worker hold, modeled and replayed
-
-The model in `lib/fv-worker-model.ts` is a hand-written breadth-first search
-over the browser and the worker, the attacher's thread, the mirror over its
-port, and the drain and the readout's wait for the page's frame tree. Each
-worker's term comes from the real kernels. Whether a page statement ran comes
-from the world's own process. Its shared worlds are the hold world (one worker,
-every step), the stream world (one worker from its release on, with its stream
-and the barrier's hops) and the world of `TWO_WORKER_WORLD` (a pair of workers
-under its stated bound); a smaller world, `SMALL_WORLD`, carries some of the
-variants, and a dedicated world holds one worker on the main thread's channel.
-Its axioms are switches, each of which only removes transitions:
-
-- A1: a session's commands and a worker's own words on it arrive in order, except a script's parse, which may arrive behind later answers or not at all. A1 is an order of arrival at the attacher's socket. That the thread acts on what arrived in that order, within one read too, is no axiom: row F4-ARRIVAL checks it.
-- A2: another client's release of a held worker is heard by the attacher's session.
-- A3, used as its negation: a detach never overtakes a session's events still on their way.
-- A4: a worker the debugger holds at its start runs nothing until it is released; the plan states it of a dedicated worker.
-- A5, in halves: the port between the thread and the main thread delivers in order, and a message posted before the freeze is processed before the settle bound.
-
-### F4-READ. A read's observer preceded every statement
-
-- **Property:** A shared worker the readout reads had its observer in before every statement of page code it ran.
-- **Code:** the readout's kernels in `lib/worker-fingerprint-realm.ts`, as `lib/fv-worker-model.ts` calls them, over the attacher thread, mirror and drain the model restates.
-- **Domain:** Every event order in the alphabets of the shared worlds.
-- **Bounds:** each world's alphabet, with the bounds the suite asserts on the kinds of step, how far each queue can be overtaken and how many reports wait on a port.
-- **Axioms:** A1 and A2, the smallest set; the hold world decides it.
-- **Method:** reachable states
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "the axiom table: every property under each subset of the plan's axioms, the smallest sets it needs, and which world holds it"
-- **Variants:**
-  - `lib/fv-worker-model.test.ts`: "the world's facts catch a thread that takes no resume for a broken hold, as a worker read though it ran unobserved"
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
-
-### F4-AGE. A read state is no older than the freeze
-
-- **Property:** A shared worker the readout reads is read at a state no older than the freeze.
-- **Code:** the readout's kernels in `lib/worker-fingerprint-realm.ts`, as `lib/fv-worker-model.ts` calls them.
-- **Domain:** Every event order in the alphabets of the shared worlds.
-- **Bounds:** each world's alphabet and the bounds the suite asserts.
-- **Axioms:** A1, A3's negation (no detach overtaking) and A5's order half, the smallest set; the stream world decides it. A3 itself is the plan's open ordering study, so this row rests on what that study has not yet measured.
-- **Method:** reachable states
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "the axiom table: every property under each subset of the plan's axioms, the smallest sets it needs, and which world holds it"
-- **Variants:**
-  - `lib/fv-worker-model.test.ts`: names beginning "the model catches a variant of the kernels"
-- **Members:**
-  - "a running worker's last word at the call is its state, with no barrier"
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
-
-### F4-TERM. Every shared worker the readout heard of lands in one term
-
-- **Property:** Every shared worker the readout heard of lands in exactly one term, and where the readout lands a worker apart from where @11 would have, it moves it only from excluded, toward unread or toward its stream.
-- **Code:** the readout's kernels in `lib/worker-fingerprint-realm.ts`, as `lib/fv-worker-model.ts` calls them.
-- **Domain:** Every event order in the alphabets of the shared worlds.
-- **Bounds:** each world's alphabet and the bounds the suite asserts.
-- **Axioms:** none
-- **Method:** reachable states
-- **Not claimed:** The one-term row cannot fail in the model, whose kernels return one term; it has force only in the replay's sums over the real readout, which F4-TRACE holds.
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "the axiom table: every property under each subset of the plan's axioms, the smallest sets it needs, and which world holds it"
-  - `lib/fv-worker-model.test.ts`: "the direction property has moves to judge: a worker gone held moves to unread, and one gone after its install to its stream"
-- **Variants:**
-  - `lib/fv-worker-model.test.ts`: names beginning "the model catches a variant of the kernels"
-- **Members:**
-  - "a worker gone with no pause, past the bound, is read as ended at once"
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
-
-### F4-TABLE. The axiom table only weakens as axioms are dropped
-
-- **Property:** A property that holds under a set of axioms holds under every larger set, in each shared world; A4 changes no verdict for a shared worker under any subset of the other axioms; in the dedicated world, a worker held at its attach and excluded ran nothing, under A4 and only under A4; the @11 shared rule for a worker gone held, put back over the present kernels, keeps the first exclusion row in the small world under Z and no detach overtaking, and in the hold world needs A1, A2 and no detach overtaking, where the present kernels need no axiom, since they exclude no shared worker.
-- **Code:** `lib/fv-worker-model.ts`, over the real kernels.
-- **Domain:** Every subset of A1 to A5, with A5's halves apart, over each shared world; the dedicated world under each axiom; for the @11 rule, the small world under Z and no detach overtaking, and the hold world under the subsets of A1, A2, no detach overtaking, A5's order half and Z.
-- **Bounds:** each world's alphabet and the bounds the suite asserts.
-- **Axioms:** each subset in turn, as the property states.
-- **Method:** reachable states
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "an assumption only ever removes behavior: a property that holds under a set holds under every larger one"
-  - `lib/fv-worker-model.test.ts`: "A4 changes nothing for a shared worker: each transition it forbids has a twin no axiom forbids, so the plan's word on the shared exclusion stands"
-  - `lib/fv-worker-model.test.ts`: "the dedicated world is where A4 acts: a worker held at its attach and excluded ran nothing, under A4 and only under A4"
-  - `lib/fv-worker-model.test.ts`: "what the @11 rule rests on: in the small world, only on no detach overtaking; in the hold world, on A1 and A2 too, where @12 needs neither"
-- **Variants:**
-  - `lib/fv-worker-model.test.ts`: "the model catches a variant of the dedicated kernel: a released worker is excluded"
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
-
-### F4-BEYOND. What the empty row would take
-
-- **Property:** C1 (what the browser emitted before the freeze, and what the thread posted on hearing it, is processed before the settle bound) and D1 (all of that is processed before the page's frame tree answers) are not axioms of the plan, and each says only what it says: the exclusion rows need none of them, holding under no axiom with nothing to judge, since no shared worker is excluded; D1 closes the no-term row only in the hold and stream worlds, and over every world only Z, which says the mirror is current at the freeze, closes it. With Z alone assumed, the small world keeps the exclusion rows. The named trace, a worker that ran unobserved before the freeze and that the mirror does not yet call late, is reachable, frozen as held, as reaching and by the second pass, with the causes each set of switches leaves, and under no set of switches does it end in an exclusion.
-- **Code:** `lib/fv-worker-model.ts`, over the real kernels.
-- **Domain:** Every event order in the alphabets of the shared worlds and the small world, under each switch set the tests name.
-- **Bounds:** each world's alphabet and the bounds the suite asserts.
-- **Axioms:** the plan's axioms with C1, D1 and Z as each test names them; none of C1, D1 and Z is a fact of Chromium.
-- **Method:** reachable states
-- **Not claimed:** That Z holds of a browser: that the empty row holds under Z shows only that it has no other way to fail. The small-world clause is checked by the production pass that opens each named member's test. Through fingerprint-observer@13 the exclusion rows failed with C1 and D1 on top of every axiom; row F4-NOEXCL holds that rule, put back, to those rows.
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "beyond the plan's axioms: C1, D1 and Z are not axioms, and each says only what it says"
-  - `lib/fv-worker-model.test.ts`: "the named trace is reachable, frozen as held, as reaching, and by the second pass, and A5's latency half closes one of its causes in two of those forms"
-  - `lib/fv-worker-model.test.ts`: "the named trace asks that the worker ran unobserved: an ordinary hold, which ran with its observer in, is not it, and the same with its install failed is"
-- **Variants:**
-  - `lib/fv-worker-model.test.ts`: names beginning "the model catches a variant of the kernels"
-- **Members:**
-  - "the @11 shared rule is restored: a worker gone held is excluded"
-  - "a worker the mirror knows is late is excluded"
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
-
-### F4-WORLD. The model's ground truth and bounds are its own
-
-- **Property:** A fold of the labels alone agrees with the model's ground truth on every state of every shared world; before the drain ends, states that differ only in what the mirror, the readout and the port hold have the same world moves, in the hold and stream worlds; each world has exactly the kinds of step written out by hand; each queue is overtaken only as far as the suite states in the hold and stream worlds and `TWO_WORKER_WORLD`, and in the hold world only with its axiom off; the narrowings a review tried are transitions; the port bound of `TWO_WORKER_WORLD` is reached; and no state short of a finished readout is stuck in the hold and stream worlds and `TWO_WORKER_WORLD` under any of the switch sets the suite lists (none, the plan's axioms, those with C1, with D1, with both, and with Z too).
-- **Code:** `lib/fv-worker-model.ts`.
-- **Domain:** Every reachable state of each world named, under no assumption and under the switch sets named.
-- **Bounds:** each world's alphabet; in `TWO_WORKER_WORLD`, a move that would leave more reports on the port than its bound is cut, so that world is left out of the world-move check.
-- **Axioms:** none, and the plan's axioms where a test names them.
-- **Method:** reachable states
-- **Not claimed:** The state and transition counts the suite pins are change detectors. Where in a trace each kind of step can happen is not held, beyond the narrowings written out.
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "the worlds reach exactly these states and transitions, under no assumption and under the plan's axioms"
-  - `lib/fv-worker-model.test.ts`: "each world has exactly these kinds of step, written out by hand and not read off the model"
-  - `lib/fv-worker-model.test.ts`: "each queue can be overtaken this far and no further, and only with its axiom off"
-  - `lib/fv-worker-model.test.ts`: "each narrowing a kind of step could hide is a transition: an install evaluated at a statement's pause, a quick life after the breakpoint's answer, a dependency's pause with no other client"
-  - `lib/fv-worker-model.test.ts`: "at most four reports wait on the port in the two-worker world, and four do"
-  - `lib/fv-worker-model.test.ts`: "every world reaches each term it is meant to, and no state short of a finished readout is stuck under any assumptions"
-  - `lib/fv-worker-model.test.ts`: "both workers land in the two-worker world"
-  - `lib/fv-worker-model.test.ts`: "the ground truth is the world's own: a fold of the labels alone agrees with the model on every state of every shared world"
-  - `lib/fv-worker-model.test.ts`: "the fold fires: a model that forgets at the freeze that its worker ran unobserved parts from it"
-  - `lib/fv-worker-model.test.ts`: "the world's moves are its own: before the drain ends, states that differ only in what the mirror, the readout and the port hold have the same world moves"
-  - `lib/fv-worker-model.test.ts`: "the world-move check fires: a worker that may end only while the mirror does not say held is caught"
-  - `lib/fv-worker-model.test.ts`: "the two a held worker could stop at are in the world: a statement with no observer in, and a later script"
-- **Variants:** none: the fold and the world-move check each have a self-test above that shows it fires.
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
-
-### F4-HARNESS. The search and the replay check themselves
-
-- **Property:** A set of assumptions blocks a transition if any one of its axioms forbids it; the input automaton closes over what a side does not hear, counts and covers what it does, and refuses a model that is not a function of what a side hears; the search refuses a move that leaves a state of another size; each check a replay leans on fires when what it counts falls short, and passes when nothing does.
-- **Code:** the search and automaton in `lib/fv-worker-model.ts` and the replay in `lib/fv-worker-model-replay.ts`.
-- **Domain:** The small graphs and cases the tests write out by hand.
-- **Bounds:** none beyond those cases.
-- **Axioms:** none
-- **Method:** sampled
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "a set of assumptions blocks a transition if any one of its axioms forbids it"
-  - `lib/fv-worker-model.test.ts`: "each check a replay leans on fires when what it counts falls short, and passes when nothing does"
-  - `lib/fv-worker-model.test.ts`: "the input automaton closes over what a side does not hear, and counts and covers what it does"
-  - `lib/fv-worker-model.test.ts`: "the input automaton refuses a model that is not a function of what a side hears"
-  - `lib/fv-worker-model.test.ts`: "the search refuses a move that leaves a state of another size, which would split one state in two"
-- **Variants:** none: these are the harness's own cases, written out by hand, and the replay's checks are shown to fire on what they count falling short.
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
-
-### F4-TRACE. The real thread, mirror and readout follow the model
-
-- **Property:** The real attacher thread hears every sequence it can hear in the hold and stream worlds, with no axiom assumed, and posts and sends what the model says at each step; the real mirror and readout hear every sequence they can hear with the port in order and land where the model says, and with the port out of order and the thread dead take every transition of what they can hear; through the real thread, its in-process transport, the real mirror and the real readout, a set of traces takes every transition of what all of it hears; in the world of `TWO_WORKER_WORLD` each side takes every transition of what it hears and both together reach every landing; the real session, installer and readout hear every sequence of the dedicated world, and under A4 keep every property of the dedicated world by the world's facts; each word the model drops, the real thread makes nothing of, from that state on, but a late worker's own stream, which it forwards; on a scripted broken hold, the real path keeps `excluded-implies-no-unobserved-page-code-before-the-freeze` and `read-implies-the-observer-preceded-every-statement`, and a worker running at its attach whose late the mirror heard lands in a term; each row's need goes through the real code, and the term the real readout counted breaks the property the model says it breaks, except on the trace for `a-worker-that-ran-before-the-freeze-lands-in-a-term`, where the model's term is nowhere and is judged as the model gives it, so that test depends on none of the readout's term counts: among what it holds are the real mirror against the model (the installer's install counts included) and that the real drain had not ended at each label before the last, and that it ended; the landing is not compared on those traces.
-- **Code:** `sharedWorkerAttacherThread`, `SharedWorkerVisitChannel` and `inProcessAttacherTransportForTests` in `lib/shared-worker-attacher.ts`, the readout in `lib/worker-fingerprint-realm.ts`, `DedicatedWorkerAttachSession` in `lib/devtools-worker-channel.ts`, and the replay in `lib/fv-worker-model-replay.ts`.
-- **Domain:** The model's traces of each world, each replayed in one process over a stand-in socket and patched timers, with the port a queue in the harness; the scripted traces the tests write out.
-- **Bounds:** every sequence where a test says every sequence, and otherwise a set of traces that takes every transition of the side's input automaton.
-- **Axioms:** Each side's next output is a function of what it has heard, which is checked of the model only; at the level of socket frames it is false of the code. The traces through both sides together assume the plan's axioms with C1 and D1, and the dropped words are delivered with A1 assumed.
-- **Method:** trace conformance
-- **Not claimed:** A passing replay is no evidence about classification, since both sides call the real kernels; that evidence is CL8a. A set that takes every transition stands for every trace only if the code's next output depends on nothing outside the automaton's state. The replay runs the model's traces only, so it says nothing of what the real code does on a sequence the model has no move for: the model leaves out a command's own timeout, so a held worker's install that settles after its detach, after which the real thread posts installed and then released, is reached by no trace that assumes no detach overtaking, and by the others only when the install's answer was already on its way.
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "replay: the real thread hears every sequence it can hear in the hold world, with no axiom assumed, and posts and sends what the model says"
-  - `lib/fv-worker-model.test.ts`: "replay: the real thread hears every sequence it can hear from a worker's release on, with no axiom assumed"
-  - `lib/fv-worker-model.test.ts`: "replay: the real mirror and readout hear every sequence they can hear with the port in order, and land where the model says"
-  - `lib/fv-worker-model.test.ts`: "replay: with the port out of order and the thread dead, the real mirror and readout take every transition of what they can hear"
-  - `lib/fv-worker-model.test.ts`: "replay: through the real thread, its in-process transport, the real mirror and the real readout, a set of traces takes every transition of what all of it hears"
-  - `lib/fv-worker-model.test.ts`: "replay: the two-worker world, each side by every transition of what it hears, and both at once to every landing"
-  - `lib/fv-worker-model.test.ts`: "replay: the real session, installer and readout hear every sequence of the dedicated world"
-  - `lib/fv-worker-model.test.ts`: "replay: each word the model drops, the real thread makes nothing of, from that state on through every transition, in the hold and stream worlds"
-  - `lib/fv-worker-model.test.ts`: `the table's need, of the real code: ${property} in the ${world.name} world, under ${assumptions.join(" ")}`
-  - `lib/fv-worker-model.test.ts`: "the @11 rule, in the real readout, is caught by the world's facts on a worker that ran and went away held"
-- **Variants:**
-  - `lib/fv-worker-model.test.ts`: names beginning "the replay catches a variant"
-  - `lib/fv-worker-model.test.ts`: "the world's facts catch a thread that takes no resume for a broken hold, as a worker read though it ran unobserved"
-  - `lib/fv-worker-model.test.ts`: "the replay catches a variant of the thread: a resume, or a pause at a statement, behind the install's answers breaks the hold"
-  - `lib/fv-worker-model.test.ts`: "the replay catches a variant of the thread: a pause at a statement after the install's answers breaks the hold"
-  - `lib/fv-worker-model.test.ts`: "the replay catches a variant of the main thread: late is not terminal, once the port is out of order"
-  - `lib/fv-worker-model.test.ts`: "the whole replay catches a variant of the thread: a report that says more than the main side's own replay words"
-  - `lib/fv-worker-model.test.ts`: "the replay catches a variant of the dedicated readout: an install's late answer upgrades a worker the pause bound concluded"
-  - `lib/fv-worker-model.test.ts`: "the replay catches a variant of the dedicated channel: a detach before the resume is not taken as dying paused"
-  - `lib/fv-worker-model.test.ts`: "the world's facts catch a readout that lands a worker in no term, as one that ran before the freeze"
-  - `lib/fv-worker-model.test.ts`: "the world's facts catch a dedicated install whose late answer upgrades a worker the pause bound concluded, as a read of one that ran unobserved"
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
-
-### F4-HAND. What lies outside the model's alphabet, by hand
-
-- **Property:** Words and bounds outside the model's alphabet go through the real thread as the tests write them out, including a hold's default bound and the commands a visit may send.
-- **Code:** `sharedWorkerAttacherThread` in `lib/shared-worker-attacher.ts`.
-- **Domain:** The cases the tests write out.
-- **Bounds:** none beyond those cases.
-- **Axioms:** none
-- **Method:** sampled
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: `by hand, through the real thread: ${name}`
-  - `lib/fv-worker-model.test.ts`: "by hand, through the real thread: a hold's bound is 3 seconds when nothing else is asked"
-- **Variants:** none: each templated case catches its own variant of the thread inside the test, and the hold's default bound is read directly.
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
-
-### F4-ARM. The arming's answer, not a parse's place, says a script came first
-
-- **Property:** In the hold world, a worker whose arming's answer lists a script and whose probe is answered with no pause ahead of it is posted late, whether that script's parse is heard ahead of the answer, behind it or never; with the main-script pause ahead of the probe's answer it is held, and the probe's answer then posts nothing; a worker listed nothing, whose parse is heard behind the answer, is sent no probe and is held at its pause; and a worker gone with a script listed and no parse heard is not posted as ended unreached.
-- **Code:** the world and the thread of `lib/fv-worker-model.ts`.
-- **Domain:** The traces of the hold world the tests write out by hand, walked under the plan's axioms.
-- **Bounds:** none beyond those traces.
-- **Axioms:** A1 as stated above, which leaves a script's parse out: the tests walk the parse ahead of the arming's answer, behind it and absent.
-- **Method:** sampled
-- **Not claimed:** That a browser lists a script it compiled before the breakpoint: what Chromium answers the question is measured, not checked here. A question that cannot say (refused, unanswered at its bound, or answered with no list) lies outside the model's alphabet, and `lib/shared-worker-attacher.test.ts` writes those cases out against the real thread.
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "the arming's answer lists a script from before the breakpoint whichever way its parse comes, ahead of the answer, behind it or never, and with no pause ahead of the probe's answer the worker is late"
-  - `lib/fv-worker-model.test.ts`: "a script listed and a main-script pause ahead of the probe's answer is a hold, and the probe's answer then posts nothing"
-  - `lib/fv-worker-model.test.ts`: "a worker gone with a script listed and no parse heard is not one that ended unreached"
-- **Variants:**
-  - `lib/fv-worker-model.test.ts`: "the replay catches a thread that still takes the question away from a worker with its first pause, once a session's words are out of order"
-- **Commit:** abd47988fe67e95144e012c4ebc2d33d8ee7adaa
-
-### F4-ARRIVAL. The thread acts on a read's words in the order they arrived
-
-- **Property:** The real attacher thread hears the sequences of the hold and stream worlds, and a set of traces that takes every transition of what it hears in the world of `TWO_WORKER_WORLD`, with as many words to a read as could have arrived together, each read delivered back to back in the same task with no promise reaction between its words, and posts and sends what the model says of the same words heard each in a task of its own, in the same order; a word that waits its turn in a read keeps the receive time it arrived with, the replay's clock having moved on before the word is acted on.
-- **Code:** `sharedWorkerAttacherThread` in `lib/shared-worker-attacher.ts`, and `hearInOneRead` and `couldArriveInARead` in `lib/fv-worker-model-replay.ts`.
-- **Domain:** The sequences the thread can hear in the hold and stream worlds with no axiom assumed, and the set for the world of `TWO_WORKER_WORLD`, each cut into reads by this rule: a read is extended while the next word is such that the browser could have sent it before the thread acted on the read's first word, and holds no second pause at the main script.
-- **Bounds:** the cut that rule gives, and no other; a step that is no word on a session has a task of its own.
-- **Axioms:** none: A1 is an order of arrival, and this row is about what the thread does with the order it is given.
-- **Method:** trace conformance
-- **Not claimed:** That a socket hands over a read's frames in the same task with no reaction between them: that is measured of Node's WebSocket and checked nowhere here. Cuts between the cut replayed and a task to each word. The thread's handling of an event settles no promise except where the thread marks it itself; those cases, a breakpoint refused or unanswered, and the connection's end behind a read's frames lie outside the model's alphabet, and `lib/shared-worker-attacher.test.ts` writes them out against the real thread. A command's own bound is no frame and is acted on when it fires, so an answer waiting its turn at that instant is not heard.
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "replay, in reads: the real thread hears every sequence of the hold and stream worlds, and a set that takes every transition of the two-worker world, with as many words to a read as could arrive together, and posts and sends what the model says of them one at a time"
-- **Variants:**
-  - `lib/fv-worker-model.test.ts`: names beginning "the replay in reads catches a variant of the thread"
-- **Commit:** 2912f66aab21a93138b51efb750f9f7924fb112b
-
-### F4-NOEXCL. No shared worker is excluded, whatever ran before the freeze
-
-- **Property:** In each shared world and the small world, under no assumption, no worker lands in an exclusion, and each world but the stream world lands some worker as a hold the freeze cannot place. Each trace pinned open through fingerprint-observer@13 as a worker excluded though it ran lands an unread realm with nothing broken by the world's facts, in the model and through the real thread, mirror and readout with each exclusion row required of them: a release a single hop from the mirror at the freeze, frozen as held, as reaching and read by the second pass; a failed install in that window; a worker held at the freeze and at the bound with its late on the port, posted after the freeze, or its resume still on the socket; a worker whose hold's bound fires first; a worker whose connection closes behind it; and a worker attached after the freeze by the mirror's clock and released, with another worker's drain open. Each form of the named trace goes through the real code and lands an unread realm. With @13's exclusions put back, each of those traces is excluded again by the real code and caught by the row it broke, and each of those exclusions put back alone is caught by the model.
-- **Code:** the readout's kernels in `lib/worker-fingerprint-realm.ts`, as `lib/fv-worker-model.ts` calls them; and, for the traces, `sharedWorkerAttacherThread` and `SharedWorkerVisitChannel` in `lib/shared-worker-attacher.ts`, the readout in `lib/worker-fingerprint-realm.ts` and the replay in `lib/fv-worker-model-replay.ts`.
-- **Domain:** Every reachable state of the hold world, the stream world, the world of `TWO_WORKER_WORLD` and `SMALL_WORLD`, under no assumption; the written-out traces of the hold world, each walked transition by transition under the axioms it names; the first trace the search finds to each form of the named trace, and to a worker of `TWO_WORKER_WORLD` that ran before the freeze, was attached after it by the mirror's clock and landed by the drain's end with the attacher alive.
-- **Bounds:** each world's alphabet and the bounds the suite asserts; a single trace for each written-out case and each form.
-- **Axioms:** none for the reachable states. Each written-out trace assumes the axioms it names, which only say that the model allows the trace under them; the landing needs none.
-- **Method:** reachable states, trace conformance
-- **Not claimed:** That a worker landed as a hold the freeze cannot place ran before the freeze: in the model a worker that ran nothing lands so too, which is the cost of the rule. A worker the readout never heard of, which lands in no term (OPEN-F4.3). That a browser produces any of these traces, or how often. The exclusion rows hold of the model with nothing to judge, so the table (F4-TERM, F4-BEYOND) is no evidence for them: the evidence is the put-back rule being caught. A replay of `TWO_WORKER_WORLD` cannot tell which worker a stray exclusion belongs to, so the second pass put back alone is held by the model in the hold world and not by that replay.
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "no shared worker is excluded in any world, under no assumption, and each world but the stream's lands one as a hold the freeze cannot place"
-  - `lib/fv-worker-model.test.ts`: `F4, closed at fingerprint-observer@14 (${kind}): ${name}`
-  - `lib/fv-worker-model.test.ts`: "F4, closed at fingerprint-observer@14 (implementation): attached after the freeze by the mirror's clock and released, having run before the freeze, with another worker's drain open, is an unread realm"
-  - `lib/fv-worker-model.test.ts`: `the named trace frozen as ${form}, with ${cause}, goes through the real code: the real readout counts a worker that ran unobserved as an unread realm, where @13's rule excludes it`
-- **Variants:**
-  - `lib/fv-worker-model.test.ts`: names beginning "the model catches fingerprint-observer@13's rule put back"
-  - `lib/fv-worker-model.test.ts`: "a thread that drops a broken hold's late no longer gets its worker excluded: the landing catches the drop, and under @13's rule the world's facts catch it as a worker excluded though it ran unobserved"
-- **Commit:** 2b6189b38f851e7c155d09c64591b1ea25df04bd
-
-### F4-LATE. A dedicated worker already running at its attach is never excluded
-
-- **Property:** In the dedicated world, under no assumption, no worker that was already running when it attached lands in an exclusion. The traces pinned open through fingerprint-observer@13 land attached late, an unread realm, in the model and through the real session, installer and readout: a worker read inside the round trip that arms the recursion, and a worker gone in that round trip and read after it. With @13's rule put back for each (an attached worker with no record counted as held, and a detach before the channel's resume taken as dying paused whatever the attach said), the real readout excludes the worker again and the world's facts catch it.
-- **Code:** the readout and `freezeDedicatedRealm` in `lib/worker-fingerprint-realm.ts`, `DedicatedWorkerAttachSession` in `lib/devtools-worker-channel.ts`, the dedicated model in `lib/fv-worker-model.ts` and its replay in `lib/fv-worker-model-replay.ts`.
-- **Domain:** Every reachable state of the dedicated world, a single worker on the main thread's channel; the written-out traces, each replayed in the test's own process over a stand-in channel.
-- **Bounds:** the dedicated world's alphabet; the traces the test writes out.
-- **Axioms:** none for the reachable states; the written-out traces are walked under A4, which removes no step of either.
-- **Method:** reachable states, trace conformance
-- **Not claimed:** How often a dedicated worker attaches already running, which is not measured. A worker attached in the drain, which the dedicated model has no state for, since its worker's drain ends at the freeze when nothing has been heard: CL7-D holds that case of the real readout. That the attach's word on whether the worker waits for the debugger is true of the worker.
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "closed at fingerprint-observer@14 (dedicated): a worker already running when it attached is an unread realm inside the arming's round trip, and gone in it, where @13 excluded it"
-- **Variants:** none: the test itself puts each of fingerprint-observer@13's rules back and requires the world's facts to catch the exclusion.
-- **Commit:** 2b6189b38f851e7c155d09c64591b1ea25df04bd
 
 ## Claims from F5: the case machine, its purge slice and the fold
 
@@ -1349,75 +834,7 @@ report facts, and RC-A holds the activity slice with them in it.
 - **Variants:** none: each test compares the walk with production, or with a list the suite writes out.
 - **Commit:** bc1ff528b0e014a59e50b354ab3f6edc28b0fb8b
 
-## Claims from the TLA+ specifications
-
-### TLA-HOLD. The hold's specification and the hand-written model agree
-
-- **Property:** In each shared world, the specification and the hand-written model take the same steps under every set of switches and land every worker the same way. The rows TLC found broken under each set of switches are the rows the model's own verdicts break. The axiom table TLC found is the register's.
-- **Code:** `specs/worker-hold/WorkerHold.tla` and `specs/worker-hold/WorkerHoldTable.tla`, against `lib/fv-worker-model.ts`.
-- **Domain:** The hold world, the stream world, the world of `TWO_WORKER_WORLD` and `SMALL_WORLD`, each under each of the 512 sets of switches.
-- **Bounds:** Each world's own, as F4-WORLD states them.
-- **Axioms:** The switches a set assumes. None is a fact of Chromium, and no run measures one.
-- **Method:** model checked, exhaustive
-- **Not claimed:** A second reading of what the worlds should be: the specification was written with the model open and takes its worlds and its step names. That the graphs of the specification and the model are the same edge by edge: they are compared by digests cut to 128 bits. The dedicated world, and the second half of F4-TERM, which the specification does not state. The cells where a row has nothing to judge and so passes whatever the protocol does: both exclusion rows in every world, F4-READ and the no-term row in the stream world, and F4-AGE in each world with no stream. No configuration lists them, and that such a cell of the F4 table reads as holding under no axiom carries no information; TLA-HOLD-N holds which cells they are. That TLC ran at the commit that holds this file: the unit suite reads the committed export, and the workflow `.github/workflows/tla-checks.yml` compares it with TLC on each push to `main`.
-- **Tests:**
-  - `scripts/tla-worker-hold-conformance.test.mjs`: `the hand-written model and the specification take the same steps under every set of switches, and land every worker the same way, in the ${world} world`
-  - `scripts/tla-worker-hold-conformance.test.mjs`: `under each of the 512 sets of switches, the rows the model's own verdicts break are the rows TLC found broken, in the ${world} world`
-  - `scripts/tla-worker-hold-conformance.test.mjs`: "the axiom table TLC found is the register's: each row's smallest sets of the plan's axioms, in each shared world"
-  - `scripts/tla-worker-hold-conformance.test.mjs`: "TLC's own verdict on each row, as an invariant under each set of switches the register names, is the register's"
-- **Variants:** none: the specification's seeded faults (`scripts/tla-worker-hold-mutations.mjs`) need TLC and run in the hosted workflow.
-- **Commit:** 1e9876569068656f89fca24a35eceef0a60bf5a9
-
-### TLA-HOLD-L. A hold row is listed only where it has something to judge
-
-- **Property:** A row is listed as holding only where it has something to judge: each of its companions is reached there, by TLC's own run and in the hand-written model's graph.
-- **Code:** `specs/worker-hold/WorkerHold.tla`, against `lib/fv-worker-model.ts`.
-- **Domain:** Each cell of the export script's table and each committed configuration, in each shared world of TLA-HOLD.
-- **Bounds:** Each world's own, as F4-WORLD states them.
-- **Axioms:** The switches a cell or a configuration assumes. None is a fact of Chromium, and no run measures one.
-- **Method:** model checked, exhaustive
-- **Not claimed:** Where a row is listed, TLC reached its subject and what would break it; that shows the row can be judged there, not that a fault would be caught. That TLC ran at the commit that holds this file, as TLA-HOLD says.
-- **Tests:**
-  - `scripts/tla-worker-hold-conformance.test.mjs`: "a row is listed as holding only where it has something to judge: each of its companions is reached there, by TLC's own run and in the hand-written model's graph"
-- **Variants:** none: the specification's seeded faults (`scripts/tla-worker-hold-mutations.mjs`) need TLC and run in the hosted workflow.
-- **Commit:** 2bd2af881f98b2ba13c9641156bc89b1847c38cb
-
-### TLA-HOLD-N. Where a hold row has nothing to judge, and no shared worker is excluded
-
-- **Property:** No worker of any world is excluded, so neither exclusion row has a worker to judge anywhere; in the stream world no worker lands nowhere or runs unobserved, and outside it no read is of a realm past its first snapshot; every other row can be judged in every world. A row with nothing to judge in a world is in no cell and no committed configuration of that world. In each world TLC held `NoWorkerExcluded` with nothing assumed, and the hand-written model's graph has no excluded landing. In TLC's table A4 changes no verdict, no set of switches breaks an exclusion row, D1 closes the no-term row only where the tree is waited for, and only Z closes it everywhere. The named trace is reachable in TLC's table, frozen as held, as reaching and by the second pass, with the causes each set of switches leaves, and lands unread as a hold the freeze cannot place; replayed through the real thread, mirror and readout, each kept named trace lands so and is not excluded.
-- **Code:** `specs/worker-hold/WorkerHold.tla` and `specs/worker-hold/WorkerHoldTable.tla`, against `lib/fv-worker-model.ts`; for the replays, `lib/shared-worker-attacher.ts`, the readout in `lib/worker-fingerprint-realm.ts` and `lib/fv-worker-model-replay.ts`.
-- **Domain:** Each row in each shared world of TLA-HOLD and the small world, with no switch assumed; TLC's table of the hold world under each set of switches; the named traces the export keeps, by form, by cause and by whether the worker ends released or still held.
-- **Bounds:** Each world's own, as F4-WORLD states them; the kept traces are those the export script selects.
-- **Axioms:** none for the rows with nothing to judge; each kept trace assumes the switches it names.
-- **Method:** model checked, exhaustive, trace conformance
-- **Not claimed:** Anything of a row in a cell this row names: such a row passes there whatever the protocol does, so that the exclusion rows hold is no evidence for them. The evidence that they can still fail is the seeded faults: of the specification, which need TLC and run in the hosted workflow, and of the real readout, in the Variants. Which kept trace ends released and which still held is told by a label test in the export script that TLC does not check. That TLC ran at the commit that holds this file, as TLA-HOLD says.
-- **Tests:**
-  - `scripts/tla-worker-hold-conformance.test.mjs`: "where a row has nothing to judge: no worker of any world is excluded; in the stream world none lands nowhere or runs unobserved; outside it no read is of a realm past its first snapshot; every other row can be judged in every world"
-  - `scripts/tla-worker-hold-conformance.test.mjs`: `no shared worker is excluded in the ${world} world, under any set of switches: TLC held NoWorkerExcluded with nothing assumed, the model's graph has no excluded landing, and both exclusion rows are listed nowhere`
-  - `scripts/tla-worker-hold-conformance.test.mjs`: "F4-TABLE and F4-BEYOND, from TLC's table: A4 changes no verdict, no set of switches breaks an exclusion row now that no shared worker is excluded, D1 closes the no-term row only where the tree is waited for, and only Z closes it everywhere"
-  - `scripts/tla-worker-hold-conformance.test.mjs`: "the named trace, from TLC's table: reachable, and unread as a hold the freeze cannot place, frozen as held, as reaching and by the second pass, with the causes each set of switches leaves"
-  - `scripts/tla-worker-hold-conformance.test.mjs`: `the named trace as ${form}, ${NAMED_END[end]}, under ${assumed.join(" ")} goes through the real code: the real readout lands a worker that ran unobserved as unread, a hold the freeze cannot place, and does not exclude it (${index})`
-- **Variants:**
-  - `scripts/tla-worker-hold-conformance.test.mjs`: names beginning "the replay of TLC's named traces catches a variant of the real readout by an exclusion row"
-- **Commit:** 2b6189b38f851e7c155d09c64591b1ea25df04bd
-
-### TLA-HOLD-R. The real thread, mirror and readout follow TLC's kept traces
-
-- **Property:** Replayed through the real thread, mirror and readout, each kept trace that covers a world's labels or breaks a row gives at each step what the specification gives. The named traces are row TLA-HOLD-N's.
-- **Code:** The attacher's thread, the mirror and the readout, through `lib/fv-worker-model-replay.ts`.
-- **Domain:** The traces the export keeps: the covering traces of each world, which take each label the world has under the plan's axioms with C1 and D1 once; a trace for each row the register says fails; and a trace for each form of the named trace.
-- **Bounds:** Those traces and no others.
-- **Axioms:** As each trace's set of switches.
-- **Method:** trace conformance, sampled
-- **Not claimed:** A label a world takes only with fewer switches assumed. The suite pins two seeded faults of the real thread that this replay does not detect: one on a word the model drops, and one that needs a session's words out of order at one point.
-- **Tests:**
-  - `scripts/tla-worker-hold-conformance.test.mjs`: `TLC's traces replay through the real thread, mirror and readout: every label the ${world} world takes under the plan's axioms with C1 and D1`
-  - `scripts/tla-worker-hold-conformance.test.mjs`: `TLC's trace that breaks ${row} in the ${world} world under ${assumed.join(" ") || "nothing"} goes through the real code, and the real readout's term breaks it too (${index})`
-  - `scripts/tla-worker-hold-conformance.test.mjs`: "the kept traces are the ones the suite replays: each row the register says fails has its trace, and the named trace each of its forms"
-  - `scripts/tla-worker-hold-conformance.test.mjs`: "what the kept traces cannot tell from the real thread: a fault on a word the model drops, and one that needs a session's words out of order at one point"
-- **Variants:**
-  - `scripts/tla-worker-hold-conformance.test.mjs`: names beginning "the replay of TLC's traces catches a variant of the real thread:"
-- **Commit:** 1e9876569068656f89fca24a35eceef0a60bf5a9
+## Claims from the TLA+ specification
 
 ### TLA-CASE. The real case machine's transitions are the specification's
 
@@ -1442,19 +859,18 @@ report facts, and RC-A holds the activity slice with them in it.
   - `scripts/tla-case-machine-conformance.test.mjs`: "the relation check passes the real machine on the plan the variants run on"
 - **Commit:** 7326be58c59b405a10390d77af5af724e1518090
 
-### TLA-EXPORT. Each committed export names what wrote it
+### TLA-EXPORT. The committed export names what wrote it
 
-- **Property:** Each specification's committed export names the script that wrote it and the files it was written from, and each of those files still has the digest the export records. The hold's export has the worlds of the hand-written model.
-- **Code:** `specs/worker-hold/conformance.json` and `specs/case-machine/conformance.json` as data, read by `scripts/tla-tools-lib.mjs`.
-- **Domain:** The files each export names: the export script and the modules it imports, the specification's files and the committed configurations.
+- **Property:** The specification's committed export names the script that wrote it and the files it was written from, and each of those files still has the digest the export records.
+- **Code:** `specs/case-machine/conformance.json` as data, read by `scripts/tla-tools-lib.mjs`.
+- **Domain:** The files the export names: the export script and the modules it imports, the specification's files and the committed configurations.
 - **Bounds:** none beyond those files.
 - **Axioms:** none
 - **Method:** exhaustive
-- **Not claimed:** That an export is what TLC writes: the hosted workflow compares each with TLC's own output, as TLA-HOLD and TLA-CASE say, and the unit suite runs no TLC.
+- **Not claimed:** That an export is what TLC writes: the unit suite runs no TLC.
 - **Tests:**
-  - `scripts/tla-worker-hold-conformance.test.mjs`: "the committed export names the script that wrote it and the files it was written from, each still has the digest it records, and its worlds are the hand-written model's"
   - `scripts/tla-case-machine-conformance.test.mjs`: "the committed export names the script that wrote it and the files it was written from, and each still has the digest it records"
-- **Variants:** none: the suites seed no fault of an export.
+- **Variants:** none: the suite seeds no fault of an export.
 - **Commit:** abddd5766fdb5ea7aa7d12ab69dab13067b2bb2a
 
 ## Claims from the trust kernel
@@ -1536,73 +952,6 @@ lie outside these rows. Nothing calls the kernel's canonical JSON.
 Each finding below is pinned by a test as the code behaves, not as it should.
 None is claimed, and none is fixed: changing one moves what a report means,
 which is the owner's call.
-
-### OPEN-RA6.1. A worker's request takes the stack of an observation the page never reported
-
-- **Finding:** A worker's request in the check's scroll window takes the stack of an observation in the lead that the page never reported. This is where RA6's first axiom fails. Whether Chromium sends such an observation is not measured.
-- **Tests:**
-  - `lib/scroll-check-stacks.test.ts`: "open (RA6): a worker's request in the window takes the stack of an observation in the lead that the page never reported"
-- **Commit:** 8cd96197eb96efc3dcd38efbb7dbf18876ec0093
-
-### OPEN-RA6.2. A worker's request takes the stack of a request reported after the evidence
-
-- **Finding:** A worker's request in the window takes the stack of a later request whose page event comes after the evidence is built. This is where RA6's last axiom fails. Whether Chromium produces it is not measured.
-- **Tests:**
-  - `lib/scroll-check-stacks.test.ts`: "open (RA6): a worker's request in the window takes the stack of a later request whose page event comes after the evidence"
-- **Commit:** 0931b39082ba9e682e9b9ac0cded7da38b483930
-
-### OPEN-F3.1. One frame on a host with a leading dot costs the check its stacks
-
-- **Finding:** A frame whose URL names a host with a leading dot makes the validator refuse its group, and the check drops every stack of every host. A page could hide its stacks this way; no count is wrong, and the check is in the immediate result only.
-- **Tests:**
-  - `lib/fv-scroll-producer.test.ts`: "open (RA4): one frame on a host with a leading dot costs the whole check its stacks"
-- **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
-
-### OPEN-F3.2. A listed host the validator refuses empties the check
-
-- **Finding:** A listed host with a leading dot, or one that publishes as the marker beside a host on another site, makes the validator refuse the window, and the whole check becomes a bare cut-short, in the immediate result only. Whether such a host can be sent and answered is not measured.
-- **Tests:**
-  - `lib/fv-scroll-producer.test.ts`: "open (RA4): a listed host the validator refuses turns the whole check into a bare cut-short"
-- **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
-
-### OPEN-F3.4. Within one address, an unwitnessed worker masks a witnessed one
-
-- **Finding:** From fingerprint-observer@15 the witness is joined to the workers that attached by script address (CL7-J), but within one address by number only, so a worker of that address the witness never saw, attached before the freeze or in the drain, stands in for a witnessed worker of the same address that never attached. This moves the readout's unread realms, which the suite's docblock says feed the published count. How often a witness and its attaches disagree this way within one address is not measured.
-- **Tests:**
-  - `lib/fv-worker-readout.test.ts`: "open (CL7): within one address, an unwitnessed worker, attached before the freeze or in the drain, masks a witnessed worker of that address that never attached"
-- **Commit:** 75c10ab9aad903132d2b02c3cd7122aee0ed8b27
-
-### OPEN-F3.5. A gap in the drain leaves a worker read at its older snapshot
-
-- **Finding:** A gap in the drain before the barrier's answer leaves the worker read at its older snapshot with no unread realm, where a gap before the call reads as a broken stream. It needs a lost or oversized emission, which the observer does not produce.
-- **Tests:**
-  - `lib/fv-worker-readout.test.ts`: "open (CL7): a gap in the drain before the barrier's answer leaves the worker read at its older snapshot"
-- **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
-
-### OPEN-F3.6. A worker an earlier installer still holds at a channel close reads excluded
-
-- **Finding:** A dedicated worker an earlier installer still holds when the channel closes reads excluded. The test's earlier installer holds until released; read again after, the worker reads lost with the channel. The suite reasons that the real GPC installer reads so only within the close's tick, in which no readout can start, so no saved report reads it.
-- **Tests:**
-  - `lib/fv-worker-readout.test.ts`: "open (CL8a): a dedicated worker an earlier installer still holds when the channel closes is excluded until its flow moves on"
-- **Commit:** 8d1ec26228f9e2a518f31150071da3a4ceed382c
-
-### OPEN-F4.3. A worker that ran can land in no term
-
-- **Finding:** The row `a-worker-that-ran-before-the-freeze-lands-in-a-term` holds under no subset of A1 to A5. A worker that ran lands in no term by the first way only in the model's alphabet, where discovery on the page's connection is a free step: production reads that discovery after the frame tree and counts a worker it found with no report as unattached, which is unread, so the first way needs the frame tree ahead of the discovery, one order on one connection. The other way the row fails is the page's channel lost at the freeze, when the frame tree comes back at once. Pinned beside it, outside the row (which asks only while the attacher lives): an attach lost with the attacher's connection, with no discovery. Each pin is replayed through the real code. Ordering inside Chromium is not read.
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: `open (F4, ${kind}): ${name}, which rests on ${rests}`
-  - `lib/fv-worker-model.test.ts`: "open (F4, environment axiom): with the page's channel lost at the freeze, a worker that ran, with its attach on the port, lands in no term"
-- **Cases:**
-  - "a worker that ran, whose attach is on the port when the frame tree answers, lands in no term"
-  - "a worker whose attach went down with the connection, which ran when Chromium let it, lands in no term"
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
-
-### OPEN-F4.5. A detach that overtakes a worker's last emission
-
-- **Finding:** If a detach can overtake a resume, it can overtake a last emission, and @12 then reads a gone worker at the snapshot before it, short of its last task. It can reach a saved report. Whether a detach overtakes is the plan's ordering study, not measured.
-- **Tests:**
-  - `lib/fv-worker-model.test.ts`: "open (A3): a worker whose detach overtakes its last emission is read at the snapshot before it"
-- **Commit:** 5aea6d6120edcb929a3576b502cd2f5a638115d3
 
 ### OPEN-IP4.1. Anycast addresses the registry marks reachable read as not public
 
