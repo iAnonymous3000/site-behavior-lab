@@ -592,12 +592,12 @@ export function CorpusExplorerV3() {
                     <td>
                       <a
                         href={resolveV3DynamicPageUrl(`/v3/reports/${row.reportId}`, V3_LOCATION)}
-                        style={{ fontWeight: 600, color: "var(--accent-strong)" }}
+                        style={{ fontWeight: 600, color: "var(--a-link)" }}
                       >
                         {row.canonicalDomain}
                       </a>
                       {row.topHighlight && (
-                        <div style={{ color: "var(--text-muted)", maxWidth: 320 }}>{row.topHighlight}</div>
+                        <div style={{ color: "var(--a-slate)", maxWidth: 320 }}>{row.topHighlight}</div>
                       )}
                     </td>
                     <td className={styles.mono}>{row.egressRegion}</td>

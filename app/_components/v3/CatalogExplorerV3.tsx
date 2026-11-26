@@ -5,7 +5,12 @@ import { LIVE_SCAN_API_BASE, STATIC_BASE_PATH, STATIC_EXPORT } from "@/app/clien
 import styles from "@/app/v3/v3.module.css";
 import { resolveV3ApiUrl, resolveV3DynamicPageUrl } from "@/lib/v3/client-urls";
 import type { CatalogVendorEntryV3 } from "@/lib/v3/dev-mode";
-import type { EntityFootprintResultV3, EntityRegionV3, ServiceCategoryV3 } from "@/lib/v3/schema";
+import type {
+  EntityFootprintResultV3,
+  EntityRegionV3,
+  IndexedReportRowV3,
+  ServiceCategoryV3
+} from "@/lib/v3/schema";
 
 const V3_LOCATION = {
   staticExport: STATIC_EXPORT,
@@ -13,16 +18,84 @@ const V3_LOCATION = {
   basePath: STATIC_BASE_PATH
 };
 
+type StaticCorpusSnapshotForCatalog = {
+  schemaVersion: 1;
+  items: IndexedReportRowV3[];
+  entityDomains?: Record<string, string[]>;
+  parentOrgDomains?: Record<string, string[]>;
+};
+
+let cachedCatalogSnapshotPromise: Promise<StaticCorpusSnapshotForCatalog | null> | null = null;
+
+function loadCatalogSnapshotFallback(): Promise<StaticCorpusSnapshotForCatalog | null> {
+  if (!cachedCatalogSnapshotPromise) {
+    cachedCatalogSnapshotPromise = fetch(`${STATIC_BASE_PATH}/v3/corpus-snapshot.json`)
+      .then(async (resp) => {
+        if (!resp.ok) return null;
+        const parsed = (await resp.json()) as Partial<StaticCorpusSnapshotForCatalog>;
+        if (parsed?.schemaVersion !== 1 || !Array.isArray(parsed.items)) return null;
+        return parsed as StaticCorpusSnapshotForCatalog;
+      })
+      .catch(() => null);
+  }
+  return cachedCatalogSnapshotPromise;
+}
+
+function footprintFromSnapshot(
+  snapshot: StaticCorpusSnapshotForCatalog,
+  vendorName: string
+): EntityFootprintResultV3 {
+  const target = vendorName.trim().toLowerCase();
+  const domainSet = new Set<string>();
+  for (const [k, domains] of Object.entries(snapshot.entityDomains ?? {})) {
+    if (k.toLowerCase() === target) {
+      for (const d of domains) domainSet.add(d);
+    }
+  }
+  for (const [k, domains] of Object.entries(snapshot.parentOrgDomains ?? {})) {
+    if (k.toLowerCase() === target) {
+      for (const d of domains) domainSet.add(d);
+    }
+  }
+  const byDomain = new Map(snapshot.items.map((row) => [row.canonicalDomain, row]));
+  const sites = [...domainSet]
+    .map((domain) => {
+      const row = byDomain.get(domain);
+      if (!row) return null;
+      return {
+        canonicalDomain: row.canonicalDomain,
+        reportId: row.reportId,
+        scannedAt: row.scannedAt,
+        category: "tracked",
+        requestCount: Math.max(1, row.trackingRequests),
+        domainCount: Math.max(1, row.thirdPartyDomains)
+      };
+    })
+    .filter((s): s is NonNullable<typeof s> => s !== null)
+    .sort((a, b) => b.requestCount - a.requestCount || a.canonicalDomain.localeCompare(b.canonicalDomain));
+
+  const corpusSites = snapshot.items.length;
+  return {
+    name: vendorName.trim(),
+    totalSites: sites.length,
+    corpusSites,
+    prevalencePct: corpusSites > 0 ? Math.min(100, Math.round((sites.length / corpusSites) * 1000) / 10) : 0,
+    sites
+  };
+}
+
 export function CatalogExplorerV3({
   entries,
   parentOrgs,
   totalDomains,
-  initialEntity
+  initialEntity,
+  embedded = false
 }: {
   entries: CatalogVendorEntryV3[];
   parentOrgs: { parentOrg: string; entityCount: number; regions: EntityRegionV3[] }[];
   totalDomains: number;
   initialEntity?: string;
+  embedded?: boolean;
 }) {
   const [search, setSearch] = useState("");
   const [region, setRegion] = useState<EntityRegionV3 | "ALL">("ALL");
@@ -70,15 +143,20 @@ export function CatalogExplorerV3({
       try {
         const fetched = await Promise.all(
           missing.map(async (name) => {
-            const resp = await fetch(
-              resolveV3ApiUrl(`/api/v3/corpus?footprint=${encodeURIComponent(name)}`, LIVE_SCAN_API_BASE),
-              { signal: controller.signal }
-            );
-            if (!resp.ok) {
-              throw new Error(`Corpus lookup failed (HTTP ${resp.status})`);
+            try {
+              const resp = await fetch(
+                resolveV3ApiUrl(`/api/v3/corpus?footprint=${encodeURIComponent(name)}`, LIVE_SCAN_API_BASE),
+                { signal: controller.signal }
+              );
+              if (resp.ok) {
+                const data = (await resp.json()) as { footprint?: EntityFootprintResultV3 };
+                if (data.footprint) return [name, data.footprint] as const;
+              }
+            } catch (err) {
+              if (err instanceof DOMException && err.name === "AbortError") throw err;
             }
-            const data = (await resp.json()) as { footprint?: EntityFootprintResultV3 };
-            return data.footprint ? ([name, data.footprint] as const) : null;
+            const fallback = await loadCatalogSnapshotFallback();
+            return fallback ? ([name, footprintFromSnapshot(fallback, name)] as const) : null;
           })
         );
         if (cancelled) return;
@@ -89,6 +167,8 @@ export function CatalogExplorerV3({
             for (const [k, v] of additions) next[k] = v;
             return next;
           });
+        } else {
+          setLookupError("Live corpus lookup is currently unavailable.");
         }
       } catch (err) {
         if (!cancelled && !(err instanceof DOMException && err.name === "AbortError")) {
@@ -135,58 +215,70 @@ export function CatalogExplorerV3({
   }, [selectedVendors, footprints]);
 
   return (
-    <>
-      <section className={styles.panel}>
-        <h1 className={styles.title}>Global Entity Catalog &amp; Reverse Vendor Simulator</h1>
-        <p className={styles.subtitle}>
-          {entries.length} curated entities · {parentOrgs.length} parent organizations · {totalDomains} tracking
-          domains across US, EU, UK, APAC, CN, RU, and LATAM. Select any vendor or corporate parent to run a live
-          reverse corpus lookup and simulate blocking its footprint.
-        </p>
+    <section
+      className={embedded ? styles.section : styles.panel}
+      id="vendor-simulator"
+      aria-labelledby="vendor-simulator-heading"
+    >
+      <p className={styles.eyebrow}>Global corporate ownership &amp; footprint simulator</p>
+      {embedded ? (
+        <h2 id="vendor-simulator-heading" className={styles.sectionTitle}>
+          Corporate ownership &amp; block-impact simulator
+        </h2>
+      ) : (
+        <h1 id="vendor-simulator-heading" className={styles.title}>
+          Corporate ownership &amp; block-impact simulator
+        </h1>
+      )}
+      <p className={styles.subtitle}>
+        {entries.length} global entities · {parentOrgs.length} parent organizations · {totalDomains} tracking domains
+        across US, EU, UK, APAC, CN, RU, and LATAM. Select any corporate parent or vendor below to run a reverse
+        lookup across the indexed corpus and simulate blocking its footprint.
+      </p>
 
-        <div className={styles.chipsRow}>
-          {parentOrgs.slice(0, 12).map((p) => (
-            <button
-              key={p.parentOrg}
-              type="button"
-              className={`${styles.btn} ${selectedVendors.includes(p.parentOrg) ? styles.btnActive : ""}`}
-              onClick={() => toggleVendor(p.parentOrg)}
-            >
-              {p.parentOrg} ({p.entityCount})
-            </button>
-          ))}
-        </div>
-      </section>
+      <div className={styles.chipsRow} role="group" aria-label="Filter by major parent organization">
+        {parentOrgs.slice(0, 12).map((p) => (
+          <button
+            key={p.parentOrg}
+            type="button"
+            className={`${styles.btn} ${selectedVendors.includes(p.parentOrg) ? styles.btnActive : ""}`}
+            aria-pressed={selectedVendors.includes(p.parentOrg)}
+            onClick={() => toggleVendor(p.parentOrg)}
+          >
+            {p.parentOrg} ({p.entityCount})
+          </button>
+        ))}
+      </div>
 
       {/* Reverse Vendor Lookup & Impact Simulator */}
       {selectedVendors.length > 0 && (
-        <section className={styles.panel}>
+        <div className={styles.calloutBand}>
           <div className={styles.heroHeader}>
             <div>
-              <h2 className={styles.sectionTitle}>
-                Block Impact Simulation: {selectedVendors.join(" + ")}
-              </h2>
-              <p className={styles.subtitle}>
+              <h3 className={styles.subHeading} style={{ marginTop: 0 }}>
+                Block impact simulation: {selectedVendors.join(" + ")}
+              </h3>
+              <p className={styles.subtitle} style={{ marginTop: 4 }}>
                 {loadingVendor
-                  ? "Querying corpus footprint..."
+                  ? "Querying corpus footprint…"
                   : lookupError
                     ? lookupError
-                    : `Present on ${simulation.impactedSites.length} of ${simulation.corpusSites} indexed sites (${simulation.pct}%), representing ${simulation.totalRequestsPrevented} baseline requests across the corpus.`}
+                    : `Observed on ${simulation.impactedSites.length} of ${simulation.corpusSites} indexed sites (${simulation.pct}%), accounting for ${simulation.totalRequestsPrevented.toLocaleString()} baseline requests across the indexed corpus.`}
               </p>
             </div>
             <button type="button" className={styles.btn} onClick={() => setSelectedVendors([])}>
-              Clear Selection
+              Clear selection
             </button>
           </div>
 
           {simulation.impactedSites.length > 0 ? (
-            <div className={styles.tableWrap} style={{ marginTop: 12 }}>
+            <div className={styles.tableWrap}>
               <table className={styles.table}>
                 <thead>
                   <tr>
                     <th>Site</th>
-                    <th>Matched Vendors / Parents</th>
-                    <th className={styles.num}>Observed Requests</th>
+                    <th>Matched vendors / parents</th>
+                    <th className={styles.num}>Observed requests</th>
                     <th>Report</th>
                   </tr>
                 </thead>
@@ -195,10 +287,13 @@ export function CatalogExplorerV3({
                     <tr key={s.domain}>
                       <td className={styles.mono}>{s.domain}</td>
                       <td>{s.vendors.join(", ")}</td>
-                      <td className={styles.num}>{s.requests}</td>
+                      <td className={styles.num}>{s.requests.toLocaleString()}</td>
                       <td>
-                        <a href={resolveV3DynamicPageUrl(`/v3/reports/${s.reportId}`, V3_LOCATION)} className={styles.btn}>
-                          Inspect
+                        <a
+                          href={resolveV3DynamicPageUrl(`/v3/reports/${s.reportId}`, V3_LOCATION)}
+                          className={styles.link}
+                        >
+                          Inspect report
                         </a>
                       </td>
                     </tr>
@@ -209,23 +304,27 @@ export function CatalogExplorerV3({
           ) : (
             !loadingVendor && (
               <div className={styles.emptyState}>
-                No indexed v3 corpus sites currently contact {selectedVendors.join(", ")}.
+                No indexed sites currently contact {selectedVendors.join(", ")}.
               </div>
             )
           )}
-        </section>
+        </div>
       )}
 
-      {/* Searchable 150+ Entity Directory */}
-      <section className={styles.panel}>
-        <div className={styles.formGrid} style={{ marginBottom: 14 }}>
+      {/* Searchable 180+ Entity Directory */}
+      <div className={styles.calloutBand}>
+        <h3 className={styles.subHeading} style={{ marginTop: 0 }}>
+          Global entity &amp; parent-company register ({filtered.length} matching entities)
+        </h3>
+        <div className={styles.formGrid}>
           <label className={styles.fieldLabel}>
             Search entity, parent org, or domain
             <input
               className={styles.input}
+              type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="e.g. Criteo, Yandex, Baidu, doubleclick..."
+              placeholder="e.g. Criteo, Yandex, Baidu, doubleclick…"
             />
           </label>
           <label className={styles.fieldLabel}>
@@ -276,15 +375,15 @@ export function CatalogExplorerV3({
             <thead>
               <tr>
                 <th>Entity</th>
-                <th>Parent Org</th>
+                <th>Parent org</th>
                 <th>Category</th>
                 <th>Region</th>
-                <th>Known Domains</th>
-                <th>Simulate Block</th>
+                <th>Known domains</th>
+                <th>Footprint</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((item) => {
+              {filtered.slice(0, 60).map((item) => {
                 const active = selectedVendors.includes(item.entity);
                 return (
                   <tr key={item.entity}>
@@ -299,9 +398,10 @@ export function CatalogExplorerV3({
                       <button
                         type="button"
                         className={`${styles.btn} ${active ? styles.btnActive : ""}`}
+                        aria-pressed={active}
                         onClick={() => toggleVendor(item.entity)}
                       >
-                        {active ? "Selected" : "Lookup"}
+                        {active ? "Selected" : "Simulate"}
                       </button>
                     </td>
                   </tr>
@@ -309,8 +409,14 @@ export function CatalogExplorerV3({
               })}
             </tbody>
           </table>
+          {filtered.length > 60 && (
+            <p className={styles.subtitle}>
+              Showing the first 60 of {filtered.length} matching entities. Narrow the search, region, or category above
+              to inspect others.
+            </p>
+          )}
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

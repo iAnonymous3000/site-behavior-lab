@@ -17,6 +17,8 @@ import { loadCommittedCorpusStats } from "@/lib/current-scan-cohort";
 import { buildFrontPageRecord } from "@/lib/homepage-figures";
 import { readStoredReportForId } from "@/lib/report-source";
 import { siteNameStep } from "@/lib/site-name-size";
+import { resolveV3DynamicPageUrl } from "@/lib/v3/client-urls";
+import { findSeededV3SiteSnapshot } from "@/lib/v3/public-seed-snapshot";
 import { RecordLimits } from "@/app/_design/front-page-record";
 import { RequestFigure } from "@/app/_design/request-figure";
 import { SiteNameText } from "@/app/_design/site-name";
@@ -129,6 +131,18 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
       : null;
   const siteName = displayHost(profile.domain);
   const nameStep = siteNameStep(siteName);
+  const deepSnapshot = findSeededV3SiteSnapshot(profile.domain);
+  const v3LinkConfig = {
+    staticExport: process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1",
+    scanApiBase: process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE?.trim() ?? "",
+    basePath: sitePagesBasePath()
+  };
+  const deepReportHref = deepSnapshot
+    ? resolveV3DynamicPageUrl(`/v3/reports/${deepSnapshot.reportId}`, v3LinkConfig)
+    : null;
+  const deepHistoryHref = deepSnapshot
+    ? resolveV3DynamicPageUrl(`/v3/sites/${encodeURIComponent(deepSnapshot.canonicalDomain)}`, v3LinkConfig)
+    : null;
 
   return (
     /* "da" opts this route into the direction A stylesheet (app/_design/). */
@@ -202,6 +216,44 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
         </dl>
         {record && <RequestFigure figure={record.figure} notMeasured={record.notMeasured} />}
       </section>
+
+      {deepSnapshot && deepReportHref && deepHistoryHref && (
+        <section className="site-profile-section" aria-labelledby="deep-inspection-title">
+          <p className="eyebrow">Multi-arm deep inspection</p>
+          <h2 id="deep-inspection-title">
+            {deepSnapshot.topHighlight ?? "Concurrent Shields, GPC, and deep signal snapshot"}
+          </h2>
+          <p className="site-profile-visit">
+            Measured {formatDate(deepSnapshot.scannedAt)} · {deepSnapshot.egressRegion} · {deepSnapshot.device}
+            {deepSnapshot.keystrokeLeaksCount > 0 ? ` · ${deepSnapshot.keystrokeLeaksCount} keystroke leak(s)` : ""}
+            {deepSnapshot.cnameCloaksCount > 0 ? ` · ${deepSnapshot.cnameCloaksCount} CNAME cloak(s)` : ""}
+            {deepSnapshot.serverSideTaggingEndpoints > 0 ? ` · ${deepSnapshot.serverSideTaggingEndpoints} 1st-party sGTM/CAPI endpoint(s)` : ""}
+            {deepSnapshot.fingerprintKindsCount > 0 ? ` · ${deepSnapshot.fingerprintKindsCount} fingerprinting signal(s)` : ""}
+          </p>
+          <dl className="site-profile-metrics">
+            <div>
+              <dt>Third-party domains</dt>
+              <dd>{deepSnapshot.thirdPartyDomains.toLocaleString()}</dd>
+            </div>
+            <div>
+              <dt>Total cookies</dt>
+              <dd>{deepSnapshot.cookiesTotal.toLocaleString()}</dd>
+            </div>
+            <div>
+              <dt>CMP dark-pattern score</dt>
+              <dd>{deepSnapshot.darkPatternScore}/100</dd>
+            </div>
+          </dl>
+          <div className="page-actions">
+            <a className="secondary-button" href={deepReportHref}>
+              Open multi-arm report &amp; Developer Mode
+            </a>
+            <a className="topbar-link" href={deepHistoryHref}>
+              Temporal regression diff
+            </a>
+          </div>
+        </section>
+      )}
 
       {compatibleChanges.length > 0 && (
         <section className="site-profile-section" aria-labelledby="changes-title">

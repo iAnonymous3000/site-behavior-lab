@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import styles from "@/app/v3/v3.module.css";
+import { SiteChrome } from "@/app/_components/site-chrome";
 import { ReportViewV3 } from "@/app/_components/v3/ReportViewV3";
-import { V3Nav } from "@/app/_components/v3/V3Nav";
+import styles from "@/app/v3/v3.module.css";
 import { getV3RuntimeContext } from "@/lib/v3/runtime/store-context";
 import { loadReportV3, V3_REPORT_ID_RE } from "@/lib/v3/storage/blob-store";
+import "@/app/_design/fonts.css";
+import "@/app/_design/tokens.css";
+import "@/app/_design/base.css";
+import "@/app/_design/components.css";
+import "@/app/_design/pages.css";
 
 export const dynamic = "force-dynamic";
 
@@ -21,11 +27,11 @@ export async function generateMetadata(context: {
   const { id } = await context.params;
   const report = await loadCachedReportV3(id);
   if (!report) {
-    return { title: "Report not found (v3)", robots: { index: false, follow: false } };
+    return { title: "Report not found", robots: { index: false, follow: false } };
   }
   return {
-    title: `${report.canonicalDomain} — v3 Privacy Report`,
-    description: `Site Behavior Lab v3 report for ${report.canonicalDomain}: ${report.leadArm.summary.thirdPartyDomains} third-party domains, ${report.leadArm.summary.cookiesTotal} cookies, dark-pattern score ${report.leadArm.summary.darkPatternScore}/100.`,
+    title: `${report.canonicalDomain} — Multi-Arm Behavior Report`,
+    description: `Site Behavior Lab multi-arm report for ${report.canonicalDomain}: ${report.leadArm.summary.thirdPartyDomains} third-party domains, ${report.leadArm.summary.cookiesTotal} cookies, dark-pattern score ${report.leadArm.summary.darkPatternScore}/100.`,
     robots: { index: false, follow: false, noarchive: true }
   };
 }
@@ -38,11 +44,19 @@ export default async function V3ReportPage(context: {
   if (!report) notFound();
 
   return (
-    <div className={styles.shell}>
-      <V3Nav active="report" />
-      <main className={styles.main}>
+    <SiteChrome activePath="/directory/" shellClassName="da">
+      <div className={styles.page}>
+        <nav className="page-breadcrumbs" aria-label="Breadcrumb">
+          <ol>
+            <li><Link href="/">Home</Link></li>
+            <li aria-hidden="true">/</li>
+            <li><Link href="/directory/">Scanned sites</Link></li>
+            <li aria-hidden="true">/</li>
+            <li aria-current="page">{report.canonicalDomain}</li>
+          </ol>
+        </nav>
         <ReportViewV3 report={report} />
-      </main>
-    </div>
+      </div>
+    </SiteChrome>
   );
 }

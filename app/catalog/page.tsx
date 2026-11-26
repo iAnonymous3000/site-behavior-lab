@@ -9,6 +9,8 @@ import {
 } from "@/lib/detector-coverage-boundary";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { trackerCatalogMetadata, trackerCatalogRecords } from "@/lib/tracker-catalog";
+import { getCatalogDirectoryV3 } from "@/lib/v3/dev-mode";
+import { CatalogExplorerV3 } from "@/app/_components/v3/CatalogExplorerV3";
 import { CatalogSearch } from "./catalog-search";
 import styles from "./catalog.module.css";
 import { SiteChrome } from "../_components/site-chrome";
@@ -39,6 +41,7 @@ export default function CatalogPage() {
   const categories = new Set(records.map((record) => record.category)).size;
   const realChromiumCases = validationRows.reduce((sum, row) => sum + row.realChromiumCases, 0);
   const calibration = committedDetectorCalibrationReadiness();
+  const globalCatalog = getCatalogDirectoryV3();
 
   return (
     <SiteChrome activePath="/catalog/" shellClassName="da">
@@ -79,6 +82,13 @@ export default function CatalogPage() {
           digest {trackerCatalogMetadata.digest} · provenance digest {trackerCatalogMetadata.provenanceDigest}
         </p>
       </section>
+
+      <CatalogExplorerV3
+        embedded
+        entries={globalCatalog.entries}
+        parentOrgs={globalCatalog.parentOrgs}
+        totalDomains={globalCatalog.stats.domains}
+      />
 
       <section className={styles.section} aria-labelledby="validation-heading">
         <h2 id="validation-heading">Detector validation fixture coverage</h2>

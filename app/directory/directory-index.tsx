@@ -9,6 +9,7 @@ import {
 import { sitePagesBasePath } from "@/lib/site-url";
 import { formatEvidenceDate, siteEvidenceRow } from "@/lib/site-evidence-row";
 import { DirectoryControls } from "./directory-controls";
+import { DeepCorpusSection } from "../_components/v3/DeepCorpusSection";
 import styles from "./directory.module.css";
 import { SiteChrome } from "../_components/site-chrome";
 import "@/app/_design/fonts.css";
@@ -115,6 +116,8 @@ export async function DirectoryIndex({ page }: { page: number }) {
           />
         )}
       </section>
+
+      {page === 1 && <DeepCorpusSection />}
 
       <aside className={`${styles.caveat} a-lim`}>
         The newest published report is shown for navigation, including failed or incomplete visits when that is the

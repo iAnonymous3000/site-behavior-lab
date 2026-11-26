@@ -18,7 +18,13 @@ import type { ProbeName, ScanArmV3, ScanPhaseName, ScanReportV3 } from "@/lib/v3
 
 type EvidenceTab = "requests" | "beacons" | "cookies" | "privacy-signals" | "policy";
 
-export function ReportViewV3({ report }: { report: ScanReportV3 }) {
+export function ReportViewV3({
+  report,
+  embedded = false
+}: {
+  report: ScanReportV3;
+  embedded?: boolean;
+}) {
   const allArms = useMemo(
     () => [report.leadArm, ...report.comparisonArms],
     [report]
@@ -84,7 +90,12 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
       <section className={styles.panel}>
         <div className={styles.heroHeader}>
           <div>
-            <h1 className={styles.title}>{report.canonicalDomain}</h1>
+            <p className={styles.eyebrow}>Multi-arm behavior report</p>
+            {embedded ? (
+              <h2 className={styles.sectionTitle}>{report.canonicalDomain}</h2>
+            ) : (
+              <h1 className={styles.title}>{report.canonicalDomain}</h1>
+            )}
             <p className={styles.subtitle}>
               <span className={styles.mono}>{report.finalUrl}</span> · Scanned{" "}
               {formatUtcTimestamp(report.scannedAt)} · HTTP {activeArm.httpStatus ?? "n/a"} (
@@ -189,7 +200,7 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
             </div>
             <div>
               <strong>Measurement Boundaries</strong>
-              <p style={{ margin: "6px 0 0", color: "var(--text-muted)" }}>
+              <p style={{ margin: "6px 0 0", color: "var(--a-slate)" }}>
                 Observations reflect one controlled unauthenticated visit per arm. Cookie values, storage values, query
                 strings, and keystroke probe sentinels are stripped at the persistence boundary and never stored.
               </p>
@@ -339,7 +350,7 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
               <div key={row.phase} className={styles.waterfallRow}>
                 <div>
                   <strong>{row.label}</strong>{" "}
-                  <span style={{ color: "var(--text-subtle)" }}>({row.durationMs}ms)</span>
+                  <span style={{ color: "var(--a-slate)" }}>({row.durationMs}ms)</span>
                 </div>
                 <div className={styles.waterfallBarTrack} title={`${row.totalRequests} requests (${row.trackingRequests} tracking)`}>
                   <div className={styles.waterfallSeg1p} style={{ width: `${p1}%` }} />
@@ -408,7 +419,7 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
                   {root.entities.map((ent) => (
                     <a
                       key={ent.entity}
-                      href={resolveV3StaticPageUrl(`/v3/catalog/?entity=${encodeURIComponent(ent.entity)}`, STATIC_BASE_PATH)}
+                      href={resolveV3StaticPageUrl(`/catalog/?entity=${encodeURIComponent(ent.entity)}#vendor-simulator`, STATIC_BASE_PATH)}
                       className={`${styles.chip} ${ent.shieldsBlocked > 0 ? styles.chipLoud : styles.chipInfo}`}
                       style={{ textDecoration: "none" }}
                     >
@@ -448,7 +459,7 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
                     <tr key={`${r.list}-${r.rule}-${r.exception ?? ""}`}>
                       <td className={styles.mono}>
                         {r.rule}
-                        {r.exception ? <div style={{ color: "var(--sig-ok)" }}>Exception: {r.exception}</div> : null}
+                        {r.exception ? <div style={{ color: "var(--a-prussian)" }}>Exception: {r.exception}</div> : null}
                       </td>
                       <td>{r.list}</td>
                       <td className={styles.mono}>
@@ -581,22 +592,22 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
                     <tr key={req.id}>
                       <td className={styles.mono}>
                         {req.method} {req.status ?? "—"}
-                        <div style={{ color: "var(--text-subtle)" }}>{req.resourceType}</div>
+                        <div style={{ color: "var(--a-slate)" }}>{req.resourceType}</div>
                       </td>
                       <td className={styles.mono}>
                         <strong>{req.domain}</strong>
-                        <div style={{ color: "var(--text-muted)" }}>{req.url}</div>
+                        <div style={{ color: "var(--a-slate)" }}>{req.url}</div>
                       </td>
                       <td>
                         {req.entity ? (
                           <>
                             <strong>{req.entity.entity}</strong>
-                            <div style={{ color: "var(--text-muted)" }}>
+                            <div style={{ color: "var(--a-slate)" }}>
                               {req.entity.parentOrg} · {req.entity.category}
                             </div>
                           </>
                         ) : (
-                          <span style={{ color: "var(--text-subtle)" }}>
+                          <span style={{ color: "var(--a-slate)" }}>
                             {req.thirdParty ? "Unattributed 3P" : "First-party"}
                           </span>
                         )}
@@ -609,7 +620,7 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
                               {req.shields.blocked ? "Blocked" : req.shields.shouldBlockStandard ? "Std block" : "Agg block"}
                             </span>
                             {req.shields.rule && <div style={{ marginTop: 4 }}>{req.shields.rule}</div>}
-                            {req.shields.list && <div style={{ color: "var(--text-subtle)" }}>{req.shields.list}</div>}
+                            {req.shields.list && <div style={{ color: "var(--a-slate)" }}>{req.shields.list}</div>}
                           </>
                         ) : (
                           "—"
@@ -619,7 +630,7 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
                         <td className={styles.mono}>
                           <div>{req.initiator?.scriptUrl ?? req.initiator?.type ?? "other"}</div>
                           {req.requestHeaders && Object.keys(req.requestHeaders).length > 0 && (
-                            <div style={{ color: "var(--text-subtle)", marginTop: 4 }}>
+                            <div style={{ color: "var(--a-slate)", marginTop: 4 }}>
                               Req: {Object.entries(req.requestHeaders).map(([k, v]) => `${k}=${v}`).join("; ")}
                             </div>
                           )}
@@ -684,7 +695,7 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
                     <tr key={`${b.platform}-${b.endpointHost}-${i}`}>
                       <td>
                         <strong>{b.platform}</strong>
-                        <div style={{ color: "var(--text-subtle)" }}>{b.product}</div>
+                        <div style={{ color: "var(--a-slate)" }}>{b.product}</div>
                       </td>
                       <td className={styles.mono}>{b.endpointHost}</td>
                       <td>

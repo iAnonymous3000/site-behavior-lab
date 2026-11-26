@@ -37,7 +37,6 @@ export const SITE_PRIMARY_NAV: readonly SiteNavLink[] = [
   { href: "/", label: "Scan" },
   { href: "/directory/", label: "Sites" },
   { href: "/catalog/", label: "Catalog" },
-  { href: "/v3/", label: "v3 Lab" },
   { href: "/methodology/", label: "Methodology" },
   { href: "/glossary/", label: "Glossary" }
 ];

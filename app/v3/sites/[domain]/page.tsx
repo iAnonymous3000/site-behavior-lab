@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import styles from "@/app/v3/v3.module.css";
+import { SiteChrome } from "@/app/_components/site-chrome";
 import { SiteHistoryViewV3 } from "@/app/_components/v3/SiteHistoryViewV3";
-import { V3Nav } from "@/app/_components/v3/V3Nav";
+import styles from "@/app/v3/v3.module.css";
 import { getV3RuntimeContext } from "@/lib/v3/runtime/store-context";
+import "@/app/_design/fonts.css";
+import "@/app/_design/tokens.css";
+import "@/app/_design/base.css";
+import "@/app/_design/components.css";
+import "@/app/_design/pages.css";
 
 export const dynamic = "force-dynamic";
 
@@ -26,10 +32,10 @@ export async function generateMetadata(context: {
 }): Promise<Metadata> {
   const { domain } = await context.params;
   const normalized = safeDecodeDomain(domain);
-  if (!normalized) return { title: "Site not found (v3)" };
+  if (!normalized) return { title: "Site not found" };
   return {
-    title: `${normalized} — Scan History & Temporal Diff (v3)`,
-    description: `Historical v3 privacy scans and side-by-side regression diffs for ${normalized}.`
+    title: `${normalized} — Scan History & Temporal Diff`,
+    description: `Historical multi-arm privacy scans and side-by-side regression diffs for ${normalized}.`
   };
 }
 
@@ -41,14 +47,22 @@ export default async function V3SiteHistoryPage(context: {
   if (!normalized) notFound();
 
   const ctx = await getV3RuntimeContext();
-  const history = await ctx.reportIndex.getSiteHistory(normalized, 50);
+  const history = await ctx.reportIndex.getSiteHistory(normalized, 30);
 
   return (
-    <div className={styles.shell}>
-      <V3Nav active="site" />
-      <main className={styles.main}>
+    <SiteChrome activePath="/directory/" shellClassName="da">
+      <div className={styles.page}>
+        <nav className="page-breadcrumbs" aria-label="Breadcrumb">
+          <ol>
+            <li><Link href="/">Home</Link></li>
+            <li aria-hidden="true">/</li>
+            <li><Link href="/directory/">Scanned sites</Link></li>
+            <li aria-hidden="true">/</li>
+            <li aria-current="page">{normalized}</li>
+          </ol>
+        </nav>
         <SiteHistoryViewV3 domain={normalized} history={history} />
-      </main>
-    </div>
+      </div>
+    </SiteChrome>
   );
 }

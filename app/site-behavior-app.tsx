@@ -41,12 +41,19 @@ import { readLoadedReport, asLocalReport } from "@/lib/client-report-reader";
 // a type import is erased at build time and adds nothing to the bundle.
 import type { LoadedReport } from "@/lib/scan-report-view";
 import type { ScanJobProgress, StaticReportManifestEntry } from "@/lib/types";
+import type { ScanReportV3 } from "@/lib/v3/schema";
 
 const LazyStaticReportGallery = lazy(() =>
   import("./_components/static-gallery").then((module) => ({ default: module.StaticReportGallery }))
 );
 const LazyReportRenderer = lazy(() =>
   import("./_components/report-renderer").then((module) => ({ default: module.ReportRenderer }))
+);
+const LazyDeepScanWorkbench = lazy(() =>
+  import("./_components/v3/DeepScanWorkbenchV3").then((module) => ({ default: module.DeepScanWorkbenchV3 }))
+);
+const LazyReportViewV3 = lazy(() =>
+  import("./_components/v3/ReportViewV3").then((module) => ({ default: module.ReportViewV3 }))
 );
 // Scheduled rescans are off unless the scanner advertises them, so the watch
 // client stays out of the first load. The panel loads once they are advertised
@@ -174,6 +181,8 @@ export function SiteBehaviorApp({
   const [staticReports, setStaticReports] = useState<StaticReportManifestEntry[] | null>(null);
   const [staticReportsError, setStaticReportsError] = useState<string | null>(null);
   const [archiveRequested, setArchiveRequested] = useState(false);
+  const [deepScanOpen, setDeepScanOpen] = useState(false);
+  const [loadedV3, setLoadedV3] = useState<ScanReportV3 | null>(null);
   // Latched: once mounted, the panel stays mounted, so a health change cannot
   // drop a watch in progress.
   const [scheduledRescansMounted, setScheduledRescansMounted] = useState(false);
@@ -209,6 +218,17 @@ export function SiteBehaviorApp({
   useEffect(() => {
     if (loaded) reportRegionRef.current?.focus();
   }, [loaded]);
+
+  useEffect(() => {
+    if (loaded) {
+      setLoadedV3(null);
+      setDeepScanOpen(false);
+    }
+  }, [loaded]);
+
+  useEffect(() => {
+    if (loadedV3) reportRegionRef.current?.focus();
+  }, [loadedV3]);
 
   // A failure replaces the loading panel that held the focused Cancel button, so without
   // this a keyboard user is dropped to <body> at the top of the document exactly when the
@@ -262,12 +282,38 @@ export function SiteBehaviorApp({
         });
         const payload = parseJsonTextWithPolicy(contents, "This report JSON");
         signal.throwIfAborted();
+        if (payload && typeof payload === "object" && (payload as { schemaVersion?: unknown }).schemaVersion === 3) {
+          const { validateScanReportV3 } = await import("@/lib/v3/schema");
+          signal.throwIfAborted();
+          const issues = validateScanReportV3(payload as ScanReportV3);
+          if (issues.length > 0) {
+            throw new Error(`Multi-arm report JSON is invalid: ${issues[0]}`);
+          }
+          setLoaded(null);
+          setDeepScanOpen(false);
+          setLoadedV3(payload as ScanReportV3);
+          return null;
+        }
         const read = await readLoadedReport(payload, "This report JSON");
         signal.throwIfAborted();
         if (!read.ok) throw new Error(read.message);
         return asLocalReport(read.loaded);
       },
-      reportOpenHandlers("Report JSON could not be opened.")
+      {
+        onStart: () => {
+          setLoading(true);
+          setError(null);
+          setLoaded(null);
+          setLoadedV3(null);
+        },
+        onSuccess: (next) => {
+          if (next) setLoaded(next);
+        },
+        onError: (readError: unknown) => {
+          setError(readError instanceof Error ? readError.message : "Report JSON could not be opened.");
+        },
+        onSettled: () => setLoading(false)
+      }
     );
   }
 
@@ -442,8 +488,23 @@ export function SiteBehaviorApp({
         />
 
           <section aria-label="Results" id="report" ref={reportRegionRef} tabIndex={-1}>
-          {!loaded && !loading && !activeScanJob && !pendingScanAdmission && frontRecord}
-          {!loaded && !loading && !activeScanJob && !pendingScanAdmission && (
+          {deepScanOpen && !loaded && !loadedV3 && !loading && (
+            <Suspense fallback={<p className="muted">Loading multi-arm deep scan workbench…</p>}>
+              <LazyDeepScanWorkbench initialUrl={form.url} onClose={() => setDeepScanOpen(false)} />
+            </Suspense>
+          )}
+          {loadedV3 && !loaded && !loading && (
+            <Suspense fallback={<p className="muted">Preparing multi-arm report view…</p>}>
+              <div className="homepage-discovery-actions" style={{ marginBottom: 12 }}>
+                <button type="button" className="secondary-button" onClick={() => setLoadedV3(null)}>
+                  Back to library
+                </button>
+              </div>
+              <LazyReportViewV3 embedded report={loadedV3} />
+            </Suspense>
+          )}
+          {!loadedV3 && !loaded && !loading && !activeScanJob && !pendingScanAdmission && frontRecord}
+          {!loadedV3 && !loaded && !loading && !activeScanJob && !pendingScanAdmission && (
             <EmptyState
               rowMarks={rowMarks}
               rowKey={rowKey}
@@ -460,6 +521,8 @@ export function SiteBehaviorApp({
               corpusHighlights={corpusHighlights}
               archiveRequested={archiveRequested}
               onLoadArchive={() => void loadStaticArchive()}
+              deepScanOpen={deepScanOpen}
+              onToggleDeepScan={() => setDeepScanOpen((open) => !open)}
             />
           )}
           {loading && (
@@ -607,7 +670,9 @@ function EmptyState({
   homepageDiscovery,
   corpusHighlights,
   archiveRequested,
-  onLoadArchive
+  onLoadArchive,
+  deepScanOpen,
+  onToggleDeepScan
 }: {
   rowMarks: Record<string, ReactNode>;
   rowKey: ReactNode;
@@ -625,6 +690,8 @@ function EmptyState({
   corpusHighlights: CorpusHighlights | null;
   archiveRequested: boolean;
   onLoadArchive: () => void;
+  deepScanOpen: boolean;
+  onToggleDeepScan: () => void;
 }) {
   const latestReport = homepageDiscovery?.latestReport ?? null;
   const highlights =
@@ -687,6 +754,17 @@ function EmptyState({
           </a>
         )}
         <a className="secondary-button" href={staticAssetPath("/directory/")}>Browse all sites</a>
+        {liveScanEnabled && (
+          <button
+            className="secondary-button"
+            type="button"
+            aria-expanded={deepScanOpen}
+            aria-controls="multi-arm-scan"
+            onClick={onToggleDeepScan}
+          >
+            {deepScanOpen ? "Hide multi-arm deep scan" : "Multi-arm deep scan"}
+          </button>
+        )}
       </div>
 
       <details className="homepage-tools-disclosure">
