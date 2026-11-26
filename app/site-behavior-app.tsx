@@ -503,27 +503,31 @@ export function SiteBehaviorApp({
               <LazyReportViewV3 embedded report={loadedV3} />
             </Suspense>
           )}
-          {!loadedV3 && !loaded && !loading && !activeScanJob && !pendingScanAdmission && frontRecord}
-          {!loadedV3 && !loaded && !loading && !activeScanJob && !pendingScanAdmission && (
-            <EmptyState
-              rowMarks={rowMarks}
-              rowKey={rowKey}
-              onUploadReport={loadReportFile}
-              onUploadPageGraph={loadPageGraphFile}
-              onUploadError={surfaceReportOperationError}
-              onCreateComparison={acceptCreatedComparison}
-              onComparisonError={rejectCreatedComparison}
-              liveScanEnabled={LIVE_SCAN_ENABLED}
-              staticExport={STATIC_EXPORT}
-              staticReports={staticReports}
-              staticReportsError={staticReportsError}
-              homepageDiscovery={homepageDiscovery}
-              corpusHighlights={corpusHighlights}
-              archiveRequested={archiveRequested}
-              onLoadArchive={() => void loadStaticArchive()}
-              deepScanOpen={deepScanOpen}
-              onToggleDeepScan={() => setDeepScanOpen((open) => !open)}
-            />
+          {!loadedV3 && (
+            <>
+              {!loaded && !loading && !activeScanJob && !pendingScanAdmission && frontRecord}
+              {!loaded && !loading && !activeScanJob && !pendingScanAdmission && (
+                <EmptyState
+                  rowMarks={rowMarks}
+                  rowKey={rowKey}
+                  onUploadReport={loadReportFile}
+                  onUploadPageGraph={loadPageGraphFile}
+                  onUploadError={surfaceReportOperationError}
+                  onCreateComparison={acceptCreatedComparison}
+                  onComparisonError={rejectCreatedComparison}
+                  liveScanEnabled={LIVE_SCAN_ENABLED}
+                  staticExport={STATIC_EXPORT}
+                  staticReports={staticReports}
+                  staticReportsError={staticReportsError}
+                  homepageDiscovery={homepageDiscovery}
+                  corpusHighlights={corpusHighlights}
+                  archiveRequested={archiveRequested}
+                  onLoadArchive={() => void loadStaticArchive()}
+                  deepScanOpen={deepScanOpen}
+                  onToggleDeepScan={() => setDeepScanOpen((open) => !open)}
+                />
+              )}
+            </>
           )}
           {loading && (
             <LoadingState
