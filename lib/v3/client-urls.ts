@@ -6,7 +6,7 @@
  * same-origin deployments (`scan.sitebehavior.org` and local dev) relative.
  */
 
-import type { ComparisonAxisV3, ScanDeviceV3, ScanRegionIdV3 } from "./schema";
+import type { ComparisonAxisV3, ConsentModeV3, ScanDeviceV3, ScanRegionIdV3, ShieldsModeV3 } from "./schema";
 
 export type V3ClientLocationConfig = {
   staticExport: boolean;
@@ -85,6 +85,9 @@ export function buildV3ScanBody(options: {
   device: ScanDeviceV3;
   region: ScanRegionIdV3;
   comparisons: readonly ComparisonAxisV3[];
+  gpcEnabled?: boolean;
+  shieldsMode?: ShieldsModeV3;
+  consentMode?: ConsentModeV3;
   turnstileToken?: string;
 }): Record<string, unknown> {
   const body: Record<string, unknown> = {
@@ -93,6 +96,15 @@ export function buildV3ScanBody(options: {
     region: options.region,
     comparisons: [...options.comparisons]
   };
+  if (options.gpcEnabled !== undefined) {
+    body.gpcEnabled = options.gpcEnabled;
+  }
+  if (options.shieldsMode !== undefined) {
+    body.shieldsMode = options.shieldsMode;
+  }
+  if (options.consentMode !== undefined) {
+    body.consentMode = options.consentMode;
+  }
   const turnstile = options.turnstileToken?.trim();
   if (turnstile) {
     body.turnstileToken = turnstile;

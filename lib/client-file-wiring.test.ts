@@ -58,7 +58,8 @@ test("browser modules cannot import the historical server report ceiling", () =>
     "app/_components/static-gallery.tsx",
     "app/_components/file-upload-button.tsx",
     "lib/scan-job-polling.ts",
-    "lib/scan-client-orchestration.ts"
+    "lib/scan-client-orchestration.ts",
+    "lib/v3/client-scan.ts"
   ]) {
     assert.doesNotMatch(source(file), /SERVER_STORED_REPORT_JSON_MAX_BYTES/, file);
   }
@@ -74,7 +75,7 @@ test("picker failures cancel stale report work and remain exposed through alert 
   assert.match(comparison, /surfaceCompareUploadError[\s\S]*\.cancel\(\)/);
   assert.match(comparison, /compareError && <p[^>]*role="alert"/);
   // Failures stay assertive; progress and completed actions must not borrow that urgency.
-  assert.match(recovery, /const failed = Boolean\(error \?\? cancellationError\)/);
+  assert.match(recovery, /const failed = Boolean\(error\)/);
   assert.match(recovery, /role=\{failed \? "alert" : "status"\}/);
   assert.match(recovery, /failed \? "error-banner" : "error-banner error-banner-progress"/);
 });

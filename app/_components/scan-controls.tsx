@@ -27,8 +27,6 @@ import {
 import { selectTurnstileWidgetSize, type TurnstileWidgetSize } from "@/lib/turnstile-widget-size";
 import type { HomepageKnownSite } from "@/lib/homepage-discovery";
 import {
-  inspectionFormSentences,
-  scrollCheckFormSentences,
   isScanAgainArrival,
   knownEvidenceDifference,
   knownEvidenceReport,
@@ -52,13 +50,16 @@ import {
 } from "@/lib/run-mode-copy";
 import { displayHost } from "@/lib/text-format";
 import type { ScanDevice } from "@/lib/types";
+import type { ScanRegionIdV3 } from "@/lib/v3/schema";
 
 export type ScanFormState = {
   url: string;
   device: ScanDevice;
+  region: ScanRegionIdV3;
   gpcEnabled: boolean;
   compareGpc: boolean;
   compareShields: boolean;
+  shieldsStrength: "standard" | "aggressive";
   compareConsent: boolean;
   accessKey: string;
 };
@@ -69,7 +70,6 @@ type ScanControlsProps = {
   onSubmit: FormEventHandler<HTMLFormElement>;
   loading: boolean;
   scanBlocked: boolean;
-  activeScanJob: boolean;
   urlNotice: string;
   urlError: string;
   clearUrlNotice: () => void;
@@ -95,18 +95,6 @@ type ScanControlsProps = {
   prefilledUrl: string | null;
   /** The comparison that link asked for, if it asked for one. */
   prefilledMode: ComparisonRunMode | null;
-  /**
-   * The published address an "Inspect this connection" link asked about,
-   * while that arrival holds (connectedInspection): the field still holds the
-   * page the link put there and no comparison is selected.
-   */
-  inspectedAddress: string | null;
-  /**
-   * Whether a "Check after scrolling" link's arrival holds
-   * (connectedScrollCheck): the field still holds the page the link put
-   * there and no comparison is selected.
-   */
-  checkingAfterScrolling: boolean;
   /** The scanner's own share retention in days, from its health; null states no number. */
   shareReportMaxAgeDays: number | null;
   /** Server-rendered statement of what a scan does to the page, shown under the URL field. */
@@ -114,6 +102,13 @@ type ScanControlsProps = {
 };
 
 const TURNSTILE_SCRIPT_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+
+const REGION_OPTIONS: readonly { id: ScanRegionIdV3; label: string }[] = [
+  { id: "auto", label: "Auto" },
+  { id: "us-east", label: "US" },
+  { id: "eu-central", label: "EU" },
+  { id: "ap-northeast", label: "APAC" }
+];
 
 type TurnstileRenderOptions = {
   sitekey: string;
@@ -154,7 +149,6 @@ export function ScanControls({
   onSubmit,
   loading,
   scanBlocked,
-  activeScanJob,
   urlNotice,
   urlError,
   clearUrlNotice,
@@ -177,8 +171,6 @@ export function ScanControls({
   knownSites,
   prefilledUrl,
   prefilledMode,
-  inspectedAddress,
-  checkingAfterScrolling,
   shareReportMaxAgeDays,
   disclosure
 }: ScanControlsProps) {
@@ -188,20 +180,14 @@ export function ScanControls({
   // For a site with evidence the existing report is the primary action and the
   // one submit button offers "Check now", so the button keeps every gate it
   // already has. A visitor who followed the site's own "Scan ... again" link
-  // asked to scan, and a running or retained scan keeps the usual button: in
-  // those cases the button stays primary and the report link steps down.
+  // asked to scan, and a running scan keeps the usual button: in those cases
+  // the button stays primary and the report link steps down.
   const leadsWithReport = leadsWithExistingReport({
     siteMatched: knownSite !== null,
     scanAgainArrival: isScanAgainArrival(prefilledUrl, form.url),
-    scanBusy: loading || activeScanJob
+    scanBusy: loading
   });
   const evidenceTarget = knownSite ? knownEvidenceTarget(form.url, knownSite.requestedUrl) : null;
-  // An inspection link's arrival names the address and the page before the
-  // visitor presses Inspect, which runs one ordinary single visit.
-  const inspection = inspectedAddress ? inspectionFormSentences({ address: inspectedAddress, page: form.url }) : null;
-  // A check link's arrival names the page and what the visit does before the
-  // visitor presses Check, which runs one single visit and then the check.
-  const scrollCheckLine = checkingAfterScrolling ? scrollCheckFormSentences(form.url) : null;
   // A link that asked for a comparison says, before Compare, what the
   // comparison makes: two visits and a separate share report. A corpus site's
   // note above already says so, with the site's history.
@@ -225,9 +211,7 @@ export function ScanControls({
   const [turnstileError, setTurnstileError] = useState<string | null>(null);
 
   return (
-    // While a check arrival holds, the server-rendered disclosure under the
-    // field shows the check's own first sentence (app/_components/scan-disclosure.tsx).
-    <form className="scan-panel" onSubmit={onSubmit} data-scroll-check={scrollCheckLine ? "" : undefined}>
+    <form className="scan-panel" onSubmit={onSubmit}>
       <label className="url-label" htmlFor="url">
         Public URL
       </label>
@@ -254,33 +238,20 @@ export function ScanControls({
         <button
           className={`${leadsWithReport ? "secondary-button" : "primary-button"}${loading ? " is-loading" : ""}`}
           type="submit"
-          disabled={loading || scanBlocked || activeScanJob}
+          disabled={loading || scanBlocked}
           aria-describedby={
-            [
-              inspection ? "inspection-arrival" : scrollCheckLine ? "scroll-check-arrival" : null,
-              knownSite ? "known-evidence-difference" : modeLinkShareLine ? "mode-link-share-line" : null
-            ]
+            [knownSite ? "known-evidence-difference" : modeLinkShareLine ? "mode-link-share-line" : null]
               .filter(Boolean)
               .join(" ") || undefined
           }
         >
           {loading ? <Loader2 className="spin" size={18} aria-hidden="true" /> : <Search size={18} aria-hidden="true" />}
-          {scanSubmitLabel({ comparison, leadsWithReport, inspecting: inspection !== null, checking: scrollCheckLine !== null })}
+          {scanSubmitLabel({ comparison, leadsWithReport })}
         </button>
       </div>
 
       {urlNotice && <p className="scanner-status-note url-privacy-note" id="url-notice">{urlNotice}</p>}
       {urlError && <p className="scanner-status-note scanner-status-note-error" id="url-error" role="alert">{urlError}</p>}
-      {inspection && (
-        <div className="inspection-arrival" role="status">
-          <p id="inspection-arrival">{`${inspection.inspecting} ${inspection.visit}`}</p>
-        </div>
-      )}
-      {scrollCheckLine && (
-        <div className="scroll-check-arrival" role="status">
-          <p id="scroll-check-arrival">{scrollCheckLine}</p>
-        </div>
-      )}
       {disclosure}
 
       {/* Nothing in this live region is the typed text itself: it changes when
@@ -303,7 +274,7 @@ export function ScanControls({
           </div>
           <p>{knownEvidenceReport(knownSite)}</p>
           <p id="known-evidence-difference">
-            {knownEvidenceDifference({ comparison, maxAgeDays: shareReportMaxAgeDays, checking: scrollCheckLine !== null })}
+            {knownEvidenceDifference({ comparison, maxAgeDays: shareReportMaxAgeDays })}
           </p>
         </div>
       ) : (
@@ -468,12 +439,6 @@ export function ScanControls({
       )}
 
       {awaitingTurnstile && (
-        // The submit button stays disabled until the check passes, and a disabled
-        // button takes no focus, so Enter in the field did nothing a keyboard
-        // or screen-reader user could hear. The field names this note while
-        // the check runs. It names no button label: the button can read Scan,
-        // Compare, Check now or Compare now, and a status that changed with
-        // each keystroke would be announced again.
         <p className="scanner-status-note" id="scan-check-note" role="status">
           Finishing a quick browser check above. Scanning turns on once it passes; if the check does not load you can retry it there.
         </p>
@@ -512,6 +477,23 @@ export function ScanControls({
           </fieldset>
 
           <fieldset className="control-group">
+            <legend>Locale profile</legend>
+            <div className="segmented-control" role="group" aria-label="Locale profile">
+              {REGION_OPTIONS.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  aria-pressed={form.region === option.id}
+                  className={form.region === option.id ? "active" : ""}
+                  onClick={() => setForm((current) => ({ ...current, region: option.id }))}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="control-group">
             <legend>Privacy Signal</legend>
             {gpcComparisonEnabled && form.compareGpc ? (
               <div className="readonly-control">Off + On</div>
@@ -532,6 +514,30 @@ export function ScanControls({
               </>
             )}
           </fieldset>
+
+          {shieldsComparisonEnabled && form.compareShields && (
+            <fieldset className="control-group">
+              <legend>Blocker strength</legend>
+              <div className="segmented-control" role="group" aria-label="Blocker strength">
+                <button
+                  type="button"
+                  aria-pressed={form.shieldsStrength === "standard"}
+                  className={form.shieldsStrength === "standard" ? "active" : ""}
+                  onClick={() => setForm((current) => ({ ...current, shieldsStrength: "standard" }))}
+                >
+                  Standard
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={form.shieldsStrength === "aggressive"}
+                  className={form.shieldsStrength === "aggressive" ? "active" : ""}
+                  onClick={() => setForm((current) => ({ ...current, shieldsStrength: "aggressive" }))}
+                >
+                  Aggressive
+                </button>
+              </div>
+            </fieldset>
+          )}
 
           {scannerRequiresAccessKey && (
             <fieldset className="control-group access-group">
@@ -592,14 +598,8 @@ function TurnstileWidget({
   const onErrorRef = useRef(onError);
   onTokenRef.current = onToken;
   onErrorRef.current = onError;
-  // The shared loader drops a dead <script> and re-injects on the next call, but
-  // nothing re-invoked it: the widget only remounts when scanner health flips, which
-  // a blocked challenge script does not do. This makes that retry reachable in place.
   const [attempt, setAttempt] = useState(0);
   const [loadFailed, setLoadFailed] = useState(false);
-  // Cloudflare's flexible widget has a 300px minimum. Measure the space the
-  // widget actually receives instead of guessing from the viewport: at 320px,
-  // shell and panel padding leave less than that minimum.
   const [widgetSize, setWidgetSize] = useState<TurnstileWidgetSize>("compact");
 
   useEffect(() => {

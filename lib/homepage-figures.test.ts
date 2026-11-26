@@ -223,7 +223,7 @@ test("the homepage's record is the report its latest-report link opens, rendered
   }
   const client = source("app/site-behavior-app.tsx");
   assert.doesNotMatch(client, /front-page-record/);
-  assert.match(client, /\{!loaded && !loading && !activeScanJob && !pendingScanAdmission && frontRecord\}\s*\{!loaded && !loading && !activeScanJob && !pendingScanAdmission && \(\s*<EmptyState/);
+  assert.match(client, /\{!loaded && !loading && frontRecord\}\s*\{!loaded && !loading && \(\s*<EmptyState/);
   // The link's words are one string, the record's label and the link under the rows.
   assert.match(block, /<a className="a-fpr-open" href=\{href\}>\{OPEN_LATEST_REPORT_LABEL\}<\/a>/);
   assert.match(client, /\{OPEN_LATEST_REPORT_LABEL\}/);

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { chromium } from "playwright";
 import playwrightPackage from "playwright/package.json" with { type: "json" };
 import {
@@ -302,7 +304,10 @@ async function modeLinkChecks(browser) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const scanRequests = [];
   page.on("request", (request) => {
-    if (new URL(request.url()).pathname.startsWith("/api/scan")) scanRequests.push(`${request.method()} ${request.url()}`);
+    const pathname = new URL(request.url()).pathname;
+    if (pathname.startsWith("/api/scan") || pathname.startsWith("/api/v3/scan")) {
+      scanRequests.push(`${request.method()} ${request.url()}`);
+    }
   });
   try {
     const target = "https://example.com/";
@@ -328,81 +333,6 @@ async function modeLinkChecks(browser) {
   }
 }
 
-/**
- * An "Inspect this connection" link (`#scan?url=...&inspect=...`, what a
- * fresh result's request log mints) against this scanner's own build: the
- * form keeps the page, selects Single, labels the button Inspect, states the
- * inspection, scrubs the link from the address and sends no scan request.
- * Nothing here scans: the button is never pressed.
- */
-async function inspectLinkChecks(browser) {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-  const scanRequests = [];
-  page.on("request", (request) => {
-    if (new URL(request.url()).pathname.startsWith("/api/scan")) scanRequests.push(`${request.method()} ${request.url()}`);
-  });
-  try {
-    const target = "https://example.com/";
-    const inspect = "https://cdn.example.net/{seg}";
-    await page.goto(`${baseUrl}/#scan?url=${encodeURIComponent(target)}&inspect=${encodeURIComponent(inspect)}`, { waitUntil: "networkidle" });
-    await page.waitForFunction((value) => document.getElementById("url")?.value === value, target, { timeout: 10_000 });
-    await page.locator(".inspection-arrival").waitFor({ timeout: 10_000 });
-    await expectText(page.locator("#inspection-arrival"), "Inspecting https://cdn.example.net/….");
-    await expectText(page.locator("#inspection-arrival"), "The details show here only and are not saved.");
-    if ((await page.locator('.scan-panel button[type="submit"]').textContent())?.trim() !== "Inspect") {
-      fail("an inspection link did not label the button Inspect");
-    }
-    if ((await page.getByRole("button", { name: "Single", exact: true }).getAttribute("aria-pressed")) !== "true") {
-      fail("an inspection link did not keep Single selected");
-    }
-    await page.waitForTimeout(1_500);
-    if (scanRequests.length !== 0) fail(`an inspection link sent a scan request on its own: ${scanRequests.join(", ")}`);
-    if (!(await page.evaluate(() => window.location.href)).endsWith("#scan")) fail("an inspection link stayed in the address");
-    pass("an inspect link fills the form with Single, Inspect and its line, and sends nothing");
-  } finally {
-    await page.close();
-  }
-}
-
-/**
- * A "Check after scrolling" link (`#scan?url=...&check=scroll`, what a fresh
- * result's visit summary mints) against this scanner's own build: the form
- * keeps the page, selects Single, labels the button Check, states the check,
- * swaps the disclosure's first sentence for the check's, scrubs the link from
- * the address and sends no scan request. Nothing here scans: the button is
- * never pressed.
- */
-async function scrollCheckLinkChecks(browser) {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-  const scanRequests = [];
-  page.on("request", (request) => {
-    if (new URL(request.url()).pathname.startsWith("/api/scan")) scanRequests.push(`${request.method()} ${request.url()}`);
-  });
-  try {
-    const target = "https://example.com/";
-    await page.goto(`${baseUrl}/#scan?url=${encodeURIComponent(target)}&check=scroll`, { waitUntil: "networkidle" });
-    await page.waitForFunction((value) => document.getElementById("url")?.value === value, target, { timeout: 10_000 });
-    await page.locator(".scroll-check-arrival").waitFor({ timeout: 10_000 });
-    await expectText(page.locator("#scroll-check-arrival"), "Checking after scrolling. A new visit to https://example.com/ runs as a single scan");
-    await expectText(page.locator("#scroll-check-arrival"), "What it finds shows here only and is not saved. It takes about a minute.");
-    if ((await page.locator('.scan-panel button[type="submit"]').textContent())?.trim() !== "Check") {
-      fail("a check link did not label the button Check");
-    }
-    if ((await page.getByRole("button", { name: "Single", exact: true }).getAttribute("aria-pressed")) !== "true") {
-      fail("a check link did not keep Single selected");
-    }
-    if (!(await page.locator(".scan-disclosure-check-visit").isVisible()) || (await page.locator(".scan-disclosure-visit").isVisible())) {
-      fail("a check link did not swap the disclosure's first sentence for the check's");
-    }
-    await page.waitForTimeout(1_500);
-    if (scanRequests.length !== 0) fail(`a check link sent a scan request on its own: ${scanRequests.join(", ")}`);
-    if (!(await page.evaluate(() => window.location.href)).endsWith("#scan")) fail("a check link stayed in the address");
-    pass("a check link fills the form with Single, Check, its line and the check's disclosure, and sends nothing");
-  } finally {
-    await page.close();
-  }
-}
-
 async function uiChecks() {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ acceptDownloads: true, viewport: { width: 1440, height: 1000 } });
@@ -410,8 +340,6 @@ async function uiChecks() {
 
   try {
     await modeLinkChecks(browser);
-    await inspectLinkChecks(browser);
-    await scrollCheckLinkChecks(browser);
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     await expectText(page.locator("h1"), "See what a site does, not just what it says.");
     pass("home page renders tagline");
@@ -421,6 +349,9 @@ async function uiChecks() {
       await page.getByLabel("Scanner access key").fill(scanAccessToken);
     }
 
+    const v3PostPromise = page.waitForRequest(
+      (request) => request.method() === "POST" && new URL(request.url()).pathname === "/api/v3/scan"
+    );
     await page.fill("#url", "https://example.com");
     await page.getByRole("button", { name: "Scan", exact: true }).click();
     const loadingState = page.locator(".loading-state");
@@ -430,50 +361,28 @@ async function uiChecks() {
       announcements: Array.from(element.querySelectorAll('[role="status"]')).map((node) => node.textContent)
     }));
     if (loadingSemantics.rootRole === "status") {
-      fail("the one-second loading timer is inside the status live region");
+      fail("the loading panel root is a live status region");
     }
     if (loadingSemantics.announcements.length !== 1) fail("scan loading state lacks its bounded status announcement");
-    await page.waitForTimeout(1_100);
-    // A fast local scan may finish during this interval. If the loading state
-    // is still mounted, confirm that only the visual timer changed.
-    if (await loadingState.isVisible()) {
-      const announcementAfterTick = await loadingState.evaluate(
-        (element) => element.querySelector('[role="status"]')?.textContent ?? null
-      );
-      if (announcementAfterTick !== loadingSemantics.announcements[0]) {
-        fail("scan loading status announcement changes with the one-second timer");
-      }
-    }
-    pass("scan timer stays outside the bounded live status announcement");
-    await waitForReportOrError(page, 30_000);
-    // Redaction policy v4 withholds page-authored titles, so the header
-    // identifies the subject by its domain, never by document.title.
-    await expectText(page.locator(".report-header"), "example.com");
-    await expectText(page.locator(".warnings"), "one automated, headless Chromium visit");
-    await expectText(page.locator(".methodology"), `Playwright${playwrightPackage.version}`);
-    await expectText(page.locator(".methodology"), "Browser");
-    await expectText(page.locator(".methodology"), "UTC");
-    pass("desktop UI renders scan report");
+    await v3PostPromise;
+    pass("homepage scan submits directly to POST /api/v3/scan with bounded status announcement");
 
-    await openOptions(page);
+    await waitForV3ReportOrError(page, 60_000);
+    await expectText(page.locator('[data-report-v3="true"]'), "example.com");
+    await page.getByRole("button", { name: /Visit Scope & Provenance/i }).click();
+    await expectText(page.locator('[data-report-v3="true"]'), `Playwright: ${playwrightPackage.version}`);
+    pass("desktop UI renders live v3 scan report");
+
     await page.getByRole("button", { name: "GPC diff" }).click();
     await page.getByRole("button", { name: "Compare" }).click();
-    await page.waitForSelector(".comparison-card", { timeout: 30_000 });
-    await expectText(page.locator(".comparison-card"), "Third-party cookies");
-    pass("desktop UI renders GPC comparison");
+    await waitForV3ReportOrError(page, 90_000);
+    await expectText(page.locator("#report"), "Intervention Strip (Concurrent Arm Comparison)");
+    await expectText(page.locator("#report"), "Global Privacy Control (Sec-GPC: 1)");
+    pass("desktop UI renders v3 GPC comparison");
 
-    const [download] = await Promise.all([
-      page.waitForEvent("download", { timeout: 5_000 }),
-      page.getByRole("button", { name: "JSON" }).click()
-    ]);
-    if (download.suggestedFilename() !== "site-behavior-lab-example.com.json") {
-      fail("JSON export filename was unexpected");
-    }
-    pass("JSON export starts download");
-
-    const shareHref = await page.getByRole("link", { name: "Share" }).getAttribute("href");
-    if (!shareHref || !shareHref.startsWith("/reports/")) {
-      fail("share permalink was not rendered");
+    const shareHref = await page.getByRole("link", { name: "Open permalink" }).getAttribute("href");
+    if (!shareHref || !shareHref.startsWith("/v3/reports/")) {
+      fail(`v3 share permalink was not rendered: ${shareHref}`);
     }
 
     // The anchor navigates with a relative path, but the copy button must write a
@@ -490,33 +399,37 @@ async function uiChecks() {
     // button changes state and must not be pinned as one exact sentence here.
     await page.getByRole("button", { name: /share link/i }).click();
     const copiedShareLink = await page.evaluate(() => window.__copiedShareLink);
-    if (!copiedShareLink || !/^https?:\/\/.+\/reports\//.test(copiedShareLink)) {
+    if (!copiedShareLink || !/^https?:\/\/.+\/v3\/reports\//.test(copiedShareLink)) {
       fail(`copy share link wrote a non-absolute URL: ${copiedShareLink}`);
     }
     if (!copiedShareLink.endsWith(shareHref)) {
-      fail("copied share link does not resolve to the share permalink");
+      fail("copied share link does not resolve to the v3 share permalink");
     }
-    pass("copy share link writes an absolute report URL");
+    pass("copy share link writes an absolute v3 report URL");
 
     await page.goto(`${baseUrl}${shareHref}`, { waitUntil: "networkidle" });
-    // .report-identity, not .report-header: the permalink's own header used to
-    // restate the site and URL that the evidence explorer's header also carries,
-    // so opening the explorer swapped one copy of those facts for another. The
-    // identity block renders in both states; .report-header now belongs to the
-    // explorer alone, which is what lines 314-315 below still assert.
-    await page.waitForSelector(".report-identity", { timeout: 30_000 });
-    await expectText(page.locator(".report-identity"), "https://example.com/");
-    if ((await page.locator(".report-grid").count()) !== 0) {
-      fail("share permalink eagerly rendered the full evidence explorer");
-    }
-    await page.getByRole("button", { name: "Explore full evidence" }).click();
-    await waitForReportOrError(page, 30_000);
-    await expectText(page.locator(".report-header"), "GPC off/on comparison");
-    await expectText(page.locator(".report-header"), "https://example.com/");
-    pass("share permalink renders its compact summary and lazy evidence explorer");
+    await page.waitForSelector('[data-report-v3="true"]', { timeout: 30_000 });
+    await expectText(page.locator('[data-report-v3="true"]'), "example.com");
+    await expectText(page.locator("main"), "Global Privacy Control (Sec-GPC: 1)");
+    pass("v3 share permalink renders saved comparison report");
 
-    // Report permalinks intentionally lead with evidence and do not embed the
-    // scanner form. Return to the scanner before exercising its validation UI.
+    const reportId = shareHref.replace(/^\/v3\/reports\//, "").replace(/\/.*$/, "");
+    const { value: savedV3Json } = await requestJson(
+      `${baseUrl}/api/v3/reports/${reportId}`,
+      {},
+      `/api/v3/reports/${reportId}`
+    );
+    if (savedV3Json.schemaVersion !== 3 || savedV3Json.reportId !== reportId) {
+      fail("saved v3 report JSON readback did not match");
+    }
+    const pdfRes = await fetch(`${baseUrl}/api/v3/reports/${reportId}/pdf`);
+    const pdfBuf = Buffer.from(await pdfRes.arrayBuffer());
+    if (!pdfRes.ok || !pdfBuf.subarray(0, 5).equals(Buffer.from("%PDF-"))) {
+      fail(`v3 PDF export failed (${pdfRes.status})`);
+    }
+    pass("v3 saved report JSON and PDF readback succeed");
+
+    // Return to the homepage to verify private-target refusal UX.
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     if (scanAccessToken) {
       await openOptions(page);
@@ -540,18 +453,21 @@ async function uiChecks() {
 
     await page.fill("#url", "https://example.com");
     await page.getByRole("button", { name: "Scan", exact: true }).click();
-    await page.waitForSelector(".report-grid", { timeout: 20_000 });
+    await waitForV3ReportOrError(page, 60_000);
     const reportOverflow = await hasHorizontalOverflow(page);
-    if (reportOverflow) fail("mobile report has page-level horizontal overflow");
-    pass("mobile report layout fits viewport");
+    if (reportOverflow) fail("mobile v3 report has page-level horizontal overflow");
+    pass("mobile v3 report layout fits viewport");
 
-    // The printable version is linked from every saved report. Its guide
-    // printed a 64-character SHA-256 as unbreakable code, which made the page
-    // 513 px wide on a 375 px phone.
-    await page.goto(`${baseUrl}${shareHref.replace(/\/+$/, "")}/print/`, { waitUntil: "networkidle" });
+    // Historical archive printable permalink still renders with zero mobile overflow.
+    const historicalIndex = JSON.parse(
+      readFileSync(path.join(process.cwd(), "public", "reports", "index.json"), "utf8")
+    );
+    const historicalId = historicalIndex.reports[0]?.id;
+    if (!historicalId) fail("historical report index has no entries");
+    await page.goto(`${baseUrl}/reports/${historicalId}/print/`, { waitUntil: "networkidle" });
     await page.waitForFunction(() => document.documentElement.dataset.reportPrintReady === "true", null, { timeout: 30_000 });
-    if (await hasHorizontalOverflow(page)) fail("mobile printable report has page-level horizontal overflow");
-    pass("mobile printable report fits viewport");
+    if (await hasHorizontalOverflow(page)) fail("mobile historical printable report has page-level horizontal overflow");
+    pass("mobile historical printable report fits viewport");
   } finally {
     await browser.close();
   }
@@ -567,9 +483,9 @@ async function openOptions(page) {
   }
 }
 
-async function waitForReportOrError(page, timeout) {
+async function waitForV3ReportOrError(page, timeout) {
   const state = await Promise.race([
-    page.waitForSelector(".report-grid", { timeout }).then(() => "report"),
+    page.waitForSelector('[data-report-v3="true"]', { timeout }).then(() => "report"),
     page.waitForSelector(".error-banner", { timeout }).then(() => "error")
   ]);
 

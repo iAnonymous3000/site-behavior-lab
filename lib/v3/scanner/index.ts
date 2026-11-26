@@ -168,8 +168,14 @@ export async function scanSiteV3(request: ScanRequestV3, deps: ScanSiteV3Deps = 
       policyByUrl: new Map()
     };
 
+    const leadLabel =
+      leadConditions.consentMode === "accept-all"
+        ? "Consent: Accept All"
+        : leadConditions.consentMode === "reject-all"
+          ? "Consent: Reject All"
+          : "Baseline visit";
     const armSpecs: { armId: string; label: string; axis?: ComparisonAxisV3; conditions: ArmConditionsV3 }[] = [
-      { armId: "baseline", label: "Baseline visit", conditions: leadConditions }
+      { armId: "baseline", label: leadLabel, conditions: leadConditions }
     ];
 
     for (const axis of request.comparisons ?? []) {

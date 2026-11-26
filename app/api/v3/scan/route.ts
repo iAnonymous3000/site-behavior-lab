@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
 import { assertScanAccess } from "@/lib/access-control";
 import { readRequestBodyWithinLimit } from "@/lib/edge-scan-gate";
-import { PublicScanError, toPublicError } from "@/lib/public-errors";
+import { PublicScanError, publicErrorBody, publicErrorHeaders, toPublicError } from "@/lib/public-errors";
 import {
   acquireScanSlot,
   assertRateLimit,
@@ -58,10 +58,10 @@ async function handleScanV3(request: Request): Promise<Response> {
         raw = parsed as Record<string, unknown>;
       }
     } catch {
-      raw = null;
+      throw new PublicScanError("Request body must be valid JSON.", 400, "request-rejected");
     }
     if (!raw || typeof raw.url !== "string" || !raw.url.trim()) {
-      throw new PublicScanError("A valid http(s) URL is required.", 400, "request-rejected");
+      throw new PublicScanError("A valid http(s) URL is required.", 400, "invalid-url");
     }
 
     const isOperatorAuthenticated = Boolean(process.env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?.trim());
@@ -173,13 +173,15 @@ async function handleScanV3(request: Request): Promise<Response> {
     );
   } catch (error) {
     const publicError = toPublicError(error);
-    const headers: Record<string, string> = { "x-content-type-options": "nosniff" };
-    if (publicError.status === 429) headers["retry-after"] = "60";
-    else if (publicError.status === 503) headers["retry-after"] = "10";
-    return NextResponse.json(
-      { ok: false, error: publicError.message, cause: publicError.cause },
-      { status: publicError.status, headers }
-    );
+    const headers: Record<string, string> = { ...publicErrorHeaders(publicError) };
+    if (!headers["Retry-After"]) {
+      if (publicError.status === 429) headers["Retry-After"] = "60";
+      else if (publicError.status === 503) headers["Retry-After"] = "10";
+    }
+    return NextResponse.json(publicErrorBody(publicError), {
+      status: publicError.status,
+      headers
+    });
   } finally {
     if (releaseSlot) releaseSlot();
   }

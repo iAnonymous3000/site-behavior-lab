@@ -36,17 +36,6 @@
   white-space: nowrap;
 }
 
-/* The disclosure's first sentence has two forms; the form shows the check's
-   while a "Check after scrolling" arrival holds (scan-disclosure.tsx). */
-.da.da.da .scan-disclosure-check-visit,
-.da.da.da .scan-panel[data-scroll-check] .scan-disclosure-visit {
-  display: none;
-}
-
-.da.da.da .scan-panel[data-scroll-check] .scan-disclosure-check-visit {
-  display: inline;
-}
-
 /* A link inside a cleared block takes the design's link again. In :where(),
    so every rule below that sets a link's own color still wins. */
 .da.da.da :where(.scan-workbench a, .empty-state a, .method-card a, .error-banner a, .loading-state a) {

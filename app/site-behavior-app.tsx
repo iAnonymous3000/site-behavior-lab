@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, FileJson, Loader2 } from "lucide-react";
+import { Check, Copy, ExternalLink, FileJson } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   PageGraphR2UploadButton,
@@ -12,8 +12,10 @@ import { SiteChrome } from "./_components/site-chrome";
 import { ScanRecoveryBanner } from "./_components/scan-recovery-banner";
 import { useScanRuntime } from "./_hooks/use-scan-runtime";
 import {
+  LIVE_SCAN_API_BASE,
   LIVE_SCAN_ENABLED,
   SCAN_WORKFLOW_URL,
+  STATIC_BASE_PATH,
   STATIC_EXPORT,
   clientReportRuntime,
   staticAssetPath
@@ -22,7 +24,6 @@ import { corpusCohortDifferences } from "@/lib/corpus-cohort-differences";
 import type { CorpusCohortIdentity } from "@/lib/corpus-cohort";
 import { committedReportLocation } from "@/lib/report-locator";
 import { SCAN_CHECKS } from "@/lib/scan-checks";
-import { scanJobProgressCopy } from "@/lib/scan-job-progress";
 import {
   LatestClientOperation,
   MAX_DIRECTORY_JSON_BYTES,
@@ -34,13 +35,13 @@ import { readClientFileText } from "@/lib/client-file-policy";
 import { isStaticReportManifest } from "@/lib/static-report-manifest-guard";
 import type { HomepageDiscovery, HomepageFeaturedGroup } from "@/lib/homepage-discovery";
 import { OPEN_LATEST_REPORT_LABEL } from "@/lib/homepage-labels";
-import { WATCH_FRAGMENT_PREFIX } from "@/lib/scheduled-rescan-mount";
 import { plural } from "@/lib/text-format";
 import { readLoadedReport, asLocalReport } from "@/lib/client-report-reader";
 // Type-only: the deep reader module stays lazy-loaded (client-report-reader);
 // a type import is erased at build time and adds nothing to the bundle.
 import type { LoadedReport } from "@/lib/scan-report-view";
-import type { ScanJobProgress, StaticReportManifestEntry } from "@/lib/types";
+import type { StaticReportManifestEntry } from "@/lib/types";
+import { resolveV3DynamicPageUrl } from "@/lib/v3/client-urls";
 import type { ScanReportV3 } from "@/lib/v3/schema";
 
 const LazyStaticReportGallery = lazy(() =>
@@ -49,19 +50,15 @@ const LazyStaticReportGallery = lazy(() =>
 const LazyReportRenderer = lazy(() =>
   import("./_components/report-renderer").then((module) => ({ default: module.ReportRenderer }))
 );
-const LazyDeepScanWorkbench = lazy(() =>
-  import("./_components/v3/DeepScanWorkbenchV3").then((module) => ({ default: module.DeepScanWorkbenchV3 }))
-);
 const LazyReportViewV3 = lazy(() =>
   import("./_components/v3/ReportViewV3").then((module) => ({ default: module.ReportViewV3 }))
 );
-// Scheduled rescans are off unless the scanner advertises them, so the watch
-// client stays out of the first load. The panel loads once they are advertised
-// or the address holds a management link, because a held link stays
-// manageable while creation is off.
-const LazyScheduledRescans = lazy(() =>
-  import("./_components/scheduled-rescans").then((module) => ({ default: module.ScheduledRescans }))
-);
+
+const V3_LOCATION = {
+  staticExport: STATIC_EXPORT,
+  scanApiBase: LIVE_SCAN_API_BASE,
+  basePath: STATIC_BASE_PATH
+};
 
 // Every hint restates evidence from a committed public-corpus report (the
 // gallery carries the receipts), phrased as what was observed, never as a
@@ -74,6 +71,7 @@ const EXAMPLES: { url: string; hint: string }[] = [
   { url: "homedepot.com", hint: "Meta Pixel with an identity field" },
   { url: "wikipedia.org", hint: "zero third parties on record" }
 ];
+
 export type CorpusHighlights = {
   /** Distinct real sites represented by any committed attempt. */
   attemptedSiteCount: number;
@@ -120,33 +118,20 @@ export function SiteBehaviorApp({
     setForm,
     loaded,
     setLoaded,
-    freshScanResult,
-    earlierResultId,
-    inspection,
-    scrollCheck,
+    liveV3Result,
+    setLiveV3Result,
     error,
     setError,
     loading,
     setLoading,
     scanning,
-    activeScanJob,
-    pendingScanAdmission,
-    recoveringScanAdmission,
-    activeScanProgress,
-    cancellingScan,
-    cancelScanError,
     scanNotice,
-    scheduledRescanCreateBusy,
-    setScheduledRescanCreateBusy,
-    turnstileToken,
     turnstileResetNonce,
     setTurnstileToken,
     urlNotice,
     urlError,
     prefilledUrl,
     prefilledMode,
-    inspectionArrival,
-    scrollCheckArrival,
     clearUrlNotice,
     policy,
     scannerStatus,
@@ -155,20 +140,14 @@ export function SiteBehaviorApp({
     handleSubmit,
     useExample,
     updateAccessKey,
-    acceptScheduledRescanTarget,
-    resetTurnstileAfterScheduledRescanAttempt,
-    recoverPendingAdmission,
-    resumeActiveScan,
     cancelActiveScan,
-    dismissActiveScan,
-    stopWaitingForAdmission
+    dismissBanner
   } = useScanRuntime({ reportPage: false, initialLoaded: null, initialError: null, initialLoading: false });
   const {
     gpcComparisonEnabled,
     shieldsComparisonEnabled,
     consentComparisonEnabled,
     liveApiServesReportPages,
-    scheduledRescansEnabled,
     scannerRequiresAccessKey,
     turnstileRequired,
     turnstileUnsupported,
@@ -181,11 +160,7 @@ export function SiteBehaviorApp({
   const [staticReports, setStaticReports] = useState<StaticReportManifestEntry[] | null>(null);
   const [staticReportsError, setStaticReportsError] = useState<string | null>(null);
   const [archiveRequested, setArchiveRequested] = useState(false);
-  const [deepScanOpen, setDeepScanOpen] = useState(false);
-  const [loadedV3, setLoadedV3] = useState<ScanReportV3 | null>(null);
-  // Latched: once mounted, the panel stays mounted, so a health change cannot
-  // drop a watch in progress.
-  const [scheduledRescansMounted, setScheduledRescansMounted] = useState(false);
+  const [uploadedV3, setUploadedV3] = useState<ScanReportV3 | null>(null);
   const reportRegionRef = useRef<HTMLElement | null>(null);
   const recoveryBannerRef = useRef<HTMLElement | null>(null);
   const archiveOperationRef = useRef<LatestClientOperation | null>(null);
@@ -195,22 +170,15 @@ export function SiteBehaviorApp({
   const archiveOperation = archiveOperationRef.current;
   const reportOpenOperation = reportOpenOperationRef.current;
 
+  const activeV3Report = liveV3Result?.report ?? uploadedV3;
+  const activeV3Permalink = liveV3Result
+    ? resolveV3DynamicPageUrl(liveV3Result.sharePath, V3_LOCATION)
+    : null;
+
   useEffect(() => () => {
     archiveOperation.cancel();
     reportOpenOperation.cancel();
   }, [archiveOperation, reportOpenOperation]);
-
-  useEffect(() => {
-    if (scheduledRescansMounted) return;
-    const mountWhenWanted = () => {
-      if (scheduledRescansEnabled || window.location.hash.startsWith(WATCH_FRAGMENT_PREFIX)) {
-        setScheduledRescansMounted(true);
-      }
-    };
-    mountWhenWanted();
-    window.addEventListener("hashchange", mountWhenWanted);
-    return () => window.removeEventListener("hashchange", mountWhenWanted);
-  }, [scheduledRescansEnabled, scheduledRescansMounted]);
 
   // Every producer replaces the workbench state with a report. Announce that
   // transition at the shared result boundary instead of leaving focus on a
@@ -221,19 +189,19 @@ export function SiteBehaviorApp({
 
   useEffect(() => {
     if (loaded) {
-      setLoadedV3(null);
-      setDeepScanOpen(false);
+      setUploadedV3(null);
+      setLiveV3Result(null);
     }
-  }, [loaded]);
+  }, [loaded, setLiveV3Result]);
 
   useEffect(() => {
-    if (loadedV3) reportRegionRef.current?.focus();
-  }, [loadedV3]);
+    if (activeV3Report) reportRegionRef.current?.focus();
+  }, [activeV3Report]);
 
   // A failure replaces the loading panel that held the focused Cancel button, so without
   // this a keyboard user is dropped to <body> at the top of the document exactly when the
-  // recovery controls they now need are the thing to read.
-  const scanFailure = error ?? cancelScanError;
+  // error notice they now need is the thing to read.
+  const scanFailure = error;
   const hadScanFailure = useRef(false);
   useEffect(() => {
     if (scanFailure && !hadScanFailure.current) recoveryBannerRef.current?.focus();
@@ -290,8 +258,8 @@ export function SiteBehaviorApp({
             throw new Error(`Multi-arm report JSON is invalid: ${issues[0]}`);
           }
           setLoaded(null);
-          setDeepScanOpen(false);
-          setLoadedV3(payload as ScanReportV3);
+          setLiveV3Result(null);
+          setUploadedV3(payload as ScanReportV3);
           return null;
         }
         const read = await readLoadedReport(payload, "This report JSON");
@@ -304,7 +272,8 @@ export function SiteBehaviorApp({
           setLoading(true);
           setError(null);
           setLoaded(null);
-          setLoadedV3(null);
+          setLiveV3Result(null);
+          setUploadedV3(null);
         },
         onSuccess: (next) => {
           if (next) setLoaded(next);
@@ -337,6 +306,8 @@ export function SiteBehaviorApp({
         setLoading(true);
         setError(null);
         setLoaded(null);
+        setLiveV3Result(null);
+        setUploadedV3(null);
       },
       onSuccess: setLoaded,
       onError: (readError: unknown) => {
@@ -356,6 +327,8 @@ export function SiteBehaviorApp({
     reportOpenOperation.cancel();
     setLoading(false);
     setError(null);
+    setLiveV3Result(null);
+    setUploadedV3(null);
     setLoaded(comparison);
   }
 
@@ -363,7 +336,14 @@ export function SiteBehaviorApp({
     reportOpenOperation.cancel();
     setLoading(false);
     setLoaded(null);
+    setLiveV3Result(null);
+    setUploadedV3(null);
     setError(message);
+  }
+
+  function clearV3Report() {
+    setLiveV3Result(null);
+    setUploadedV3(null);
   }
 
   const statusClassName = `status-pill${STATIC_EXPORT ? " status-pill-static" : ""}${
@@ -375,11 +355,11 @@ export function SiteBehaviorApp({
       setForm={setForm}
       onSubmit={(event) => {
         reportOpenOperation.cancel();
+        setUploadedV3(null);
         void handleSubmit(event);
       }}
       loading={loading}
-      scanBlocked={scanBlocked || scheduledRescanCreateBusy}
-      activeScanJob={Boolean(activeScanJob)}
+      scanBlocked={scanBlocked}
       urlNotice={urlNotice}
       urlError={urlError}
       clearUrlNotice={clearUrlNotice}
@@ -403,8 +383,6 @@ export function SiteBehaviorApp({
       prefilledUrl={prefilledUrl}
       shareReportMaxAgeDays={shareReportMaxAgeDays}
       prefilledMode={prefilledMode}
-      inspectedAddress={inspectionArrival?.address ?? null}
-      checkingAfterScrolling={scrollCheckArrival !== null}
       disclosure={scanDisclosure}
     />
   );
@@ -415,23 +393,6 @@ export function SiteBehaviorApp({
           options; a wide screen lays it in the limit column under the scan
           disclosure (app/_design/home.css). */}
       {visitRecords}
-      {scheduledRescansMounted && (
-        <Suspense fallback={null}>
-          <LazyScheduledRescans
-            enabled={scheduledRescansEnabled}
-            form={form}
-            scanBlocked={scanBlocked}
-            scanBusy={loading}
-            acceptedScanJob={Boolean(activeScanJob || pendingScanAdmission)}
-            scannerRequiresAccessKey={scannerRequiresAccessKey}
-            turnstileRequired={turnstileRequired}
-            turnstileToken={turnstileToken}
-            onTargetNormalized={acceptScheduledRescanTarget}
-            onCreateBusyChange={setScheduledRescanCreateBusy}
-            onCreateNetworkAttemptSettled={resetTurnstileAfterScheduledRescanAttempt}
-          />
-        </Suspense>
-      )}
     </div>
   );
 
@@ -448,123 +409,126 @@ export function SiteBehaviorApp({
       /* "da" opts this route into the direction A stylesheet (app/_design/). */
       shellClassName="da"
     >
-          <section className="scan-workbench" id="scan">
-            <div className="workbench-lede">
-              {/* The product's one-line thesis is a page heading now, not a
-                  wordmark subtitle inside the brand link. The brand anchor used
-                  to wrap this <h1> and override it with its own aria-label,
-                  which left every other route free to own a second <h1>. */}
-              <h1>See what a site does, not just what it says.</h1>
-              <p>
-                Run a controlled Chromium visit and read what the page actually loaded: request rows, cookie records,
-                service-catalog matches and browser signals from that one visit.
-              </p>
-            </div>
-            {LIVE_SCAN_ENABLED ? (
-              scanForm
-            ) : (
-              <>
-                <StaticPublicPanel onUploadReport={loadReportFile} onUploadError={surfaceReportOperationError} />
-                {visitRecords}
-              </>
-            )}
+      <section className="scan-workbench" id="scan">
+        <div className="workbench-lede">
+          <h1>See what a site does, not just what it says.</h1>
+          <p>
+            Run a controlled Chromium visit and read what the page actually loaded: request rows, cookie records,
+            service-catalog matches and browser signals from that one visit.
+          </p>
+        </div>
+        {LIVE_SCAN_ENABLED ? (
+          scanForm
+        ) : (
+          <>
+            <StaticPublicPanel onUploadReport={loadReportFile} onUploadError={surfaceReportOperationError} />
+            {visitRecords}
+          </>
+        )}
+      </section>
 
-          </section>
+      <ScanRecoveryBanner
+        bannerRef={recoveryBannerRef}
+        error={error}
+        notice={scanNotice}
+        onDismiss={dismissBanner}
+      />
 
-        <ScanRecoveryBanner
-          bannerRef={recoveryBannerRef}
-          error={error}
-          notice={scanNotice}
-          acceptedJob={Boolean(activeScanJob)}
-          pendingAdmission={Boolean(pendingScanAdmission)}
-          recoveringAdmission={recoveringScanAdmission}
-          loading={loading}
-          cancelling={cancellingScan}
-          cancellationError={cancelScanError}
-          onResume={() => void resumeActiveScan()}
-          onCheckAdmission={() => void recoverPendingAdmission()}
-          onCancel={() => void cancelActiveScan()}
-          onDismiss={dismissActiveScan}
-        />
-
-          <section aria-label="Results" id="report" ref={reportRegionRef} tabIndex={-1}>
-          {deepScanOpen && !loaded && !loadedV3 && !loading && (
-            <Suspense fallback={<p className="muted">Loading multi-arm deep scan workbench…</p>}>
-              <LazyDeepScanWorkbench initialUrl={form.url} onClose={() => setDeepScanOpen(false)} />
-            </Suspense>
-          )}
-          {loadedV3 && !loaded && !loading && (
-            <Suspense fallback={<p className="muted">Preparing multi-arm report view…</p>}>
-              <div className="homepage-discovery-actions" style={{ marginBottom: 12 }}>
-                <button type="button" className="secondary-button" onClick={() => setLoadedV3(null)}>
-                  Back to library
-                </button>
-              </div>
-              <LazyReportViewV3 embedded report={loadedV3} />
-            </Suspense>
-          )}
-          {!loadedV3 && (
-            <>
-              {!loaded && !loading && !activeScanJob && !pendingScanAdmission && frontRecord}
-              {!loaded && !loading && !activeScanJob && !pendingScanAdmission && (
-                <EmptyState
-                  rowMarks={rowMarks}
-                  rowKey={rowKey}
-                  onUploadReport={loadReportFile}
-                  onUploadPageGraph={loadPageGraphFile}
-                  onUploadError={surfaceReportOperationError}
-                  onCreateComparison={acceptCreatedComparison}
-                  onComparisonError={rejectCreatedComparison}
-                  liveScanEnabled={LIVE_SCAN_ENABLED}
-                  staticExport={STATIC_EXPORT}
-                  staticReports={staticReports}
-                  staticReportsError={staticReportsError}
-                  homepageDiscovery={homepageDiscovery}
-                  corpusHighlights={corpusHighlights}
-                  archiveRequested={archiveRequested}
-                  onLoadArchive={() => void loadStaticArchive()}
-                  deepScanOpen={deepScanOpen}
-                  onToggleDeepScan={() => setDeepScanOpen((open) => !open)}
-                />
+      <section aria-label="Results" id="report" ref={reportRegionRef} tabIndex={-1}>
+        {activeV3Report && !loaded && !loading && (
+          <Suspense fallback={<p className="muted">Preparing multi-arm report view…</p>}>
+            <div className="homepage-discovery-actions">
+              {activeV3Permalink && (
+                <>
+                  <a className="primary-button" href={activeV3Permalink}>
+                    Open permalink
+                  </a>
+                  <SharePermalinkCopyButton href={activeV3Permalink} />
+                </>
               )}
-            </>
-          )}
-          {loading && (
-            <LoadingState
-              // recoveringScanAdmission stays true for the whole resumed scan (it is
-              // cleared in the recovery finally, after resumeRuntimeScan returns), so
-              // this must also require !scanning. Without that the resumed run loses its
-              // progress bar and its Cancel control for minutes.
-              mode={
-                recoveringScanAdmission && !scanning
-                  ? "recovering"
-                  : !scanning
-                  ? "opening"
-                  : form.compareGpc
-                    ? "gpc"
-                    : form.compareShields
-                      ? "shields"
-                      : form.compareConsent
-                        ? "consent"
-                        : "single"
-              }
-              // Before admission there is no job to cancel, but the visitor still needs
-              // a way out of the wait, and the label must not promise a cancellation.
-              onCancel={activeScanJob ? () => void cancelActiveScan() : stopWaitingForAdmission}
-              cancelLabel={activeScanJob ? "Cancel scan" : "Stop waiting"}
-              cancelling={cancellingScan}
-              cancellationError={cancelScanError}
-              progress={activeScanProgress}
-            />
-          )}
-          {loaded && (
-            <Suspense fallback={<p className="muted">Preparing the evidence explorer…</p>}>
-              <LazyReportRenderer loaded={loaded} liveApiServesReportPages={liveApiServesReportPages} freshResult={freshScanResult}
-                earlierResultId={earlierResultId} inspection={inspection} scrollCheck={scrollCheck} />
-            </Suspense>
-          )}
-          </section>
+              <button type="button" className="secondary-button" onClick={clearV3Report}>
+                Back to library
+              </button>
+            </div>
+            <LazyReportViewV3 key={activeV3Report.reportId} embedded report={activeV3Report} />
+          </Suspense>
+        )}
+        {!activeV3Report && (
+          <>
+            {!loaded && !loading && frontRecord}
+            {!loaded && !loading && (
+              <EmptyState
+                rowMarks={rowMarks}
+                rowKey={rowKey}
+                onUploadReport={loadReportFile}
+                onUploadPageGraph={loadPageGraphFile}
+                onUploadError={surfaceReportOperationError}
+                onCreateComparison={acceptCreatedComparison}
+                onComparisonError={rejectCreatedComparison}
+                liveScanEnabled={LIVE_SCAN_ENABLED}
+                staticExport={STATIC_EXPORT}
+                staticReports={staticReports}
+                staticReportsError={staticReportsError}
+                homepageDiscovery={homepageDiscovery}
+                corpusHighlights={corpusHighlights}
+                archiveRequested={archiveRequested}
+                onLoadArchive={() => void loadStaticArchive()}
+              />
+            )}
+          </>
+        )}
+        {loading && (
+          <LoadingState
+            mode={
+              !scanning
+                ? "opening"
+                : form.compareGpc
+                  ? "gpc"
+                  : form.compareShields
+                    ? "shields"
+                    : form.compareConsent
+                      ? "consent"
+                      : "single"
+            }
+            onCancel={scanning ? cancelActiveScan : undefined}
+          />
+        )}
+        {loaded && (
+          <Suspense fallback={<p className="muted">Preparing the evidence explorer…</p>}>
+            <LazyReportRenderer loaded={loaded} liveApiServesReportPages={liveApiServesReportPages} />
+          </Suspense>
+        )}
+      </section>
     </SiteChrome>
+  );
+}
+
+function SharePermalinkCopyButton({ href }: { href: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function copyPermalink() {
+    const absolute =
+      typeof window !== "undefined" ? new URL(href, window.location.origin).toString() : href;
+    try {
+      await navigator.clipboard.writeText(absolute);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2_000);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <button
+      className="secondary-button"
+      type="button"
+      aria-live="polite"
+      onClick={() => void copyPermalink()}
+    >
+      {copied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
+      {copied ? "Copied" : "Copy link"}
+      <span className="visually-hidden"> (share link)</span>
+    </button>
   );
 }
 
@@ -674,9 +638,7 @@ function EmptyState({
   homepageDiscovery,
   corpusHighlights,
   archiveRequested,
-  onLoadArchive,
-  deepScanOpen,
-  onToggleDeepScan
+  onLoadArchive
 }: {
   rowMarks: Record<string, ReactNode>;
   rowKey: ReactNode;
@@ -694,8 +656,6 @@ function EmptyState({
   corpusHighlights: CorpusHighlights | null;
   archiveRequested: boolean;
   onLoadArchive: () => void;
-  deepScanOpen: boolean;
-  onToggleDeepScan: () => void;
 }) {
   const latestReport = homepageDiscovery?.latestReport ?? null;
   const highlights =
@@ -706,12 +666,6 @@ function EmptyState({
     if (archiveRequested) archiveToolsRef.current?.focus();
   }, [archiveRequested]);
 
-  // The library is the second half of the product and used to be presented
-  // as the scan form's empty state: an icon, "Explore measured evidence", and
-  // the featured cards inside it. A first-time reader arrives for the
-  // evidence more often than for the scanner, so it is a section with its
-  // own heading, counts, and actions, and the tools it also carried sit at
-  // the end where a returning reader knows to look.
   return (
     <section
       className={`empty-state${staticExport ? " static-library-state" : ""}`}
@@ -758,17 +712,6 @@ function EmptyState({
           </a>
         )}
         <a className="secondary-button" href={staticAssetPath("/directory/")}>Browse all sites</a>
-        {liveScanEnabled && (
-          <button
-            className="secondary-button"
-            type="button"
-            aria-expanded={deepScanOpen}
-            aria-controls="multi-arm-scan"
-            onClick={onToggleDeepScan}
-          >
-            {deepScanOpen ? "Hide multi-arm deep scan" : "Multi-arm deep scan"}
-          </button>
-        )}
       </div>
 
       <details className="homepage-tools-disclosure">
@@ -845,10 +788,6 @@ function HomepageFeaturedGallery({
             <h4>{group.label}</h4>
             <div className="featured-cards">
               {group.items.map((item) => (
-                // A row, not a card: the site's name is the link, then its lead
-                // finding as worded, a limit where the evidence is incomplete,
-                // and the two count sentences. No tone and no mark: a color or
-                // a sign beside a site reads as a verdict on it.
                 <div className="featured-card" key={item.id}>
                   <a
                     className="featured-card-site"
@@ -886,47 +825,51 @@ function HomepageFeaturedGallery({
   );
 }
 
+function loadingCopy(mode: "single" | "gpc" | "shields" | "consent"): { title: string; detail: string } {
+  if (mode === "gpc") {
+    return {
+      title: "Running GPC comparison visits",
+      detail: "Launching isolated Chromium arms with and without Global Privacy Control (Sec-GPC: 1)."
+    };
+  }
+  if (mode === "shields") {
+    return {
+      title: "Running blocker comparison visits",
+      detail: "Launching isolated Chromium arms normally and with Brave's adblock-rust filter lists actively blocking."
+    };
+  }
+  if (mode === "consent") {
+    return {
+      title: "Running consent comparison visits",
+      detail: "Launching isolated Chromium arms attempting Accept all and Reject all on the consent banner."
+    };
+  }
+  return {
+    title: "Running controlled browser visit",
+    detail: "Recording passive load, scroll-triggered requests, cookies, storage, CNAME chains, beacon decoding, and form-field probe coverage."
+  };
+}
 
 function LoadingState({
   mode,
-  onCancel,
-  cancelLabel = "Cancel scan",
-  cancelling = false,
-  cancellationError = null,
-  progress = null
+  onCancel
 }: {
-  mode: "single" | "gpc" | "shields" | "consent" | "opening" | "recovering";
+  mode: "single" | "gpc" | "shields" | "consent" | "opening";
   onCancel?: () => void;
-  cancelLabel?: string;
-  cancelling?: boolean;
-  cancellationError?: string | null;
-  progress?: ScanJobProgress | null;
 }) {
-  const isScanning = mode !== "opening" && mode !== "recovering";
+  const isScanning = mode !== "opening";
   const scanningRegionRef = useRef<HTMLElement | null>(null);
 
-  // Submitting disables the Scan button while it still holds focus, which browsers
-  // resolve by blurring to <body>. Without this a keyboard user is dropped to the top
-  // of the document for the length of the scan, with the cancel control they now need
-  // sitting behind the entire header and form.
   useEffect(() => {
     if (isScanning) scanningRegionRef.current?.focus();
   }, [isScanning]);
 
-  // Opening a saved report is a quick fetch, not a controlled browser visit, so it
-  // gets a lightweight state without the elapsed timer or the "what we check" list.
-  // Admission recovery reuses the same lightweight shape but must not claim to be
-  // opening a report: at that point it is still asking whether a scan was accepted.
   if (!isScanning) {
     return (
       <section className="loading-state" role="status">
         <span className="pulse-dot" />
-        <h2>{mode === "recovering" ? "Checking the previous scan request" : "Opening saved report"}</h2>
-        <p>
-          {mode === "recovering"
-            ? "Asking whether the previous scan request was accepted before starting anything new."
-            : "Loading the saved evidence for this report."}
-        </p>
+        <h2>Opening saved report</h2>
+        <p>Loading the saved evidence for this report.</p>
         <div className="progress-track" aria-hidden="true">
           <div className="progress-fill" />
         </div>
@@ -934,7 +877,7 @@ function LoadingState({
     );
   }
 
-  const progressCopy = scanJobProgressCopy(progress);
+  const copy = loadingCopy(mode);
 
   return (
     <section
@@ -944,22 +887,19 @@ function LoadingState({
       tabIndex={-1}
     >
       <p className="visually-hidden" role="status" aria-live="polite">
-        {progressCopy.title}. {progressCopy.completedRuns ?? "Progress details are shown below."}
+        {copy.title}. Progress details are shown below.
       </p>
       <span className="pulse-dot" />
-      <h2 id="scan-loading-title">{progressCopy.title}</h2>
-      <p>{progressCopy.detail}</p>
+      <h2 id="scan-loading-title">{copy.title}</h2>
+      <p>{copy.detail}</p>
       <div className="progress-track" aria-hidden="true">
         <div className="progress-fill" />
       </div>
-      {progressCopy.completedRuns && <p className="loading-elapsed">{progressCopy.completedRuns}</p>}
       {onCancel && (
-        <button className="secondary-button" type="button" onClick={onCancel} disabled={cancelling}>
-          {cancelling ? <Loader2 className="spin" size={16} aria-hidden="true" /> : null}
-          {cancelling ? "Cancelling…" : cancelLabel}
+        <button className="secondary-button" type="button" onClick={onCancel}>
+          Cancel scan
         </button>
       )}
-      {cancellationError && <p role="alert">{cancellationError} The scan is still running.</p>}
       <ul className="scan-checks">
         {SCAN_CHECKS.map((check) => (
           <li key={check.label}>
@@ -971,7 +911,7 @@ function LoadingState({
         ))}
       </ul>
       <p className="scan-checks-note">
-        Keystroke capture is tested by typing a synthetic value into the page&rsquo;s form fields (never submitting) and
+        Keystroke capture is tested by typing a synthetic value into visible form fields (never submitting) and
         watching for it to appear in a request to another registrable domain during typing, blur, or the wait after. A match
         proves that synthetic value crossed the domain boundary, not why it was sent. It covers fields on the loaded
         page, not flows behind login or extra steps.

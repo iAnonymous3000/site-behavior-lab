@@ -122,46 +122,16 @@ test("synchronous abort listeners cannot claim an ownership handoff gap", () => 
   assert.ok(owner.claim("submit"));
 });
 
-test("the hook claims ownership before submission and fences every lifecycle callback", () => {
+test("the hook claims ownership before v3 submission and fences completion, cancellation, and cleanup", () => {
   const source = readFileSync(path.join(process.cwd(), "app/_hooks/use-scan-runtime.ts"), "utf8");
-  const runScan = source.slice(source.indexOf("async function runScan"), source.indexOf("async function resumeActiveScan"));
+  const runScan = source.slice(source.indexOf("async function runScan"), source.indexOf("function cancelActiveScan"));
 
   assert.ok(runScan.indexOf('claim("submit")') >= 0);
-  assert.ok(runScan.indexOf('claim("submit")') < runScan.indexOf("submitRuntimeScan({"));
-  assert.match(runScan, /onAdmissionReady:[\s\S]*retainPendingAdmission\(operation,/);
-  assert.match(runScan, /onAdmissionCleared:[\s\S]*releasePendingAdmission\(operation\)/);
-  assert.match(runScan, /onAccepted:[\s\S]*retainActiveScanSession\(operation,/);
-  assert.match(runScan, /onProgress:[\s\S]*operationOwnerRef\.current\.owns\(operation\)/);
+  assert.ok(runScan.indexOf('claim("submit")') < runScan.indexOf("submitV3RuntimeScan({"));
+  assert.match(runScan, /await submitV3RuntimeScan[\s\S]*assertClientOperationOwner\(operationOwnerRef\.current, operation\)/);
+  assert.match(runScan, /catch[\s\S]*operationOwnerRef\.current\.owns\(operation\)/);
   assert.match(runScan, /finally[\s\S]*operationOwnerRef\.current\.owns\(operation\)/);
   assert.match(source, /function handleSubmit[\s\S]*operationOwnerRef\.current\.current\(\) !== null[\s\S]*void runScan/);
-});
-
-test("restore, admission recovery, resume, cancel, persistence, and cleanup share the same lease fence", () => {
-  const source = readFileSync(path.join(process.cwd(), "app/_hooks/use-scan-runtime.ts"), "utf8");
-  const recovery = source.slice(
-    source.indexOf("async function recoverPendingAdmission"),
-    source.indexOf("async function runScan")
-  );
-  const resume = source.slice(source.indexOf("async function resumeActiveScan"), source.indexOf("async function cancelActiveScan"));
-  const cancel = source.slice(source.indexOf("async function cancelActiveScan"), source.indexOf("function dismissActiveScan"));
-
-  assert.match(source, /function retainActiveScanSession[\s\S]*assertClientOperationOwner\(operationOwnerRef\.current, operation\)/);
-  assert.match(source, /function releaseActiveScanSession[\s\S]*assertClientOperationOwner\(operationOwnerRef\.current, operation\)/);
-  assert.match(source, /function retainPendingAdmission[\s\S]*assertClientOperationOwner\(operationOwnerRef\.current, operation\)/);
-  assert.match(source, /function releasePendingAdmission[\s\S]*assertClientOperationOwner\(operationOwnerRef\.current, operation\)/);
-  assert.match(source, /claim\("restore"\)[\s\S]*onProgress:[\s\S]*owns\(operation\)[\s\S]*\.finally[\s\S]*owns\(operation\)/);
-
-  assert.match(recovery, /claim\("admission-recovery"\)/);
-  assert.match(recovery, /await recoverRuntimeScanAdmissionThroughCommitWindow[\s\S]*assertClientOperationOwner/);
-  assert.match(recovery, /onProgress:[\s\S]*owns\(operation\)/);
-  assert.match(recovery, /catch[\s\S]*owns\(operation\)[\s\S]*finally[\s\S]*owns\(operation\)/);
-
-  assert.match(resume, /claim\("resume"\)/);
-  assert.match(resume, /await resumeRuntimeScan[\s\S]*assertClientOperationOwner/);
-  assert.match(resume, /onProgress:[\s\S]*owns\(operation\)[\s\S]*finally[\s\S]*owns\(operation\)/);
-
-  assert.match(cancel, /supersede\("cancel"\)/);
-  assert.match(cancel, /await cancelRuntimeScan[\s\S]*assertClientOperationOwner/);
-  assert.match(cancel, /catch[\s\S]*owns\(operation\)[\s\S]*finally[\s\S]*owns\(operation\)/);
-  assert.match(source, /function dismissActiveScan[\s\S]*cancelCurrentLifecycleOperation\(\)[\s\S]*forceReleaseActiveScanSession\(\)/);
+  assert.match(source, /function cancelActiveScan[\s\S]*operationOwnerRef\.current\.cancelCurrent\(\)/);
+  assert.match(source, /useEffect\(\s*\(\) => \(\) => \{\s*operationOwnerRef\.current\.cancelCurrent\(\);/);
 });

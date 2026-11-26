@@ -94,7 +94,7 @@ export function ReportViewV3({
   return (
     <>
       {/* Layer 1: Hero & Behavior-First Actions */}
-      <section className={styles.panel}>
+      <section className={styles.panel} data-report-v3="true">
         <div className={styles.heroHeader}>
           <div>
             <p className={styles.eyebrow}>Multi-arm behavior report</p>
@@ -135,6 +135,7 @@ export function ReportViewV3({
               rel="noreferrer"
             >
               JSON
+              <span className="visually-hidden"> (opens in a new tab)</span>
             </a>
             <a
               href={resolveV3ApiUrl(`/api/v3/reports/${report.reportId}/pdf?format=html`, LIVE_SCAN_API_BASE)}
@@ -143,6 +144,7 @@ export function ReportViewV3({
               rel="noreferrer"
             >
               Print HTML
+              <span className="visually-hidden"> (opens in a new tab)</span>
             </a>
             <a
               href={resolveV3ApiUrl(`/api/v3/reports/${report.reportId}/pdf`, LIVE_SCAN_API_BASE)}
@@ -151,6 +153,7 @@ export function ReportViewV3({
               rel="noreferrer"
             >
               PDF
+              <span className="visually-hidden"> (opens in a new tab)</span>
             </a>
           </div>
         </div>

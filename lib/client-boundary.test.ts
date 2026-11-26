@@ -26,11 +26,17 @@ test("report permalinks do not import the scanner, gallery, watches, or import w
   assert.match(client, /fetchBytesResponseWithPolicy\(evidenceHref[\s\S]*Explore full evidence/);
 });
 
-test("homepage keeps the evidence renderer outside its initial route module", () => {
+test("homepage keeps the evidence renderers outside its initial route module", () => {
   const app = readFileSync(path.join(root, "app", "site-behavior-app.tsx"), "utf8");
   assert.match(app, /lazy\(\(\) =>[\s\S]*report-renderer/);
   assert.match(app, /<LazyReportRenderer/);
+  assert.match(app, /lazy\(\(\) =>[\s\S]*ReportViewV3/);
+  assert.match(app, /<LazyReportViewV3/);
   assert.doesNotMatch(app, /from "\.\/_components\/(?:report-header|report-overview|report-tables|comparison-panel|causality-graph)"/);
+  // Type-only imports of lib/v3/schema keep the schema validator out of the first load.
+  for (const match of app.matchAll(/^import\s+([^;]*?)\s+from\s+"@\/lib\/v3\/schema";/gm)) {
+    assert.match(match[1], /^type\s/, "site-behavior-app must import lib/v3/schema only as a type");
+  }
 });
 
 test("homepage reads cohort differences without the corpus-cohort report graph", () => {
@@ -160,76 +166,19 @@ test("Look closer views are built on the server or in the renderer chunk, never 
   never(clientProps, /newVisitFrom/, "the permalink hands its client the share a new visit names, a prop every committed page would serialize");
   holds(renderer, /const newVisitFrom = reportNewVisitFrom\(reportView, freshResult\);/, "the explorer names the share from its own view and the freshness");
   holds(renderer, /<FindingsBoard [^>]*newVisitFrom=\{newVisitFrom\}/, "the explorer's board gets that share");
-  // On the homepage, only the result this tab's live scan returned is fresh.
+  // Homepage live scans now run v3 and render through LazyReportViewV3; legacy
+  // ReportRenderer on the homepage renders only local JSON uploads, PageGraph
+  // captures, and archive comparisons (never fresh live scans).
   const app = read("app", "site-behavior-app.tsx");
-  holds(app, /<LazyReportRenderer [^>]*freshResult=\{freshScanResult\}/, "the homepage hands its result's freshness to the explorer");
+  holds(app, /<LazyReportRenderer loaded=\{loaded\} liveApiServesReportPages=\{liveApiServesReportPages\} \/>/, "the homepage keeps ReportRenderer for local historical imports");
   const hook = read("app", "_hooks", "use-scan-runtime.ts");
-  holds(
-    hook,
-    /freshScanResult: liveScan !== null && loaded === liveScan\.result && liveScan\.scrollCheck === null,/,
-    "freshness is the live scan's own result, by identity, and never a check's, which offers no new visit"
-  );
-  // Only showLiveScanResult records a live result, or clears one for a check
-  // shell no submit asked for.
-  const showLive = hook.slice(hook.indexOf("function showLiveScanResult("), hook.indexOf("function releaseActiveScanSession("));
-  assert.equal(hook.match(/setLiveScan\(/g)?.length, 2, "only showLiveScanResult records or clears a live result");
-  assert.equal(showLive.match(/setLiveScan\(/g)?.length, 2, "only showLiveScanResult records or clears a live result");
-  assert.equal(hook.match(/showLiveScanResult\(nextLoaded[,)]/g)?.length, 4, "submit, resume, restore and admission recovery show a live result");
-  // Only the submit hands over the inspection it asked for: the status poll
-  // re-serves the same shell to a resumed or restored tab, which shows none.
-  assert.equal(hook.match(/showLiveScanResult\(nextLoaded\)/g)?.length, 3, "resume, restore and admission recovery hand over no inspection");
-  holds(
-    hook,
-    /assertClientOperationOwner\(operationOwnerRef\.current, operation\);\s*showLiveScanResult\(nextLoaded, inspectionArrival, scrollCheckArrival\);/,
-    "the submit path hands over the inspection or the check its request asked for"
-  );
-  holds(hook, /inspection: liveScan !== null && loaded === liveScan\.result \? liveScan\.inspection : null,/, "the inspection reaches the page only while its own result is shown");
-  // A check's result shows only from that submit: nothing from it is saved,
-  // so a resumed, restored or recovered shell that carries one shows no
-  // result, and the page says that the check finished
-  // (unshownScrollCheckNotice, lib/scan-client-orchestration.ts).
-  holds(
-    hook,
-    /const unshownCheck = unshownScrollCheckNotice\(next, checked\);\s*if \(unshownCheck !== null\) \{\s*setLoaded\(null\);\s*setLiveScan\(null\);\s*setError\(unshownCheck\);\s*return;\s*\}\s*setLoaded\(next\);/,
-    "a check's result shell reaching any other path is dropped before it is shown, with a sentence in its place"
-  );
-  holds(hook, /scrollCheck: shownScrollCheck\(next, checked\)\s*\}\);/, "the check shown is the one the submit asked for");
-  holds(hook, /scrollCheck: liveScan !== null && loaded === liveScan\.result \? liveScan\.scrollCheck : null,/, "the check reaches the page only while its own result is shown");
-  holds(app, /<LazyReportRenderer [^>]*scrollCheck=\{scrollCheck\}/, "the homepage hands its result's check to the explorer");
+  holds(hook, /submitV3RuntimeScan\(/, "the homepage runtime submits live scans through v3");
   holds(renderer, /scrollCheck = null/, "a renderer shows no check unless told");
-  holds(
-    renderer,
-    /\{scrollCheck && !printComplete && \(\s*<>\s*<ScrollCheckPanel evidence=\{scrollCheck\.evidence\} earlierResultHref=\{checkedFromHref\} \/>\s*<p className="scroll-check-report-note">\{scrollCheckReportNote\(scrollCheck\.evidence\)\}<\/p>\s*<\/>\s*\)\}\s*\{resultSummary\}\s*<ReportHeader/,
-    "the check's panel and its one sentence render from the handed-over check, ahead of the report (its summary, then its evidence head), never on paper"
-  );
-  holds(renderer, /exportsOffered=\{scrollCheck === null\}/, "a check's result offers no export");
-  holds(renderer, /sharingOffered=\{scrollCheck === null\}/, "a check's result offers no headline to post or copy");
-  holds(read("app", "_components", "report-overview.tsx"), /\{sharingOffered && \(\s*<div className="headline-actions">/, "a banner that offers no sharing renders no share actions");
-  const header = read("app", "_components", "report-header.tsx");
-  holds(header, /\{exportsOffered && pdfHref && \(/, "a result that offers no export offers no PDF");
-  holds(header, /\{exportsOffered && \(\s*<>\s*<button\s*aria-describedby="csv-export-description"/, "a result that offers no export offers no CSV or JSON");
-  holds(app, /<LazyReportRenderer [^>]*inspection=\{inspection\}/, "the homepage hands its result's inspection to the explorer");
   holds(renderer, /inspection = null/, "a renderer shows no inspection unless told");
-  holds(
-    renderer,
-    /\{inspection && !printComplete && \(\s*<ConnectionInspectionPanel evidence=\{inspection\.evidence\} earlierResultHref=\{inspectedFromHref\} \/>\s*\)\}/,
-    "the panel renders from the handed-over inspection, never on paper"
-  );
-  never(hook, /setLoaded\(nextLoaded\)/, "a live scan result reached the result region without being recorded as fresh");
+  holds(renderer, /earlierResultId = null/, "a renderer links back to nothing unless told");
   const print = read("app", "reports", "[id]", "print", "page.tsx");
   never(print, /siteHistoryHref|lookCloser|freshResult|newVisitTarget|newVisitFrom|earlierResultId/, "the printable route hands its board a Look closer input");
   holds(print, /<ReportRenderer[\s\S]*?printComplete\s/, "the printable route renders its board for paper");
-  // The link back to an earlier result: the homepage hands its connected
-  // result's id to the renderer, the only place it renders, and resolves it
-  // as a freshly produced report's share; a permalink, its client and the
-  // printable route hand none, and nothing else renders the line.
-  holds(renderer, /earlierResultId = null/, "a renderer links back to nothing unless told");
-  holds(
-    renderer,
-    /const earlierResultHref = earlierResultId\s*\? locateReport\(earlierResultId, \{ \.\.\.clientReportRuntime\(\), liveApiServesReportPages \}\)\.pagePath\s*: null;/,
-    "the back-link resolves as a freshly produced report's share permalink"
-  );
-  holds(renderer, /\{earlierResultHref && \(\s*<div className="earlier-result-note">/, "the line renders only with a share to link to");
   for (const [source, where] of [[page, "the permalink"], [client, "the saved-report client"]] as const) {
     never(source, /earlierResultId|earlier-result/, `${where} hands its explorer an earlier result`);
     never(source, /inspection=|ConnectionInspection/, `${where} hands its explorer an inspection`);

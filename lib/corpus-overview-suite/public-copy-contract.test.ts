@@ -274,7 +274,7 @@ test("a rejected URL stays a field problem instead of erasing the homepage", () 
   // than deleting it, and clearUrlNotice only clears urlError, so mirroring a
   // typo into `error` would have announced it twice. The contract is that no
   // URL-field problem can reach either gate.
-  assert.match(home, /!loaded && !loading && !activeScanJob && !pendingScanAdmission && \(\s*<EmptyState/);
+  assert.match(home, /!loaded && !loading && \(\s*<EmptyState/);
   assert.match(home, /\{highlights && <CorpusHero highlights=\{highlights\} \/>\}/);
   assert.doesNotMatch(home, /urlError[^\n]*<EmptyState|urlError[^\n]*<CorpusHero/);
   assert.match(submit, /setUrlError\("Enter a public URL to scan/);
@@ -286,21 +286,10 @@ test("a completed cancellation reads as done, not as a failure", () => {
   const hook = source("app/_hooks/use-scan-runtime.ts");
   const banner = source("app/_components/scan-recovery-banner.tsx");
 
-  // cancelRuntimeScan resolves with "Scan cancelled."; routing that through setError
-  // rendered a successful cancel as a red warning-triangle alert.
-  const cancel = hook.slice(hook.indexOf("async function cancelActiveScan"), hook.indexOf("function dismissActiveScan"));
-  assert.match(cancel, /setScanNotice\(message\)/);
-  assert.doesNotMatch(cancel, /setError\(message\)/);
+  const cancel = hook.slice(hook.indexOf("function cancelActiveScan"), hook.indexOf("function dismissBanner"));
+  assert.match(cancel, /setScanNotice\("Scan cancelled\."\)/);
+  assert.doesNotMatch(cancel, /setError\("Scan cancelled\."\)/);
   assert.match(banner, /const settled = Boolean\(notice\) && !failed/);
-});
-
-test("the pre-admission escape does not claim a cancellation it cannot perform", () => {
-  const hook = source("app/_hooks/use-scan-runtime.ts");
-  const home = source("app/site-behavior-app.tsx");
-
-  assert.match(hook, /function stopWaitingForAdmission\(\): void/);
-  assert.match(hook, /Stopped waiting for the scanner\. The request may already have been accepted/);
-  assert.match(home, /cancelLabel=\{activeScanJob \? "Cancel scan" : "Stop waiting"\}/);
 });
 
 test("methodology dates never render a broken Date object", () => {

@@ -147,16 +147,9 @@ test("Turnstile follows its measured container across the 300px responsive bound
   assert.match(source("app/globals.css"), /\.turnstile-widget \{[\s\S]*?inline-size: 100%;[\s\S]*?min-inline-size: 0;/);
 });
 
-test("resuming status checks explains a lost lease instead of doing nothing", () => {
-  const hook = source("app/_hooks/use-scan-runtime.ts");
-  const resume = hook.slice(
-    hook.indexOf("async function resumeActiveScan"),
-    hook.indexOf("async function cancelActiveScan")
-  );
-
-  // The banner renders this control whenever an accepted job is retained, so the
-  // claim can lose to an in-flight request. It used to return silently, leaving an
-  // enabled button that provably could not work.
-  assert.match(resume, /if \(operation === null\) \{/);
-  assert.match(resume, /Another scan request from this tab is still in flight/);
+test("v3 homepage live scan submission uses the bounded shared fetch policy", () => {
+  const v3Client = source("lib/v3/client-scan.ts");
+  assert.match(v3Client, /fetchJsonResponseWithPolicy/);
+  assert.match(v3Client, /maxBytes: BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES/);
+  assert.doesNotMatch(v3Client, /response\.json\s*\(/);
 });

@@ -405,17 +405,15 @@ test("the site states what becomes of a live rescan one way", () => {
 
 test("the form wires the note, the one submit button and the arrival as the copy module decides", () => {
   const source = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
-  // Fail with a sentence, never the file: a failing match carrying a whole
-  // source file has stalled the test runner's parent.
   const holds = (text: string, pattern: RegExp, expectation: string) => assert.ok(pattern.test(text), `expected ${expectation}`);
   const controls = source("app/_components/scan-controls.tsx");
   assert.equal(controls.match(/type="submit"/g)?.length, 1, "expected exactly one submit control: it carries every scan gate");
-  holds(controls, /scanAgainArrival: isScanAgainArrival\(prefilledUrl, form\.url\),\s*scanBusy: loading \|\| activeScanJob/, "the arrival and a busy scan both decide whether the report leads");
+  holds(controls, /scanAgainArrival: isScanAgainArrival\(prefilledUrl, form\.url\),\s*scanBusy: loading/, "the arrival and a busy scan both decide whether the report leads");
   holds(controls, /className=\{`\$\{leadsWithReport \? "secondary-button" : "primary-button"\}\$\{loading \? " is-loading" : ""\}`\}/, "the submit button steps down only while the report leads");
   holds(
     controls,
-    /disabled=\{loading \|\| scanBlocked \|\| activeScanJob\}\s*aria-describedby=\{\s*\[\s*inspection \? "inspection-arrival" : scrollCheckLine \? "scroll-check-arrival" : null,\s*knownSite \? "known-evidence-difference" : modeLinkShareLine \? "mode-link-share-line" : null\s*\]\s*\.filter\(Boolean\)\s*\.join\(" "\) \|\| undefined\s*\}/,
-    "the one submit button keeps its gates and is described by an inspection's or a check's arrival line, then the difference line or a mode link's share line"
+    /disabled=\{loading \|\| scanBlocked\}\s*aria-describedby=\{\s*\[knownSite \? "known-evidence-difference" : modeLinkShareLine \? "mode-link-share-line" : null\]\s*\.filter\(Boolean\)\s*\.join\(" "\) \|\| undefined\s*\}/,
+    "the one submit button keeps its gates and is described by the difference line or a mode link's share line"
   );
   holds(
     controls,
@@ -429,49 +427,13 @@ test("the form wires the note, the one submit button and the arrival as the copy
   );
   holds(
     controls,
-    /\{scanSubmitLabel\(\{ comparison, leadsWithReport, inspecting: inspection !== null, checking: scrollCheckLine !== null \}\)\}/,
+    /\{scanSubmitLabel\(\{ comparison, leadsWithReport \}\)\}/,
     "the button's label comes from the copy module"
   );
   holds(
     controls,
-    /<p id="known-evidence-difference">\s*\{knownEvidenceDifference\(\{ comparison, maxAgeDays: shareReportMaxAgeDays, checking: scrollCheckLine !== null \}\)\}\s*<\/p>/,
-    "the difference line follows a check's arrival"
-  );
-  // A check arrival's line comes from the copy module, for the page in the
-  // field, while the hook's arrival rule holds; it renders in a status region
-  // the button names, and the form's state swaps the disclosure's first
-  // sentence for the check's.
-  holds(
-    controls,
-    /const scrollCheckLine = checkingAfterScrolling \? scrollCheckFormSentences\(form\.url\) : null;/,
-    "the check's arrival line to be built by the copy module from the page in the field"
-  );
-  holds(
-    controls,
-    /\{scrollCheckLine && \(\s*<div className="scroll-check-arrival" role="status">\s*<p id="scroll-check-arrival">\{scrollCheckLine\}<\/p>\s*<\/div>\s*\)\}\s*\{disclosure\}/,
-    "the check's arrival line to render in a status region the button names, before the disclosure"
-  );
-  holds(
-    controls,
-    /<form className="scan-panel" onSubmit=\{onSubmit\} data-scroll-check=\{scrollCheckLine \? "" : undefined\}>/,
-    "the form to mark a check arrival for the disclosure, exactly while its line shows"
-  );
-  holds(
-    source("app/site-behavior-app.tsx"),
-    /inspectedAddress=\{inspectionArrival\?\.address \?\? null\}\s*checkingAfterScrolling=\{scrollCheckArrival !== null\}/,
-    "the app hands the form the check the arrival holds"
-  );
-  // An inspection arrival's line comes from the copy module, for the address
-  // the hook's arrival rule hands over and the page in the field.
-  holds(
-    controls,
-    /const inspection = inspectedAddress \? inspectionFormSentences\(\{ address: inspectedAddress, page: form\.url \}\) : null;/,
-    "the arrival line to be built by the copy module from the handed-over address"
-  );
-  holds(
-    controls,
-    /\{inspection && \(\s*<div className="inspection-arrival" role="status">\s*<p id="inspection-arrival">\{`\$\{inspection\.inspecting\} \$\{inspection\.visit\}`\}<\/p>\s*<\/div>\s*\)\}/,
-    "the arrival line to render in a status region the button names"
+    /<p id="known-evidence-difference">\s*\{knownEvidenceDifference\(\{ comparison, maxAgeDays: shareReportMaxAgeDays \}\)\}\s*<\/p>/,
+    "the difference line renders with the scanner's retention"
   );
   holds(controls, /<div className="known-evidence" role="status">/, "the note stays a status region");
   holds(controls, /className=\{leadsWithReport \? "primary-button" : "secondary-button"\}/, "the report link is primary exactly when the button is not");
@@ -483,93 +445,14 @@ test("the form wires the note, the one submit button and the arrival as the copy
   const hook = source("app/_hooks/use-scan-runtime.ts");
   holds(
     hook,
-    /if \(navigation\.targetUrl\) \{(?:\s*\/\/[^\n]*)*\s*const inspect = navigation\.inspect;\s*const check = navigation\.check !== null;\s*setForm\(\(current\) => \(\{\s*\.\.\.current,\s*url: navigation\.targetUrl \?\? current\.url,\s*\.\.\.\(inspect === null && !check \? \{\} : \{ compareGpc: false, compareShields: false, compareConsent: false \}\)\s*\}\)\);\s*setPrefilledUrl\(navigation\.targetUrl\);/,
-    "the hook records the address a prefill put in the field, and an inspection or a check link selects Single"
-  );
-  // The mode, inspection or check a link asked for is kept for the arrival,
-  // the mode held, beside the target the form accepted, and so is the
-  // earlier result it named; a target-only link clears all five.
-  holds(
-    hook,
-    /setPrefilledUrl\(navigation\.targetUrl\);(?:\s*\/\/[^\n]*)*\s*setPrefilledMode\(navigation\.mode\);\s*setHeldMode\(navigation\.mode\);\s*setPrefilledInspect\(inspect\);\s*setPrefilledCheck\(check\);\s*setPrefilledFrom\(navigation\.from\);\s*\}/,
-    "the hook keeps and holds the mode a prefill asked for, and keeps the inspection, the check and the earlier result it named, inside the accepted-target branch"
-  );
-  // A submit that starts an ordinary scan ends the link's check and its
-  // inspection before the normalized address reaches the field: the address
-  // can equal the link's again, and the "not saved" line would then show
-  // beside a scan that is saved.
-  holds(
-    hook,
-    /if \(!scrollCheckArrival\) setPrefilledCheck\(false\);\s*if \(!inspectionArrival\) setPrefilledInspect\(null\);\s*setForm\(\(current\) => \(\{ \.\.\.current, url: normalized \}\)\);/,
-    "an ordinary submit to end the check and the inspection before the field is normalized"
+    /if \(navigation\.targetUrl\) \{\s*setForm\(\(current\) => \(\{\s*\.\.\.current,\s*url: navigation\.targetUrl \?\? current\.url\s*\}\)\);\s*setPrefilledUrl\(navigation\.targetUrl\);\s*setPrefilledMode\(navigation\.mode\);\s*setHeldMode\(navigation\.mode\);\s*\}/,
+    "the hook records the address and holds the mode a prefill asked for inside the accepted-target branch"
   );
   assert.equal(hook.match(/url: normalized/g)?.length, 1, "expected one place where a submit normalizes the field");
-  assert.equal(hook.match(/setPrefilledCheck\(/g)?.length, 2, "expected only an accepted prefill to set the check and only an ordinary submit to end it");
-  assert.equal(hook.match(/setPrefilledInspect\(/g)?.length, 2, "expected only an accepted prefill to set the inspection and only an ordinary submit to end it");
-  // The inspection holds through the tested rule, from the field and the
-  // comparisons the request would ask for; the request names it only then,
-  // and a durable admission refuses it before a claim spends the challenge.
-  holds(
-    hook,
-    /const inspectionArrival = connectedInspection\(\{\s*prefilledUrl,\s*prefilledInspect,\s*prefilledFrom,\s*fieldValue: form\.url,\s*comparison:\s*\(policy\.gpcComparisonEnabled && form\.compareGpc\) \|\|\s*\(policy\.shieldsComparisonEnabled && form\.compareShields\) \|\|\s*\(policy\.consentComparisonEnabled && form\.compareConsent\)\s*\}\);/,
-    "the hook to decide the inspection arrival through the tested rule"
-  );
-  // The check holds by the same rule, from the same field and comparisons.
-  holds(
-    hook,
-    /const scrollCheckArrival = connectedScrollCheck\(\{\s*prefilledUrl,\s*prefilledCheck,\s*prefilledFrom,\s*fieldValue: form\.url,\s*comparison:\s*\(policy\.gpcComparisonEnabled && form\.compareGpc\) \|\|\s*\(policy\.shieldsComparisonEnabled && form\.compareShields\) \|\|\s*\(policy\.consentComparisonEnabled && form\.compareConsent\)\s*\}\);/,
-    "the hook to decide the check arrival through the tested rule"
-  );
-  holds(
-    hook,
-    /if \(inspectionArrival && policy\.durableAdmissionEnabled\) \{\s*setError\(INSPECTION_DURABLE_REFUSAL\);\s*return;\s*\}\s*if \(scrollCheckArrival && policy\.durableAdmissionEnabled\) \{\s*setError\(SCROLL_CHECK_DURABLE_REFUSAL\);\s*return;\s*\}\s*const operation = operationOwnerRef\.current\.claim\("submit"\);/,
-    "a durable admission to refuse an inspection or a check before the submit is claimed"
-  );
-  holds(
-    hook,
-    /\.\.\.\(inspectionArrival \? \{ inspect: inspectionArrival\.address \} : \{\}\),\s*\.\.\.\(scrollCheckArrival \? \{ scrollCheck: true \} : \{\}\)\s*\}\);/,
-    "the request to name the inspection or the check only while its arrival holds"
-  );
-  assert.equal(hook.match(/inspect: inspectionArrival\.address/g)?.length, 1, "expected one request to carry an inspection");
-  assert.equal(hook.match(/scrollCheck: true/g)?.length, 1, "expected one request to carry a check");
-  holds(source("app/site-behavior-app.tsx"), /prefilledMode=\{prefilledMode\}\s*inspectedAddress=\{inspectionArrival\?\.address \?\? null\}/, "the app hands the form the inspection the arrival holds");
-  // A scan records its connection once it is claimed, through the tested
-  // rule, from the field and the comparisons its request asks for; the
-  // request reads the same flags, and the form's state never holds the id.
-  holds(
-    hook,
-    /const operation = operationOwnerRef\.current\.claim\("submit"\);\s*if \(operation === null\) return;(?:\s*\/\/[^\n]*)*\s*startedScanEarlierResultRef\.current = connectedEarlierResult\(\{\s*prefilledUrl,\s*prefilledMode,\s*prefilledFrom,\s*fieldValue: form\.url,\s*requested: \{\s*gpc: policy\.gpcComparisonEnabled && form\.compareGpc,\s*shields: policy\.shieldsComparisonEnabled && form\.compareShields,\s*consent: policy\.consentComparisonEnabled && form\.compareConsent\s*\}\s*\}\);/,
-    "the hook records a claimed scan's connection from the field and the comparisons it requests"
-  );
-  assert.equal(hook.match(/startedScanEarlierResultRef\.current = /g)?.length, 1, "expected only a claimed scan to record a connection");
-  holds(
-    source("lib/scan-client-orchestration.ts"),
-    /compareGpc: options\.gpcComparisonEnabled && options\.form\.compareGpc,\s*compareShields: options\.shieldsComparisonEnabled && options\.form\.compareShields,\s*compareConsent: options\.consentComparisonEnabled && options\.form\.compareConsent,/,
-    "the scan request to ask for exactly the comparisons the connection reads"
-  );
-  holds(
-    controls,
-    /export type ScanFormState = \{\s*url: string;\s*device: ScanDevice;\s*gpcEnabled: boolean;\s*compareGpc: boolean;\s*compareShields: boolean;\s*compareConsent: boolean;\s*accessKey: string;\s*\};/,
-    "the form's state to carry no earlier result"
-  );
-  // The result a connected scan shows carries the id, and only while it is shown.
-  holds(
-    hook,
-    /setLiveScan\(\{\s*result: next,\s*earlierResultId: startedScanEarlierResultRef\.current,\s*inspection: shownConnectionInspection\(next, inspected\),\s*scrollCheck: shownScrollCheck\(next, checked\)\s*\}\);/,
-    "a live result to carry its scan's connection, and the inspection only its submit hands over"
-  );
-  holds(
-    hook,
-    /earlierResultId: liveScan !== null && loaded === liveScan\.result \? liveScan\.earlierResultId : null,/,
-    "the earlier result to reach the page only while the connected scan's own result is shown"
-  );
-  holds(source("app/site-behavior-app.tsx"), /<LazyReportRenderer [^>]*earlierResultId=\{earlierResultId\}/, "the app hands its result's connection to the renderer");
-  // Held until health answers, through the one decision the unit tests pin,
-  // then the form's comparison flags, and nothing else.
-  const held = hook.slice(hook.indexOf("if (heldMode === null) return;"), hook.indexOf("function resetTurnstileAfterLifecycleOperation"));
+  const held = hook.slice(hook.indexOf("if (heldMode === null) return;"), hook.indexOf("function resetTurnstileIfRequired"));
   holds(held, /heldRunModeOutcome\(\{\s*requested: heldMode,\s*awaitingScannerHealth: policy\.awaitingScannerHealth,/, "the held mode waits for the scanner's health");
   holds(held, /if \(outcome === "hold"\) return;\s*setHeldMode\(null\);/, "the held mode is applied once");
-  assert.ok(!/runScan|handleSubmit|requestSubmit|submitRuntimeScan|\.click\(/.test(held), "expected applying a held mode never to submit");
+  assert.ok(!/runScan|handleSubmit|requestSubmit|submitV3RuntimeScan|\.click\(/.test(held), "expected applying a held mode never to submit");
   holds(source("app/site-behavior-app.tsx"), /prefilledUrl=\{prefilledUrl\}\s*shareReportMaxAgeDays=\{shareReportMaxAgeDays\}/, "the app hands the form the arrival and the scanner's retention");
   holds(source("app/site-behavior-app.tsx"), /shareReportMaxAgeDays=\{shareReportMaxAgeDays\}\s*prefilledMode=\{prefilledMode\}/, "the app hands the form the mode the arrival asked for");
 });

@@ -2,74 +2,171 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
+import { ScanRequestError } from "./scan-client-orchestration";
+import { buildV3ScanRequestPayload, submitV3RuntimeScan, type V3RuntimeScanForm } from "./v3/client-scan";
+import type { ScanReportV3 } from "./v3/schema";
+
+function loadCommittedV3Fixture(): ScanReportV3 {
+  const manifest = JSON.parse(readFileSync(path.join(process.cwd(), "public/v3/manifest.json"), "utf8")) as {
+    reports: { reportId: string }[];
+  };
+  const firstId = manifest.reports[0]?.reportId;
+  assert.ok(firstId, "expected at least one committed v3 seed report");
+  return JSON.parse(readFileSync(path.join(process.cwd(), "public/v3/reports", `${firstId}.json`), "utf8")) as ScanReportV3;
+}
 
 function source(relativePath: string): string {
   return readFileSync(path.join(process.cwd(), relativePath), "utf8");
 }
 
-test("scan recovery exposes retry, cancel, and explicit tab-record dismissal", () => {
-  const hook = source("app/_hooks/use-scan-runtime.ts");
-  const banner = source("app/_components/scan-recovery-banner.tsx");
-  const app = source("app/site-behavior-app.tsx");
+function baseForm(overrides: Partial<V3RuntimeScanForm> = {}): V3RuntimeScanForm {
+  return {
+    device: "desktop",
+    region: "auto",
+    gpcEnabled: true,
+    compareGpc: false,
+    compareShields: false,
+    shieldsStrength: "standard",
+    compareConsent: false,
+    accessKey: "",
+    ...overrides
+  };
+}
 
-  assert.match(hook, /function dismissActiveScan\(\): void[\s\S]*forceReleaseActiveScanSession\(\)/);
-  assert.match(hook, /scanJobWithCurrentAccessKey\(retainedJob, form\.accessKey\)/);
-  assert.match(banner, /Resume status checks/);
-  assert.match(banner, /Dismiss recovery/);
-  assert.match(app, /onDismiss=\{dismissActiveScan\}/);
+test("homepage v3 payload builder maps Single, GPC diff, Blocker, and Consent modes accurately", () => {
+  const single = buildV3ScanRequestPayload({
+    targetUrl: "https://example.com/",
+    form: baseForm({ device: "mobile", region: "eu-central", gpcEnabled: true }),
+    gpcComparisonEnabled: true,
+    shieldsComparisonEnabled: true,
+    consentComparisonEnabled: true,
+    turnstileRequired: false,
+    turnstileToken: ""
+  });
+  assert.deepEqual(single, {
+    url: "https://example.com/",
+    device: "mobile",
+    region: "eu-central",
+    gpcEnabled: true,
+    consentMode: "observe",
+    comparisons: []
+  });
+
+  // GPC diff forces baseline gpcEnabled=false so the comparison arm isolates Sec-GPC: 1.
+  const gpc = buildV3ScanRequestPayload({
+    targetUrl: "https://example.com/",
+    form: baseForm({ gpcEnabled: true, compareGpc: true }),
+    gpcComparisonEnabled: true,
+    shieldsComparisonEnabled: true,
+    consentComparisonEnabled: true,
+    turnstileRequired: true,
+    turnstileToken: "ts-tok"
+  });
+  assert.deepEqual(gpc, {
+    url: "https://example.com/",
+    device: "desktop",
+    region: "auto",
+    gpcEnabled: false,
+    consentMode: "observe",
+    comparisons: ["gpc"],
+    turnstileToken: "ts-tok"
+  });
+
+  const shieldsAgg = buildV3ScanRequestPayload({
+    targetUrl: "https://example.com/",
+    form: baseForm({ compareShields: true, shieldsStrength: "aggressive" }),
+    gpcComparisonEnabled: true,
+    shieldsComparisonEnabled: true,
+    consentComparisonEnabled: true,
+    turnstileRequired: false,
+    turnstileToken: ""
+  });
+  assert.deepEqual(shieldsAgg.comparisons, ["shields-aggressive"]);
+
+  const consent = buildV3ScanRequestPayload({
+    targetUrl: "https://example.com/",
+    form: baseForm({ compareConsent: true }),
+    gpcComparisonEnabled: true,
+    shieldsComparisonEnabled: true,
+    consentComparisonEnabled: true,
+    turnstileRequired: false,
+    turnstileToken: ""
+  });
+  assert.equal(consent.consentMode, "accept-all");
+  assert.deepEqual(consent.comparisons, ["consent-reject"]);
 });
 
-test("scan progress crosses the accepted boundary only from onAccepted or recovery", () => {
-  const hook = source("app/_hooks/use-scan-runtime.ts");
-  const runScan = hook.slice(hook.indexOf("async function runScan"), hook.indexOf("async function resumeActiveScan"));
+test("submitV3RuntimeScan posts to /api/v3/scan, forwards headers, validates report, and surfaces declared causes", async () => {
+  const report = loadCommittedV3Fixture();
+  let capturedUrl = "";
+  let capturedHeaders: Record<string, string> = {};
+  const result = await submitV3RuntimeScan({
+    targetUrl: "https://example.com/",
+    form: baseForm({ accessKey: "secret-key" }),
+    gpcComparisonEnabled: true,
+    shieldsComparisonEnabled: true,
+    consentComparisonEnabled: true,
+    scannerRequiresAccessKey: true,
+    turnstileRequired: true,
+    turnstileToken: "ts-token",
+    resolveApiUrl: (p) => `https://scan.example.test${p}`,
+    fetcher: async (url, init) => {
+      capturedUrl = url;
+      capturedHeaders = (init.headers ?? {}) as Record<string, string>;
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          reportId: report.reportId,
+          sharePath: `/v3/reports/${report.reportId}`,
+          apiPath: `/api/v3/reports/${report.reportId}`,
+          pdfPath: `/api/v3/reports/${report.reportId}/pdf`,
+          report
+        }),
+        { status: 200, headers: { "content-type": "application/json" } }
+      );
+    }
+  });
+  assert.equal(capturedUrl, "https://scan.example.test/api/v3/scan");
+  assert.equal(capturedHeaders["cf-turnstile-response"], "ts-token");
+  assert.equal(capturedHeaders["x-site-behavior-lab-access-token"], "secret-key");
+  assert.equal(result.reportId, report.reportId);
+  assert.equal(result.sharePath, `/v3/reports/${report.reportId}`);
 
-  assert.match(runScan, /setActiveScanProgress\(null\);[\s\S]*submitRuntimeScan\(/);
-  assert.match(runScan, /onAccepted: \(job\) => retainActiveScanSession\(operation, job\)/);
-  assert.match(hook, /function retainActiveScanSession[\s\S]*acceptedScanJobProgress\(/);
-  assert.match(hook, /A recovered capability was already accepted[\s\S]*acceptedScanJobProgress\(\)/);
-});
-
-test("outcome-unknown admission is retained, recovered without POST, and exposed accessibly", () => {
-  const hook = source("app/_hooks/use-scan-runtime.ts");
-  const banner = source("app/_components/scan-recovery-banner.tsx");
-  const app = source("app/site-behavior-app.tsx");
-  const runScan = hook.slice(hook.indexOf("async function runScan"), hook.indexOf("async function resumeActiveScan"));
-
-  assert.match(hook, /restoreActiveScanSession[\s\S]*restorePendingScanAdmissionSession/);
-  assert.match(hook, /Accepted identifiers are strictly stronger recovery authority[\s\S]*clearPendingScanAdmissionSession/);
-  assert.match(hook, /recoverRuntimeScanAdmissionThroughCommitWindow\(\{/);
-  assert.match(hook, /retainActiveScanSession\(operation, recovery\.job\);[\s\S]*releasePendingAdmission\(operation\)/);
-  assert.match(runScan, /durableAdmissionEnabled: policy\.durableAdmissionEnabled/);
-  assert.match(runScan, /admissionCredential: pendingForSubmission\.credential/);
-  assert.match(runScan, /onAdmissionReady: \(credential\) => retainPendingAdmission\(operation, credential\)/);
-  assert.match(runScan, /onAdmissionCleared: \(\) => releasePendingAdmission\(operation\)/);
-  assert.match(banner, /Check admission/);
-  assert.match(banner, /Changed request semantics are rejected before any network request/);
-  assert.match(app, /pendingAdmission=\{Boolean\(pendingScanAdmission\)\}/);
-  assert.match(app, /onCheckAdmission=\{\(\) => void recoverPendingAdmission\(\)\}/);
-});
-
-test("stopping the pre-admission wait does not immediately restart admission recovery", () => {
-  const hook = source("app/_hooks/use-scan-runtime.ts");
-  const stop = hook.slice(
-    hook.indexOf("function stopWaitingForAdmission"),
-    hook.indexOf("function retryScannerHealth")
+  // Server failure with declared cause + retryAfterSeconds surfaces as ScanRequestError.
+  await assert.rejects(
+    () =>
+      submitV3RuntimeScan({
+        targetUrl: "http://127.0.0.1/",
+        form: baseForm(),
+        gpcComparisonEnabled: true,
+        shieldsComparisonEnabled: true,
+        consentComparisonEnabled: true,
+        scannerRequiresAccessKey: false,
+        turnstileRequired: false,
+        turnstileToken: "",
+        resolveApiUrl: (p) => p,
+        fetcher: async () =>
+          new Response(
+            JSON.stringify({
+              ok: false,
+              error: "Local and private network targets are blocked.",
+              cause: "private-target"
+            }),
+            { status: 400, headers: { "content-type": "application/json" } }
+          )
+      }),
+    (err: unknown) => err instanceof ScanRequestError && err.failureCause === "private-target"
   );
+});
 
-  // The auto-recovery effect lists `loading` in its dependencies, so it re-runs the
-  // instant this handler clears it. Without arming the once-per-capability guard the
-  // effect calls recoverPendingAdmission, which sets scanNotice back to null and
-  // resumes the wait the visitor just ended.
-  assert.match(stop, /const pending = pendingScanAdmissionRef\.current/);
-  assert.match(stop, /autoRecoveredAdmissionRef\.current = pending\.credential\.capabilityToken/);
-  // The cancelled recovery lease never reaches its finalizer, so this flag would
-  // otherwise stay true and disable the banner's only remaining control.
-  assert.match(stop, /setRecoveringScanAdmission\(false\)/);
-  assert.match(stop, /setScanNotice\(\s*"Stopped waiting for the scanner\./);
-  // Stopping must not discard the retained capability; checking it later is the
-  // whole point of the notice.
-  assert.doesNotMatch(stop, /releasePendingAdmission|clearPendingScanAdmissionSession/);
+test("homepage scan UI exposes polite cancellation and dismissible recovery banner", () => {
+  const hook = source("app/_hooks/use-scan-runtime.ts");
+  const banner = source("app/_components/scan-recovery-banner.tsx");
+  const app = source("app/site-behavior-app.tsx");
 
-  // The guard is only load-bearing while the effect still consults it.
-  assert.match(hook, /if \(autoRecoveredAdmissionRef\.current === capability\) return;/);
+  assert.match(hook, /function cancelActiveScan\(\): void[\s\S]*operationOwnerRef\.current\.cancelCurrent\(\)[\s\S]*setScanNotice\("Scan cancelled\."\)/);
+  assert.match(hook, /function dismissBanner\(\): void/);
+  assert.match(banner, /Dismiss/);
+  assert.match(app, /onDismiss=\{dismissBanner\}/);
+  assert.match(app, /onCancel=\{scanning \? cancelActiveScan : undefined\}/);
 });

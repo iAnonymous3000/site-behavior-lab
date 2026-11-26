@@ -80,9 +80,8 @@ function sourceFiles(dir: string): string[] {
   });
 }
 
-test("the homepage's first load has no static path to the watch client", () => {
+test("the homepage does not import or mount the retired scheduled-rescan panel", () => {
   const files = new Set([...sourceFiles("app"), ...sourceFiles("lib")]);
-  for (const module of WATCH_MODULES) assert.ok(files.has(module), `${module} is missing, so the walk would check nothing`);
   const start = "app/site-behavior-app.tsx";
   const seen = new Map<string, string>([[start, start]]);
   const queue = [start];
@@ -94,43 +93,10 @@ test("the homepage's first load has no static path to the watch client", () => {
       queue.push(next);
     }
   }
-  // The walk must reach the modules it is meant to see, or it proves nothing.
   assert.ok(seen.has("app/_hooks/use-scan-runtime.ts"), "the walk did not reach the scan runtime");
-  assert.ok(seen.has("lib/scheduled-rescan-mount.ts"), "the walk did not reach the prefix module");
   for (const module of WATCH_MODULES) {
     assert.equal(seen.get(module), undefined, `the homepage statically imports ${module}: ${seen.get(module)}`);
   }
-  // The prefix module is in the first load, so it must stay a leaf.
-  assert.deepEqual(staticImports("lib/scheduled-rescan-mount.ts", files), []);
-  assert.doesNotMatch(read("lib/scheduled-rescan-mount.ts"), /\bimport\b/);
-});
-
-test("the homepage mounts the lazy panel only when wanted, and keeps it mounted", () => {
   const app = read("app/site-behavior-app.tsx");
-  assert.match(
-    app,
-    /const LazyScheduledRescans = lazy\(\(\) =>\n\s+import\("\.\/_components\/scheduled-rescans"\)\.then\(\(module\) => \(\{ default: module\.ScheduledRescans \}\)\)\n\);/
-  );
-  assert.doesNotMatch(app, /<ScheduledRescans\b/, "the panel must render only through the lazy component");
-  assert.equal([...app.matchAll(/<LazyScheduledRescans\b/g)].length, 1);
-  assert.match(
-    app,
-    /\{scheduledRescansMounted && \(\n\s+<Suspense fallback=\{null\}>\n\s+<LazyScheduledRescans\n\s+enabled=\{scheduledRescansEnabled\}/
-  );
-  // The latch: set only to true, when advertised or for a management link,
-  // on mount and on every hashchange until it holds.
-  assert.deepEqual(
-    [...app.matchAll(/setScheduledRescansMounted\(([^)]*)\)/g)].map((match) => match[1]),
-    ["true"],
-    "the mount latch must never reset"
-  );
-  assert.match(
-    app,
-    /if \(scheduledRescansEnabled \|\| window\.location\.hash\.startsWith\(WATCH_FRAGMENT_PREFIX\)\) \{\n\s+setScheduledRescansMounted\(true\);\n\s+\}/
-  );
-  assert.match(app, /^import \{ WATCH_FRAGMENT_PREFIX \} from "@\/lib\/scheduled-rescan-mount";$/m);
-  assert.doesNotMatch(app, /["']#watch=/, "the homepage must not spell the prefix itself");
-  assert.match(app, /mountWhenWanted\(\);\n\s+window\.addEventListener\("hashchange", mountWhenWanted\);/);
-  assert.match(app, /return \(\) => window\.removeEventListener\("hashchange", mountWhenWanted\);/);
-  assert.match(app, /\}, \[scheduledRescansEnabled, scheduledRescansMounted\]\);/);
+  assert.doesNotMatch(app, /scheduled-rescans|LazyScheduledRescans|<ScheduledRescans/);
 });

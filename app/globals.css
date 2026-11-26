@@ -1133,21 +1133,6 @@ a {
   margin: 0;
 }
 
-/* While a "Check after scrolling" arrival holds, the disclosure's first
-   sentence is the check's own (lib/scan-disclosure.ts). Without that arrival,
-   and without JavaScript, it is the single scan's. */
-.scan-disclosure-check-visit {
-  display: none;
-}
-
-.scan-panel[data-scroll-check] .scan-disclosure-visit {
-  display: none;
-}
-
-.scan-panel[data-scroll-check] .scan-disclosure-check-visit {
-  display: inline;
-}
-
 .scanner-health-retry {
   min-height: 32px;
   padding: 5px 9px;
