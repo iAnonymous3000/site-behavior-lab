@@ -1,10 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { LIVE_SCAN_API_BASE, STATIC_BASE_PATH, STATIC_EXPORT } from "@/app/client-runtime";
 import styles from "@/app/v3/v3.module.css";
+import { resolveV3ApiUrl, resolveV3DynamicPageUrl } from "@/lib/v3/client-urls";
 import type { CatalogVendorEntryV3 } from "@/lib/v3/dev-mode";
 import type { EntityFootprintResultV3, EntityRegionV3, ServiceCategoryV3 } from "@/lib/v3/schema";
+
+const V3_LOCATION = {
+  staticExport: STATIC_EXPORT,
+  scanApiBase: LIVE_SCAN_API_BASE,
+  basePath: STATIC_BASE_PATH
+};
 
 export function CatalogExplorerV3({
   entries,
@@ -63,9 +70,10 @@ export function CatalogExplorerV3({
       try {
         const fetched = await Promise.all(
           missing.map(async (name) => {
-            const resp = await fetch(`/api/v3/corpus?footprint=${encodeURIComponent(name)}`, {
-              signal: controller.signal
-            });
+            const resp = await fetch(
+              resolveV3ApiUrl(`/api/v3/corpus?footprint=${encodeURIComponent(name)}`, LIVE_SCAN_API_BASE),
+              { signal: controller.signal }
+            );
             if (!resp.ok) {
               throw new Error(`Corpus lookup failed (HTTP ${resp.status})`);
             }
@@ -189,9 +197,9 @@ export function CatalogExplorerV3({
                       <td>{s.vendors.join(", ")}</td>
                       <td className={styles.num}>{s.requests}</td>
                       <td>
-                        <Link href={`/v3/reports/${s.reportId}`} className={styles.btn}>
+                        <a href={resolveV3DynamicPageUrl(`/v3/reports/${s.reportId}`, V3_LOCATION)} className={styles.btn}>
                           Inspect
-                        </Link>
+                        </a>
                       </td>
                     </tr>
                   ))}

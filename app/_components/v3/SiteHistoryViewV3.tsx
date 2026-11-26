@@ -1,9 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import { LIVE_SCAN_API_BASE, STATIC_BASE_PATH, STATIC_EXPORT } from "@/app/client-runtime";
 import styles from "@/app/v3/v3.module.css";
+import { resolveV3ApiUrl, resolveV3DynamicPageUrl } from "@/lib/v3/client-urls";
 import type { IndexedReportRowV3, TemporalReportDiffV3 } from "@/lib/v3/schema";
+
+const V3_LOCATION = {
+  staticExport: STATIC_EXPORT,
+  scanApiBase: LIVE_SCAN_API_BASE,
+  basePath: STATIC_BASE_PATH
+};
 
 export function SiteHistoryViewV3({
   domain,
@@ -29,7 +36,10 @@ export function SiteHistoryViewV3({
       setDiffError(null);
       try {
         const resp = await fetch(
-          `/api/v3/watches/diff?previous=${encodeURIComponent(previousId)}&current=${encodeURIComponent(currentId)}`
+          resolveV3ApiUrl(
+            `/api/v3/watches/diff?previous=${encodeURIComponent(previousId)}&current=${encodeURIComponent(currentId)}`,
+            LIVE_SCAN_API_BASE
+          )
         );
         const data = (await resp.json()) as { ok?: boolean; diff?: TemporalReportDiffV3; error?: string };
         if (cancelled) return;
@@ -197,9 +207,9 @@ export function SiteHistoryViewV3({
                   <td className={styles.num}>{row.cookiesTotal}</td>
                   <td className={styles.num}>{row.darkPatternScore}/100</td>
                   <td>
-                    <Link href={`/v3/reports/${row.reportId}`} className={styles.btn}>
+                    <a href={resolveV3DynamicPageUrl(`/v3/reports/${row.reportId}`, V3_LOCATION)} className={styles.btn}>
                       Open Report
-                    </Link>
+                    </a>
                   </td>
                 </tr>
               ))}

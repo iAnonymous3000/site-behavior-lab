@@ -1,8 +1,21 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import {
+  LIVE_SCAN_API_BASE,
+  LIVE_SCAN_TURNSTILE_SITE_KEY,
+  STATIC_BASE_PATH,
+  STATIC_EXPORT
+} from "@/app/client-runtime";
 import styles from "@/app/v3/v3.module.css";
+import {
+  buildV3ScanBody,
+  buildV3ScanHeaders,
+  parseV3ScannerHealth,
+  resolveV3ApiUrl,
+  resolveV3DynamicPageUrl,
+  type V3ScannerHealthSummary
+} from "@/lib/v3/client-urls";
 import type {
   ComparisonAxisV3,
   CorpusOverviewStatsV3,
@@ -12,6 +25,13 @@ import type {
   ScanReportV3
 } from "@/lib/v3/schema";
 import { ReportViewV3 } from "./ReportViewV3";
+import { TurnstileCheckV3 } from "./TurnstileCheckV3";
+
+const V3_LOCATION = {
+  staticExport: STATIC_EXPORT,
+  scanApiBase: LIVE_SCAN_API_BASE,
+  basePath: STATIC_BASE_PATH
+};
 
 export function CorpusExplorerV3() {
   // Live scanner form state
@@ -22,6 +42,13 @@ export function CorpusExplorerV3() {
   const [scanning, setScanning] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
   const [liveResult, setLiveResult] = useState<{ report: ScanReportV3; sharePath: string } | null>(null);
+
+  // Edge health, Cloudflare Turnstile & optional operator token state
+  const [health, setHealth] = useState<V3ScannerHealthSummary | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileError, setTurnstileError] = useState<string | null>(null);
+  const [turnstileResetNonce, setTurnstileResetNonce] = useState(0);
+  const [accessToken, setAccessToken] = useState("");
 
   // Faceted corpus search state
   const [stats, setStats] = useState<CorpusOverviewStatsV3 | null>(null);
@@ -39,9 +66,25 @@ export function CorpusExplorerV3() {
   const [hasFp, setHasFp] = useState(false);
   const [highDarkPattern, setHighDarkPattern] = useState(false);
 
+  const turnstileRequired = health?.turnstileRequired === true;
+  const turnstileSiteKeyConfigured = Boolean(LIVE_SCAN_TURNSTILE_SITE_KEY);
+  const awaitingTurnstile = turnstileRequired && turnstileSiteKeyConfigured && !turnstileToken;
+  const turnstileUnavailable = turnstileRequired && !turnstileSiteKeyConfigured;
+  const maxComparisons = health?.authenticated ? 4 : 2;
+
+  const loadHealth = useCallback(async (signal?: AbortSignal) => {
+    try {
+      const resp = await fetch(resolveV3ApiUrl("/api/health", LIVE_SCAN_API_BASE), { signal });
+      if (resp.ok) {
+        const data = (await resp.json()) as unknown;
+        setHealth(parseV3ScannerHealth(data));
+      }
+    } catch {}
+  }, []);
+
   const loadStats = useCallback(async (signal?: AbortSignal) => {
     try {
-      const resp = await fetch("/api/v3/corpus?view=stats", { signal });
+      const resp = await fetch(resolveV3ApiUrl("/api/v3/corpus?view=stats", LIVE_SCAN_API_BASE), { signal });
       if (resp.ok) {
         const d = (await resp.json()) as { stats?: CorpusOverviewStatsV3 };
         if (d.stats) setStats(d.stats);
@@ -65,7 +108,10 @@ export function CorpusExplorerV3() {
         if (hasFp) qs.set("fingerprinting", "1");
         if (highDarkPattern) qs.set("minDarkPatternScore", "35");
 
-        const listResp = await fetch(`/api/v3/corpus?${qs.toString()}`, { signal });
+        const listResp = await fetch(
+          resolveV3ApiUrl(`/api/v3/corpus?${qs.toString()}`, LIVE_SCAN_API_BASE),
+          { signal }
+        );
         if (!listResp.ok) {
           setCorpusError(`Corpus query failed (HTTP ${listResp.status}).`);
           return;
@@ -86,9 +132,10 @@ export function CorpusExplorerV3() {
 
   useEffect(() => {
     const controller = new AbortController();
+    void loadHealth(controller.signal);
     void loadStats(controller.signal);
     return () => controller.abort();
-  }, [loadStats]);
+  }, [loadHealth, loadStats]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -102,26 +149,35 @@ export function CorpusExplorerV3() {
   }, [loadCorpusList]);
 
   function toggleComparison(axis: ComparisonAxisV3) {
-    setComparisons((prev) =>
-      prev.includes(axis) ? prev.filter((a) => a !== axis) : [...prev, axis]
-    );
+    setComparisons((prev) => {
+      if (prev.includes(axis)) return prev.filter((a) => a !== axis);
+      if (prev.length >= maxComparisons) return prev;
+      return [...prev, axis];
+    });
   }
 
   async function handleRunScan(e: React.FormEvent) {
     e.preventDefault();
-    if (!scanUrl.trim()) return;
+    if (!scanUrl.trim() || awaitingTurnstile || turnstileUnavailable) return;
     setScanning(true);
     setScanError(null);
+    const activeTurnstileToken = turnstileRequired ? turnstileToken : "";
     try {
-      const resp = await fetch("/api/v3/scan", {
+      const resp = await fetch(resolveV3ApiUrl("/api/v3/scan", LIVE_SCAN_API_BASE), {
         method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          url: scanUrl.trim(),
-          device,
-          region,
-          comparisons
-        })
+        headers: buildV3ScanHeaders({
+          turnstileToken: activeTurnstileToken,
+          accessToken: health?.authenticated ? accessToken : undefined
+        }),
+        body: JSON.stringify(
+          buildV3ScanBody({
+            url: scanUrl.trim(),
+            device,
+            region,
+            comparisons: comparisons.slice(0, maxComparisons),
+            turnstileToken: activeTurnstileToken
+          })
+        )
       });
       const data = (await resp.json()) as {
         ok?: boolean;
@@ -140,6 +196,10 @@ export function CorpusExplorerV3() {
       setScanError(err instanceof Error ? err.message : "Network error submitting v3 scan");
     } finally {
       setScanning(false);
+      if (turnstileRequired) {
+        setTurnstileToken("");
+        setTurnstileResetNonce((n) => n + 1);
+      }
     }
   }
 
@@ -190,13 +250,17 @@ export function CorpusExplorerV3() {
                 <option value="mobile">Mobile</option>
               </select>
             </label>
-            <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`} disabled={scanning}>
-              {scanning ? "Scanning concurrently..." : "Run v3 Scan"}
+            <button
+              type="submit"
+              className={`${styles.btn} ${styles.btnPrimary}`}
+              disabled={scanning || awaitingTurnstile || turnstileUnavailable || health?.scansAvailable === false}
+            >
+              {scanning ? "Scanning concurrently..." : awaitingTurnstile ? "Complete check below..." : "Run v3 Scan"}
             </button>
           </div>
 
           <div className={styles.checkboxRow}>
-            <span>Concurrent intervention arms:</span>
+            <span>Concurrent intervention arms (up to {maxComparisons}):</span>
             {(
               [
                 ["shields-standard", "Brave Shields (Standard)"],
@@ -204,17 +268,66 @@ export function CorpusExplorerV3() {
                 ["gpc", "Global Privacy Control (GPC)"],
                 ["consent-reject", "Consent: Reject All"]
               ] as [ComparisonAxisV3, string][]
-            ).map(([axis, label]) => (
-              <label key={axis} className={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={comparisons.includes(axis)}
-                  onChange={() => toggleComparison(axis)}
-                />
-                {label}
-              </label>
-            ))}
+            ).map(([axis, label]) => {
+              const checked = comparisons.includes(axis);
+              const disabled = !checked && comparisons.length >= maxComparisons;
+              return (
+                <label key={axis} className={styles.checkboxLabel} style={disabled ? { opacity: 0.6 } : undefined}>
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    disabled={disabled}
+                    onChange={() => toggleComparison(axis)}
+                  />
+                  {label}
+                </label>
+              );
+            })}
           </div>
+
+          {health?.authenticated && (
+            <div style={{ marginTop: 12, maxWidth: 360 }}>
+              <label className={styles.fieldLabel}>
+                Scanner Access Token
+                <input
+                  className={styles.input}
+                  type="password"
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder="Enter access key"
+                  value={accessToken}
+                  onChange={(e) => setAccessToken(e.target.value)}
+                />
+              </label>
+            </div>
+          )}
+
+          {turnstileRequired && turnstileSiteKeyConfigured && (
+            <TurnstileCheckV3
+              siteKey={LIVE_SCAN_TURNSTILE_SITE_KEY}
+              resetNonce={turnstileResetNonce}
+              onToken={setTurnstileToken}
+              onError={setTurnstileError}
+            />
+          )}
+
+          {awaitingTurnstile && !turnstileError && (
+            <p className={styles.subtitle} role="status" style={{ marginTop: 8 }}>
+              Complete the Cloudflare browser check above to enable live scanning.
+            </p>
+          )}
+
+          {turnstileError && (
+            <div className={`${styles.highlightItem} ${styles.hlHigh}`} role="alert" style={{ marginTop: 10 }}>
+              {turnstileError}
+            </div>
+          )}
+
+          {turnstileUnavailable && (
+            <div className={`${styles.highlightItem} ${styles.hlHigh}`} role="alert" style={{ marginTop: 10 }}>
+              Live public scanning requires a Turnstile site key in this build.
+            </div>
+          )}
         </form>
 
         {scanError && (
@@ -228,9 +341,9 @@ export function CorpusExplorerV3() {
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div className={styles.panel} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <strong>Live Scan Complete — Report {liveResult.report.reportId}</strong>
-            <Link href={liveResult.sharePath} className={`${styles.btn} ${styles.btnPrimary}`}>
+            <a href={resolveV3DynamicPageUrl(liveResult.sharePath, V3_LOCATION)} className={`${styles.btn} ${styles.btnPrimary}`}>
               Open Permalink
-            </Link>
+            </a>
           </div>
           <ReportViewV3 key={liveResult.report.reportId} report={liveResult.report} />
         </div>
@@ -364,9 +477,12 @@ export function CorpusExplorerV3() {
                 {items.map((row) => (
                   <tr key={row.reportId}>
                     <td>
-                      <Link href={`/v3/reports/${row.reportId}`} style={{ fontWeight: 600, color: "var(--accent-strong)" }}>
+                      <a
+                        href={resolveV3DynamicPageUrl(`/v3/reports/${row.reportId}`, V3_LOCATION)}
+                        style={{ fontWeight: 600, color: "var(--accent-strong)" }}
+                      >
                         {row.canonicalDomain}
-                      </Link>
+                      </a>
                       {row.topHighlight && (
                         <div style={{ color: "var(--text-muted)", maxWidth: 320 }}>{row.topHighlight}</div>
                       )}
@@ -396,12 +512,15 @@ export function CorpusExplorerV3() {
                     </td>
                     <td>
                       <div className={styles.actionsRow}>
-                        <Link href={`/v3/reports/${row.reportId}`} className={styles.btn}>
+                        <a href={resolveV3DynamicPageUrl(`/v3/reports/${row.reportId}`, V3_LOCATION)} className={styles.btn}>
                           Report
-                        </Link>
-                        <Link href={`/v3/sites/${encodeURIComponent(row.canonicalDomain)}`} className={styles.btn}>
+                        </a>
+                        <a
+                          href={resolveV3DynamicPageUrl(`/v3/sites/${encodeURIComponent(row.canonicalDomain)}`, V3_LOCATION)}
+                          className={styles.btn}
+                        >
                           History
-                        </Link>
+                        </a>
                       </div>
                     </td>
                   </tr>

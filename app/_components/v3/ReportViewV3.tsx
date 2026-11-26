@@ -1,8 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
+import { LIVE_SCAN_API_BASE, STATIC_BASE_PATH, STATIC_EXPORT } from "@/app/client-runtime";
 import styles from "@/app/v3/v3.module.css";
+import {
+  resolveV3ApiUrl,
+  resolveV3DynamicPageUrl,
+  resolveV3StaticPageUrl
+} from "@/lib/v3/client-urls";
 import {
   buildDeveloperRuleBreakdownV3,
   buildInitiatorCausalityTreeV3,
@@ -95,14 +100,26 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
             >
               {devMode ? "Developer Mode: ON" : "Developer Mode"}
             </button>
-            <Link href={`/v3/sites/${encodeURIComponent(report.canonicalDomain)}`} className={styles.btn}>
+            <a
+              href={resolveV3DynamicPageUrl(`/v3/sites/${encodeURIComponent(report.canonicalDomain)}`, {
+                staticExport: STATIC_EXPORT,
+                scanApiBase: LIVE_SCAN_API_BASE,
+                basePath: STATIC_BASE_PATH
+              })}
+              className={styles.btn}
+            >
               Site History &amp; Diff
-            </Link>
-            <a href={`/api/v3/reports/${report.reportId}`} className={styles.btn} target="_blank" rel="noreferrer">
+            </a>
+            <a
+              href={resolveV3ApiUrl(`/api/v3/reports/${report.reportId}`, LIVE_SCAN_API_BASE)}
+              className={styles.btn}
+              target="_blank"
+              rel="noreferrer"
+            >
               JSON
             </a>
             <a
-              href={`/api/v3/reports/${report.reportId}/pdf?format=html`}
+              href={resolveV3ApiUrl(`/api/v3/reports/${report.reportId}/pdf?format=html`, LIVE_SCAN_API_BASE)}
               className={styles.btn}
               target="_blank"
               rel="noreferrer"
@@ -110,7 +127,7 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
               Print HTML
             </a>
             <a
-              href={`/api/v3/reports/${report.reportId}/pdf`}
+              href={resolveV3ApiUrl(`/api/v3/reports/${report.reportId}/pdf`, LIVE_SCAN_API_BASE)}
               className={`${styles.btn} ${styles.btnPrimary}`}
               target="_blank"
               rel="noreferrer"
@@ -389,14 +406,14 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
                 </div>
                 <div className={styles.causalityEntities}>
                   {root.entities.map((ent) => (
-                    <Link
+                    <a
                       key={ent.entity}
-                      href={`/v3/catalog?entity=${encodeURIComponent(ent.entity)}`}
+                      href={resolveV3StaticPageUrl(`/v3/catalog/?entity=${encodeURIComponent(ent.entity)}`, STATIC_BASE_PATH)}
                       className={`${styles.chip} ${ent.shieldsBlocked > 0 ? styles.chipLoud : styles.chipInfo}`}
                       style={{ textDecoration: "none" }}
                     >
                       {ent.entity} ({ent.parentOrg}) · {ent.requests}
-                    </Link>
+                    </a>
                   ))}
                 </div>
               </div>

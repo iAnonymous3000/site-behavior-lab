@@ -10,6 +10,14 @@ import {
 import type { DurableScanJobStoreSql } from "./durable-scan-job-store";
 import { scanTokenCost } from "./edge-scan-gate";
 import { parsePublicReportReadPath, refusePublicReportRouteMethod } from "./report-read-edge";
+import {
+  buildV3ScanBody,
+  buildV3ScanHeaders,
+  parseV3ScannerHealth,
+  resolveV3ApiUrl,
+  resolveV3DynamicPageUrl,
+  resolveV3StaticPageUrl
+} from "./v3/client-urls";
 import { evaluateFailOnRulesV3 } from "./v3/cli/formatters";
 import { runSblCli } from "./v3/cli/index";
 import { reportToSarifV3 } from "./v3/cli/sarif";
@@ -492,5 +500,56 @@ test("H6/M1/M7/L1: CLI policy gates fail closed, SARIF has partialFingerprints, 
       SITE_BEHAVIOR_LAB_REPORT_STORE_DIR: "/var/lib/site-behavior-lab/reports"
     }),
     "/custom/v3-dir"
+  );
+
+  // Cross-origin static Pages -> live Cloudflare Container URL & Turnstile wiring
+  assert.equal(
+    resolveV3ApiUrl("/api/v3/corpus?view=stats", "https://scan.sitebehavior.org/"),
+    "https://scan.sitebehavior.org/api/v3/corpus?view=stats"
+  );
+  assert.equal(resolveV3ApiUrl("/api/v3/scan", ""), "/api/v3/scan");
+  assert.equal(
+    resolveV3DynamicPageUrl("/v3/reports/20261125-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", {
+      staticExport: true,
+      scanApiBase: "https://scan.sitebehavior.org"
+    }),
+    "https://scan.sitebehavior.org/v3/reports/20261125-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  );
+  assert.equal(
+    resolveV3DynamicPageUrl("/v3/sites/example.com", {
+      staticExport: false,
+      scanApiBase: "https://scan.sitebehavior.org"
+    }),
+    "/v3/sites/example.com"
+  );
+  assert.equal(resolveV3StaticPageUrl("/v3/catalog/?entity=Meta", "/site-behavior-lab"), "/site-behavior-lab/v3/catalog/?entity=Meta");
+  assert.deepEqual(
+    buildV3ScanHeaders({ turnstileToken: "ts-tok", accessToken: "op-key" }),
+    {
+      "content-type": "application/json",
+      "cf-turnstile-response": "ts-tok",
+      "x-site-behavior-lab-access-token": "op-key"
+    }
+  );
+  assert.deepEqual(buildV3ScanHeaders({}), { "content-type": "application/json" });
+  assert.deepEqual(
+    buildV3ScanBody({
+      url: " https://example.com ",
+      device: "desktop",
+      region: "auto",
+      comparisons: ["shields-standard", "gpc"],
+      turnstileToken: "ts-tok"
+    }),
+    {
+      url: "https://example.com",
+      device: "desktop",
+      region: "auto",
+      comparisons: ["shields-standard", "gpc"],
+      turnstileToken: "ts-tok"
+    }
+  );
+  assert.deepEqual(
+    parseV3ScannerHealth({ ok: true, turnstile: true, authenticated: false, scansAvailable: true }),
+    { reachable: true, scansAvailable: true, authenticated: false, turnstileRequired: true }
   );
 });

@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import { staticAssetPath } from "@/app/client-runtime";
 import styles from "@/app/v3/v3.module.css";
 
 export function V3Nav({ active }: { active: "explorer" | "catalog" | "report" | "site" }) {
@@ -28,26 +28,26 @@ export function V3Nav({ active }: { active: "explorer" | "catalog" | "report" | 
   return (
     <header className={styles.topbar}>
       <div className={styles.topbarInner}>
-        <Link href="/v3/explorer" className={styles.brand}>
+        <a href={staticAssetPath("/v3/explorer/")} className={styles.brand}>
           <span>Site Behavior Lab</span>
           <span className={styles.brandBadge}>v3</span>
-        </Link>
+        </a>
         <nav className={styles.navLinks} aria-label="Site Behavior Lab v3 navigation">
-          <Link
-            href="/v3/explorer"
+          <a
+            href={staticAssetPath("/v3/explorer/")}
             className={`${styles.navLink} ${active === "explorer" ? styles.navLinkActive : ""}`}
           >
             Explorer &amp; Live Scan
-          </Link>
-          <Link
-            href="/v3/catalog"
+          </a>
+          <a
+            href={staticAssetPath("/v3/catalog/")}
             className={`${styles.navLink} ${active === "catalog" ? styles.navLinkActive : ""}`}
           >
             Vendor Catalog &amp; Simulator
-          </Link>
-          <Link href="/" className={styles.navLink}>
+          </a>
+          <a href={staticAssetPath("/")} className={styles.navLink}>
             Legacy Home
-          </Link>
+          </a>
           <button type="button" onClick={toggleTheme} className={styles.btn} aria-label="Toggle color theme">
             {theme === "dark" ? "Light" : "Dark"}
           </button>
