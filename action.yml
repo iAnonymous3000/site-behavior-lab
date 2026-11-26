@@ -28,6 +28,10 @@ inputs:
     description: "Comma-separated CI policy gates (keystrokes,cname,sgtm,fingerprinting,beacon-pii,dark-patterns>=35,third-parties>20,new-entities,regressions)."
     required: false
     default: "keystrokes,cname"
+  fail-on-insufficient-evidence:
+    description: "When a baseline is provided, fail with exit code 3 if visit conditions, load outcome, or probe coverage prevent a comparable regression judgment (default: true)."
+    required: false
+    default: "true"
   sarif-output:
     description: "Path where SARIF 2.1.0 findings JSON should be written."
     required: false
@@ -48,6 +52,12 @@ outputs:
   sarif-path:
     description: "Path to the generated SARIF 2.1.0 findings file."
     value: ${{ inputs.sarif-output }}
+  baseline-comparability:
+    description: "Comparability verdict when baseline is supplied: comparable, partial, insufficient-evidence, or none."
+    value: ${{ steps.scan.outputs.baseline_comparability }}
+  outcome:
+    description: "Explicit gate outcome: pass, policy-violation, insufficient-evidence, or error."
+    value: ${{ steps.scan.outputs.outcome }}
 
 runs:
   using: "composite"
@@ -65,6 +75,7 @@ runs:
         npx playwright install --with-deps chromium
 
     - name: Run Site Behavior Lab v3 scan and privacy gates
+      id: scan
       shell: bash
       env:
         SBL_ACTION_PATH: ${{ github.action_path }}
@@ -74,6 +85,7 @@ runs:
         SBL_COMPARE: ${{ inputs.compare }}
         SBL_BASELINE: ${{ inputs.baseline }}
         SBL_FAIL_ON: ${{ inputs.fail-on }}
+        SBL_FAIL_ON_INSUFFICIENT: ${{ inputs.fail-on-insufficient-evidence }}
         SBL_SARIF_OUT: ${{ inputs.sarif-output }}
         SBL_REPORT_OUT: ${{ inputs.report-output }}
         SBL_ALLOW_LOOPBACK: ${{ inputs.allow-loopback }}
@@ -93,6 +105,9 @@ runs:
         fi
         if [ -n "$SBL_BASELINE" ]; then
           ARGS+=(--diff "$SBL_BASELINE")
+          if [ "$SBL_FAIL_ON_INSUFFICIENT" != "false" ]; then
+            ARGS+=(--fail-on-insufficient-evidence)
+          fi
         fi
         if [ -n "$SBL_FAIL_ON" ]; then
           ARGS+=(--fail-on "$SBL_FAIL_ON")
@@ -106,8 +121,39 @@ runs:
         SCAN_EXIT=$?
         set -e
 
+        COMPARABILITY="none"
+        if [ -f "$SBL_REPORT_OUT" ] && [ -n "$SBL_BASELINE" ]; then
+          DIFF_JSON="$(node "$SBL_ACTION_PATH/bin/sbl.mjs" diff "$SBL_BASELINE" "$SBL_REPORT_OUT" --format json 2>/dev/null || true)"
+          if [ -n "$DIFF_JSON" ]; then
+            COMPARABILITY="$(node -e 'const d = JSON.parse(process.argv[1]); console.log(d?.comparability?.status || "unknown");' "$DIFF_JSON" 2>/dev/null || echo "unknown")"
+          fi
+        fi
+
+        OUTCOME="error"
+        if [ "$SCAN_EXIT" -eq 0 ]; then
+          OUTCOME="pass"
+        elif [ "$SCAN_EXIT" -eq 2 ]; then
+          OUTCOME="policy-violation"
+        elif [ "$SCAN_EXIT" -eq 3 ]; then
+          OUTCOME="insufficient-evidence"
+          echo "::error title=Site Behavior Lab baseline comparison unevaluable::Baseline comparability is '${COMPARABILITY}'. Visit conditions, load outcome, or probe coverage prevented a comparable regression judgment."
+        fi
+
+        if [ "$SCAN_EXIT" -eq 0 ] && [ "$COMPARABILITY" != "none" ] && [ "$COMPARABILITY" != "comparable" ]; then
+          echo "::warning title=Site Behavior Lab baseline comparison unevaluable::Baseline comparability is '${COMPARABILITY}'; see step summary and SARIF for insufficient-evidence details."
+        fi
+
+        {
+          echo "baseline_comparability=${COMPARABILITY}"
+          echo "outcome=${OUTCOME}"
+        } >> "$GITHUB_OUTPUT"
+
         if [ -f "$SBL_REPORT_OUT" ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
           if [ -n "$SBL_BASELINE" ]; then
+            {
+              echo "- **Gate outcome:** \`${OUTCOME}\` · **Baseline comparability:** \`${COMPARABILITY}\`"
+              echo ""
+            } >> "$GITHUB_STEP_SUMMARY"
             node "$SBL_ACTION_PATH/bin/sbl.mjs" diff "$SBL_BASELINE" "$SBL_REPORT_OUT" --format markdown >> "$GITHUB_STEP_SUMMARY" || true
           else
             node "$SBL_ACTION_PATH/bin/sbl.mjs" summary "$SBL_REPORT_OUT" >> "$GITHUB_STEP_SUMMARY" || true

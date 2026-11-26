@@ -32,22 +32,32 @@ async function handleDiffGet(request: Request): Promise<Response> {
     }
 
     const ctx = await getV3RuntimeContext();
-    const [previous, current] = await Promise.all([
+    const [previous, current, prevMeta, currMeta] = await Promise.all([
       loadReportV3(ctx.blobStore, previousId),
-      loadReportV3(ctx.blobStore, currentId)
+      loadReportV3(ctx.blobStore, currentId),
+      ctx.reportIndex.getReportMeta(previousId),
+      ctx.reportIndex.getReportMeta(currentId)
     ]);
 
-    if (!previous || !current) {
+    const now = Date.now();
+    const prevExpired = Boolean(prevMeta?.expiresAt && Date.parse(prevMeta.expiresAt) <= now);
+    const currExpired = Boolean(currMeta?.expiresAt && Date.parse(currMeta.expiresAt) <= now);
+    if (!previous || !current || prevExpired || currExpired) {
       return NextResponse.json(
         { ok: false, error: "One or both reports were not found." },
-        { status: 404 }
+        { status: 404, headers: { "x-content-type-options": "nosniff" } }
       );
     }
 
-    return NextResponse.json({
-      ok: true,
-      diff: diffScanReportsV3(previous, current)
-    });
+    const diff = diffScanReportsV3(previous, current);
+    return NextResponse.json(
+      {
+        ok: true,
+        comparability: diff.comparability,
+        diff
+      },
+      { headers: { "x-content-type-options": "nosniff" } }
+    );
   } catch (error) {
     const publicError = toPublicError(error);
     const headers: Record<string, string> = { "x-content-type-options": "nosniff" };

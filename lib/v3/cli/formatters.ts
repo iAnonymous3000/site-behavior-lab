@@ -17,6 +17,7 @@ import { validateScanReportV3, type ScanReportV3 } from "../schema";
 export type PolicyGateViolationV3 = {
   rule: string;
   message: string;
+  kind?: "policy-violation" | "insufficient-evidence";
 };
 
 export type VerifyReportOptionsV3 = {
@@ -146,11 +147,19 @@ export function evaluateFailOnRulesV3(
       if (!diff) {
         violations.push({
           rule,
+          kind: "insufficient-evidence",
           message: `--fail-on new-entities requires --diff <baseline.json> to compare against.`
+        });
+      } else if (diff.comparability.families.network.status !== "comparable") {
+        violations.push({
+          rule,
+          kind: "insufficient-evidence",
+          message: `Insufficient evidence to evaluate new-entities against baseline: ${diff.comparability.families.network.reasons.join(" ")}`
         });
       } else if (diff.entitiesAdded.length > 0) {
         violations.push({
           rule,
+          kind: "policy-violation",
           message: `New tracking/service entities added relative to baseline: ${diff.entitiesAdded.join(", ")}.`
         });
       }
@@ -158,13 +167,30 @@ export function evaluateFailOnRulesV3(
       if (!diff) {
         violations.push({
           rule,
+          kind: "insufficient-evidence",
           message: `--fail-on regressions requires --diff <baseline.json> to compare against.`
         });
-      } else if (diff.regressions.length > 0) {
-        violations.push({
-          rule,
-          message: `${diff.regressions.length} privacy regression(s) detected relative to baseline.`
-        });
+      } else {
+        if (diff.regressions.length > 0) {
+          violations.push({
+            rule,
+            kind: "policy-violation",
+            message: `${diff.regressions.length} privacy regression(s) detected relative to baseline.`
+          });
+        }
+        if (diff.comparability.status !== "comparable") {
+          const detail =
+            diff.comparability.reasons.length > 0
+              ? diff.comparability.reasons.join(" ")
+              : diff.comparability.insufficientEvidence
+                  .map((item) => `${item.family}: ${item.reason}`)
+                  .join(" ");
+          violations.push({
+            rule,
+            kind: "insufficient-evidence",
+            message: `Baseline comparison unevaluable (${diff.comparability.status}): ${detail}`
+          });
+        }
       }
     } else {
       violations.push({
@@ -267,6 +293,17 @@ export function formatDiffMarkdownV3(diff: TemporalReportDiffV3): string {
   const lines: string[] = [];
   lines.push(`### Baseline Diff (\`${diff.previousReportId}\` → \`${diff.currentReportId}\`)`);
   lines.push("");
+  const compLabel =
+    diff.comparability.status === "comparable"
+      ? "comparable"
+      : diff.comparability.status === "partial"
+        ? `partial (${diff.comparability.insufficientEvidence.map((i) => i.family).join(", ")}: insufficient evidence)`
+        : "insufficient evidence";
+  lines.push(`- **Comparability:** ${compLabel}`);
+  if (diff.comparability.notes.length > 0) {
+    lines.push(`- **Context notes:** ${diff.comparability.notes.join(" ")}`);
+  }
+  lines.push("");
   lines.push("| Metric | Delta |");
   lines.push("| --- | ---: |");
   lines.push(`| Third-party domains | ${signed(diff.metrics.thirdPartyDomainsDelta)} |`);
@@ -276,15 +313,37 @@ export function formatDiffMarkdownV3(diff: TemporalReportDiffV3): string {
   lines.push(`| Keystroke leaks | ${signed(diff.metrics.keystrokeLeaksDelta)} |`);
   lines.push(`| CNAME cloaks | ${signed(diff.metrics.cnameCloaksDelta)} |`);
 
+  if (diff.comparability.reasons.length > 0) {
+    lines.push("");
+    lines.push("#### Insufficient Evidence");
+    for (const reason of diff.comparability.reasons) {
+      lines.push(`- ${reason}`);
+    }
+  } else if (diff.comparability.insufficientEvidence.length > 0) {
+    lines.push("");
+    lines.push("#### Insufficient Evidence");
+    for (const item of diff.comparability.insufficientEvidence) {
+      lines.push(`- **${item.family}:** ${item.reason}`);
+    }
+  }
+
   if (diff.regressions.length > 0) {
     lines.push("");
     lines.push("#### Regression Alerts");
     for (const r of diff.regressions) {
       lines.push(`- **[${r.severity.toUpperCase()}]** ${r.title} — ${r.detail}`);
     }
-  } else {
+  } else if (diff.comparability.status === "comparable") {
     lines.push("");
     lines.push("No privacy regressions detected relative to baseline.");
+  } else if (diff.comparability.status === "partial") {
+    lines.push("");
+    lines.push(
+      "No privacy regressions detected across comparable probe families; unevaluable families are listed under Insufficient Evidence above."
+    );
+  } else {
+    lines.push("");
+    lines.push("Insufficient comparable evidence to evaluate privacy regressions relative to baseline.");
   }
 
   if (diff.improvements.length > 0) {

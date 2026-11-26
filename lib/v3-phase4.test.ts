@@ -473,4 +473,128 @@ test("action.yml defines the reusable composite GitHub Action backed by bin/sbl.
 
   const pkg = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
   assert.equal(pkg.bin?.sbl, "./bin/sbl.mjs");
+  assert.match(actionYml, /fail-on-insufficient-evidence/);
+  assert.match(actionYml, /baseline-comparability/);
+  assert.match(actionYml, /--fail-on-insufficient-evidence/);
+  assert.match(actionYml, /insufficient-evidence/);
+});
+
+test("CLI, SARIF, and Markdown make unevaluable baselines explicit with exit code 3 instead of a silent pass", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "sbl-cli-unevaluable-"));
+  try {
+    const leakBaseline = makeFixtureReport({
+      reportId: "20261120-aaaa1111111111111111111111111111",
+      domain: "shop.example",
+      thirdPartyDomains: 5,
+      darkPatternScore: 10,
+      keystrokeLeaks: 1
+    });
+    const zeroFieldsCurrent = makeFixtureReport({
+      reportId: "20261125-bbbb2222222222222222222222222222",
+      domain: "staging.shop.example",
+      thirdPartyDomains: 5,
+      darkPatternScore: 10,
+      keystrokeLeaks: 0
+    });
+    zeroFieldsCurrent.leadArm.keystrokes.fieldsTyped = 0;
+    zeroFieldsCurrent.leadArm.keystrokes.shadowDomFieldsTyped = 0;
+    zeroFieldsCurrent.leadArm.probes.keystrokes = { status: "skipped", reason: "no-eligible-input-fields" };
+
+    const baselinePath = path.join(dir, "baseline.json");
+    const currentPath = path.join(dir, "current.json");
+    const sarifPath = path.join(dir, "unevaluable.sarif");
+    await writeFile(baselinePath, JSON.stringify(leakBaseline), "utf8");
+    await writeFile(currentPath, JSON.stringify(zeroFieldsCurrent), "utf8");
+
+    // 1. sbl diff --fail-on-regression MUST exit 3 (not 0) when keystroke comparison has insufficient evidence
+    let stdout = "";
+    let stderr = "";
+    const diffCode = await runSblCli(["diff", baselinePath, currentPath, "--fail-on-regression"], {
+      stdout: (s) => {
+        stdout += s;
+      },
+      stderr: (s) => {
+        stderr += s;
+      }
+    });
+    assert.equal(diffCode, 3, `Expected exit code 3 for unevaluable baseline diff, got ${diffCode}`);
+    assert.match(stdout, /#### Insufficient Evidence/);
+    assert.match(stdout, /typed into 0 fields/i);
+    assert.doesNotMatch(stdout, /No privacy regressions detected relative to baseline\./);
+    assert.match(stderr, /insufficient evidence/i);
+
+    // 2. Reverse order (0 fields -> leak) with sbl diff --fail-on-regression also exits 3 (insufficient evidence)
+    stderr = "";
+    const reverseDiffCode = await runSblCli(["diff", currentPath, baselinePath, "--fail-on-regression"], {
+      stdout: () => {},
+      stderr: (s) => {
+        stderr += s;
+      }
+    });
+    assert.equal(reverseDiffCode, 3);
+    assert.match(stderr, /baseline typed into 0 fields/i);
+
+    // 3. sbl scan --diff --fail-on regressions exits 3 and emits SBL-DIFF-INSUFFICIENT-EVIDENCE in SARIF
+    stdout = "";
+    stderr = "";
+    const scanCode = await runSblCli(
+      [
+        "scan",
+        "https://staging.shop.example/",
+        "--diff",
+        baselinePath,
+        "--format",
+        "sarif",
+        "--output",
+        sarifPath,
+        "--fail-on",
+        "regressions"
+      ],
+      {
+        scanImpl: async () => zeroFieldsCurrent,
+        closeBrowserImpl: async () => {},
+        stdout: (s) => {
+          stdout += s;
+        },
+        stderr: (s) => {
+          stderr += s;
+        }
+      }
+    );
+    assert.equal(scanCode, 3, `Expected exit code 3 for unevaluable --fail-on regressions, got ${scanCode}`);
+    assert.match(stderr, /insufficient evidence/i);
+    const sarif = JSON.parse(await readFile(sarifPath, "utf8"));
+    assert.ok(
+      sarif.runs[0].results.some((r: { ruleId: string }) => r.ruleId === "SBL-DIFF-INSUFFICIENT-EVIDENCE"),
+      "SARIF must emit SBL-DIFF-INSUFFICIENT-EVIDENCE warning"
+    );
+
+    // 4. --fail-on-insufficient-evidence exits 3 even when --fail-on only checks single-report rules (as in action.yml)
+    const actionModeCode = await runSblCli(
+      [
+        "scan",
+        "https://staging.shop.example/",
+        "--diff",
+        baselinePath,
+        "--fail-on",
+        "keystrokes,cname",
+        "--fail-on-insufficient-evidence"
+      ],
+      {
+        scanImpl: async () => zeroFieldsCurrent,
+        closeBrowserImpl: async () => {},
+        stdout: () => {},
+        stderr: () => {}
+      }
+    );
+    assert.equal(actionModeCode, 3);
+
+    // 5. Standalone diffToSarifV3 also carries SBL-DIFF-INSUFFICIENT-EVIDENCE
+    const standaloneSarif = diffToSarifV3(diffScanReportsV3(leakBaseline, zeroFieldsCurrent));
+    assert.ok(
+      standaloneSarif.runs[0].results.some((r) => r.ruleId === "SBL-DIFF-INSUFFICIENT-EVIDENCE")
+    );
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });

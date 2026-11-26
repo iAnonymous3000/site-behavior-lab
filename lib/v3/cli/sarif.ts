@@ -127,6 +127,19 @@ const RULES: Record<string, SarifRule> = {
     help: { text: "Inspect the diff report and revert or gate newly introduced trackers, beacons, or dark patterns." },
     defaultConfiguration: { level: "error" },
     properties: { tags: ["privacy", "regression"] }
+  },
+  "SBL-DIFF-INSUFFICIENT-EVIDENCE": {
+    id: "SBL-DIFF-INSUFFICIENT-EVIDENCE",
+    name: "BaselineComparisonInsufficientEvidence",
+    shortDescription: { text: "Baseline comparison lacks comparable evidence for one or more checks" },
+    fullDescription: {
+      text: "The baseline and current visits differed in visit conditions, load outcome, or probe coverage (such as 0 input fields exercised), so regression judgment could not be completed for one or more families."
+    },
+    help: {
+      text: "Re-scan with matching visit conditions and ensure the target page exposes comparable probe coverage before treating the baseline comparison as clean."
+    },
+    defaultConfiguration: { level: "warning" },
+    properties: { tags: ["privacy", "comparability", "insufficient-evidence"] }
   }
 };
 
@@ -286,6 +299,10 @@ export function reportToSarifV3(
         }
       });
     }
+    for (const item of buildInsufficientEvidenceSarifResults(diff, artifactUri)) {
+      usedRuleIds.add("SBL-DIFF-INSUFFICIENT-EVIDENCE");
+      results.push(item);
+    }
   }
 
   return {
@@ -307,21 +324,77 @@ export function reportToSarifV3(
   };
 }
 
-/** Export a standalone `TemporalReportDiffV3` as SARIF 2.1.0 JSON. */
-export function diffToSarifV3(diff: TemporalReportDiffV3, artifactUri = "sbl-diff.v3.json"): SarifLogV210 {
-  const results: SarifResult[] = diff.regressions.map((reg) => ({
-    ruleId: "SBL-REGRESSION",
-    level: reg.severity === "critical" || reg.severity === "high" ? "error" : "warning",
-    message: { text: `[${reg.kind}] ${reg.title} — ${reg.detail}` },
-    partialFingerprints: makeFingerprint("SBL-REGRESSION", `${diff.canonicalDomain}:${reg.kind}`),
+function buildInsufficientEvidenceSarifResults(
+  diff: TemporalReportDiffV3,
+  artifactUri: string
+): SarifResult[] {
+  if (diff.comparability.status === "comparable") return [];
+  if (diff.comparability.reasons.length > 0) {
+    return [
+      {
+        ruleId: "SBL-DIFF-INSUFFICIENT-EVIDENCE",
+        level: "warning",
+        message: {
+          text: `Insufficient evidence to compare baseline ${diff.previousReportId} and current ${diff.currentReportId}: ${diff.comparability.reasons.join(" ")}`
+        },
+        partialFingerprints: makeFingerprint(
+          "SBL-DIFF-INSUFFICIENT-EVIDENCE",
+          `${diff.canonicalDomain}:global:${diff.comparability.status}`
+        ),
+        locations: makeLocation(artifactUri),
+        properties: {
+          comparabilityStatus: diff.comparability.status,
+          reasons: diff.comparability.reasons,
+          previousReportId: diff.previousReportId,
+          currentReportId: diff.currentReportId
+        }
+      }
+    ];
+  }
+  return diff.comparability.insufficientEvidence.map((item) => ({
+    ruleId: "SBL-DIFF-INSUFFICIENT-EVIDENCE",
+    level: "warning",
+    message: {
+      text: `[${item.family}] ${item.reason}`
+    },
+    partialFingerprints: makeFingerprint(
+      "SBL-DIFF-INSUFFICIENT-EVIDENCE",
+      `${diff.canonicalDomain}:${item.family}`
+    ),
     locations: makeLocation(artifactUri),
     properties: {
-      kind: reg.kind,
-      severity: reg.severity,
+      comparabilityStatus: diff.comparability.status,
+      family: item.family,
       previousReportId: diff.previousReportId,
       currentReportId: diff.currentReportId
     }
   }));
+}
+
+/** Export a standalone `TemporalReportDiffV3` as SARIF 2.1.0 JSON. */
+export function diffToSarifV3(diff: TemporalReportDiffV3, artifactUri = "sbl-diff.v3.json"): SarifLogV210 {
+  const usedRuleIds = new Set<string>();
+  const results: SarifResult[] = diff.regressions.map((reg) => {
+    usedRuleIds.add("SBL-REGRESSION");
+    return {
+      ruleId: "SBL-REGRESSION",
+      level: reg.severity === "critical" || reg.severity === "high" ? "error" : "warning",
+      message: { text: `[${reg.kind}] ${reg.title} — ${reg.detail}` },
+      partialFingerprints: makeFingerprint("SBL-REGRESSION", `${diff.canonicalDomain}:${reg.kind}`),
+      locations: makeLocation(artifactUri),
+      properties: {
+        kind: reg.kind,
+        severity: reg.severity,
+        previousReportId: diff.previousReportId,
+        currentReportId: diff.currentReportId
+      }
+    };
+  });
+
+  for (const item of buildInsufficientEvidenceSarifResults(diff, artifactUri)) {
+    usedRuleIds.add("SBL-DIFF-INSUFFICIENT-EVIDENCE");
+    results.push(item);
+  }
 
   return {
     $schema: SARIF_SCHEMA,
@@ -333,7 +406,7 @@ export function diffToSarifV3(diff: TemporalReportDiffV3, artifactUri = "sbl-dif
             name: "Site Behavior Lab",
             version: SCANNER_V3_VERSION,
             informationUri: "https://sitebehavior.org",
-            rules: results.length > 0 ? [RULES["SBL-REGRESSION"]] : []
+            rules: [...usedRuleIds].map((id) => RULES[id])
           }
         },
         results

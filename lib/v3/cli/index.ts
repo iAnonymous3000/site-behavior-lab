@@ -67,13 +67,20 @@ Scan options:
   --save-report <path>              Also write raw ScanReportV3 JSON to a file
   --diff <baseline.json>            Compare scan result against a baseline ScanReportV3 JSON file
   --fail-on <rules>                 Comma-separated CI policy gates (keystrokes,cname,sgtm,fingerprinting,beacon-pii,dark-patterns>=35,third-parties>20,new-entities,regressions)
+  --fail-on-insufficient-evidence   Exit with code 3 when a --diff baseline comparison lacks comparable evidence
   --index                           Persist report into local v3 store & SQLite corpus index
   --allow-loopback                  Permit scanning localhost/127.0.0.1 staging servers
 
 Diff options:
   --format <markdown|json|sarif>    Output format (default: markdown)
   --output <path>                   Write output to a file
-  --fail-on-regression              Exit with code 2 if any regression alert is emitted
+  --fail-on-regression              Exit with code 2 on confirmed regression, or code 3 on insufficient comparable evidence
+
+Exit codes:
+  0  Pass (and baseline comparable when regression gate is enabled)
+  1  Invocation or runtime error
+  2  Policy gate or confirmed privacy regression failure
+  3  Unevaluable baseline comparison (insufficient comparable evidence)
 `;
 
 export async function runSblCli(argv: readonly string[], deps: SblCliDeps = {}): Promise<number> {
@@ -120,6 +127,7 @@ async function handleScanCommand(
   let diffBaselinePath: string | null = null;
   let indexLocally = false;
   let allowLoopback = false;
+  let failOnInsufficientEvidence = false;
   const comparisons: ComparisonAxisV3[] = [];
   const failOnRules: string[] = [];
 
@@ -166,6 +174,8 @@ async function handleScanCommand(
       for (const piece of args[++i].split(",")) {
         if (piece.trim()) failOnRules.push(piece.trim());
       }
+    } else if (flag === "--fail-on-insufficient-evidence") {
+      failOnInsufficientEvidence = true;
     } else if (flag === "--index") {
       indexLocally = true;
     } else if (flag === "--allow-loopback") {
@@ -226,12 +236,38 @@ async function handleScanCommand(
     }
 
     const violations = evaluateFailOnRulesV3(report, diff, failOnRules);
+    if (
+      failOnInsufficientEvidence &&
+      diff &&
+      diff.comparability.status !== "comparable" &&
+      !violations.some((v) => v.kind === "insufficient-evidence")
+    ) {
+      const detail =
+        diff.comparability.reasons.length > 0
+          ? diff.comparability.reasons.join(" ")
+          : diff.comparability.insufficientEvidence
+              .map((item) => `${item.family}: ${item.reason}`)
+              .join(" ");
+      violations.push({
+        rule: "comparability",
+        kind: "insufficient-evidence",
+        message: `Baseline comparison unevaluable (${diff.comparability.status}): ${detail}`
+      });
+    }
     if (violations.length > 0) {
-      err(`\nPolicy gate failed (${violations.length} violation${violations.length === 1 ? "" : "s"}):\n`);
+      const hasConfirmedViolation = violations.some((v) => v.kind !== "insufficient-evidence");
+      if (hasConfirmedViolation) {
+        err(`\nPolicy gate failed (${violations.length} finding${violations.length === 1 ? "" : "s"}):\n`);
+        for (const v of violations) {
+          err(`  - [${v.rule}] ${v.message}\n`);
+        }
+        return 2;
+      }
+      err(`\nBaseline comparison unevaluable — insufficient evidence (${violations.length} notice${violations.length === 1 ? "" : "s"}):\n`);
       for (const v of violations) {
         err(`  - [${v.rule}] ${v.message}\n`);
       }
-      return 2;
+      return 3;
     }
     return 0;
   } catch (error) {
@@ -292,9 +328,21 @@ async function handleDiffCommand(
       out(rendered);
     }
 
-    if (failOnRegression && diff.regressions.length > 0) {
-      err(`Detected ${diff.regressions.length} privacy regression(s).\n`);
-      return 2;
+    if (failOnRegression) {
+      if (diff.regressions.length > 0) {
+        err(`Detected ${diff.regressions.length} privacy regression(s).\n`);
+        return 2;
+      }
+      if (diff.comparability.status !== "comparable") {
+        const detail =
+          diff.comparability.reasons.length > 0
+            ? diff.comparability.reasons.join(" ")
+            : diff.comparability.insufficientEvidence
+                .map((item) => `${item.family}: ${item.reason}`)
+                .join(" ");
+        err(`Baseline comparison unevaluable — insufficient evidence (${diff.comparability.status}): ${detail}\n`);
+        return 3;
+      }
     }
     return 0;
   } catch (error) {

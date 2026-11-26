@@ -109,8 +109,70 @@ export function SiteHistoryViewV3({
 
       {diff && (
         <section className={styles.panel}>
-          <h2 className={styles.sectionTitle}>Temporal Regression Diff</h2>
-          <div className={styles.kpiGrid}>
+          <div className={styles.heroHeader}>
+            <h2 className={styles.sectionTitle}>Temporal Regression Diff</h2>
+            <span
+              className={`${styles.chip} ${
+                diff.comparability.status === "comparable"
+                  ? styles.chipOk
+                  : diff.comparability.status === "partial"
+                    ? styles.chipWarn
+                    : styles.chipLoud
+              }`}
+            >
+              {diff.comparability.status === "comparable"
+                ? "Comparable evidence"
+                : diff.comparability.status === "partial"
+                  ? `Partial comparability (${diff.comparability.insufficientEvidence.length} unevaluable)`
+                  : "Insufficient evidence"}
+            </span>
+          </div>
+
+          {diff.comparability.reasons.length > 0 && (
+            <div className={`${styles.highlightItem} ${styles.hlHigh}`} style={{ marginTop: 12 }}>
+              <div className={styles.highlightTitle}>
+                Insufficient evidence to judge regressions or improvements
+              </div>
+              <div className={styles.highlightDetail}>
+                Raw metric deltas remain shown below for inspection, but automated verdicts are withheld:
+                <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+                  {diff.comparability.reasons.map((reason, idx) => (
+                    <li key={idx}>{reason}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {diff.comparability.reasons.length === 0 && diff.comparability.insufficientEvidence.length > 0 && (
+            <div className={`${styles.highlightItem} ${styles.hlMedium}`} style={{ marginTop: 12 }}>
+              <div className={styles.highlightTitle}>
+                Insufficient evidence for {diff.comparability.insufficientEvidence.length} probe{" "}
+                {diff.comparability.insufficientEvidence.length === 1 ? "family" : "families"}
+              </div>
+              <div className={styles.highlightDetail}>
+                <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+                  {diff.comparability.insufficientEvidence.map((item) => (
+                    <li key={item.family}>
+                      <strong>{item.family}:</strong> {item.reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {diff.comparability.notes.length > 0 && (
+            <div className={styles.chipsRow} style={{ marginTop: 10 }}>
+              {diff.comparability.notes.map((note, idx) => (
+                <span key={idx} className={`${styles.chip} ${styles.chipInfo}`}>
+                  {note}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className={styles.kpiGrid} style={{ marginTop: 12 }}>
             <div className={styles.kpiCard}>
               <div className={styles.kpiValue}>{signed(diff.metrics.thirdPartyDomainsDelta)}</div>
               <div className={styles.kpiLabel}>3P Domains Δ</div>
@@ -129,7 +191,7 @@ export function SiteHistoryViewV3({
             </div>
           </div>
 
-          {diff.regressions.length > 0 && (
+          {diff.regressions.length > 0 ? (
             <div style={{ marginTop: 16 }}>
               <h3 style={{ margin: "0 0 8px", fontSize: 15 }}>Regression Alerts ({diff.regressions.length})</h3>
               <ul className={styles.highlightsList}>
@@ -150,7 +212,16 @@ export function SiteHistoryViewV3({
                 ))}
               </ul>
             </div>
-          )}
+          ) : diff.comparability.status === "comparable" ? (
+            <p className={styles.subtitle} style={{ marginTop: 14 }}>
+              No privacy regressions detected across comparable probe families.
+            </p>
+          ) : diff.comparability.status === "partial" ? (
+            <p className={styles.subtitle} style={{ marginTop: 14 }}>
+              No regressions detected in comparable probe families; unevaluable families are listed under insufficient
+              evidence above.
+            </p>
+          ) : null}
 
           {diff.improvements.length > 0 && (
             <div style={{ marginTop: 16 }}>

@@ -1188,3 +1188,79 @@ test("shared static corpus snapshot filter and vendor footprint builder stay det
   assert.equal(fp.prevalencePct, 50);
   assert.equal(fp.sites[0]?.requestCount, 5);
 });
+
+test("diffScanReportsV3 gates keystroke, condition, and load-outcome judgments on comparable evidence", () => {
+  const leakVisit = makeReport({
+    reportId: "20261120-aaaa0000000000000000000000000001",
+    canonicalDomain: "checkout.example",
+    scannedAt: "2026-11-20T00:00:00.000Z",
+    keystrokeLeaks: 1
+  });
+  const zeroFieldsVisit = makeReport({
+    reportId: "20261125-bbbb0000000000000000000000000002",
+    canonicalDomain: "checkout.example",
+    scannedAt: "2026-11-25T00:00:00.000Z",
+    keystrokeLeaks: 0
+  });
+  zeroFieldsVisit.leadArm.keystrokes.fieldsTyped = 0;
+  zeroFieldsVisit.leadArm.keystrokes.shadowDomFieldsTyped = 0;
+  zeroFieldsVisit.leadArm.probes.keystrokes = { status: "skipped", reason: "no-eligible-input-fields" };
+
+  // 1. Leak -> 0 fields typed: MUST NOT claim keystroke leaks improved; must explain insufficient evidence
+  const leakToZero = diffScanReportsV3(leakVisit, zeroFieldsVisit);
+  assert.equal(leakToZero.comparability.status, "partial");
+  assert.equal(leakToZero.comparability.families.keystrokes.status, "insufficient-evidence");
+  assert.equal(leakToZero.comparability.families.network.status, "comparable");
+  assert.match(leakToZero.comparability.families.keystrokes.reasons.join(" "), /Insufficient evidence/i);
+  assert.match(leakToZero.comparability.families.keystrokes.reasons.join(" "), /typed into 0 fields/i);
+  assert.equal(leakToZero.improvements.some((s) => /Keystroke/i.test(s)), false);
+  assert.equal(leakToZero.metrics.keystrokeLeaksDelta, -1, "raw delta stays inspectable");
+
+  // 2. Reverse order (0 fields typed -> leak): MUST NOT claim a confirmed keystroke regression in diff
+  const zeroToLeak = diffScanReportsV3(zeroFieldsVisit, leakVisit);
+  assert.equal(zeroToLeak.comparability.status, "partial");
+  assert.equal(zeroToLeak.comparability.families.keystrokes.status, "insufficient-evidence");
+  assert.match(zeroToLeak.comparability.families.keystrokes.reasons.join(" "), /baseline typed into 0 fields/i);
+  assert.equal(zeroToLeak.regressions.some((r) => r.kind === "new-keystroke-leak"), false);
+  assert.equal(zeroToLeak.metrics.keystrokeLeaksDelta, 1, "raw delta stays inspectable");
+
+  // 3. Genuinely comparable pair (both exercised fields): MUST trigger critical alert
+  const cleanTestedVisit = makeReport({
+    reportId: "20261119-cccc0000000000000000000000000003",
+    canonicalDomain: "checkout.example",
+    scannedAt: "2026-11-19T00:00:00.000Z",
+    keystrokeLeaks: 0
+  });
+  const comparableLeak = diffScanReportsV3(cleanTestedVisit, leakVisit);
+  assert.equal(comparableLeak.comparability.status, "comparable");
+  assert.equal(comparableLeak.comparability.families.keystrokes.status, "comparable");
+  assert.ok(comparableLeak.regressions.some((r) => r.kind === "new-keystroke-leak" && r.severity === "critical"));
+
+  // 4. Visit condition mismatch (mobile vs desktop) & failed load outcome withhold all verdicts while staying inspectable
+  const mobileVisit = structuredClone(leakVisit);
+  mobileVisit.reportId = "20261126-dddd0000000000000000000000000004";
+  mobileVisit.leadArm.conditions.device = "mobile";
+  const condMismatch = diffScanReportsV3(cleanTestedVisit, mobileVisit);
+  assert.equal(condMismatch.comparability.status, "insufficient-evidence");
+  assert.match(condMismatch.comparability.reasons.join(" "), /device conditions differ/i);
+  assert.equal(condMismatch.regressions.length, 0);
+  assert.equal(condMismatch.improvements.length, 0);
+  assert.equal(condMismatch.metrics.keystrokeLeaksDelta, 1);
+
+  const timeoutVisit = structuredClone(leakVisit);
+  timeoutVisit.reportId = "20261126-eeee0000000000000000000000000005";
+  timeoutVisit.leadArm.loadOutcome = "timeout";
+  const loadMismatch = diffScanReportsV3(cleanTestedVisit, timeoutVisit);
+  assert.equal(loadMismatch.comparability.status, "insufficient-evidence");
+  assert.match(loadMismatch.comparability.reasons.join(" "), /loadOutcome=ok/i);
+  assert.equal(loadMismatch.regressions.length, 0);
+
+  // 5. Staging vs. production remains inspectable and comparable with a context note
+  const stagingVisit = structuredClone(leakVisit);
+  stagingVisit.reportId = "20261126-ffff0000000000000000000000000006";
+  stagingVisit.canonicalDomain = "staging.checkout.example";
+  const stagingDiff = diffScanReportsV3(cleanTestedVisit, stagingVisit);
+  assert.equal(stagingDiff.comparability.status, "comparable");
+  assert.ok(stagingDiff.comparability.notes.some((n) => /different domains/i.test(n)));
+  assert.ok(stagingDiff.regressions.some((r) => r.kind === "new-keystroke-leak"));
+});

@@ -713,12 +713,53 @@ export type WatchRegressionAlertV3 = {
   detail: string;
 };
 
+export type DiffComparabilityStatusV3 = "comparable" | "insufficient-evidence";
+
+export type DiffFamilyNameV3 =
+  | "keystrokes"
+  | "cname"
+  | "beacons"
+  | "fingerprinting"
+  | "consent"
+  | "network"
+  | "policy";
+
+export type DiffFamilyComparabilityV3 = {
+  status: DiffComparabilityStatusV3;
+  reasons: string[];
+};
+
+export type DiffInsufficientEvidenceItemV3 = {
+  family: DiffFamilyNameV3;
+  status: "insufficient-evidence";
+  reason: string;
+};
+
+export type DiffComparabilityV3 = {
+  /**
+   * Overall comparability verdict:
+   *  - `"comparable"`: shared visit conditions and load outcomes match, and every evaluated probe family had complete comparable evidence.
+   *  - `"partial"`: shared visit conditions and load outcomes match, while one or more probe families lacked sufficient evidence for judgment.
+   *  - `"insufficient-evidence"`: visit conditions, load outcomes, or duplicate report identity prevent judging regressions or improvements across all families.
+   */
+  status: "comparable" | "partial" | "insufficient-evidence";
+  /** Global blockers preventing judgment across all families. */
+  reasons: string[];
+  /** Non-blocking context advisories (e.g. staging vs. production domain or differing egress region). */
+  notes: string[];
+  /** Per-family comparability decisions gating every regression alert and improvement claim. */
+  families: Record<DiffFamilyNameV3, DiffFamilyComparabilityV3>;
+  /** Explicit per-family insufficient-evidence notices for UI, API, CLI, SARIF, and CI consumers. */
+  insufficientEvidence: DiffInsufficientEvidenceItemV3[];
+};
+
 export type TemporalReportDiffV3 = {
   previousReportId: string;
   currentReportId: string;
   previousScannedAt: string;
   currentScannedAt: string;
   canonicalDomain: string;
+  comparability: DiffComparabilityV3;
   metrics: {
     totalRequestsDelta: number;
     thirdPartyRequestsDelta: number;
