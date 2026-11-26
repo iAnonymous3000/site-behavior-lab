@@ -1,12 +1,17 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import test from "node:test";
 import {
   buildDeveloperRuleBreakdownV3,
   buildInitiatorCausalityTreeV3,
   buildPhaseTimelineV3,
-  getCatalogDirectoryV3
+  getCatalogDirectoryV3,
+  PARSER_INITIATOR_KEY_V3,
+  rootInitiatorDomainV3,
+  UNKNOWN_INITIATOR_KEY_V3
 } from "./v3/dev-mode";
-import type { ScanArmV3 } from "./v3/schema";
+import type { ScanArmV3, ScanReportV3 } from "./v3/schema";
 
 function makeSampleArm(): ScanArmV3 {
   return {
@@ -294,4 +299,156 @@ test("getCatalogDirectoryV3 returns 150+ entities and corporate parent rollups",
   assert.ok(dir.entries.length >= 150, `expected >= 150 catalog entries, got ${dir.entries.length}`);
   assert.ok(dir.parentOrgs.some((p) => p.parentOrg === "Alphabet"));
   assert.ok(dir.parentOrgs.some((p) => p.parentOrg === "Meta"));
+});
+
+test("v3 initiator attribution preserves unknown initiators, reserves parser for explicit parser evidence, and matches BBC seed", () => {
+  const arm = makeSampleArm();
+  arm.network.push(
+    {
+      id: 10,
+      phase: "passive-load",
+      url: "https://static.partner.example/embed.js",
+      domain: "static.partner.example",
+      registrableDomain: "partner.example",
+      method: "GET",
+      resourceType: "script",
+      status: 200,
+      thirdParty: true,
+      protocol: "h2",
+      encodedBytes: 3000,
+      startedAtMs: 50,
+      durationMs: 25,
+      redirectChain: [],
+      requestHeaders: {},
+      responseHeaders: {},
+      initiator: { type: "parser", callStack: [] },
+      entity: null,
+      shields: {
+        matched: false,
+        shouldBlockStandard: false,
+        shouldBlockAggressive: false,
+        blocked: false,
+        rule: null,
+        list: null,
+        exception: null,
+        redirect: null,
+        rewrittenUrl: null,
+        important: false
+      }
+    },
+    {
+      id: 11,
+      phase: "passive-load",
+      url: "https://pixel.unknown-src.example/ping",
+      domain: "pixel.unknown-src.example",
+      registrableDomain: "unknown-src.example",
+      method: "GET",
+      resourceType: "image",
+      status: 200,
+      thirdParty: true,
+      protocol: "h2",
+      encodedBytes: 42,
+      startedAtMs: 120,
+      durationMs: 15,
+      redirectChain: [],
+      requestHeaders: {},
+      responseHeaders: {},
+      initiator: { type: "other", callStack: [] },
+      entity: null,
+      shields: {
+        matched: true,
+        shouldBlockStandard: true,
+        shouldBlockAggressive: true,
+        blocked: false,
+        rule: "||pixel.unknown-src.example^",
+        list: "EasyPrivacy",
+        exception: null,
+        redirect: null,
+        rewrittenUrl: null,
+        important: false
+      }
+    }
+  );
+
+  // 1. Unit cases: known script, explicit parser, and unknown initiator
+  const knownReq = arm.network.find((r) => r.id === 2)!;
+  const parserReq = arm.network.find((r) => r.id === 10)!;
+  const unknownReq = arm.network.find((r) => r.id === 11)!;
+  assert.equal(rootInitiatorDomainV3(knownReq), "publisher.example");
+  assert.equal(rootInitiatorDomainV3(parserReq), PARSER_INITIATOR_KEY_V3);
+  assert.equal(rootInitiatorDomainV3(unknownReq), UNKNOWN_INITIATOR_KEY_V3);
+
+  const tree = buildInitiatorCausalityTreeV3(arm);
+  const scriptNode = tree.find((n) => n.scriptDomain === "publisher.example");
+  const parserNode = tree.find((n) => n.scriptDomain === PARSER_INITIATOR_KEY_V3);
+  const unknownNode = tree.find((n) => n.scriptDomain === UNKNOWN_INITIATOR_KEY_V3);
+
+  assert.ok(scriptNode);
+  assert.equal(scriptNode.attribution, "source");
+  assert.equal(scriptNode.isFirstPartyScript, true);
+
+  assert.ok(parserNode);
+  assert.equal(parserNode.label, "HTML Document Parser");
+  assert.equal(parserNode.attribution, "parser");
+  assert.equal(parserNode.isFirstPartyScript, true);
+  assert.equal(parserNode.totalRequests, 1);
+
+  assert.ok(unknownNode);
+  assert.equal(unknownNode.label, "Unknown initiator (no source recorded)");
+  assert.equal(unknownNode.attribution, "unknown");
+  assert.equal(unknownNode.isFirstPartyScript, false);
+  assert.equal(unknownNode.totalRequests, 1);
+
+  // Graph node counts and request filter agree 1:1
+  for (const node of tree) {
+    const filteredCount = arm.network.filter(
+      (r) => r.thirdParty && rootInitiatorDomainV3(r) === node.scriptDomain
+    ).length;
+    if (node.attribution !== "source") {
+      assert.equal(filteredCount, node.totalRequests);
+    }
+  }
+
+  // Developer rule breakdown does not misattribute unknown initiator to parser
+  const devRules = buildDeveloperRuleBreakdownV3(arm);
+  const unknownRule = devRules.find((r) => r.rule === "||pixel.unknown-src.example^");
+  assert.ok(unknownRule);
+  assert.deepEqual(unknownRule.initiatorScripts, ["unknown initiator"]);
+
+  // 2. Verify directly against the committed BBC seed report without rewriting its evidence
+  const manifest = JSON.parse(
+    readFileSync(path.join(process.cwd(), "public/v3/manifest.json"), "utf8")
+  ) as { reports: { canonicalDomain: string; file: string }[] };
+  const bbcEntry = manifest.reports.find((r) => r.canonicalDomain === "bbc.com");
+  assert.ok(bbcEntry, "committed BBC seed report must exist in public/v3/manifest.json");
+  const bbc = JSON.parse(
+    readFileSync(path.join(process.cwd(), "public/v3", bbcEntry.file), "utf8")
+  ) as ScanReportV3;
+
+  const bbcThirdParty = bbc.leadArm.network.filter((r) => r.thirdParty);
+  const bbcOtherNoSource = bbcThirdParty.filter(
+    (r) =>
+      r.initiator?.type === "other" &&
+      !r.initiator?.scriptDomain &&
+      (!r.initiator?.callStack || r.initiator.callStack.length === 0)
+  );
+  assert.equal(bbcOtherNoSource.length, 49, "BBC seed carries 49 third-party type=other requests without source");
+
+  const bbcTree = buildInitiatorCausalityTreeV3(bbc.leadArm);
+  const bbcParserWithoutSource = bbcTree.find((n) => n.label === "HTML Document Parser");
+  assert.equal(
+    bbcParserWithoutSource,
+    undefined,
+    "BBC unattributed type=other requests must never be labeled HTML Document Parser"
+  );
+
+  const bbcUnknownNode = bbcTree.find((n) => n.scriptDomain === UNKNOWN_INITIATOR_KEY_V3);
+  assert.ok(bbcUnknownNode, "BBC causality graph must preserve an explicit unknown-initiator node");
+  assert.equal(bbcUnknownNode.attribution, "unknown");
+  assert.equal(bbcUnknownNode.isFirstPartyScript, false);
+  assert.equal(bbcUnknownNode.totalRequests, 49);
+
+  // Request filter using rootInitiatorDomainV3 agrees 1:1 with the graph count
+  const filteredBbcUnknown = bbcThirdParty.filter((r) => rootInitiatorDomainV3(r) === UNKNOWN_INITIATOR_KEY_V3);
+  assert.equal(filteredBbcUnknown.length, bbcUnknownNode.totalRequests);
 });

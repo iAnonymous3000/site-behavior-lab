@@ -12,7 +12,9 @@ import {
   buildDeveloperRuleBreakdownV3,
   buildInitiatorCausalityTreeV3,
   buildPhaseTimelineV3,
-  rootInitiatorDomainV3
+  PARSER_INITIATOR_KEY_V3,
+  rootInitiatorDomainV3,
+  UNKNOWN_INITIATOR_KEY_V3
 } from "@/lib/v3/dev-mode";
 import type { ProbeName, ScanArmV3, ScanPhaseName, ScanReportV3 } from "@/lib/v3/schema";
 
@@ -396,7 +398,13 @@ export function ReportViewV3({
           </div>
           {reqInitiatorFilter && (
             <button type="button" className={styles.btn} onClick={() => setReqInitiatorFilter("")}>
-              Clear initiator filter ({reqInitiatorFilter})
+              Clear initiator filter (
+              {reqInitiatorFilter === UNKNOWN_INITIATOR_KEY_V3
+                ? "Unknown initiator"
+                : reqInitiatorFilter === PARSER_INITIATOR_KEY_V3
+                  ? "HTML Document Parser"
+                  : reqInitiatorFilter}
+              )
             </button>
           )}
         </div>
@@ -424,7 +432,11 @@ export function ReportViewV3({
                       </span>
                     </button>{" "}
                     <span className={styles.chip}>
-                      {root.isFirstPartyScript ? "1st-party trigger" : "3rd-party chain"}
+                      {root.attribution === "unknown"
+                        ? "Unknown initiator"
+                        : root.isFirstPartyScript
+                          ? "1st-party trigger"
+                          : "3rd-party chain"}
                     </span>
                   </div>
                   <div className={styles.mono} style={{ fontSize: 12 }}>
@@ -490,7 +502,7 @@ export function ReportViewV3({
                       </td>
                       <td className={styles.num}>{r.matchedRequests}</td>
                       <td className={styles.mono}>{r.sampleDomains.join(", ")}</td>
-                      <td className={styles.mono}>{r.initiatorScripts.join(", ") || "parser"}</td>
+                      <td className={styles.mono}>{r.initiatorScripts.join(", ") || "unknown initiator"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -653,7 +665,14 @@ export function ReportViewV3({
                       </td>
                       {devMode && (
                         <td className={styles.mono}>
-                          <div>{req.initiator?.scriptUrl ?? req.initiator?.type ?? "other"}</div>
+                          <div>
+                            {req.initiator?.scriptUrl ??
+                              (req.initiator?.type === "parser"
+                                ? "HTML Document Parser"
+                                : req.initiator?.type
+                                  ? `unknown (${req.initiator.type})`
+                                  : "unknown")}
+                          </div>
                           {req.requestHeaders && Object.keys(req.requestHeaders).length > 0 && (
                             <div style={{ color: "var(--a-slate)", marginTop: 4 }}>
                               Req: {Object.entries(req.requestHeaders).map(([k, v]) => `${k}=${v}`).join("; ")}

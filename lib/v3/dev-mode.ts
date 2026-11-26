@@ -23,6 +23,11 @@ export type CausalityEntityNodeV3 = {
   domains: string[];
 };
 
+export type InitiatorAttributionKindV3 = "source" | "parser" | "unknown";
+
+export const PARSER_INITIATOR_KEY_V3 = "document-parser";
+export const UNKNOWN_INITIATOR_KEY_V3 = "unknown-initiator";
+
 export type CausalityRootNodeV3 = {
   rootId: string;
   label: string;
@@ -30,6 +35,7 @@ export type CausalityRootNodeV3 = {
   scriptUrl: string | null;
   line: number | null;
   initiatorType: string;
+  attribution: InitiatorAttributionKindV3;
   isFirstPartyScript: boolean;
   totalRequests: number;
   trackingRequests: number;
@@ -76,21 +82,29 @@ const PHASE_LABELS: Record<ScanPhaseName, string> = {
 };
 
 /**
- * Resolve the root originating script domain for a network request, preferring
+ * Resolve the root originating initiator key for a network request, preferring
  * the outermost frame of its initiator call stack so both the Causality Graph
  * and request log filtering stay 100% consistent.
+ *
+ * Parser attribution (`"document-parser"`) is reserved strictly for explicit
+ * `initiator.type === "parser"` evidence when no script/document domain is
+ * recorded; requests with `type === "other"` (or other non-parser types) and
+ * no source domain or stack are preserved as `"unknown-initiator"`.
  */
 export function rootInitiatorDomainV3(req: NetworkRequestV3): string {
   const init = req.initiator;
   const stack = init?.callStack ?? [];
   const rootFrame = stack.length > 0 ? stack[stack.length - 1] : null;
-  return (rootFrame?.domain || init?.scriptDomain || "document-parser").toLowerCase();
+  const sourceDomain = rootFrame?.domain?.trim() || init?.scriptDomain?.trim();
+  if (sourceDomain) return sourceDomain.toLowerCase();
+  if (init?.type === "parser") return PARSER_INITIATOR_KEY_V3;
+  return UNKNOWN_INITIATOR_KEY_V3;
 }
 
 /**
  * Group third-party requests under their root originating script / tag manager /
- * parser initiator so both the on-screen Causality Graph and Developer Mode can
- * pinpoint *what* caused each tracker to load.
+ * parser initiator (or explicit unknown-initiator bucket when Chromium reported
+ * no source domain or stack) so the Causality Graph and request filters agree.
  */
 export function buildInitiatorCausalityTreeV3(arm: ScanArmV3): CausalityRootNodeV3[] {
   const byRoot = new Map<
@@ -101,6 +115,7 @@ export function buildInitiatorCausalityTreeV3(arm: ScanArmV3): CausalityRootNode
       scriptUrl: string | null;
       line: number | null;
       initiatorType: string;
+      attribution: InitiatorAttributionKindV3;
       isFirstPartyScript: boolean;
       totalRequests: number;
       trackingRequests: number;
@@ -136,26 +151,45 @@ export function buildInitiatorCausalityTreeV3(arm: ScanArmV3): CausalityRootNode
     const scriptDomain = rootInitiatorDomainV3(req);
     const initType = init?.type ?? "other";
     const line = typeof rootFrame?.line === "number" ? rootFrame.line : null;
+    const attribution: InitiatorAttributionKindV3 =
+      scriptDomain === UNKNOWN_INITIATOR_KEY_V3
+        ? "unknown"
+        : scriptDomain === PARSER_INITIATOR_KEY_V3
+          ? "parser"
+          : "source";
     const isFirstPartyScript =
-      scriptDomain === "document-parser" ||
-      (firstPartyDomain.length > 0 &&
-        (scriptDomain === firstPartyDomain || firstPartyDomain.endsWith(`.${scriptDomain}`) || scriptDomain.endsWith(`.${firstPartyDomain}`)));
+      attribution === "parser" ||
+      (attribution === "source" &&
+        firstPartyDomain.length > 0 &&
+        (scriptDomain === firstPartyDomain ||
+          firstPartyDomain.endsWith(`.${scriptDomain}`) ||
+          scriptDomain.endsWith(`.${firstPartyDomain}`)));
 
-    const rootKey = scriptUrl ? `${scriptDomain}|${truncatePath(scriptUrl)}` : `${initType}|${scriptDomain}`;
+    const rootKey =
+      attribution === "unknown"
+        ? UNKNOWN_INITIATOR_KEY_V3
+        : attribution === "parser"
+          ? PARSER_INITIATOR_KEY_V3
+          : scriptUrl
+            ? `${scriptDomain}|${truncatePath(scriptUrl)}`
+            : `${initType}|${scriptDomain}`;
     let root = byRoot.get(rootKey);
     if (!root) {
       const label =
-        scriptDomain === "document-parser"
+        attribution === "parser"
           ? "HTML Document Parser"
-          : scriptUrl
-            ? `${scriptDomain}${truncatePath(scriptUrl)}`
-            : `${scriptDomain} (${initType})`;
+          : attribution === "unknown"
+            ? "Unknown initiator (no source recorded)"
+            : scriptUrl
+              ? `${scriptDomain}${truncatePath(scriptUrl)}`
+              : `${scriptDomain} (${initType})`;
       root = {
         label,
         scriptDomain,
-        scriptUrl,
+        scriptUrl: attribution === "unknown" ? null : scriptUrl,
         line,
         initiatorType: initType,
+        attribution,
         isFirstPartyScript,
         totalRequests: 0,
         trackingRequests: 0,
@@ -214,6 +248,7 @@ export function buildInitiatorCausalityTreeV3(arm: ScanArmV3): CausalityRootNode
         scriptUrl: node.scriptUrl,
         line: node.line,
         initiatorType: node.initiatorType,
+        attribution: node.attribution,
         isFirstPartyScript: node.isFirstPartyScript,
         totalRequests: node.totalRequests,
         trackingRequests: node.trackingRequests,
@@ -320,8 +355,11 @@ export function buildDeveloperRuleBreakdownV3(arm: ScanArmV3): DeveloperShieldsR
     row.matchedRequests += 1;
     if (req.shields.rewrittenUrl) row.hasUrlRewrite = true;
     row.domains.add(req.domain);
-    const initiator = req.initiator?.scriptUrl || req.initiator?.scriptDomain;
-    if (initiator) row.initiators.add(initiator);
+    const initiator =
+      req.initiator?.scriptUrl ||
+      req.initiator?.scriptDomain ||
+      (req.initiator?.type === "parser" ? "HTML Document Parser" : "unknown initiator");
+    row.initiators.add(initiator);
   }
 
   return [...byRule.values()]
