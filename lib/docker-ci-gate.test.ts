@@ -15,39 +15,60 @@ test("CI requires the deployable Docker image and public-v2/R2 smoke before prom
   assert.match(promoteJob, /needs:\n(?:\s+- [^\n]+\n)*\s+- docker\n/);
 });
 
-test("direct promotion reserves production writes for one dedicated App through mutually exclusive client-ID or App-ID inputs", () => {
+test("promotion fallback can repair a failed direct promotion but rechecks every CI gate", () => {
+  const workflow = readFileSync(path.join(root, ".github", "workflows", "promote-production.yml"), "utf8");
+
+  assert.match(workflow, /workflow_run\.conclusion == 'success' \|\| github\.event\.workflow_run\.conclusion == 'failure'/);
+  assert.match(workflow, /actions: read/);
+  assert.match(workflow, /actions\/runs\/\$\{CI_RUN_ID\}\/jobs\?per_page=100/);
+  assert.match(workflow, /node scripts\/verify-required-ci-jobs\.mjs "\$RUNNER_TEMP\/ci-jobs\.json"/);
+});
+
+test("both promotion paths reserve production writes for one dedicated App through mutually exclusive client-ID or App-ID inputs", () => {
   const ci = readFileSync(path.join(root, ".github", "workflows", "ci.yml"), "utf8");
   const direct = ci.slice(ci.indexOf("\n  promote:"));
+  const fallback = readFileSync(path.join(root, ".github", "workflows", "promote-production.yml"), "utf8");
   const directCheckout = direct.slice(
     direct.indexOf("- name: Checkout main history"),
     direct.indexOf("- name: Mint promotion App token")
   );
+  const fallbackCheckout = fallback.slice(
+    fallback.indexOf("- name: Checkout main history"),
+    fallback.indexOf("- name: Confirm every CI test gate passed")
+  );
+  const fallbackPush = fallback.slice(fallback.indexOf("- name: Fast-forward production to the tested SHA"));
 
-  const tokenMints = direct.match(
-    /actions\/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc/g
-  );
-  assert.equal(tokenMints?.length, 2, "promotion must carry both exclusive App-token inputs");
-  assert.match(direct, /client-id: \$\{\{ vars\.PROMOTION_APP_CLIENT_ID \}\}/);
-  assert.match(direct, /app-id: \$\{\{ vars\.PROMOTION_APP_ID \}\}/);
-  assert.match(direct, /if: \$\{\{ vars\.PROMOTION_APP_CLIENT_ID \}\}/);
-  assert.match(direct, /if: \$\{\{ !vars\.PROMOTION_APP_CLIENT_ID \}\}/);
-  assert.match(direct, /private-key: \$\{\{ secrets\.PROMOTION_APP_PRIVATE_KEY \}\}/);
-  assert.match(direct, /permission-contents: write/);
-  assert.match(
-    direct,
-    /APP_TOKEN: \$\{\{ steps\.promotion_app_token_client\.outputs\.token \|\| steps\.promotion_app_token\.outputs\.token \}\}/
-  );
-  assert.match(direct, /Promotion push authenticates as the dedicated promotion App/);
-  assert.match(
-    direct,
-    /auth_header="AUTHORIZATION: basic \$\(printf 'x-access-token:%s' "\$\{APP_TOKEN\}" \| base64 \| tr -d '\\n'\)"/
-  );
-  assert.match(direct, /git -c http\.extraheader="\$\{auth_header\}" push origin/);
-  assert.doesNotMatch(direct, /FALLBACK_TOKEN|falling back to the workflow token/);
+  for (const workflow of [direct, fallback]) {
+    const tokenMints = workflow.match(
+      /actions\/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc/g
+    );
+    assert.equal(tokenMints?.length, 2, "each promotion path must carry both exclusive App-token inputs");
+    assert.match(workflow, /client-id: \$\{\{ vars\.PROMOTION_APP_CLIENT_ID \}\}/);
+    assert.match(workflow, /app-id: \$\{\{ vars\.PROMOTION_APP_ID \}\}/);
+    assert.match(workflow, /if: \$\{\{ vars\.PROMOTION_APP_CLIENT_ID \}\}/);
+    assert.match(workflow, /if: \$\{\{ !vars\.PROMOTION_APP_CLIENT_ID \}\}/);
+    assert.match(workflow, /private-key: \$\{\{ secrets\.PROMOTION_APP_PRIVATE_KEY \}\}/);
+    assert.match(workflow, /permission-contents: write/);
+    assert.match(
+      workflow,
+      /APP_TOKEN: \$\{\{ steps\.promotion_app_token_client\.outputs\.token \|\| steps\.promotion_app_token\.outputs\.token \}\}/
+    );
+    assert.match(workflow, /Promotion push authenticates as the dedicated promotion App/);
+    assert.match(
+      workflow,
+      /auth_header="AUTHORIZATION: basic \$\(printf 'x-access-token:%s' "\$\{APP_TOKEN\}" \| base64 \| tr -d '\\n'\)"/
+    );
+    assert.match(workflow, /git -c http\.extraheader="\$\{auth_header\}" push origin/);
+    assert.doesNotMatch(workflow, /FALLBACK_TOKEN|falling back to the workflow token/);
+  }
 
   assert.match(direct, /permissions:\n\s+contents: read/);
   assert.doesNotMatch(direct, /^\s+contents: write$|\$\{\{ github\.token \}\}/m);
+  assert.match(fallback, /permissions:\n\s+contents: read\n(?:\s+#[^\n]*\n)*\s+actions: read/);
+  assert.doesNotMatch(fallback, /^\s+contents: write$/m);
+  assert.doesNotMatch(fallbackPush, /\$\{\{ github\.token \}\}/);
   assert.match(directCheckout, /persist-credentials: false/);
+  assert.match(fallbackCheckout, /persist-credentials: false/);
 });
 
 test("Docker smoke preserves v1 and explicitly proves public v2/r2 bundles", () => {

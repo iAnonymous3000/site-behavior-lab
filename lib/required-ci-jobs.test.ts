@@ -57,18 +57,30 @@ test("the required-job file and the direct promotion gate name the same jobs", a
   );
 });
 
-test("the release gate verifies the required jobs from .github/required-ci-jobs.json", async () => {
+test("the promotion gate and the release gate verify the same required jobs", async () => {
+  // This list used to be restated inline per workflow. Both paths now call one
+  // checker against one file, and neither may hard-code a job name again: two
+  // copies of a gate list are how a gate quietly stops being required on one
+  // path while still passing on the other.
   const { requiredCiJobs } = await checker;
+  const promote = await source(".github/workflows/promote-production.yml");
   const release = await source(".github/workflows/release.yml");
 
-  assert.match(release, /node scripts\/verify-required-ci-jobs\.mjs/);
+  for (const workflow of [promote, release]) {
+    assert.match(workflow, /node scripts\/verify-required-ci-jobs\.mjs/);
+  }
   for (const job of requiredCiJobs(ROOT)) {
     assert.ok(
-      !release.includes(job),
-      `"${job}" is restated inside release.yml; the required list belongs only in .github/required-ci-jobs.json`
+      !promote.includes(job) && !release.includes(job),
+      `"${job}" is restated inside a workflow; the required list belongs only in .github/required-ci-jobs.json`
     );
   }
 
+  // The checker must be on disk before either workflow runs it.
+  assert.ok(
+    promote.indexOf("uses: actions/checkout") < promote.indexOf("verify-required-ci-jobs.mjs"),
+    "promote-production must check out the repository before invoking the checker"
+  );
   assert.ok(
     release.indexOf("uses: actions/checkout") < release.indexOf("verify-required-ci-jobs.mjs"),
     "release must check out the repository before invoking the checker"
