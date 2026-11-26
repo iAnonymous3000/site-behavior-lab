@@ -60,7 +60,11 @@ export type ScanSiteV3Deps = {
   passiveDwellMs?: number;
   scrollDwellMs?: number;
   inputDwellMs?: number;
+  armDeadlineMs?: number;
+  signal?: AbortSignal;
 };
+
+const MAX_CONCURRENT_ARMS_PER_SCAN = 3;
 
 let sharedBrowserPromise: Promise<Browser> | null = null;
 
@@ -114,107 +118,131 @@ export async function scanSiteV3(request: ScanRequestV3, deps: ScanSiteV3Deps = 
     proxy = await startPublicScanProxy();
   }
 
-  const adblockEngine = await getDetailedAdblockEngine();
-  const browser = deps.browser ?? (await acquireSharedBrowser());
-
-  const leadConditions: ArmConditionsV3 = {
-    device: request.device ?? "desktop",
-    gpcEnabled: request.gpcEnabled ?? false,
-    shieldsMode: request.shieldsMode ?? "off",
-    consentMode: request.consentMode ?? "observe",
-    scrollCheck: request.scrollCheck ?? true,
-    activeInputProbe: request.activeInputProbe ?? true,
-    policyCheck: request.policyCheck ?? true
-  };
-
-  const sharedCaches: SharedArmCachesV3 = {
-    cnameByHost: new Map(),
-    policyByUrl: new Map()
-  };
-
-  const armSpecs: { armId: string; label: string; axis?: ComparisonAxisV3; conditions: ArmConditionsV3 }[] = [
-    { armId: "baseline", label: "Baseline visit", conditions: leadConditions }
-  ];
-
-  for (const axis of request.comparisons ?? []) {
-    if (axis === "shields-standard") {
-      armSpecs.push({
-        armId: "shields-standard",
-        label: "Brave Shields (Standard)",
-        axis,
-        conditions: { ...leadConditions, shieldsMode: "standard", policyCheck: false }
-      });
-    } else if (axis === "shields-aggressive") {
-      armSpecs.push({
-        armId: "shields-aggressive",
-        label: "Brave Shields (Aggressive)",
-        axis,
-        conditions: { ...leadConditions, shieldsMode: "aggressive", policyCheck: false }
-      });
-    } else if (axis === "gpc") {
-      armSpecs.push({
-        armId: "gpc-enabled",
-        label: "Global Privacy Control (Sec-GPC: 1)",
-        axis,
-        conditions: { ...leadConditions, gpcEnabled: true, policyCheck: false }
-      });
-    } else if (axis === "consent-accept") {
-      armSpecs.push({
-        armId: "consent-accept",
-        label: "Consent: Accept All",
-        axis,
-        conditions: { ...leadConditions, consentMode: "accept-all", policyCheck: false }
-      });
-    } else if (axis === "consent-reject") {
-      armSpecs.push({
-        armId: "consent-reject",
-        label: "Consent: Reject All",
-        axis,
-        conditions: { ...leadConditions, consentMode: "reject-all", policyCheck: false }
-      });
-    }
-  }
-
   try {
-    // Run baseline + all comparison arms CONCURRENTLY in isolated BrowserContexts!
-    const armResults = await Promise.all(
-      armSpecs.map((spec) =>
-        runScanArmV3({
-          armId: spec.armId,
-          label: spec.label,
-          targetUrl,
-          conditions: spec.conditions,
-          browser,
-          adblockEngine,
-          proxyServer: proxy?.server,
-          locale: request.locale,
-          timezone: request.timezone,
-          navigationTimeoutMs: deps.navigationTimeoutMs,
-          passiveDwellMs: deps.passiveDwellMs,
-          scrollDwellMs: deps.scrollDwellMs,
-          inputDwellMs: deps.inputDwellMs,
-          resolveCnameChain: deps.resolveCnameChain,
-          sharedCaches
-        })
-      )
-    );
+    const adblockEngine = await getDetailedAdblockEngine();
+    const browser = deps.browser ?? (await acquireSharedBrowser());
+
+    const leadConditions: ArmConditionsV3 = {
+      device: request.device ?? "desktop",
+      gpcEnabled: request.gpcEnabled ?? false,
+      shieldsMode: request.shieldsMode ?? "off",
+      consentMode: request.consentMode ?? "observe",
+      scrollCheck: request.scrollCheck ?? true,
+      activeInputProbe: request.activeInputProbe ?? true,
+      policyCheck: request.policyCheck ?? true
+    };
+
+    const sharedCaches: SharedArmCachesV3 = {
+      cnameByHost: new Map(),
+      policyByUrl: new Map()
+    };
+
+    const armSpecs: { armId: string; label: string; axis?: ComparisonAxisV3; conditions: ArmConditionsV3 }[] = [
+      { armId: "baseline", label: "Baseline visit", conditions: leadConditions }
+    ];
+
+    for (const axis of request.comparisons ?? []) {
+      if (axis === "shields-standard") {
+        armSpecs.push({
+          armId: "shields-standard",
+          label: "Brave Shields (Standard)",
+          axis,
+          conditions: { ...leadConditions, shieldsMode: "standard", policyCheck: false }
+        });
+      } else if (axis === "shields-aggressive") {
+        armSpecs.push({
+          armId: "shields-aggressive",
+          label: "Brave Shields (Aggressive)",
+          axis,
+          conditions: { ...leadConditions, shieldsMode: "aggressive", policyCheck: false }
+        });
+      } else if (axis === "gpc") {
+        armSpecs.push({
+          armId: "gpc-enabled",
+          label: "Global Privacy Control (Sec-GPC: 1)",
+          axis,
+          conditions: { ...leadConditions, gpcEnabled: true, policyCheck: false }
+        });
+      } else if (axis === "consent-accept") {
+        armSpecs.push({
+          armId: "consent-accept",
+          label: "Consent: Accept All",
+          axis,
+          conditions: { ...leadConditions, consentMode: "accept-all", policyCheck: false }
+        });
+      } else if (axis === "consent-reject") {
+        armSpecs.push({
+          armId: "consent-reject",
+          label: "Consent: Reject All",
+          axis,
+          conditions: { ...leadConditions, consentMode: "reject-all", policyCheck: false }
+        });
+      }
+    }
+
+    // Run arms in bounded concurrency batches with Promise.allSettled so sibling
+    // contexts always finish teardown cleanly before the proxy closes.
+    const armResults: Awaited<ReturnType<typeof runScanArmV3>>[] = [];
+    for (let i = 0; i < armSpecs.length; i += MAX_CONCURRENT_ARMS_PER_SCAN) {
+      const batch = armSpecs.slice(i, i + MAX_CONCURRENT_ARMS_PER_SCAN);
+      const settled = await Promise.allSettled(
+        batch.map((spec) =>
+          runScanArmV3({
+            armId: spec.armId,
+            label: spec.label,
+            targetUrl,
+            conditions: spec.conditions,
+            browser,
+            adblockEngine,
+            proxyServer: proxy?.server,
+            locale: request.locale,
+            timezone: request.timezone,
+            navigationTimeoutMs: deps.navigationTimeoutMs,
+            passiveDwellMs: deps.passiveDwellMs,
+            scrollDwellMs: deps.scrollDwellMs,
+            inputDwellMs: deps.inputDwellMs,
+            armDeadlineMs: deps.armDeadlineMs,
+            signal: deps.signal,
+            resolveCnameChain: deps.resolveCnameChain,
+            sharedCaches
+          })
+        )
+      );
+      const firstRejected = settled.find((r): r is PromiseRejectedResult => r.status === "rejected");
+      if (firstRejected) throw firstRejected.reason;
+      for (const r of settled) {
+        if (r.status === "fulfilled") armResults.push(r.value);
+      }
+    }
 
     const [leadResult, ...comparisonResults] = armResults;
     const allSentinels = armResults.flatMap((r) => r.sentinelsUsed);
     const comparisons = comparisonResults.map((res, idx) =>
       buildComparisonDeltaV3(leadResult.arm, res.arm, armSpecs[idx + 1].axis ?? "custom")
     );
-    const highlights = buildReportHighlightsV3(leadResult.arm);
 
-    const finalParsed = new URL(leadResult.arm.finalUrl || targetUrl);
-    const canonicalDomain = partyKey(finalParsed.hostname).toLowerCase();
+    const resolveSafeCanonicalDomain = (finalUrlCandidate: string, fallbackTarget: string): string => {
+      for (const candidate of [finalUrlCandidate, fallbackTarget]) {
+        try {
+          const u = new URL(candidate);
+          if ((u.protocol === "http:" || u.protocol === "https:") && u.hostname.includes(".")) {
+            const key = partyKey(u.hostname).toLowerCase();
+            if (/^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])$/i.test(key) && key.includes(".")) {
+              return key;
+            }
+          }
+        } catch {}
+      }
+      return new URL(fallbackTarget).hostname.toLowerCase();
+    };
+    const canonicalDomain = resolveSafeCanonicalDomain(leadResult.arm.finalUrl, targetUrl);
     const listMeta = adblockListMeta();
 
     const now = new Date();
     const ymd = now.toISOString().slice(0, 10).replace(/-/g, "");
     const reportId = `${ymd}-${randomBytes(16).toString("hex")}`;
 
-    const rawReport: ScanReportV3 = {
+    const preRedactedReport: ScanReportV3 = redactScanReportV3({
       schemaVersion: SCAN_REPORT_V3_SCHEMA_VERSION,
       reportId,
       scannedAt: now.toISOString(),
@@ -240,10 +268,14 @@ export async function scanSiteV3(request: ScanRequestV3, deps: ScanSiteV3Deps = 
       leadArm: leadResult.arm,
       comparisonArms: comparisonResults.map((r) => r.arm),
       comparisons,
-      highlights
-    };
+      highlights: []
+    });
 
-    const redacted = redactScanReportV3(rawReport);
+    // Build highlights AFTER arm redaction so policy URLs & prose never carry raw query strings
+    const redacted: ScanReportV3 = redactScanReportV3({
+      ...preRedactedReport,
+      highlights: buildReportHighlightsV3(preRedactedReport.leadArm)
+    });
     assertNoUnredactedSecretsV3(redacted, allSentinels);
     const issues = validateScanReportV3(redacted);
     if (issues.length > 0) {

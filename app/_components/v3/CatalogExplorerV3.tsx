@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "@/app/v3/v3.module.css";
 import type { CatalogVendorEntryV3 } from "@/lib/v3/dev-mode";
-import type { EntityRegionV3, ServiceCategoryV3 } from "@/lib/v3/schema";
-import type { EntityFootprintResultV3 } from "@/lib/v3/storage/report-index";
+import type { EntityFootprintResultV3, EntityRegionV3, ServiceCategoryV3 } from "@/lib/v3/schema";
 
 export function CatalogExplorerV3({
   entries,
@@ -26,6 +25,8 @@ export function CatalogExplorerV3({
   const [selectedVendors, setSelectedVendors] = useState<string[]>(initialEntity ? [initialEntity] : []);
   const [footprints, setFootprints] = useState<Record<string, EntityFootprintResultV3>>({});
   const [loadingVendor, setLoadingVendor] = useState(false);
+  const [lookupError, setLookupError] = useState<string | null>(null);
+  const attemptedVendorsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -50,30 +51,41 @@ export function CatalogExplorerV3({
   }, [entries, search, region, category]);
 
   useEffect(() => {
+    const missing = selectedVendors.filter((v) => !attemptedVendorsRef.current.has(v));
+    if (missing.length === 0) return;
+    for (const v of missing) attemptedVendorsRef.current.add(v);
+
+    const controller = new AbortController();
     let cancelled = false;
     async function fetchMissing() {
-      const missing = selectedVendors.filter((v) => !footprints[v]);
-      if (missing.length === 0) return;
       setLoadingVendor(true);
+      setLookupError(null);
       try {
         const fetched = await Promise.all(
           missing.map(async (name) => {
-            const resp = await fetch(`/api/v3/corpus?footprint=${encodeURIComponent(name)}`);
-            if (!resp.ok) return null;
+            const resp = await fetch(`/api/v3/corpus?footprint=${encodeURIComponent(name)}`, {
+              signal: controller.signal
+            });
+            if (!resp.ok) {
+              throw new Error(`Corpus lookup failed (HTTP ${resp.status})`);
+            }
             const data = (await resp.json()) as { footprint?: EntityFootprintResultV3 };
             return data.footprint ? ([name, data.footprint] as const) : null;
           })
         );
         if (cancelled) return;
-        setFootprints((prev) => {
-          const next = { ...prev };
-          for (const pair of fetched) {
-            if (pair) next[pair[0]] = pair[1];
-          }
-          return next;
-        });
-      } catch {
-        // Offline / static export fallback
+        const additions = fetched.filter((pair): pair is readonly [string, EntityFootprintResultV3] => pair !== null);
+        if (additions.length > 0) {
+          setFootprints((prev) => {
+            const next = { ...prev };
+            for (const [k, v] of additions) next[k] = v;
+            return next;
+          });
+        }
+      } catch (err) {
+        if (!cancelled && !(err instanceof DOMException && err.name === "AbortError")) {
+          setLookupError(err instanceof Error ? err.message : "Live corpus lookup is unavailable.");
+        }
       } finally {
         if (!cancelled) setLoadingVendor(false);
       }
@@ -81,8 +93,9 @@ export function CatalogExplorerV3({
     void fetchMissing();
     return () => {
       cancelled = true;
+      controller.abort();
     };
-  }, [selectedVendors, footprints]);
+  }, [selectedVendors]);
 
   function toggleVendor(name: string) {
     setSelectedVendors((prev) =>
@@ -148,7 +161,9 @@ export function CatalogExplorerV3({
               <p className={styles.subtitle}>
                 {loadingVendor
                   ? "Querying corpus footprint..."
-                  : `Present on ${simulation.impactedSites.length} of ${simulation.corpusSites} indexed sites (${simulation.pct}%), representing ${simulation.totalRequestsPrevented} baseline requests across the corpus.`}
+                  : lookupError
+                    ? lookupError
+                    : `Present on ${simulation.impactedSites.length} of ${simulation.corpusSites} indexed sites (${simulation.pct}%), representing ${simulation.totalRequestsPrevented} baseline requests across the corpus.`}
               </p>
             </div>
             <button type="button" className={styles.btn} onClick={() => setSelectedVendors([])}>

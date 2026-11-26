@@ -7,59 +7,30 @@
  * regression alerts and clean metric deltas.
  */
 
-import type { ScanReportV3 } from "../schema";
+import { extractAllArmEntitiesV3 } from "../scanner/summary";
+import type {
+  ScanReportV3,
+  TemporalReportDiffV3,
+  WatchRegressionAlertV3,
+  WatchRegressionKindV3
+} from "../schema";
 
-export type WatchRegressionKindV3 =
-  | "new-keystroke-leak"
-  | "new-cname-cloak"
-  | "new-server-side-tagging"
-  | "new-beacon-identifiers"
-  | "new-fingerprint-signal"
-  | "new-tracking-entities"
-  | "third-party-domain-spike"
-  | "dark-pattern-regression"
-  | "policy-disclosure-regression";
-
-export type WatchRegressionAlertV3 = {
-  kind: WatchRegressionKindV3;
-  severity: "critical" | "high" | "medium";
-  title: string;
-  detail: string;
-};
-
-export type TemporalReportDiffV3 = {
-  previousReportId: string;
-  currentReportId: string;
-  previousScannedAt: string;
-  currentScannedAt: string;
-  canonicalDomain: string;
-  metrics: {
-    totalRequestsDelta: number;
-    thirdPartyRequestsDelta: number;
-    thirdPartyDomainsDelta: number;
-    cookiesDelta: number;
-    longLivedCookiesDelta: number;
-    darkPatternScoreDelta: number;
-    keystrokeLeaksDelta: number;
-    cnameCloaksDelta: number;
-    fingerprintKindsDelta: number;
-  };
-  entitiesAdded: string[];
-  entitiesRemoved: string[];
-  beaconsAdded: string[];
-  beaconsRemoved: string[];
-  fingerprintsAdded: string[];
-  fingerprintsRemoved: string[];
-  regressions: WatchRegressionAlertV3[];
-  improvements: string[];
-};
+export type { TemporalReportDiffV3, WatchRegressionAlertV3, WatchRegressionKindV3 };
 
 export function diffScanReportsV3(previous: ScanReportV3, current: ScanReportV3): TemporalReportDiffV3 {
   const prevS = previous.leadArm.summary;
   const currS = current.leadArm.summary;
 
-  const prevEntities = new Set(prevS.topEntities.map((e) => e.entity));
-  const currEntities = new Set(currS.topEntities.map((e) => e.entity));
+  const prevEntities = new Set(
+    (previous.leadArm.network.length > 0 ? extractAllArmEntitiesV3(previous.leadArm) : prevS.topEntities).map(
+      (e) => e.entity
+    )
+  );
+  const currEntities = new Set(
+    (current.leadArm.network.length > 0 ? extractAllArmEntitiesV3(current.leadArm) : currS.topEntities).map(
+      (e) => e.entity
+    )
+  );
   const entitiesAdded = [...currEntities].filter((e) => !prevEntities.has(e)).sort();
   const entitiesRemoved = [...prevEntities].filter((e) => !currEntities.has(e)).sort();
 

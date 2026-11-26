@@ -12,11 +12,14 @@
  *  3. Local filesystem directory (`createFsBlobStoreV3`) for standalone/CLI/tests
  */
 
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { randomBytes } from "node:crypto";
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { AwsClient } from "aws4fetch";
 import { redactScanReportV3 } from "../redaction";
 import { validateScanReportV3, type ScanReportV3 } from "../schema";
+
+const R2_FETCH_TIMEOUT_MS = 30_000;
 
 export type BlobStoreV3 = {
   putJson(key: string, body: string): Promise<void>;
@@ -116,32 +119,58 @@ export function createS3R2BlobStoreV3(config: {
       const resp = await aws.fetch(urlFor(key), {
         method: "PUT",
         headers: { "content-type": "application/json; charset=utf-8" },
-        body
+        body,
+        signal: AbortSignal.timeout(R2_FETCH_TIMEOUT_MS)
       });
+      await resp.body?.cancel().catch(() => {});
       if (!resp.ok) throw new Error(`R2 PUT ${key} failed with HTTP ${resp.status}`);
     },
     async getJson(key) {
-      const resp = await aws.fetch(urlFor(key), { method: "GET" });
-      if (resp.status === 404) return null;
-      if (!resp.ok) throw new Error(`R2 GET ${key} failed with HTTP ${resp.status}`);
+      const resp = await aws.fetch(urlFor(key), {
+        method: "GET",
+        signal: AbortSignal.timeout(R2_FETCH_TIMEOUT_MS)
+      });
+      if (resp.status === 404) {
+        await resp.body?.cancel().catch(() => {});
+        return null;
+      }
+      if (!resp.ok) {
+        await resp.body?.cancel().catch(() => {});
+        throw new Error(`R2 GET ${key} failed with HTTP ${resp.status}`);
+      }
       return resp.text();
     },
     async putBinary(key, bytes, contentType) {
       const resp = await aws.fetch(urlFor(key), {
         method: "PUT",
         headers: { "content-type": contentType },
-        body: Buffer.from(bytes)
+        body: Buffer.from(bytes),
+        signal: AbortSignal.timeout(R2_FETCH_TIMEOUT_MS)
       });
+      await resp.body?.cancel().catch(() => {});
       if (!resp.ok) throw new Error(`R2 PUT ${key} failed with HTTP ${resp.status}`);
     },
     async getBinary(key) {
-      const resp = await aws.fetch(urlFor(key), { method: "GET" });
-      if (resp.status === 404) return null;
-      if (!resp.ok) throw new Error(`R2 GET ${key} failed with HTTP ${resp.status}`);
+      const resp = await aws.fetch(urlFor(key), {
+        method: "GET",
+        signal: AbortSignal.timeout(R2_FETCH_TIMEOUT_MS)
+      });
+      if (resp.status === 404) {
+        await resp.body?.cancel().catch(() => {});
+        return null;
+      }
+      if (!resp.ok) {
+        await resp.body?.cancel().catch(() => {});
+        throw new Error(`R2 GET ${key} failed with HTTP ${resp.status}`);
+      }
       return new Uint8Array(await resp.arrayBuffer());
     },
     async delete(key) {
-      const resp = await aws.fetch(urlFor(key), { method: "DELETE" });
+      const resp = await aws.fetch(urlFor(key), {
+        method: "DELETE",
+        signal: AbortSignal.timeout(R2_FETCH_TIMEOUT_MS)
+      });
+      await resp.body?.cancel().catch(() => {});
       if (!resp.ok && resp.status !== 404) {
         throw new Error(`R2 DELETE ${key} failed with HTTP ${resp.status}`);
       }
@@ -160,11 +189,21 @@ export function createFsBlobStoreV3(rootDir: string): BlobStoreV3 {
     return resolved;
   };
 
+  const writeAtomic = async (fullPath: string, data: string | Uint8Array): Promise<void> => {
+    await mkdir(path.dirname(fullPath), { recursive: true });
+    const tmp = `${fullPath}.${randomBytes(6).toString("hex")}.tmp`;
+    try {
+      await writeFile(tmp, data);
+      await rename(tmp, fullPath);
+    } catch (err) {
+      await rm(tmp, { force: true }).catch(() => {});
+      throw err;
+    }
+  };
+
   return {
     async putJson(key, body) {
-      const full = safeResolve(key);
-      await mkdir(path.dirname(full), { recursive: true });
-      await writeFile(full, body, "utf8");
+      await writeAtomic(safeResolve(key), body);
     },
     async getJson(key) {
       try {
@@ -175,9 +214,7 @@ export function createFsBlobStoreV3(rootDir: string): BlobStoreV3 {
       }
     },
     async putBinary(key, bytes) {
-      const full = safeResolve(key);
-      await mkdir(path.dirname(full), { recursive: true });
-      await writeFile(full, bytes);
+      await writeAtomic(safeResolve(key), bytes);
     },
     async getBinary(key) {
       try {

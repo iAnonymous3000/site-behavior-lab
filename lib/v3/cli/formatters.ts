@@ -94,30 +94,59 @@ export function evaluateFailOnRulesV3(
         });
       }
     } else if (rule === "dark-patterns" || rule.startsWith("dark-patterns>=")) {
-      const threshold = rule.includes(">=") ? Number(rule.split(">=")[1]) : 35;
-      if (Number.isFinite(threshold) && s.darkPatternScore >= threshold) {
+      let threshold = 35;
+      if (rule.includes(">=")) {
+        const rawThreshold = rule.slice(rule.indexOf(">=") + 2).trim();
+        if (!/^\d+(?:\.\d+)?$/.test(rawThreshold)) {
+          violations.push({
+            rule,
+            message: `Invalid numeric threshold in --fail-on rule: "${rawRule}".`
+          });
+          continue;
+        }
+        threshold = Number(rawThreshold);
+      }
+      if (s.darkPatternScore >= threshold) {
         violations.push({
           rule,
           message: `Consent banner dark-pattern score ${s.darkPatternScore} >= ${threshold}.`
         });
       }
     } else if (rule.startsWith("third-parties>")) {
-      const limit = Number(rule.split(">")[1]);
-      if (Number.isFinite(limit) && s.thirdPartyDomains > limit) {
+      const rawLimit = rule.slice(rule.indexOf(">") + 1).trim();
+      if (!/^\d+$/.test(rawLimit)) {
+        violations.push({
+          rule,
+          message: `Invalid numeric limit in --fail-on rule: "${rawRule}".`
+        });
+        continue;
+      }
+      const limit = Number(rawLimit);
+      if (s.thirdPartyDomains > limit) {
         violations.push({
           rule,
           message: `Third-party domains (${s.thirdPartyDomains}) exceeded ceiling (${limit}).`
         });
       }
     } else if (rule === "new-entities") {
-      if (diff && diff.entitiesAdded.length > 0) {
+      if (!diff) {
+        violations.push({
+          rule,
+          message: `--fail-on new-entities requires --diff <baseline.json> to compare against.`
+        });
+      } else if (diff.entitiesAdded.length > 0) {
         violations.push({
           rule,
           message: `New tracking/service entities added relative to baseline: ${diff.entitiesAdded.join(", ")}.`
         });
       }
     } else if (rule === "regressions") {
-      if (diff && diff.regressions.length > 0) {
+      if (!diff) {
+        violations.push({
+          rule,
+          message: `--fail-on regressions requires --diff <baseline.json> to compare against.`
+        });
+      } else if (diff.regressions.length > 0) {
         violations.push({
           rule,
           message: `${diff.regressions.length} privacy regression(s) detected relative to baseline.`

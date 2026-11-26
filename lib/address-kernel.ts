@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import net from "node:net";
 import path from "node:path";
 
@@ -37,6 +37,27 @@ export const ADDRESS_KERNEL_SHA256 = "2c99533ef3cc49933e447aeecfcaa2ee68259b6439
 
 export const ADDRESS_KERNEL_FILE = path.join("lib", "trust-kernel-wasm", "sbl_trust_kernel_wasm.wasm");
 
+/**
+ * Resolve the vendored trust-kernel WASM path cleanly from either process.cwd()
+ * (Next.js runtime / repo root) or the package root containing this module
+ * (out-of-repo `sbl` CLI and GitHub Action invocations).
+ */
+export function resolveDefaultAddressKernelFile(): string {
+  const cwdPath = path.join(process.cwd(), ADDRESS_KERNEL_FILE);
+  if (existsSync(cwdPath)) return cwdPath;
+  if (typeof __dirname === "string") {
+    let dir = __dirname;
+    for (let i = 0; i < 8; i += 1) {
+      const candidate = path.join(dir, ADDRESS_KERNEL_FILE);
+      if (existsSync(candidate)) return candidate;
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+  }
+  return cwdPath;
+}
+
 export type AddressValue =
   | { family: 4; value: number }
   | { family: 6; high: bigint; low: bigint };
@@ -59,7 +80,7 @@ interface KernelExports {
  * because the decisions it sits beside are.
  */
 export function loadAddressKernel(
-  file: string = path.join(process.cwd(), ADDRESS_KERNEL_FILE),
+  file: string = resolveDefaultAddressKernelFile(),
   expectedSha256: string = ADDRESS_KERNEL_SHA256
 ): AddressKernel {
   const bytes = readFileSync(file);

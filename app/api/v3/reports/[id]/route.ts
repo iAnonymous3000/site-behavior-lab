@@ -31,16 +31,25 @@ async function handleGetReportV3(
     }
 
     const ctx = await getV3RuntimeContext();
-    const report = await loadReportV3(ctx.blobStore, id);
+    const [report, meta] = await Promise.all([
+      loadReportV3(ctx.blobStore, id),
+      ctx.reportIndex.getReportMeta(id)
+    ]);
     if (!report) {
       return NextResponse.json({ ok: false, error: "Report not found." }, { status: 404 });
     }
+
+    const cacheControl =
+      meta?.visibility === "corpus" || meta?.visibility === "public"
+        ? "public, max-age=300"
+        : "private, no-store";
 
     return new NextResponse(JSON.stringify(report), {
       status: 200,
       headers: {
         "content-type": "application/json; charset=utf-8",
-        "cache-control": "public, max-age=300"
+        "cache-control": cacheControl,
+        "x-robots-tag": "noindex, noarchive"
       }
     });
   } catch (error) {

@@ -57,11 +57,12 @@ runs:
       working-directory: ${{ github.action_path }}
       run: |
         npm ci --ignore-scripts
-        npx playwright install chromium
+        npx playwright install --with-deps chromium
 
     - name: Run Site Behavior Lab v3 scan and privacy gates
       shell: bash
       env:
+        SBL_ACTION_PATH: ${{ github.action_path }}
         SBL_URL: ${{ inputs.url }}
         SBL_DEVICE: ${{ inputs.device }}
         SBL_REGION: ${{ inputs.region }}
@@ -95,13 +96,15 @@ runs:
         fi
 
         set +e
-        node "${{ github.action_path }}/bin/sbl.mjs" "${ARGS[@]}"
+        node "$SBL_ACTION_PATH/bin/sbl.mjs" "${ARGS[@]}"
         SCAN_EXIT=$?
         set -e
 
         if [ -f "$SBL_REPORT_OUT" ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
           if [ -n "$SBL_BASELINE" ]; then
-            node "${{ github.action_path }}/bin/sbl.mjs" diff "$SBL_BASELINE" "$SBL_REPORT_OUT" --format markdown >> "$GITHUB_STEP_SUMMARY" || true
+            node "$SBL_ACTION_PATH/bin/sbl.mjs" diff "$SBL_BASELINE" "$SBL_REPORT_OUT" --format markdown >> "$GITHUB_STEP_SUMMARY" || true
+          else
+            node "$SBL_ACTION_PATH/bin/sbl.mjs" verify "$SBL_REPORT_OUT" >> "$GITHUB_STEP_SUMMARY" || true
           fi
         fi
 

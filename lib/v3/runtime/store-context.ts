@@ -34,9 +34,15 @@ export type V3RuntimeContext = {
 let cachedContextPromise: Promise<V3RuntimeContext> | null = null;
 let cachedDataDirKey: string | null = null;
 
-function resolveDataDir(env: NodeJS.ProcessEnv = process.env): string {
+export function resolveV3DataDir(env: NodeJS.ProcessEnv = process.env): string {
   const configured = env.SITE_BEHAVIOR_LAB_V3_DATA_DIR?.trim();
-  return configured ? path.resolve(configured) : path.resolve(process.cwd(), ".sbl-v3-data");
+  if (configured) return path.resolve(configured);
+  // Inside the production Docker / Cloudflare Container image (`USER pwuser`),
+  // `/app` is read-only while `SITE_BEHAVIOR_LAB_REPORT_STORE_DIR` is writable
+  // and backed by the container volume. Store v3 state under `<report-store>/v3`.
+  const reportStoreDir = env.SITE_BEHAVIOR_LAB_REPORT_STORE_DIR?.trim();
+  if (reportStoreDir) return path.join(path.resolve(reportStoreDir), "v3");
+  return path.resolve(process.cwd(), ".sbl-v3-data");
 }
 
 export function resolveBlobStoreFromEnv(env: NodeJS.ProcessEnv = process.env): BlobStoreV3 {
@@ -48,7 +54,7 @@ export function resolveBlobStoreFromEnv(env: NodeJS.ProcessEnv = process.env): B
   if (endpoint && bucket && accessKeyId && secretAccessKey) {
     return createS3R2BlobStoreV3({ endpoint, bucket, accessKeyId, secretAccessKey });
   }
-  return createFsBlobStoreV3(path.join(resolveDataDir(env), "blobs"));
+  return createFsBlobStoreV3(path.join(resolveV3DataDir(env), "blobs"));
 }
 
 export function resolveBrowserRenderingFromEnv(
@@ -79,7 +85,7 @@ export function resolveRegionalUpstreamsFromEnv(
       if (
         (obj.region === "us-east" || obj.region === "eu-central" || obj.region === "ap-northeast") &&
         typeof obj.endpointUrl === "string" &&
-        /^https?:\/\//i.test(obj.endpointUrl) &&
+        /^https:\/\//i.test(obj.endpointUrl) &&
         typeof obj.hmacSecret === "string" &&
         obj.hmacSecret.length >= 16
       ) {
@@ -98,15 +104,27 @@ export function resolveRegionalUpstreamsFromEnv(
 }
 
 export async function getV3RuntimeContext(env: NodeJS.ProcessEnv = process.env): Promise<V3RuntimeContext> {
-  const dataDir = resolveDataDir(env);
-  const envKey = `${dataDir}|${env.SITE_BEHAVIOR_LAB_R2_ENDPOINT ?? ""}|${env.SITE_BEHAVIOR_LAB_R2_BUCKET ?? ""}`;
+  const dataDir = resolveV3DataDir(env);
+  const envKey = [
+    dataDir,
+    env.SITE_BEHAVIOR_LAB_R2_ENDPOINT ?? "",
+    env.SITE_BEHAVIOR_LAB_R2_BUCKET ?? "",
+    env.CLOUDFLARE_ACCOUNT_ID ?? "",
+    env.SITE_BEHAVIOR_LAB_REGIONAL_WORKERS_JSON ?? ""
+  ].join("|");
 
   if (cachedContextPromise && cachedDataDirKey === envKey) {
     return cachedContextPromise;
   }
 
+  const previous = cachedContextPromise;
   cachedDataDirKey = envKey;
   cachedContextPromise = (async () => {
+    if (previous) {
+      try {
+        (await previous).close();
+      } catch {}
+    }
     const dbPath = path.join(dataDir, "v3-index.sqlite");
     const { store: reportIndex, close } = await openNodeSqliteReportIndex(dbPath);
     return {

@@ -6,7 +6,8 @@ import styles from "@/app/v3/v3.module.css";
 import {
   buildDeveloperRuleBreakdownV3,
   buildInitiatorCausalityTreeV3,
-  buildPhaseTimelineV3
+  buildPhaseTimelineV3,
+  rootInitiatorDomainV3
 } from "@/lib/v3/dev-mode";
 import type { ProbeName, ScanArmV3, ScanPhaseName, ScanReportV3 } from "@/lib/v3/schema";
 
@@ -51,7 +52,7 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
       if (reqOnly3p && !req.thirdParty) return false;
       if (reqOnlyShields && !req.shields.matched) return false;
       if (reqPhase !== "all" && req.phase !== reqPhase) return false;
-      if (reqInitiatorFilter && (req.initiator?.scriptDomain ?? "document-parser") !== reqInitiatorFilter) {
+      if (reqInitiatorFilter && rootInitiatorDomainV3(req) !== reqInitiatorFilter) {
         return false;
       }
       if (!q) return true;
@@ -81,7 +82,7 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
             <h1 className={styles.title}>{report.canonicalDomain}</h1>
             <p className={styles.subtitle}>
               <span className={styles.mono}>{report.finalUrl}</span> · Scanned{" "}
-              {new Date(report.scannedAt).toLocaleString()} · HTTP {activeArm.httpStatus ?? "n/a"} (
+              {formatUtcTimestamp(report.scannedAt)} · HTTP {activeArm.httpStatus ?? "n/a"} (
               {activeArm.loadOutcome})
             </p>
           </div>
@@ -311,11 +312,12 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
         <h2 className={styles.sectionTitle}>Visit Phase Waterfall ({activeArm.label})</h2>
         <div className={styles.waterfallList}>
           {phaseTimeline.map((row) => {
-            const firstParty = Math.max(0, row.totalRequests - row.thirdPartyRequests);
-            const nonTrack3p = Math.max(0, row.thirdPartyRequests - row.trackingRequests);
+            const trackCount = Math.min(row.totalRequests, row.trackingRequests);
+            const nonTrack3p = Math.max(0, Math.min(row.thirdPartyRequests, row.totalRequests - trackCount));
+            const firstParty = Math.max(0, row.totalRequests - trackCount - nonTrack3p);
             const p1 = (firstParty / maxPhaseReq) * 100;
             const p3 = (nonTrack3p / maxPhaseReq) * 100;
-            const pt = (row.trackingRequests / maxPhaseReq) * 100;
+            const pt = (trackCount / maxPhaseReq) * 100;
             return (
               <div key={row.phase} className={styles.waterfallRow}>
                 <div>
@@ -426,7 +428,7 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
                 </thead>
                 <tbody>
                   {devRules.map((r) => (
-                    <tr key={`${r.list}-${r.rule}`}>
+                    <tr key={`${r.list}-${r.rule}-${r.exception ?? ""}`}>
                       <td className={styles.mono}>
                         {r.rule}
                         {r.exception ? <div style={{ color: "var(--sig-ok)" }}>Exception: {r.exception}</div> : null}
@@ -471,9 +473,11 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
           ).map(([id, label]) => (
             <button
               key={id}
+              id={`v3-tab-${id}`}
               type="button"
               role="tab"
               aria-selected={activeTab === id}
+              aria-controls={`v3-panel-${id}`}
               className={`${styles.tabBtn} ${activeTab === id ? styles.tabBtnActive : ""}`}
               onClick={() => setActiveTab(id)}
             >
@@ -481,6 +485,8 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
             </button>
           ))}
         </div>
+
+        <div role="tabpanel" id={`v3-panel-${activeTab}`} aria-labelledby={`v3-tab-${activeTab}`}>
 
         {activeTab === "requests" && (
           <>
@@ -916,6 +922,7 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
             )}
           </div>
         )}
+        </div>
       </section>
     </>
   );
@@ -923,4 +930,9 @@ export function ReportViewV3({ report }: { report: ScanReportV3 }) {
 
 function signed(n: number): string {
   return n > 0 ? `+${n}` : String(n);
+}
+
+function formatUtcTimestamp(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso : `${d.toISOString().replace("T", " ").slice(0, 19)} UTC`;
 }

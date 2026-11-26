@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import styles from "@/app/v3/v3.module.css";
-import type { TemporalReportDiffV3 } from "@/lib/v3/runtime/watch-diff";
-import type { IndexedReportRowV3 } from "@/lib/v3/storage/report-index";
+import type { IndexedReportRowV3, TemporalReportDiffV3 } from "@/lib/v3/schema";
 
 export function SiteHistoryViewV3({
   domain,
@@ -67,7 +66,7 @@ export function SiteHistoryViewV3({
               <select className={styles.select} value={previousId} onChange={(e) => setPreviousId(e.target.value)}>
                 {history.map((h) => (
                   <option key={h.reportId} value={h.reportId}>
-                    {new Date(h.scannedAt).toLocaleString()} ({h.egressRegion}) — {h.reportId.slice(0, 17)}
+                    {formatUtcTimestamp(h.scannedAt)} ({h.egressRegion}) — {h.reportId.slice(0, 17)}
                   </option>
                 ))}
               </select>
@@ -77,7 +76,7 @@ export function SiteHistoryViewV3({
               <select className={styles.select} value={currentId} onChange={(e) => setCurrentId(e.target.value)}>
                 {history.map((h) => (
                   <option key={h.reportId} value={h.reportId}>
-                    {new Date(h.scannedAt).toLocaleString()} ({h.egressRegion}) — {h.reportId.slice(0, 17)}
+                    {formatUtcTimestamp(h.scannedAt)} ({h.egressRegion}) — {h.reportId.slice(0, 17)}
                   </option>
                 ))}
               </select>
@@ -189,7 +188,7 @@ export function SiteHistoryViewV3({
             <tbody>
               {history.map((row) => (
                 <tr key={row.reportId}>
-                  <td>{new Date(row.scannedAt).toLocaleString()}</td>
+                  <td>{formatUtcTimestamp(row.scannedAt)}</td>
                   <td className={styles.mono}>
                     {row.egressRegion} / {row.device}
                   </td>
@@ -214,4 +213,9 @@ export function SiteHistoryViewV3({
 
 function signed(n: number): string {
   return n > 0 ? `+${n}` : String(n);
+}
+
+function formatUtcTimestamp(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso : `${d.toISOString().replace("T", " ").slice(0, 19)} UTC`;
 }

@@ -9,11 +9,12 @@
  * zero code changes required!
  */
 
-import { createHmac, timingSafeEqual } from "node:crypto";
-import type { ScanReportV3 } from "../schema";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { redactScanReportV3 } from "../redaction";
+import { validateScanReportV3, type ScanRegionIdV3, type ScanReportV3 } from "../schema";
 import type { ScanRequestV3 } from "../scanner";
 
-export type ScanRegionIdV3 = "auto" | "us-east" | "eu-central" | "ap-northeast";
+export type { ScanRegionIdV3 };
 
 export type RegionalEgressProfileV3 = {
   region: Exclude<ScanRegionIdV3, "auto">;
@@ -61,6 +62,7 @@ export type DispatchScanOptionsV3 = {
   defaultExecutor: (request: ScanRequestV3) => Promise<ScanReportV3>;
   fetchImpl?: typeof fetch;
   nowMs?: () => number;
+  signal?: AbortSignal;
 };
 
 /** Resolve matching locale & timezone for an explicit regional scan request. */
@@ -89,6 +91,8 @@ export function verifyWorkerDispatchSignatureV3(input: {
   nowMs?: number;
   maxSkewSec?: number;
 }): boolean {
+  if (typeof input.secret !== "string" || input.secret.length < 16) return false;
+  if (!/^\d{10}$/.test(input.timestampSec)) return false;
   const ts = Number(input.timestampSec);
   const nowSec = Math.floor((input.nowMs ?? Date.now()) / 1000);
   const maxSkew = input.maxSkewSec ?? 60;
@@ -121,12 +125,25 @@ export async function dispatchScanV3(
     return { report, backend: "cloudflare-default" };
   }
 
+  if (!upstream.endpointUrl.toLowerCase().startsWith("https://")) {
+    throw new Error(`Refusing non-HTTPS regional worker endpoint for ${upstream.region}`);
+  }
+  if (upstream.hmacSecret.length < 16) {
+    throw new Error(`Regional worker HMAC secret for ${upstream.region} is too short`);
+  }
+
   const body = JSON.stringify(enriched);
   const timestampSec = String(Math.floor((options.nowMs ?? Date.now)() / 1000));
   const signature = signWorkerDispatchPayloadV3(upstream.hmacSecret, timestampSec, body);
+  const nonce = randomBytes(12).toString("hex");
   const fetchFn = options.fetchImpl ?? fetch;
 
   const controller = new AbortController();
+  const onCallerAbort = () => controller.abort(options.signal?.reason);
+  if (options.signal) {
+    if (options.signal.aborted) controller.abort(options.signal.reason);
+    else options.signal.addEventListener("abort", onCallerAbort, { once: true });
+  }
   const timer = setTimeout(() => controller.abort(), upstream.timeoutMs ?? 60_000);
   try {
     const resp = await fetchFn(`${upstream.endpointUrl.replace(/\/+$/, "")}/internal/v3/scan`, {
@@ -135,17 +152,25 @@ export async function dispatchScanV3(
         "content-type": "application/json",
         "x-sbl-dispatch-ts": timestampSec,
         "x-sbl-dispatch-sig": signature,
+        "x-sbl-dispatch-nonce": nonce,
         "x-sbl-region": upstream.region
       },
       body,
       signal: controller.signal
     });
     if (!resp.ok) {
+      await resp.body?.cancel().catch(() => {});
       throw new Error(`Regional worker (${upstream.region}) failed with HTTP ${resp.status}`);
     }
-    const report = (await resp.json()) as ScanReportV3;
-    return { report, backend: "regional-http-worker" };
+    const rawReport = (await resp.json()) as ScanReportV3;
+    const redacted = redactScanReportV3(rawReport);
+    const issues = validateScanReportV3(redacted);
+    if (issues.length > 0) {
+      throw new Error(`Regional worker (${upstream.region}) returned invalid ScanReportV3: ${issues.join("; ")}`);
+    }
+    return { report: redacted, backend: "regional-http-worker" };
   } finally {
     clearTimeout(timer);
+    options.signal?.removeEventListener("abort", onCallerAbort);
   }
 }

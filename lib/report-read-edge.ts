@@ -108,42 +108,46 @@ type ReportRouteFamily = "page" | "api";
  * way the rest are, so an encoded spelling lands in the same family as the
  * plain one.
  */
-function splitReportRoute(pathname: string): { family: ReportRouteFamily; rest: string[] } | null {
+function splitReportRoute(pathname: string): { family: ReportRouteFamily; rest: string[]; v3?: "reports" | "sites" | "corpus" | "watches-diff" } | null {
   const raw = pathname.split("/");
   const first = raw[1] === undefined ? null : decodePathSegment(raw[1]);
   if (first === "reports") return { family: "page", rest: raw.slice(2) };
-  if (first === "api" && raw[2] !== undefined && decodePathSegment(raw[2]) === "reports") {
-    return { family: "api", rest: raw.slice(3) };
+  if (first === "v3") {
+    const sub = raw[2] === undefined ? null : decodePathSegment(raw[2]);
+    if (sub === "reports") return { family: "page", rest: raw.slice(3), v3: "reports" };
+    if (sub === "sites") return { family: "page", rest: raw.slice(3), v3: "sites" };
+    return null;
+  }
+  if (first === "api" && raw[2] !== undefined) {
+    const second = decodePathSegment(raw[2]);
+    if (second === "reports") return { family: "api", rest: raw.slice(3) };
+    if (second === "v3" && raw[3] !== undefined) {
+      const third = decodePathSegment(raw[3]);
+      if (third === "reports") return { family: "api", rest: raw.slice(4), v3: "reports" };
+      if (third === "corpus") return { family: "api", rest: raw.slice(4), v3: "corpus" };
+      if (third === "watches" && raw[4] !== undefined && decodePathSegment(raw[4]) === "diff") {
+        return { family: "api", rest: raw.slice(5), v3: "watches-diff" };
+      }
+    }
   }
   return null;
 }
 
-/**
- * Recognize every public report representation that can reach report storage
- * or server-side rendering, and name the quota it spends. This is the one
- * matcher for report reads: the pages under `/reports/:id` and the two API
- * routes under `/api/reports/:id`. The canonical report-id validator is shared
- * with every report producer/reader so the edge cannot drift from the Node
- * route. A path with any other id is not a read: Node answers it 404 without
- * touching the store, so it is forwarded uncharged.
- *
- * `print` is charged as one page read like the others. It is the heaviest of
- * them (the complete evidence rendered eagerly), but the quota's job is to
- * bound the request rate a client and the world can put on the container, and
- * nobody has measured what a print render costs relative to a page render; a
- * weight would be a number invented to look precise.
- *
- * The JSON and the PDF were once left to Node, which meters them per client
- * only. Nothing then bounded what the world could put on the container through
- * those two paths, so each now has its own per-client quota here as well, and
- * the two share a world bucket. The PDF renderer reads the print page over
- * loopback inside the container, which never crosses this edge, so a PDF is
- * not charged a page read on top.
- */
 export function parsePublicReportReadPath(method: string, pathname: string): PublicReportReadPath | null {
   if (!PUBLIC_REPORT_READ_METHODS.has(method)) return null;
   const route = splitReportRoute(pathname);
   if (!route) return null;
+  if (route.v3 === "corpus" || route.v3 === "watches-diff") {
+    return { reportId: route.v3, resource: "json", quota: "report-json-read" };
+  }
+  if (route.v3 === "sites") {
+    const rawSegs = [...route.rest];
+    if (rawSegs.at(-1) === "") rawSegs.pop();
+    if (rawSegs.length !== 1) return null;
+    const domainSeg = decodePathSegment(rawSegs[0]);
+    if (!domainSeg) return null;
+    return { reportId: domainSeg, resource: "page", quota: "report-read" };
+  }
   const rawSegments = [...route.rest];
   if (rawSegments.at(-1) === "") rawSegments.pop();
   if (rawSegments.length !== 1 && rawSegments.length !== 2) return null;

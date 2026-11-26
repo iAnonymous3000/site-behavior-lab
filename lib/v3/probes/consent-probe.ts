@@ -54,7 +54,7 @@ export const CMP_RULES_V3: readonly CmpRuleV3[] = [
   },
   {
     cmp: "TrustArc",
-    accept: ["#truste-consent-button", ".call"],
+    accept: ["#truste-consent-button", "#truste-consent-track .call", ".truste_box_overlay .call", ".pdynamicbutton .call"],
     reject: ["#truste-consent-required"],
     settings: ["#truste-show-consent"],
     secondLayerReject: [".rejectAll", ".pdynamicbutton .shp"]

@@ -79,11 +79,11 @@ export async function runSblCli(argv: readonly string[], deps: SblCliDeps = {}):
   const out = deps.stdout ?? ((s: string) => process.stdout.write(s));
   const err = deps.stderr ?? ((s: string) => process.stderr.write(s));
 
-  if (argv.length === 0 || argv.includes("--help") || argv.includes("-h")) {
+  if (argv.length === 0 || argv[0] === "--help" || argv[0] === "-h") {
     out(SBL_CLI_HELP);
     return 0;
   }
-  if (argv.includes("--version") || argv.includes("-v")) {
+  if (argv[0] === "--version" || argv[0] === "-v") {
     out(`${SCANNER_V3_VERSION}\n`);
     return 0;
   }
@@ -125,18 +125,35 @@ async function handleScanCommand(
     const flag = args[i];
     if (flag === "--device" && args[i + 1]) {
       const val = args[++i];
-      if (val === "desktop" || val === "mobile") device = val;
+      if (val !== "desktop" && val !== "mobile") {
+        err(`Invalid --device value: ${val} (expected desktop or mobile)\n`);
+        return 1;
+      }
+      device = val;
     } else if (flag === "--region" && args[i + 1]) {
       const val = args[++i] as ScanRegionIdV3;
-      if (VALID_REGIONS.has(val)) region = val;
+      if (!VALID_REGIONS.has(val)) {
+        err(`Invalid --region value: ${val}\n`);
+        return 1;
+      }
+      region = val;
     } else if (flag === "--compare" && args[i + 1]) {
       for (const piece of args[++i].split(",")) {
         const ax = piece.trim() as ComparisonAxisV3;
-        if (VALID_COMPARISONS.has(ax) && !comparisons.includes(ax)) comparisons.push(ax);
+        if (!ax) continue;
+        if (!VALID_COMPARISONS.has(ax)) {
+          err(`Invalid --compare axis: ${ax}\n`);
+          return 1;
+        }
+        if (!comparisons.includes(ax)) comparisons.push(ax);
       }
     } else if (flag === "--format" && args[i + 1]) {
       const val = args[++i];
-      if (val === "json" || val === "markdown" || val === "sarif") format = val;
+      if (val !== "json" && val !== "markdown" && val !== "sarif") {
+        err(`Invalid --format value: ${val} (expected json, markdown, or sarif)\n`);
+        return 1;
+      }
+      format = val;
     } else if (flag === "--output" && args[i + 1]) {
       outputPath = args[++i];
     } else if (flag === "--save-report" && args[i + 1]) {

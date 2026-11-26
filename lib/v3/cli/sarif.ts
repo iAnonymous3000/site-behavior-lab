@@ -5,7 +5,9 @@
  * without any external dependencies.
  */
 
+import { sha256Hex } from "../../sha256";
 import type { TemporalReportDiffV3 } from "../runtime/watch-diff";
+import { SCANNER_V3_VERSION } from "../scanner";
 import type { ScanReportV3 } from "../schema";
 
 export type SarifLevel = "error" | "warning" | "note";
@@ -14,6 +16,8 @@ export type SarifRule = {
   id: string;
   name: string;
   shortDescription: { text: string };
+  fullDescription: { text: string };
+  help: { text: string };
   defaultConfiguration: { level: SarifLevel };
   properties?: { tags?: string[] };
 };
@@ -22,9 +26,11 @@ export type SarifResult = {
   ruleId: string;
   level: SarifLevel;
   message: { text: string };
+  partialFingerprints: { primaryLocationLineHash: string };
   locations: {
     physicalLocation: {
       artifactLocation: { uri: string };
+      region: { startLine: number };
     };
   }[];
   properties?: Record<string, unknown>;
@@ -54,6 +60,8 @@ const RULES: Record<string, SarifRule> = {
     id: "SBL-KEYSTROKE-EXFIL",
     name: "PreSubmissionKeystrokeExfiltration",
     shortDescription: { text: "Pre-submission keystroke exfiltration detected" },
+    fullDescription: { text: "Synthetic input typed into a form field was transmitted over the network before form submission." },
+    help: { text: "Audit session-replay, analytics, and third-party scripts attached to form fields and disable pre-submit keystroke capture." },
     defaultConfiguration: { level: "error" },
     properties: { tags: ["privacy", "security", "keystroke-exfiltration"] }
   },
@@ -61,6 +69,8 @@ const RULES: Record<string, SarifRule> = {
     id: "SBL-CNAME-CLOAK",
     name: "CnameCloakedTracker",
     shortDescription: { text: "First-party subdomain CNAME-cloaks a third-party tracker" },
+    fullDescription: { text: "A first-party DNS subdomain delegates via CNAME to a third-party tracking infrastructure host." },
+    help: { text: "Remove CNAME tracker delegation or disclose and gate the endpoint behind explicit user consent." },
     defaultConfiguration: { level: "warning" },
     properties: { tags: ["privacy", "cname-cloaking"] }
   },
@@ -68,6 +78,8 @@ const RULES: Record<string, SarifRule> = {
     id: "SBL-SGTM-ENDPOINT",
     name: "FirstPartyServerSideTagging",
     shortDescription: { text: "First-party server-side tagging / CAPI endpoint observed" },
+    fullDescription: { text: "A first-party host carried analytics or ad-conversion beacon payloads typical of server-side tagging." },
+    help: { text: "Verify server-side forwarding respects user consent, Global Privacy Control, and privacy policy disclosures." },
     defaultConfiguration: { level: "warning" },
     properties: { tags: ["privacy", "server-side-tagging"] }
   },
@@ -75,6 +87,8 @@ const RULES: Record<string, SarifRule> = {
     id: "SBL-BEACON-PII",
     name: "BeaconPersonalIdentifiers",
     shortDescription: { text: "Tracking beacon transmits personal-identifier parameters" },
+    fullDescription: { text: "A decoded tracking beacon included populated personal identifier parameters (such as email, phone, or user ID)." },
+    help: { text: "Strip personal identifiers from tracking requests or ensure explicit prior user consent." },
     defaultConfiguration: { level: "error" },
     properties: { tags: ["privacy", "pii", "beacons"] }
   },
@@ -82,6 +96,8 @@ const RULES: Record<string, SarifRule> = {
     id: "SBL-FINGERPRINTING",
     name: "FingerprintingOrDomReplay",
     shortDescription: { text: "Browser fingerprinting or DOM-wide session replay observed" },
+    fullDescription: { text: "High-entropy browser fingerprinting APIs or root-level DOM mutation replay were observed during page load." },
+    help: { text: "Review third-party scripts invoking canvas/WebGL/audio/WebGPU/font/client-hint fingerprinting APIs." },
     defaultConfiguration: { level: "warning" },
     properties: { tags: ["privacy", "fingerprinting"] }
   },
@@ -89,6 +105,8 @@ const RULES: Record<string, SarifRule> = {
     id: "SBL-DARK-PATTERNS",
     name: "ConsentBannerDarkPatterns",
     shortDescription: { text: "Consent banner exhibits elevated dark-pattern score" },
+    fullDescription: { text: "The site's consent banner showed asymmetric accept/reject paths, hidden reject options, pre-ticked boxes, or a cookie wall." },
+    help: { text: "Provide an equally prominent Layer-1 Reject All button with no pre-checked non-essential categories." },
     defaultConfiguration: { level: "warning" },
     properties: { tags: ["privacy", "consent", "dark-patterns"] }
   },
@@ -96,6 +114,8 @@ const RULES: Record<string, SarifRule> = {
     id: "SBL-POLICY-GAP",
     name: "UndisclosedTrackingEntities",
     shortDescription: { text: "Observed tracking entities are not mentioned in the discovered privacy policy" },
+    fullDescription: { text: "Third-party tracking companies observed on the page were not named in the site's discovered privacy policy." },
+    help: { text: "Update the privacy policy vendor list or remove unintended third-party tags." },
     defaultConfiguration: { level: "note" },
     properties: { tags: ["privacy", "policy-disclosure"] }
   },
@@ -103,19 +123,27 @@ const RULES: Record<string, SarifRule> = {
     id: "SBL-REGRESSION",
     name: "PrivacyBehaviorRegression",
     shortDescription: { text: "Privacy behavior regressed relative to baseline scan" },
+    fullDescription: { text: "One or more privacy metrics or tracking behaviors regressed compared to the baseline scan report." },
+    help: { text: "Inspect the diff report and revert or gate newly introduced trackers, beacons, or dark patterns." },
     defaultConfiguration: { level: "error" },
     properties: { tags: ["privacy", "regression"] }
   }
 };
 
-function makeLocation(uri: string) {
-  return [{ physicalLocation: { artifactLocation: { uri } } }];
+function makeLocation(artifactUri: string) {
+  // Repo-relative artifact path keeps GitHub Code Scanning SARIF ingestion compatible.
+  return [{ physicalLocation: { artifactLocation: { uri: artifactUri }, region: { startLine: 1 } } }];
+}
+
+function makeFingerprint(ruleId: string, key: string): { primaryLocationLineHash: string } {
+  return { primaryLocationLineHash: sha256Hex(`${ruleId}:${key}`).slice(0, 32) };
 }
 
 /** Export a single `ScanReportV3` (and optional `TemporalReportDiffV3`) as SARIF 2.1.0 JSON. */
 export function reportToSarifV3(
   report: ScanReportV3,
-  diff?: TemporalReportDiffV3 | null
+  diff?: TemporalReportDiffV3 | null,
+  artifactUri = "sbl-report.v3.json"
 ): SarifLogV210 {
   const results: SarifResult[] = [];
   const usedRuleIds = new Set<string>();
@@ -130,8 +158,10 @@ export function reportToSarifV3(
       message: {
         text: `Keystroke input transmitted before form submission to ${leak.cnameTarget ?? leak.domain} via ${leak.transport} (${leak.encoding}).`
       },
-      locations: makeLocation(targetUri),
+      partialFingerprints: makeFingerprint("SBL-KEYSTROKE-EXFIL", `${report.canonicalDomain}:${leak.domain}:${leak.transport}`),
+      locations: makeLocation(artifactUri),
       properties: {
+        targetUrl: targetUri,
         domain: leak.domain,
         cnameTarget: leak.cnameTarget ?? null,
         transport: leak.transport,
@@ -149,7 +179,8 @@ export function reportToSarifV3(
       message: {
         text: `First-party host ${cloak.host} CNAME-cloaks ${cloak.entity.entity} (${cloak.targetDomain}) across ${cloak.requestCount} requests.`
       },
-      locations: makeLocation(`https://${cloak.host}/`),
+      partialFingerprints: makeFingerprint("SBL-CNAME-CLOAK", `${report.canonicalDomain}:${cloak.host}:${cloak.targetDomain}`),
+      locations: makeLocation(artifactUri),
       properties: {
         host: cloak.host,
         cnameChain: cloak.cnameChain,
@@ -168,7 +199,8 @@ export function reportToSarifV3(
         message: {
           text: `First-party server-side tagging endpoint detected: ${beacon.platform} via ${beacon.endpointHost} (${beacon.requests} requests).`
         },
-        locations: makeLocation(`https://${beacon.endpointHost}/`),
+        partialFingerprints: makeFingerprint("SBL-SGTM-ENDPOINT", `${report.canonicalDomain}:${beacon.platform}:${beacon.endpointHost}`),
+        locations: makeLocation(artifactUri),
         properties: { platform: beacon.platform, events: beacon.events }
       });
     }
@@ -180,7 +212,8 @@ export function reportToSarifV3(
         message: {
           text: `${beacon.platform} beacon at ${beacon.endpointHost} includes personal identifier fields: ${beacon.identifierCategories.join(", ")}.`
         },
-        locations: makeLocation(`https://${beacon.endpointHost}/`),
+        partialFingerprints: makeFingerprint("SBL-BEACON-PII", `${report.canonicalDomain}:${beacon.platform}:${beacon.identifierCategories.join(",")}`),
+        locations: makeLocation(artifactUri),
         properties: {
           platform: beacon.platform,
           identifierCategories: beacon.identifierCategories
@@ -189,15 +222,18 @@ export function reportToSarifV3(
     }
   }
 
+  const HIGH_ENTROPY_FP = new Set(["canvas", "webgl", "audio", "webgpu", "mutation-observer-replay"]);
   for (const fp of arm.fingerprinting) {
+    if (fp.kind === "document-cookie-writes") continue;
     usedRuleIds.add("SBL-FINGERPRINTING");
     results.push({
       ruleId: "SBL-FINGERPRINTING",
-      level: fp.kind === "mutation-observer-replay" ? "warning" : "note",
+      level: HIGH_ENTROPY_FP.has(fp.kind) ? "warning" : "note",
       message: {
         text: `Observed ${fp.kind} signal (${fp.count} calls) across realms: ${fp.realms.join(", ")}.`
       },
-      locations: makeLocation(targetUri),
+      partialFingerprints: makeFingerprint("SBL-FINGERPRINTING", `${report.canonicalDomain}:${fp.kind}`),
+      locations: makeLocation(artifactUri),
       properties: { kind: fp.kind, realms: fp.realms, apis: fp.apis }
     });
   }
@@ -210,7 +246,8 @@ export function reportToSarifV3(
       message: {
         text: `Consent banner (${arm.consent.banner.cmp ?? "unknown CMP"}) scored ${arm.consent.banner.darkPatternScore}/100 for dark patterns: ${arm.consent.banner.darkPatternFlags.join(", ")}.`
       },
-      locations: makeLocation(targetUri),
+      partialFingerprints: makeFingerprint("SBL-DARK-PATTERNS", `${report.canonicalDomain}:${arm.consent.banner.cmp ?? "generic"}`),
+      locations: makeLocation(artifactUri),
       properties: {
         score: arm.consent.banner.darkPatternScore,
         flags: arm.consent.banner.darkPatternFlags
@@ -226,8 +263,9 @@ export function reportToSarifV3(
       message: {
         text: `${arm.policy.unmentionedEntities.length} observed tracking entities were not mentioned in ${arm.policy.url}: ${arm.policy.unmentionedEntities.slice(0, 8).join(", ")}.`
       },
-      locations: makeLocation(arm.policy.url),
-      properties: { unmentionedEntities: arm.policy.unmentionedEntities }
+      partialFingerprints: makeFingerprint("SBL-POLICY-GAP", `${report.canonicalDomain}:${arm.policy.url}`),
+      locations: makeLocation(artifactUri),
+      properties: { policyUrl: arm.policy.url, unmentionedEntities: arm.policy.unmentionedEntities }
     });
   }
 
@@ -238,7 +276,8 @@ export function reportToSarifV3(
         ruleId: "SBL-REGRESSION",
         level: reg.severity === "critical" || reg.severity === "high" ? "error" : "warning",
         message: { text: `[${reg.kind}] ${reg.title} — ${reg.detail}` },
-        locations: makeLocation(targetUri),
+        partialFingerprints: makeFingerprint("SBL-REGRESSION", `${report.canonicalDomain}:${reg.kind}`),
+        locations: makeLocation(artifactUri),
         properties: {
           kind: reg.kind,
           severity: reg.severity,
@@ -269,12 +308,13 @@ export function reportToSarifV3(
 }
 
 /** Export a standalone `TemporalReportDiffV3` as SARIF 2.1.0 JSON. */
-export function diffToSarifV3(diff: TemporalReportDiffV3): SarifLogV210 {
+export function diffToSarifV3(diff: TemporalReportDiffV3, artifactUri = "sbl-diff.v3.json"): SarifLogV210 {
   const results: SarifResult[] = diff.regressions.map((reg) => ({
     ruleId: "SBL-REGRESSION",
     level: reg.severity === "critical" || reg.severity === "high" ? "error" : "warning",
     message: { text: `[${reg.kind}] ${reg.title} — ${reg.detail}` },
-    locations: makeLocation(`https://${diff.canonicalDomain}/`),
+    partialFingerprints: makeFingerprint("SBL-REGRESSION", `${diff.canonicalDomain}:${reg.kind}`),
+    locations: makeLocation(artifactUri),
     properties: {
       kind: reg.kind,
       severity: reg.severity,
@@ -291,7 +331,7 @@ export function diffToSarifV3(diff: TemporalReportDiffV3): SarifLogV210 {
         tool: {
           driver: {
             name: "Site Behavior Lab",
-            version: "sbl-v3.0.0",
+            version: SCANNER_V3_VERSION,
             informationUri: "https://sitebehavior.org",
             rules: results.length > 0 ? [RULES["SBL-REGRESSION"]] : []
           }

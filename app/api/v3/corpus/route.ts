@@ -54,14 +54,14 @@ async function handleCorpusQueryV3(request: Request): Promise<Response> {
       return NextResponse.json({ ok: true, stats });
     }
 
-    const footprintEntity = params.get("footprint")?.trim();
+    const footprintEntity = params.get("footprint")?.trim().slice(0, 128);
     if (footprintEntity) {
       const limit = parsePositiveInt(params.get("limit"), 100, 500);
       const footprint = await ctx.reportIndex.getEntityFootprint(footprintEntity, limit);
       return NextResponse.json({ ok: true, footprint });
     }
 
-    const domain = params.get("domain")?.trim();
+    const domain = params.get("domain")?.trim().slice(0, 128);
     if (domain) {
       const limit = parsePositiveInt(params.get("limit"), 25, 100);
       const history = await ctx.reportIndex.getSiteHistory(domain, limit);
@@ -81,11 +81,11 @@ async function handleCorpusQueryV3(request: Request): Promise<Response> {
         : "newest";
 
     const filters: CorpusQueryFiltersV3 = {
-      query: params.get("q")?.trim() || undefined,
-      entity: params.get("entity")?.trim() || undefined,
-      parentOrg: params.get("parentOrg")?.trim() || undefined,
+      query: params.get("q")?.trim().slice(0, 128) || undefined,
+      entity: params.get("entity")?.trim().slice(0, 128) || undefined,
+      parentOrg: params.get("parentOrg")?.trim().slice(0, 128) || undefined,
       category,
-      region: params.get("region")?.trim() || undefined,
+      region: params.get("region")?.trim().slice(0, 32) || undefined,
       latestPerSite: params.get("allHistory") === "1" ? false : true,
       hasKeystrokeLeaks: params.get("keystrokes") === "1",
       hasCnameCloaks: params.get("cname") === "1",

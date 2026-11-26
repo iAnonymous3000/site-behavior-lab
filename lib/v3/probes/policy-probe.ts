@@ -103,7 +103,7 @@ export function analyzePolicyTextV3(input: {
   const normalized = input.text.replace(/\s+/g, " ").trim();
   if (normalized.length < 400) return null;
 
-  const sentences = normalized.split(/(?<=[.!?。！？])\s+/);
+  const sentences = normalized.split(/(?<=[。！？])|(?<=[.!?])\s+/);
   const claims: PolicySummaryV3["claims"] = [];
   const seenKinds = new Set<PolicyClaimKindV3>();
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import styles from "@/app/v3/v3.module.css";
-import { CorpusExplorerV3 } from "@/components/v3/CorpusExplorerV3";
-import { V3Nav } from "@/components/v3/V3Nav";
+import { CorpusExplorerV3 } from "@/app/_components/v3/CorpusExplorerV3";
+import { V3Nav } from "@/app/_components/v3/V3Nav";
 
 export const metadata: Metadata = {
   title: "Corpus Explorer & Live Scanner (v3)",

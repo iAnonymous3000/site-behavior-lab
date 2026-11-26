@@ -16,9 +16,12 @@ import type {
 } from "./schema";
 
 const EMAIL_IN_PATH = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
-const UUID_SEGMENT = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_EMBEDDED = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+const JWT_EMBEDDED = /^eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}$/;
 const LONG_HEX_SEGMENT = /^[0-9a-f]{24,}$/i;
 const HIGH_ENTROPY_TOKEN = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9_-]{28,}$/;
+const VALID_GCS_RE = /^G1[01-][01-]$/;
+const URL_IN_PROSE_RE = /https?:\/\/[^\s"'<>]+/gi;
 const MAX_URL_LENGTH = 512;
 const MAX_PATH_SEGMENTS = 16;
 
@@ -65,14 +68,48 @@ function redactPathSegment(segment: string): string {
   if (segment === "[redacted-token]" || segment === "[redacted-email]" || segment === "[truncated]") {
     return segment;
   }
-  if (EMAIL_IN_PATH.test(segment)) {
+  let decoded = segment;
+  try {
+    decoded = decodeURIComponent(segment);
+  } catch {
+    decoded = segment;
+  }
+  if (EMAIL_IN_PATH.test(decoded)) {
     EMAIL_IN_PATH.lastIndex = 0;
     return "[redacted-email]";
   }
-  if (UUID_SEGMENT.test(segment) || LONG_HEX_SEGMENT.test(segment) || HIGH_ENTROPY_TOKEN.test(segment)) {
+  if (
+    JWT_EMBEDDED.test(decoded) ||
+    UUID_EMBEDDED.test(decoded) ||
+    LONG_HEX_SEGMENT.test(decoded) ||
+    HIGH_ENTROPY_TOKEN.test(decoded)
+  ) {
     return "[redacted-token]";
   }
   return segment.length > 96 ? `${segment.slice(0, 64)}[truncated]` : segment;
+}
+
+function redactProseString(text: string, maxLen = 400): string {
+  const urlsCleaned = text.replace(URL_IN_PROSE_RE, (raw) => {
+    const trailingMatch = /([.,;:!?)]+)$/.exec(raw);
+    const trailing = trailingMatch ? trailingMatch[1] : "";
+    const core = trailing ? raw.slice(0, -trailing.length) : raw;
+    return `${redactUrlV3(core)}${trailing}`;
+  });
+  const emailsCleaned = urlsCleaned.replace(EMAIL_IN_PATH, "[redacted-email]");
+  EMAIL_IN_PATH.lastIndex = 0;
+  return emailsCleaned.slice(0, maxLen);
+}
+
+function redactGcmSignals<T extends { gcs?: string }>(signals: readonly T[]): T[] {
+  return signals.map((sig) => {
+    if (sig.gcs && !VALID_GCS_RE.test(sig.gcs)) {
+      const rest = { ...sig };
+      delete rest.gcs;
+      return rest;
+    }
+    return sig;
+  });
 }
 
 function redactCallStack(frames?: CallStackFrameV3[]): CallStackFrameV3[] | undefined {
@@ -98,6 +135,12 @@ function redactRequest(req: NetworkRequestV3): NetworkRequestV3 {
       ...(req.requestHeaders.origin ? { origin: redactOriginV3(req.requestHeaders.origin) } : {}),
       ...(req.requestHeaders.refererOrigin
         ? { refererOrigin: redactOriginV3(req.requestHeaders.refererOrigin) }
+        : {})
+    },
+    responseHeaders: {
+      ...req.responseHeaders,
+      ...(req.responseHeaders.accessControlAllowOrigin && req.responseHeaders.accessControlAllowOrigin !== "*"
+        ? { accessControlAllowOrigin: redactOriginV3(req.responseHeaders.accessControlAllowOrigin) }
         : {})
     },
     shields: {
@@ -137,10 +180,10 @@ function redactArm(arm: ScanArmV3): ScanArmV3 {
       domain: sw.domain.toLowerCase()
     })),
     cookies: arm.cookies.map((cookie) => ({
-      name: cookie.name.slice(0, 128),
+      name: redactPathSegment(cookie.name.slice(0, 128)),
       domain: cookie.domain.toLowerCase(),
       registrableDomain: cookie.registrableDomain.toLowerCase(),
-      path: cookie.path.slice(0, 128),
+      path: cookie.path.split("?")[0].split("#")[0].slice(0, 128),
       sameSite: cookie.sameSite,
       secure: cookie.secure,
       httpOnly: cookie.httpOnly,
@@ -163,19 +206,51 @@ function redactArm(arm: ScanArmV3): ScanArmV3 {
       phase: entry.phase,
       entity: entry.entity
     })),
+    beacons: arm.beacons.map((b) => ({
+      ...b,
+      endpointHost: b.endpointHost.toLowerCase(),
+      consentModeSignals: redactGcmSignals(b.consentModeSignals)
+    })),
+    fingerprinting: arm.fingerprinting.map((fp) => ({
+      ...fp,
+      evidence: Object.fromEntries(
+        Object.entries(fp.evidence).map(([k, v]) => [
+          k,
+          typeof v === "string"
+            ? redactProseString(v, 128)
+            : Array.isArray(v)
+              ? v.slice(0, 20).map((item) => redactProseString(String(item), 64))
+              : v
+        ])
+      )
+    })),
     consent: {
       ...arm.consent,
       interaction: {
         ...arm.consent.interaction,
+        ...(arm.consent.interaction.selector
+          ? { selector: arm.consent.interaction.selector.slice(0, 160) }
+          : {}),
+        ...(arm.consent.interaction.matchedText
+          ? { matchedText: redactProseString(arm.consent.interaction.matchedText, 120) }
+          : {}),
         ...(arm.consent.interaction.frameUrl
           ? { frameUrl: redactUrlV3(arm.consent.interaction.frameUrl) }
           : {})
+      },
+      verification: {
+        ...arm.consent.verification,
+        googleConsentMode: redactGcmSignals(arm.consent.verification.googleConsentMode)
       }
     },
     policy: arm.policy
       ? {
           ...arm.policy,
-          url: redactUrlV3(arm.policy.url)
+          url: redactUrlV3(arm.policy.url),
+          claims: arm.policy.claims.map((c) => ({
+            ...c,
+            quote: redactProseString(c.quote, 220)
+          }))
         }
       : null
   };
@@ -189,7 +264,12 @@ export function redactScanReportV3(report: ScanReportV3): ScanReportV3 {
     finalUrl: redactUrlV3(report.finalUrl),
     canonicalDomain: report.canonicalDomain.toLowerCase(),
     leadArm: redactArm(report.leadArm),
-    comparisonArms: report.comparisonArms.map(redactArm)
+    comparisonArms: report.comparisonArms.map(redactArm),
+    highlights: report.highlights.map((h) => ({
+      ...h,
+      title: redactProseString(h.title, 200),
+      detail: redactProseString(h.detail, 400)
+    }))
   };
 }
 
@@ -220,6 +300,13 @@ export function reportV3Digest(report: ScanReportV3): string {
  * Persistence-boundary guard: verify no raw sentinel or raw query string
  * survived into the serialized report JSON.
  */
+function assertCleanUrlField(url: string | null | undefined, label: string): void {
+  if (!url) return;
+  if (url.includes("?") || url.includes("#")) {
+    throw new Error(`Refusing to persist ScanReportV3: unredacted query/fragment in ${label}`);
+  }
+}
+
 export function assertNoUnredactedSecretsV3(report: ScanReportV3, sentinels: readonly string[] = []): void {
   const serialized = JSON.stringify(report);
   for (const sentinel of sentinels) {
@@ -227,21 +314,35 @@ export function assertNoUnredactedSecretsV3(report: ScanReportV3, sentinels: rea
       throw new Error("Refusing to persist ScanReportV3: active probe sentinel leaked into report payload");
     }
   }
-  if (
-    report.targetUrl.includes("?") ||
-    report.targetUrl.includes("#") ||
-    report.finalUrl.includes("?") ||
-    report.finalUrl.includes("#")
-  ) {
-    throw new Error("Refusing to persist ScanReportV3: unredacted query/fragment in top-level URL");
+  assertCleanUrlField(report.targetUrl, "targetUrl");
+  assertCleanUrlField(report.finalUrl, "finalUrl");
+  for (const h of report.highlights) {
+    const urls = h.detail.match(URL_IN_PROSE_RE) ?? [];
+    for (const u of urls) assertCleanUrlField(u, `highlight ${h.id}`);
   }
   for (const arm of [report.leadArm, ...report.comparisonArms]) {
-    if (arm.finalUrl.includes("?") || arm.finalUrl.includes("#")) {
-      throw new Error(`Refusing to persist ScanReportV3: unredacted query/fragment in arm ${arm.armId} finalUrl`);
-    }
+    assertCleanUrlField(arm.finalUrl, `arm ${arm.armId} finalUrl`);
+    assertCleanUrlField(arm.policy?.url, `arm ${arm.armId} policy.url`);
+    assertCleanUrlField(arm.consent.interaction.frameUrl, `arm ${arm.armId} consent.interaction.frameUrl`);
     for (const req of arm.network) {
-      if (req.url.includes("?") || req.url.includes("#")) {
-        throw new Error(`Refusing to persist ScanReportV3: unredacted query/fragment in request URL ${req.id}`);
+      assertCleanUrlField(req.url, `request URL ${req.id}`);
+      for (const hop of req.redirectChain) assertCleanUrlField(hop, `request ${req.id} redirectChain`);
+      assertCleanUrlField(req.shields.rewrittenUrl, `request ${req.id} shields.rewrittenUrl`);
+      assertCleanUrlField(req.initiator?.scriptUrl, `request ${req.id} initiator.scriptUrl`);
+      for (const frame of req.initiator?.callStack ?? []) {
+        assertCleanUrlField(frame.url, `request ${req.id} callStack`);
+      }
+    }
+    for (const ws of arm.websockets) assertCleanUrlField(ws.url, `websocket ${ws.id}`);
+    for (const sw of arm.serviceWorkers) {
+      assertCleanUrlField(sw.scope, "serviceWorker.scope");
+      assertCleanUrlField(sw.scriptUrl, "serviceWorker.scriptUrl");
+    }
+    for (const beacon of arm.beacons) {
+      for (const gcm of beacon.consentModeSignals) {
+        if (gcm.gcs && !VALID_GCS_RE.test(gcm.gcs)) {
+          throw new Error("Refusing to persist ScanReportV3: invalid raw gcs token in beacon");
+        }
       }
     }
   }

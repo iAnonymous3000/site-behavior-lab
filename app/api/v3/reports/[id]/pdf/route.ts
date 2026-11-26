@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { toPublicError } from "@/lib/public-errors";
-import { assertReportReadRateLimit, clientKeyFromRequest } from "@/lib/scan-limits";
+import {
+  assertReportPdfRateLimit,
+  assertReportReadRateLimit,
+  clientKeyFromRequest
+} from "@/lib/scan-limits";
 import { renderReportV3Pdf, renderReportV3PrintHtml } from "@/lib/v3/pdf/browser-rendering-pdf";
 import { getV3RuntimeContext } from "@/lib/v3/runtime/store-context";
 import { loadReportV3, V3_REPORT_ID_RE } from "@/lib/v3/storage/blob-store";
@@ -25,27 +29,40 @@ async function handleReportPdfV3(
   context: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   try {
-    assertReportReadRateLimit(clientKeyFromRequest(request));
+    const clientKey = clientKeyFromRequest(request);
+    const url = new URL(request.url);
+    const isHtmlPreview = url.searchParams.get("format") === "html";
+    if (isHtmlPreview) {
+      assertReportReadRateLimit(clientKey);
+    } else {
+      assertReportPdfRateLimit(clientKey);
+    }
+
     const { id } = await context.params;
     if (!V3_REPORT_ID_RE.test(id)) {
       return NextResponse.json({ ok: false, error: "Invalid v3 report ID." }, { status: 400 });
     }
 
     const ctx = await getV3RuntimeContext();
-    const report = await loadReportV3(ctx.blobStore, id);
+    const [report, meta] = await Promise.all([
+      loadReportV3(ctx.blobStore, id),
+      ctx.reportIndex.getReportMeta(id)
+    ]);
     if (!report) {
       return NextResponse.json({ ok: false, error: "Report not found." }, { status: 404 });
     }
 
-    const url = new URL(request.url);
-    if (url.searchParams.get("format") === "html") {
+    const isPublic = meta?.visibility === "corpus" || meta?.visibility === "public";
+
+    if (isHtmlPreview) {
       const html = renderReportV3PrintHtml(report);
       return new NextResponse(html, {
         status: 200,
         headers: {
           "content-type": "text/html; charset=utf-8",
           "content-security-policy": "default-src 'none'; style-src 'unsafe-inline';",
-          "cache-control": "public, max-age=300"
+          "cache-control": isPublic ? "public, max-age=300" : "private, no-store",
+          "x-robots-tag": "noindex, noarchive"
         }
       });
     }
@@ -55,13 +72,15 @@ async function handleReportPdfV3(
       cloudflareBrowserRendering: ctx.browserRendering
     });
 
+    const safeDomain = report.canonicalDomain.replace(/[^a-z0-9.-]/gi, "_").slice(0, 120);
     return new NextResponse(Buffer.from(pdf), {
       status: 200,
       headers: {
         "content-type": "application/pdf",
-        "content-disposition": `inline; filename="site-behavior-lab-${report.canonicalDomain}-${report.reportId}.pdf"`,
+        "content-disposition": `inline; filename="site-behavior-lab-${safeDomain}-${report.reportId}.pdf"`,
         "x-sbl-pdf-source": source,
-        "cache-control": "public, max-age=3600"
+        "cache-control": isPublic ? "public, max-age=3600" : "private, no-store",
+        "x-robots-tag": "noindex, noarchive"
       }
     });
   } catch (error) {

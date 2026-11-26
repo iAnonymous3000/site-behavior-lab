@@ -2997,7 +2997,18 @@ export default {
       });
     }
 
-    const isScan = request.method === "POST" && url.pathname === "/api/scan";
+    // Decode path segments once so percent-encoded variants (e.g. /%61pi/v3/scan
+    // or /api/sc%61n) cannot bypass Worker edge gates and reach Next.js uncharged.
+    const decodedPathname = decodeCanonicalPathname(url.pathname);
+    if (decodedPathname === null) {
+      return gateErrorResponse(
+        new EdgeScanGateError("Malformed request path.", 400, "request-rejected"),
+        request,
+        env
+      );
+    }
+
+    const isScan = request.method === "POST" && decodedPathname === "/api/scan";
     if (
       isScan &&
       (durableScanJobsFlagMisconfigured(env) || durableReplayFaultConfig(env).status === "misconfigured")
@@ -3087,8 +3098,8 @@ export default {
 
     // Gate v3 scan submissions at the edge with the same Turnstile + Durable Object
     // rate-limit and access-token controls as POST /api/scan so v3 never bypasses
-    // public-ingress protection on Cloudflare.
-    if (request.method === "POST" && url.pathname === "/api/v3/scan") {
+    // public-ingress protection on Cloudflare (using decoded canonical segments).
+    if (request.method === "POST" && decodedPathname === "/api/v3/scan") {
       const body = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES);
       if (body === null) {
         return gateErrorResponse(
@@ -5562,6 +5573,19 @@ async function assertDeferredScanRateLimitAvailable(
   if (!decision.allowed) {
     throw new DurableScanJobRateLimitError(rateLimit.scope, decision.retryAfterSeconds);
   }
+}
+
+function decodeCanonicalPathname(pathname: string): string | null {
+  const segments = pathname.split("/");
+  const decoded: string[] = [];
+  for (const seg of segments) {
+    try {
+      decoded.push(decodeURIComponent(seg));
+    } catch {
+      return null;
+    }
+  }
+  return decoded.join("/");
 }
 
 function parseScanGatePayload(body: string): ScanGatePayload {

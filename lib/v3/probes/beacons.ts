@@ -143,21 +143,15 @@ const IDENTIFIER_KEY_MAP: Readonly<Record<string, IdentifierCategoryV3>> = {
   ln: "name",
   first_name: "name",
   last_name: "name",
-  name: "name",
-  ct: "address",
-  st: "address",
   zp: "address",
   zip: "address",
   zip_code: "address",
-  city: "address",
-  state: "address",
-  country: "address",
+  street_address: "address",
   address: "address",
   db: "date_of_birth",
   dob: "date_of_birth",
   date_of_birth: "date_of_birth",
   birthday: "date_of_birth",
-  ge: "gender",
   gender: "gender",
   external_id: "external_id",
   externalid: "external_id",
@@ -190,32 +184,36 @@ export function parseGoogleConsentMode(params: URLSearchParams): GoogleConsentMo
   let adUserData: GoogleConsentModeSignalV3["adUserData"];
   let adPersonalization: GoogleConsentModeSignalV3["adPersonalization"];
 
-  if (gcs && /^G1[01-][01-]$/.test(gcs)) {
-    adStorage = gcs[2] === "1" ? "granted" : gcs[2] === "0" ? "denied" : "unknown";
-    analyticsStorage = gcs[3] === "1" ? "granted" : gcs[3] === "0" ? "denied" : "unknown";
+  const validGcs = gcs && /^G1[01-][01-]$/.test(gcs) ? gcs : undefined;
+  if (validGcs) {
+    adStorage = validGcs[2] === "1" ? "granted" : validGcs[2] === "0" ? "denied" : "unknown";
+    analyticsStorage = validGcs[3] === "1" ? "granted" : validGcs[3] === "0" ? "denied" : "unknown";
   }
 
   // Google Consent Mode v2 `gcd` format: `11<ad_storage>1<analytics_storage>1<ad_user_data>1<ad_personalization>1...`
   // Letter codes: l/m/p/q/u -> denied; r/t/v/n/e -> granted (Google Tag v2 encoding).
-  if (gcd && /^1[0-9][a-z][0-9][a-z][0-9][a-z][0-9][a-z]/i.test(gcd)) {
+  const validGcd = gcd && /^1[0-9][a-z][0-9][a-z][0-9][a-z][0-9][a-z]/i.test(gcd) ? gcd : undefined;
+  if (validGcd) {
     const decodeGcdLetter = (ch: string): "granted" | "denied" | "unknown" => {
       const c = ch.toLowerCase();
       if ("rtvne".includes(c)) return "granted";
       if ("lmpqu".includes(c)) return "denied";
       return "unknown";
     };
-    const adS = decodeGcdLetter(gcd[2]);
-    const anS = decodeGcdLetter(gcd[4]);
-    const aud = decodeGcdLetter(gcd[6]);
-    const ap = decodeGcdLetter(gcd[8]);
+    const adS = decodeGcdLetter(validGcd[2]);
+    const anS = decodeGcdLetter(validGcd[4]);
+    const aud = decodeGcdLetter(validGcd[6]);
+    const ap = decodeGcdLetter(validGcd[8]);
     if (adStorage === "unknown") adStorage = adS;
     if (analyticsStorage === "unknown") analyticsStorage = anS;
     adUserData = aud;
     adPersonalization = ap;
   }
 
+  if (!validGcs && !validGcd) return null;
+
   return {
-    ...(gcs ? { gcs } : {}),
+    ...(validGcs ? { gcs: validGcs } : {}),
     adStorage,
     analyticsStorage,
     ...(adUserData ? { adUserData } : {}),
@@ -347,7 +345,7 @@ export function decodeBeaconRequestV3(input: BeaconInputV3): DecodedBeacon | nul
   // 12. Microsoft / Bing UET
   if (hostMatches(host, "bat.bing.com") && pathLower.startsWith("/action/")) {
     const evt = params.get("evt")?.trim() || "pageLoad";
-    const normalized = evt === "pageLoad" ? "PageLoad" : isSafeEventToken(evt) && evt === "custom" ? CUSTOM_EVENT_LABEL : CUSTOM_EVENT_LABEL;
+    const normalized = evt === "pageLoad" ? "PageLoad" : CUSTOM_EVENT_LABEL;
     const gcm = parseGoogleConsentMode(params);
     return {
       platform: "Microsoft",
@@ -407,9 +405,14 @@ export function decodeBeaconRequestV3(input: BeaconInputV3): DecodedBeacon | nul
   }
 
   // 17. PostHog (host-agnostic when `/e/` or `/capture/` carries PostHog JSON/query)
+  const looksPostHogProxy =
+    (pathLower === "/e" || pathLower === "/e/" || pathLower.startsWith("/capture")) &&
+    Boolean(input.postData) &&
+    /"api_key"\s*:\s*"phc_/i.test(input.postData ?? "");
   if (
-    hostMatches(host, "posthog.com") &&
-    (pathLower.startsWith("/e") || pathLower.startsWith("/capture") || pathLower.startsWith("/batch") || pathLower.startsWith("/s/"))
+    (hostMatches(host, "posthog.com") &&
+      (pathLower.startsWith("/e") || pathLower.startsWith("/capture") || pathLower.startsWith("/batch") || pathLower.startsWith("/s/"))) ||
+    looksPostHogProxy
   ) {
     return decodePostHog(host, pathLower, input.postData, firstPartyEndpoint);
   }
@@ -920,8 +923,21 @@ function decodeMixpanel(
 ): DecodedBeacon {
   const events: string[] = [];
   const ids = new Set<IdentifierCategoryV3>();
-  const rawData = parsed.searchParams.get("data") ?? postData;
-  const json = safeParseJson(rawData);
+  let rawData = parsed.searchParams.get("data") ?? null;
+  if (!rawData && postData) {
+    if (postData.trim().startsWith("data=")) {
+      rawData = new URLSearchParams(postData).get("data");
+    } else {
+      rawData = postData;
+    }
+  }
+  let json = safeParseJson(rawData);
+  if (json === null && rawData && /^[A-Za-z0-9+/=_-]{16,}$/.test(rawData.trim())) {
+    try {
+      const decoded = Buffer.from(rawData.trim(), "base64").toString("utf8");
+      json = safeParseJson(decoded);
+    } catch {}
+  }
   const items = Array.isArray(json) ? json : json && typeof json === "object" ? [json] : [];
   for (const item of items) {
     if (!item || typeof item !== "object" || Array.isArray(item)) continue;

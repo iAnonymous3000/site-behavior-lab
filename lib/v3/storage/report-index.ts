@@ -13,7 +13,22 @@
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { reportV3Digest } from "../redaction";
-import type { ScanReportV3, ServiceCategoryV3 } from "../schema";
+import { extractAllArmEntitiesV3 } from "../scanner/summary";
+import type {
+  CorpusOverviewStatsV3,
+  EntityFootprintResultV3,
+  IndexedReportRowV3,
+  IndexedReportVisibilityV3,
+  ScanReportV3,
+  ServiceCategoryV3
+} from "../schema";
+
+export type {
+  CorpusOverviewStatsV3,
+  EntityFootprintResultV3,
+  IndexedReportRowV3,
+  IndexedReportVisibilityV3
+};
 
 /** Minimal subset shared by Cloudflare D1 bindings and our Node `node:sqlite` adapter. */
 export type SqlExecutorV3 = {
@@ -21,45 +36,6 @@ export type SqlExecutorV3 = {
   run(sql: string, params?: readonly unknown[]): Promise<{ changes: number }> | { changes: number };
   all<T = Record<string, unknown>>(sql: string, params?: readonly unknown[]): Promise<T[]> | T[];
   first<T = Record<string, unknown>>(sql: string, params?: readonly unknown[]): Promise<T | null> | T | null;
-};
-
-export type IndexedReportVisibilityV3 = "public" | "unlisted" | "corpus";
-
-export type IndexedReportRowV3 = {
-  reportId: string;
-  canonicalDomain: string;
-  finalUrl: string;
-  scannedAt: string;
-  visibility: IndexedReportVisibilityV3;
-  egressRegion: string;
-  device: string;
-  loadOutcome: string;
-  httpStatus: number | null;
-  totalRequests: number;
-  thirdPartyRequests: number;
-  thirdPartyDomains: number;
-  trackingRequests: number;
-  shieldsBlockedStandard: number;
-  shieldsBlockedAggressive: number;
-  distinctEntities: number;
-  distinctParentOrgs: number;
-  cookiesTotal: number;
-  thirdPartyCookies: number;
-  longLivedCookies: number;
-  partitionedCookies: number;
-  storageKeysTotal: number;
-  websocketsTotal: number;
-  serviceWorkersTotal: number;
-  beaconPlatforms: number;
-  serverSideTaggingEndpoints: number;
-  cnameCloaksCount: number;
-  fingerprintKindsCount: number;
-  keystrokeLeaksCount: number;
-  darkPatternScore: number;
-  topHighlight: string | null;
-  r2Key: string;
-  reportDigest: string;
-  expiresAt: string | null;
 };
 
 export type CorpusQueryFiltersV3 = {
@@ -84,34 +60,6 @@ export type CorpusQueryFiltersV3 = {
 export type CorpusQueryResultV3 = {
   total: number;
   items: IndexedReportRowV3[];
-};
-
-export type EntityFootprintResultV3 = {
-  name: string;
-  totalSites: number;
-  corpusSites: number;
-  prevalencePct: number;
-  sites: {
-    canonicalDomain: string;
-    reportId: string;
-    scannedAt: string;
-    category: string;
-    requestCount: number;
-    domainCount: number;
-  }[];
-};
-
-export type CorpusOverviewStatsV3 = {
-  totalReports: number;
-  distinctSites: number;
-  medianThirdPartyDomains: number;
-  sitesWithKeystrokeLeaks: number;
-  sitesWithCnameCloaks: number;
-  sitesWithServerSideTagging: number;
-  sitesWithFingerprinting: number;
-  sitesWithDarkPatterns: number;
-  topEntities: { entity: string; parentOrg: string; category: string; siteCount: number }[];
-  topParentOrgs: { parentOrg: string; siteCount: number }[];
 };
 
 export const V3_INDEX_SCHEMA_STATEMENTS: readonly string[] = [
@@ -155,6 +103,7 @@ export const V3_INDEX_SCHEMA_STATEMENTS: readonly string[] = [
   `CREATE INDEX IF NOT EXISTS idx_reports_visibility_time ON reports(visibility, scanned_at DESC)`,
   `CREATE INDEX IF NOT EXISTS idx_reports_third_party ON reports(visibility, third_party_domains DESC)`,
   `CREATE INDEX IF NOT EXISTS idx_reports_dark_pattern ON reports(visibility, dark_pattern_score DESC)`,
+  `CREATE INDEX IF NOT EXISTS idx_reports_expires_at ON reports(expires_at) WHERE expires_at IS NOT NULL`,
   `CREATE TABLE IF NOT EXISTS report_entities (
     report_id TEXT NOT NULL,
     canonical_domain TEXT NOT NULL,
@@ -179,7 +128,8 @@ export const V3_INDEX_SCHEMA_STATEMENTS: readonly string[] = [
     has_identifiers INTEGER NOT NULL DEFAULT 0,
     request_count INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (report_id, platform, endpoint_host)
-  )`
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_report_beacons_platform ON report_beacons(platform)`
 ];
 
 export class D1ReportIndexStoreV3 {
@@ -203,93 +153,113 @@ export class D1ReportIndexStoreV3 {
     const visibility = meta.visibility ?? "public";
     const digest = reportV3Digest(report);
     const topHighlight = report.highlights[0]?.title ?? null;
+    const entitiesToIndex =
+      report.leadArm.network.length > 0 ? extractAllArmEntitiesV3(report.leadArm) : s.topEntities;
 
-    await this.db.run(
-      `INSERT OR REPLACE INTO reports (
-        report_id, canonical_domain, final_url, scanned_at, visibility, egress_region, device,
-        load_outcome, http_status, total_requests, third_party_requests, third_party_domains,
-        tracking_requests, shields_blocked_standard, shields_blocked_aggressive, distinct_entities,
-        distinct_parent_orgs, cookies_total, third_party_cookies, long_lived_cookies,
-        partitioned_cookies, storage_keys_total, websockets_total, service_workers_total,
-        beacon_platforms, server_side_tagging_endpoints, cname_cloaks_count,
-        fingerprint_kinds_count, keystroke_leaks_count, dark_pattern_score, top_highlight,
-        r2_key, report_digest, expires_at
-      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-      [
-        report.reportId,
-        report.canonicalDomain.toLowerCase(),
-        report.finalUrl,
-        report.scannedAt,
-        visibility,
-        report.provenance.egressRegion,
-        report.leadArm.conditions.device,
-        report.leadArm.loadOutcome,
-        report.leadArm.httpStatus,
-        s.totalRequests,
-        s.thirdPartyRequests,
-        s.thirdPartyDomains,
-        s.trackingRequests,
-        s.shieldsBlockedStandard,
-        s.shieldsBlockedAggressive,
-        s.distinctEntities,
-        s.distinctParentOrgs,
-        s.cookiesTotal,
-        s.thirdPartyCookies,
-        s.longLivedCookies,
-        s.partitionedCookies,
-        s.storageKeysTotal,
-        s.websocketsTotal,
-        s.serviceWorkersTotal,
-        s.beaconPlatforms,
-        s.serverSideTaggingEndpoints,
-        s.cnameCloaksCount,
-        s.fingerprintKindsCount,
-        s.keystrokeLeaksCount,
-        s.darkPatternScore,
-        topHighlight,
-        meta.r2Key,
-        digest,
-        meta.expiresAt ?? null
-      ]
-    );
-
-    await this.db.run(`DELETE FROM report_entities WHERE report_id = ?`, [report.reportId]);
-    for (const ent of s.topEntities) {
-      await this.db.run(
-        `INSERT OR REPLACE INTO report_entities (
-          report_id, canonical_domain, scanned_at, entity, parent_org, category, request_count, domain_count
-        ) VALUES (?,?,?,?,?,?,?,?)`,
-        [
-          report.reportId,
-          report.canonicalDomain.toLowerCase(),
-          report.scannedAt,
-          ent.entity,
-          ent.parentOrg,
-          ent.category,
-          ent.requests,
-          ent.domains
-        ]
-      );
+    let inTxn = false;
+    try {
+      await this.db.exec("BEGIN IMMEDIATE");
+      inTxn = true;
+    } catch {
+      // Cloudflare D1 disallows explicit SQL BEGIN; proceed statement-by-statement.
     }
 
-    await this.db.run(`DELETE FROM report_beacons WHERE report_id = ?`, [report.reportId]);
-    for (const beacon of report.leadArm.beacons) {
+    try {
       await this.db.run(
-        `INSERT OR REPLACE INTO report_beacons (
-          report_id, canonical_domain, platform, format, endpoint_host,
-          server_side_tagging, has_identifiers, request_count
-        ) VALUES (?,?,?,?,?,?,?,?)`,
+        `INSERT OR REPLACE INTO reports (
+          report_id, canonical_domain, final_url, scanned_at, visibility, egress_region, device,
+          load_outcome, http_status, total_requests, third_party_requests, third_party_domains,
+          tracking_requests, shields_blocked_standard, shields_blocked_aggressive, distinct_entities,
+          distinct_parent_orgs, cookies_total, third_party_cookies, long_lived_cookies,
+          partitioned_cookies, storage_keys_total, websockets_total, service_workers_total,
+          beacon_platforms, server_side_tagging_endpoints, cname_cloaks_count,
+          fingerprint_kinds_count, keystroke_leaks_count, dark_pattern_score, top_highlight,
+          r2_key, report_digest, expires_at
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           report.reportId,
           report.canonicalDomain.toLowerCase(),
-          beacon.platform,
-          beacon.format,
-          beacon.endpointHost,
-          beacon.serverSideTagging ? 1 : 0,
-          beacon.identifierCategories.length > 0 ? 1 : 0,
-          beacon.requests
+          report.finalUrl,
+          report.scannedAt,
+          visibility,
+          report.provenance.egressRegion,
+          report.leadArm.conditions.device,
+          report.leadArm.loadOutcome,
+          report.leadArm.httpStatus,
+          s.totalRequests,
+          s.thirdPartyRequests,
+          s.thirdPartyDomains,
+          s.trackingRequests,
+          s.shieldsBlockedStandard,
+          s.shieldsBlockedAggressive,
+          s.distinctEntities,
+          s.distinctParentOrgs,
+          s.cookiesTotal,
+          s.thirdPartyCookies,
+          s.longLivedCookies,
+          s.partitionedCookies,
+          s.storageKeysTotal,
+          s.websocketsTotal,
+          s.serviceWorkersTotal,
+          s.beaconPlatforms,
+          s.serverSideTaggingEndpoints,
+          s.cnameCloaksCount,
+          s.fingerprintKindsCount,
+          s.keystrokeLeaksCount,
+          s.darkPatternScore,
+          topHighlight,
+          meta.r2Key,
+          digest,
+          meta.expiresAt ?? null
         ]
       );
+
+      await this.db.run(`DELETE FROM report_entities WHERE report_id = ?`, [report.reportId]);
+      for (const ent of entitiesToIndex) {
+        await this.db.run(
+          `INSERT OR REPLACE INTO report_entities (
+            report_id, canonical_domain, scanned_at, entity, parent_org, category, request_count, domain_count
+          ) VALUES (?,?,?,?,?,?,?,?)`,
+          [
+            report.reportId,
+            report.canonicalDomain.toLowerCase(),
+            report.scannedAt,
+            ent.entity,
+            ent.parentOrg,
+            ent.category,
+            ent.requests,
+            ent.domains
+          ]
+        );
+      }
+
+      await this.db.run(`DELETE FROM report_beacons WHERE report_id = ?`, [report.reportId]);
+      for (const beacon of report.leadArm.beacons) {
+        await this.db.run(
+          `INSERT OR REPLACE INTO report_beacons (
+            report_id, canonical_domain, platform, format, endpoint_host,
+            server_side_tagging, has_identifiers, request_count
+          ) VALUES (?,?,?,?,?,?,?,?)`,
+          [
+            report.reportId,
+            report.canonicalDomain.toLowerCase(),
+            beacon.platform,
+            beacon.format,
+            beacon.endpointHost,
+            beacon.serverSideTagging ? 1 : 0,
+            beacon.identifierCategories.length > 0 ? 1 : 0,
+            beacon.requests
+          ]
+        );
+      }
+      if (inTxn) await this.db.exec("COMMIT");
+    } catch (err) {
+      if (inTxn) {
+        try {
+          await this.db.exec("ROLLBACK");
+        } catch {}
+      }
+      throw err;
     }
   }
 
@@ -314,14 +284,23 @@ export class D1ReportIndexStoreV3 {
     }
 
     if (filters.latestPerSite !== false) {
-      clauses.push(
-        `r.report_id = (SELECT r2.report_id FROM reports r2 WHERE r2.canonical_domain = r.canonical_domain AND r2.visibility IN ('public', 'corpus') ORDER BY r2.scanned_at DESC, r2.report_id DESC LIMIT 1)`
-      );
+      if (vis === "all-public") {
+        clauses.push(
+          `r.report_id = (SELECT r2.report_id FROM reports r2 WHERE r2.canonical_domain = r.canonical_domain AND r2.visibility IN ('public', 'corpus') ORDER BY r2.scanned_at DESC, r2.report_id DESC LIMIT 1)`
+        );
+      } else {
+        clauses.push(
+          `r.report_id = (SELECT r2.report_id FROM reports r2 WHERE r2.canonical_domain = r.canonical_domain AND r2.visibility = ? ORDER BY r2.scanned_at DESC, r2.report_id DESC LIMIT 1)`
+        );
+        params.push(vis);
+      }
     }
 
     if (filters.query && filters.query.trim()) {
-      const normalized = normalizeSearchDomain(filters.query);
-      clauses.push(`(r.canonical_domain LIKE ? OR r.final_url LIKE ? OR r.top_highlight LIKE ?)`);
+      const normalized = escapeLikePattern(normalizeSearchDomain(filters.query.slice(0, 128)));
+      clauses.push(
+        `(r.canonical_domain LIKE ? ESCAPE '\\' OR r.final_url LIKE ? ESCAPE '\\' OR r.top_highlight LIKE ? ESCAPE '\\')`
+      );
       const pat = `%${normalized}%`;
       params.push(pat, pat, pat);
     }
@@ -394,13 +373,37 @@ export class D1ReportIndexStoreV3 {
 
   /** Reverse vendor lookup: find every site contacting an entity or parent organization. */
   async getEntityFootprint(name: string, limit = 100): Promise<EntityFootprintResultV3> {
+    const trimmed = name.trim().slice(0, 128);
     const totalSitesRow = await this.db.first<{ cnt: number }>(
       `SELECT COUNT(DISTINCT canonical_domain) AS cnt FROM reports WHERE visibility IN ('public', 'corpus')`
     );
     const corpusSites = Number(totalSitesRow?.cnt ?? 0);
 
+    const matchedCountRow = await this.db.first<{ cnt: number }>(
+      `SELECT COUNT(DISTINCT e.canonical_domain) AS cnt
+       FROM report_entities e
+       JOIN reports r ON r.report_id = e.report_id
+       WHERE r.visibility IN ('public', 'corpus')
+         AND r.report_id = (
+           SELECT r2.report_id FROM reports r2
+           WHERE r2.canonical_domain = r.canonical_domain AND r2.visibility IN ('public', 'corpus')
+           ORDER BY r2.scanned_at DESC, r2.report_id DESC LIMIT 1
+         )
+         AND (lower(e.entity) = lower(?) OR lower(e.parent_org) = lower(?))`,
+      [trimmed, trimmed]
+    );
+    const totalSites = Number(matchedCountRow?.cnt ?? 0);
+
+    // Deduplicate per canonical_domain so corporate parent queries (e.g. "Alphabet")
+    // aggregate all child entities on a site into one row and never exceed 100% prevalence.
     const rows = await this.db.all<Record<string, unknown>>(
-      `SELECT e.canonical_domain, e.report_id, e.scanned_at, e.category, e.request_count, e.domain_count
+      `SELECT
+         e.canonical_domain,
+         e.report_id,
+         e.scanned_at,
+         MIN(e.category) AS category,
+         SUM(e.request_count) AS request_count,
+         SUM(e.domain_count) AS domain_count
        FROM report_entities e
        JOIN reports r ON r.report_id = e.report_id
        WHERE r.visibility IN ('public', 'corpus')
@@ -410,9 +413,10 @@ export class D1ReportIndexStoreV3 {
            ORDER BY r2.scanned_at DESC, r2.report_id DESC LIMIT 1
          )
          AND (lower(e.entity) = lower(?) OR lower(e.parent_org) = lower(?))
-       ORDER BY e.request_count DESC, e.canonical_domain ASC
+       GROUP BY e.canonical_domain, e.report_id, e.scanned_at
+       ORDER BY request_count DESC, e.canonical_domain ASC
        LIMIT ?`,
-      [name, name, Math.max(1, Math.min(500, limit))]
+      [trimmed, trimmed, Math.max(1, Math.min(500, limit))]
     );
 
     const sites = rows.map((r) => ({
@@ -425,10 +429,10 @@ export class D1ReportIndexStoreV3 {
     }));
 
     return {
-      name,
-      totalSites: sites.length,
+      name: trimmed,
+      totalSites,
       corpusSites,
-      prevalencePct: corpusSites > 0 ? Math.round((sites.length / corpusSites) * 1000) / 10 : 0,
+      prevalencePct: corpusSites > 0 ? Math.min(100, Math.round((totalSites / corpusSites) * 1000) / 10) : 0,
       sites
     };
   }
@@ -460,12 +464,15 @@ export class D1ReportIndexStoreV3 {
        FROM latest`
     );
 
-    const tpRows = await this.db.all<{ third_party_domains: number }>(
-      `${latestCte} SELECT third_party_domains FROM latest ORDER BY third_party_domains ASC`
-    );
-    const tpValues = tpRows.map((r) => Number(r.third_party_domains));
-    const medianThirdPartyDomains =
-      tpValues.length === 0 ? 0 : tpValues[Math.floor(tpValues.length / 2)];
+    const distinctSites = Number(totals?.distinct_sites ?? 0);
+    const medianRow =
+      distinctSites > 0
+        ? await this.db.first<{ third_party_domains: number }>(
+            `${latestCte} SELECT third_party_domains FROM latest ORDER BY third_party_domains ASC LIMIT 1 OFFSET ?`,
+            [Math.floor(distinctSites / 2)]
+          )
+        : null;
+    const medianThirdPartyDomains = Number(medianRow?.third_party_domains ?? 0);
 
     const topEntitiesRows = await this.db.all<Record<string, unknown>>(
       `${latestCte}
@@ -588,6 +595,10 @@ export async function openNodeSqliteReportIndex(dbFilePath: string): Promise<{
   const store = new D1ReportIndexStoreV3(executor);
   await store.init();
   return { store, close: () => sqlite.close() };
+}
+
+function escapeLikePattern(value: string): string {
+  return value.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
 }
 
 function normalizeSearchDomain(raw: string): string {

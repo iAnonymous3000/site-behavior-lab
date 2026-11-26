@@ -48,14 +48,22 @@ export function buildFingerprintInitScriptV3(realm: FingerprintRealmV3 = "main")
     const effectiveRealm = ${JSON.stringify(realm)} === "main" && !isTop ? "iframe" : ${JSON.stringify(realm)};
     const state = { events: [], jsCookieNames: [], droppedEvents: 0 };
     const jsCookieSet = new Set();
+    const MAX_JS_COOKIE_NAMES = 500;
+    const ALLOWED_CLIENT_HINTS = new Set([
+      "architecture", "bitness", "brands", "formFactors", "fullVersionList",
+      "mobile", "model", "platform", "platformVersion", "uaFullVersion", "wow64"
+    ]);
 
     function extractScriptDomain() {
       try {
         const stack = new Error().stack || "";
         const lines = stack.split("\\n").slice(2, 8);
         for (const line of lines) {
-          const match = /https?:\\/\\/([^/:\\s)]+)/i.exec(line);
-          if (match && match[1]) return match[1].toLowerCase();
+          const match = /https?:\\/\\/[^\\s)]+/i.exec(line);
+          if (match && match[0]) {
+            const parsed = new URL(match[0].replace(/:\\d+(?::\\d+)?$/, ""));
+            if (parsed.hostname) return parsed.hostname.toLowerCase();
+          }
         }
       } catch {}
       return null;
@@ -137,10 +145,16 @@ export function buildFingerprintInitScriptV3(realm: FingerprintRealmV3 = "main")
       wrapMethod(Object.getPrototypeOf(navigator.gpu), "requestAdapter", "webgpu.requestAdapter");
     }
 
-    // 5. High-Entropy Client Hints
+    // 5. High-Entropy Client Hints (strictly allowlisted W3C hint names)
     if (typeof navigator !== "undefined" && navigator.userAgentData) {
       wrapMethod(Object.getPrototypeOf(navigator.userAgentData), "getHighEntropyValues", "clientHints.getHighEntropyValues", (_u, args) => ({
-        hints: Array.isArray(args[0]) ? args[0].slice(0, 12).map(String).join(",") : ""
+        hints: Array.isArray(args[0])
+          ? args[0]
+              .map((h) => String(h || "").trim())
+              .filter((h) => ALLOWED_CLIENT_HINTS.has(h))
+              .slice(0, 12)
+              .join(",")
+          : ""
       }));
     }
 
@@ -193,10 +207,9 @@ export function buildFingerprintInitScriptV3(realm: FingerprintRealmV3 = "main")
               try {
                 const raw = String(value || "");
                 const eq = raw.indexOf("=");
-                const name = (eq > 0 ? raw.slice(0, eq) : raw).trim().slice(0, 128);
-                if (name) {
-                  jsCookieSet.add(name);
-                  state.jsCookieNames = Array.from(jsCookieSet);
+                if (eq > 0 && jsCookieSet.size < MAX_JS_COOKIE_NAMES) {
+                  const name = raw.slice(0, eq).trim().slice(0, 128);
+                  if (name) jsCookieSet.add(name);
                 }
                 record("document.cookie.write");
               } catch {}
@@ -207,16 +220,21 @@ export function buildFingerprintInitScriptV3(realm: FingerprintRealmV3 = "main")
       } catch {}
     }
 
+    // Expose only an immutable cloned snapshot via a non-configurable getter so
+    // untrusted page scripts cannot mutate or forge telemetry arrays.
     try {
       Object.defineProperty(globalThis, ${JSON.stringify(FINGERPRINT_V3_GLOBAL_KEY)}, {
-        value: state,
+        get() {
+          return {
+            events: state.events.map((e) => ({ ...e, detail: e.detail ? { ...e.detail } : undefined })),
+            jsCookieNames: Array.from(jsCookieSet),
+            droppedEvents: state.droppedEvents
+          };
+        },
         configurable: false,
-        enumerable: false,
-        writable: false
+        enumerable: false
       });
-    } catch {
-      globalThis[${JSON.stringify(FINGERPRINT_V3_GLOBAL_KEY)}] = state;
-    }
+    } catch {}
   })();`;
 }
 
@@ -309,7 +327,11 @@ export function analyzeFingerprintTelemetryV3(
     });
   }
 
-  // 6. High-Entropy Client Hints
+  // 6. High-Entropy Client Hints (allowlist standard W3C hint tokens to prevent page string injection)
+  const ALLOWED_HINTS = new Set([
+    "architecture", "bitness", "brands", "formFactors", "fullVersionList",
+    "mobile", "model", "platform", "platformVersion", "uaFullVersion", "wow64"
+  ]);
   const chEvents = events.filter((e) => e.api === "clientHints.getHighEntropyValues");
   if (chEvents.length > 0) {
     const requestedHints = [
@@ -317,7 +339,7 @@ export function analyzeFingerprintTelemetryV3(
         chEvents
           .flatMap((e) => String(e.detail?.hints ?? "").split(","))
           .map((h) => h.trim())
-          .filter(Boolean)
+          .filter((h) => ALLOWED_HINTS.has(h))
       )
     ].sort();
     detections.push({
@@ -346,14 +368,14 @@ export function analyzeFingerprintTelemetryV3(
     });
   }
 
-  // 8. MutationObserver DOM-wide replay (observes document/root with subtree + attributes/characterData)
+  // 8. MutationObserver DOM-wide replay (requires root + subtree + attributes + characterData to avoid OneTrust/GTM/React false positives)
   const replayObservers = events.filter(
     (e) =>
       e.api === "mutationObserver.observe" &&
       Boolean(e.detail?.root) &&
       Boolean(e.detail?.subtree) &&
       Boolean(e.detail?.attributes) &&
-      (Boolean(e.detail?.characterData) || Boolean(e.detail?.childList))
+      Boolean(e.detail?.characterData)
   );
   if (replayObservers.length > 0) {
     detections.push({

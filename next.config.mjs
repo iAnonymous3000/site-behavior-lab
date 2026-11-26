@@ -151,7 +151,22 @@ const nextConfig = {
               headers: noStoreHeaders
             },
             {
+              source: "/api/v3/reports/:id/pdf",
+              headers: [
+                {
+                  key: "Content-Security-Policy",
+                  value: "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'"
+                },
+                { key: "X-Content-Type-Options", value: "nosniff" },
+                { key: "Referrer-Policy", value: "no-referrer" }
+              ]
+            },
+            {
               source: "/reports/:path*",
+              headers: expiringReportHeaders
+            },
+            {
+              source: "/v3/reports/:path*",
               headers: expiringReportHeaders
             }
           ];

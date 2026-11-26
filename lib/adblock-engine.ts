@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
 import { NODE_ADBLOCK_ENGINE_VERSION } from "./legacy-methodology";
@@ -8,7 +8,24 @@ import { NODE_ADBLOCK_ENGINE_VERSION } from "./legacy-methodology";
 // request?" at request level. Falls back to null (curated labels only) if the
 // wasm cannot be loaded in the current runtime.
 
-const ADBLOCK_DIR = path.join(process.cwd(), "lib", "adblock-wasm");
+function resolveAdblockDir(): string {
+  const rel = path.join("lib", "adblock-wasm");
+  const cwdDir = path.join(process.cwd(), rel);
+  if (existsSync(path.join(cwdDir, "brave-default-filters.txt.gz"))) return cwdDir;
+  if (typeof __dirname === "string") {
+    let dir = __dirname;
+    for (let i = 0; i < 8; i += 1) {
+      const candidate = path.join(dir, rel);
+      if (existsSync(path.join(candidate, "brave-default-filters.txt.gz"))) return candidate;
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+  }
+  return cwdDir;
+}
+
+const ADBLOCK_DIR = resolveAdblockDir();
 
 type AdblockEngineLike = {
   check(url: string, sourceUrl: string, requestType: string): boolean;

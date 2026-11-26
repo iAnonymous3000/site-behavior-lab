@@ -15,15 +15,10 @@ export const ADMISSION_ATTEMPT_CLIENT_LIMIT = 10;
 export const ADMISSION_ATTEMPT_MAX_STORED_ROWS = 5_000;
 const ADMISSION_ATTEMPT_PRUNE_BATCH = 200;
 
-/** Called only inside the owning Durable Object's transactionSync. */
-export function chargeAdmissionAttempt(
-  sql: DurableScanJobStoreSql,
-  clientHash: string,
-  now: number
-): PublicScanRateLimitResult {
-  if (!/^[0-9a-f]{64}$/.test(clientHash) || !Number.isSafeInteger(now) || now < 0) {
-    throw new Error("Invalid admission-attempt charge.");
-  }
+const initializedSqlStores = new WeakSet<object>();
+
+function ensureAdmissionSchema(sql: DurableScanJobStoreSql): void {
+  if (initializedSqlStores.has(sql)) return;
   sql.exec(`CREATE TABLE IF NOT EXISTS admission_attempts (
     id INTEGER PRIMARY KEY,
     client_hash TEXT NOT NULL CHECK(length(client_hash) = 64),
@@ -33,6 +28,19 @@ export function chargeAdmissionAttempt(
   sql.exec(
     "CREATE INDEX IF NOT EXISTS admission_attempts_client_time ON admission_attempts(client_hash, charged_at, id)"
   );
+  initializedSqlStores.add(sql);
+}
+
+/** Called only inside the owning Durable Object's transactionSync. */
+export function chargeAdmissionAttempt(
+  sql: DurableScanJobStoreSql,
+  clientHash: string,
+  now: number
+): PublicScanRateLimitResult {
+  if (!/^[0-9a-f]{64}$/.test(clientHash) || !Number.isSafeInteger(now) || now < 0) {
+    throw new Error("Invalid admission-attempt charge.");
+  }
+  ensureAdmissionSchema(sql);
   const cutoff = now - ADMISSION_ATTEMPT_WINDOW_MS;
   sql.exec(
     `DELETE FROM admission_attempts WHERE id IN (
@@ -61,19 +69,52 @@ export function chargeAdmissionAttempt(
     .toArray()[0];
   const overflow = (totalRow?.count ?? 0) - ADMISSION_ATTEMPT_MAX_STORED_ROWS;
   if (overflow > 0) {
-    sql.exec(
-      `DELETE FROM admission_attempts WHERE id IN (
-        SELECT id FROM admission_attempts ORDER BY charged_at ASC, id ASC LIMIT ?
-      )`,
-      overflow
-    );
+    // Evict expired rows first; if still over cap, evict single-shot noise rows
+    // before active high-rate client buckets so an IPv6 rotating flood cannot
+    // reset a throttled client's rolling window.
+    sql.exec("DELETE FROM admission_attempts WHERE charged_at <= ?", cutoff);
+    const remainingRow = sql
+      .exec<{ count: number }>("SELECT COUNT(*) AS count FROM admission_attempts")
+      .toArray()[0];
+    const stillOver = (remainingRow?.count ?? 0) - ADMISSION_ATTEMPT_MAX_STORED_ROWS;
+    if (stillOver > 0) {
+      sql.exec(
+        `DELETE FROM admission_attempts WHERE id IN (
+          SELECT a.id FROM admission_attempts a
+          ORDER BY (
+            SELECT COUNT(*) FROM admission_attempts b
+            WHERE b.client_hash = a.client_hash AND b.charged_at > ?
+          ) ASC, a.charged_at ASC, a.id ASC
+          LIMIT ?
+        )`,
+        cutoff,
+        stillOver
+      );
+    }
   }
   return { allowed: true };
 }
 
+function decodeCanonicalPath(pathname: string): string | null {
+  const parts = pathname.split("/");
+  const decoded: string[] = [];
+  for (const part of parts) {
+    try {
+      decoded.push(decodeURIComponent(part));
+    } catch {
+      return null;
+    }
+  }
+  return decoded.join("/");
+}
+
 export function isAdmissionAttempt(method: string, pathname: string): boolean {
-  return (method === "POST" && pathname === "/api/scan") ||
-    (method === "GET" && pathname === "/api/scan/admission");
+  const canonical = decodeCanonicalPath(pathname);
+  if (canonical === null) return method === "POST" || method === "GET";
+  return (
+    (method === "POST" && (canonical === "/api/scan" || canonical === "/api/v3/scan")) ||
+    (method === "GET" && canonical === "/api/scan/admission")
+  );
 }
 
 /** Returns a refusal before the caller reads any body or starts expensive work. */

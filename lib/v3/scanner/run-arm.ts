@@ -15,7 +15,12 @@ import type { Browser, BrowserContext, Page } from "playwright";
 import { checkAdblockDetailed, mapRequestType } from "../../adblock-engine";
 import { partyKey } from "../../domain-utils";
 import { summarizeBeaconEventsV3 } from "../probes/beacons";
-import { runCnameProbeV3, type CnameProbeOutcomeV3, type CnameResolverFnV3 } from "../probes/cname-probe";
+import {
+  defaultResolveCnameChainV3,
+  runCnameProbeV3,
+  type CnameProbeOutcomeV3,
+  type CnameResolverFnV3
+} from "../probes/cname-probe";
 import {
   CMP_RULES_V3,
   computeDarkPatternAuditV3,
@@ -66,6 +71,8 @@ export type RunArmOptionsV3 = {
   passiveDwellMs?: number;
   scrollDwellMs?: number;
   inputDwellMs?: number;
+  armDeadlineMs?: number;
+  signal?: AbortSignal;
   resolveCnameChain?: CnameResolverFnV3;
   sharedCaches?: SharedArmCachesV3;
 };
@@ -81,12 +88,13 @@ const MOBILE_VIEWPORT = { width: 390, height: 844 };
 export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResultV3> {
   const startedAt = Date.now();
   const targetParsed = new URL(options.targetUrl);
-  const firstPartyHost = targetParsed.hostname.toLowerCase();
-  const firstPartyReg = partyKey(firstPartyHost).toLowerCase();
+  let firstPartyHost = targetParsed.hostname.toLowerCase();
+  let firstPartyReg = partyKey(firstPartyHost).toLowerCase();
   const navTimeoutMs = options.navigationTimeoutMs ?? 20_000;
   const passiveDwellMs = options.passiveDwellMs ?? 2_200;
   const scrollDwellMs = options.scrollDwellMs ?? 1_200;
   const inputDwellMs = options.inputDwellMs ?? 1_200;
+  const armDeadlineMs = options.armDeadlineMs ?? 45_000;
 
   const phases: ScanPhaseRecordV3[] = [];
   const sentinelsUsed: string[] = [];
@@ -104,6 +112,10 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
     policy: { status: options.conditions.policyCheck ? "complete" : "skipped" }
   };
 
+  if (options.signal?.aborted) {
+    throw new Error("Scan arm aborted before browser context creation");
+  }
+
   const context: BrowserContext = await options.browser.newContext({
     viewport: options.conditions.device === "mobile" ? MOBILE_VIEWPORT : DESKTOP_VIEWPORT,
     isMobile: options.conditions.device === "mobile",
@@ -115,75 +127,90 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
     extraHTTPHeaders: options.conditions.gpcEnabled ? { "Sec-GPC": "1" } : undefined
   });
 
-  // Install fingerprint + JS-cookie init script (and GPC navigator property when enabled).
-  await context.addInitScript(buildFingerprintInitScriptV3("main"));
-  if (options.conditions.gpcEnabled) {
-    await context.addInitScript(() => {
-      try {
-        Object.defineProperty(Navigator.prototype, "globalPrivacyControl", {
-          get: () => true,
-          configurable: true
-        });
-      } catch {}
-    });
-  }
-
-  const page = await context.newPage();
-  const collector = new CdpSessionCollectorV3({
-    page,
-    context,
-    firstPartyHost,
-    shieldsMode: options.conditions.shieldsMode,
-    adblockEngine: options.adblockEngine,
-    startedAtEpochMs: startedAt
-  });
-
-  const cdpAttached = await collector.attach();
-  if (!cdpAttached) {
-    probes.websockets = { status: "unavailable", reason: "cdp-attach-failed" };
-    probes.serviceWorkers = { status: "unavailable", reason: "cdp-attach-failed" };
-  }
-
-  // Optional Shields enforcement route (Standard vs Aggressive + $removeparam rewriting)
-  if (options.conditions.shieldsMode !== "off" && options.adblockEngine) {
-    await page.route("**/*", async (route) => {
-      const req = route.request();
-      const url = req.url();
-      if (!url.startsWith("http://") && !url.startsWith("https://")) {
-        await route.continue();
-        return;
-      }
-      const frame = req.frame();
-      const isMainNav = req.resourceType() === "document" && frame === page.mainFrame();
-      if (isMainNav) {
-        await route.continue();
-        return;
-      }
-      const sourceUrl = page.url().startsWith("http") ? page.url() : options.targetUrl;
-      const adblockType = mapRequestType(req.resourceType(), { subFrame: frame !== page.mainFrame() });
-      const detailed = checkAdblockDetailed(options.adblockEngine, url, sourceUrl, adblockType, req.method());
-      const block =
-        options.conditions.shieldsMode === "standard"
-          ? detailed.shouldBlockStandard
-          : detailed.shouldBlockAggressive;
-      if (block) {
-        collector.markRouteBlocked(url);
-        await route.abort("blockedbyclient");
-        return;
-      }
-      if (detailed.rewrittenUrl && detailed.rewrittenUrl !== url) {
-        await route.continue({ url: detailed.rewrittenUrl });
-        return;
-      }
-      await route.continue();
-    });
-  }
+  let collector: CdpSessionCollectorV3 | null = null;
+  let deadlineTimer: ReturnType<typeof setTimeout> | undefined;
+  const onAbort = () => {
+    void context.close().catch(() => {});
+  };
+  options.signal?.addEventListener("abort", onAbort, { once: true });
+  deadlineTimer = setTimeout(() => {
+    void context.close().catch(() => {});
+  }, armDeadlineMs);
 
   let httpStatus: number | null = null;
   let finalUrl = options.targetUrl;
   let loadOutcome: ScanArmV3["loadOutcome"] = "ok";
 
   try {
+    // Install fingerprint + JS-cookie init script (and GPC navigator property when enabled).
+    await context.addInitScript(buildFingerprintInitScriptV3("main"));
+    if (options.conditions.gpcEnabled) {
+      await context.addInitScript(() => {
+        try {
+          Object.defineProperty(Navigator.prototype, "globalPrivacyControl", {
+            get: () => true,
+            configurable: true
+          });
+        } catch {}
+      });
+    }
+
+    const page = await context.newPage();
+    collector = new CdpSessionCollectorV3({
+      page,
+      context,
+      firstPartyHost,
+      shieldsMode: options.conditions.shieldsMode,
+      adblockEngine: options.adblockEngine,
+      startedAtEpochMs: startedAt
+    });
+
+    const cdpAttached = await collector.attach();
+    if (!cdpAttached) {
+      probes.websockets = { status: "unavailable", reason: "cdp-attach-failed" };
+      probes.serviceWorkers = { status: "unavailable", reason: "cdp-attach-failed" };
+    }
+
+    // Optional Shields enforcement route (Standard vs Aggressive + $removeparam rewriting)
+    if (options.conditions.shieldsMode !== "off" && options.adblockEngine) {
+      const activeCollector = collector;
+      await page.route("**/*", async (route) => {
+        try {
+          const req = route.request();
+          const url = req.url();
+          if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            await route.continue();
+            return;
+          }
+          const frame = req.frame();
+          const isMainNav = req.resourceType() === "document" && frame === page.mainFrame();
+          if (isMainNav) {
+            await route.continue();
+            return;
+          }
+          const sourceUrl = page.url().startsWith("http") ? page.url() : options.targetUrl;
+          const adblockType = mapRequestType(req.resourceType(), { subFrame: frame !== page.mainFrame() });
+          const detailed = checkAdblockDetailed(options.adblockEngine, url, sourceUrl, adblockType, req.method());
+          const block =
+            options.conditions.shieldsMode === "standard"
+              ? detailed.shouldBlockStandard
+              : detailed.shouldBlockAggressive;
+          if (block) {
+            activeCollector.markRouteBlocked(url);
+            await route.abort("blockedbyclient");
+            return;
+          }
+          if (detailed.rewrittenUrl && detailed.rewrittenUrl !== url) {
+            await route.continue({ url: detailed.rewrittenUrl });
+            return;
+          }
+          await route.continue();
+        } catch {
+          // Page/context closed mid-route; ignore cleanly to prevent unhandled rejections.
+        }
+      });
+    }
+
     // --- Phase 1: Passive load ---
     const passiveStart = Date.now() - startedAt;
     collector.setPhase("passive-load");
@@ -194,6 +221,15 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
       });
       httpStatus = response?.status() ?? null;
       finalUrl = page.url() || options.targetUrl;
+      // Re-anchor firstPartyHost/firstPartyReg after cross-domain redirects!
+      try {
+        const finalParsed = new URL(finalUrl);
+        if ((finalParsed.protocol === "http:" || finalParsed.protocol === "https:") && finalParsed.hostname) {
+          firstPartyHost = finalParsed.hostname.toLowerCase();
+          firstPartyReg = partyKey(firstPartyHost).toLowerCase();
+          collector.updateFirstPartyHost(firstPartyHost);
+        }
+      } catch {}
       if (httpStatus !== null && httpStatus >= 400) {
         loadOutcome = "http-error";
       }
@@ -301,10 +337,15 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
           const url = frame.url();
           if (!url.startsWith("http://") && !url.startsWith("https://")) continue;
           try {
-            const res = await frame.evaluate(typeCanaryInDocument, {
-              canary,
-              maxFields: 6 - fieldsTyped
-            });
+            const res = await withEvalTimeout(
+              frame.evaluate(typeCanaryInDocument, {
+                canary,
+                maxFields: 6 - fieldsTyped
+              }),
+              5_000,
+              null
+            );
+            if (!res) continue;
             fieldsTyped += res.fieldsTyped;
             shadowDomFieldsTyped += res.shadowDomFieldsTyped;
             if (frame !== page.mainFrame()) iframeFieldsTyped += res.fieldsTyped;
@@ -343,24 +384,31 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
 
     // --- Collect final CDP storage, cookies, fingerprint telemetry, and consent APIs ---
     const collected = await collector.collectStorageCookiesAndTelemetry();
+    const emptyApis = {
+      tcf: { present: false, gdprApplies: null, eventStatus: null, purposeConsents: {} },
+      gpp: { present: false, applicableSections: [], gppStringPresent: false },
+      usp: { present: false, uspString: null }
+    };
     const consentApis =
       loadOutcome === "ok"
-        ? await page.evaluate(readAllConsentApisInPage, 1_200).catch(() => ({
-            tcf: { present: false, gdprApplies: null, eventStatus: null, purposeConsents: {} },
-            gpp: { present: false, applicableSections: [], gppStringPresent: false },
-            usp: { present: false, uspString: null }
-          }))
-        : {
-            tcf: { present: false, gdprApplies: null, eventStatus: null, purposeConsents: {} },
-            gpp: { present: false, applicableSections: [], gppStringPresent: false },
-            usp: { present: false, uspString: null }
-          };
+        ? await withEvalTimeout(page.evaluate(readAllConsentApisInPage, 1_200), 4_000, emptyApis).catch(() => emptyApis)
+        : emptyApis;
 
     // Build network, beacons, websockets, service workers, fingerprinting
     const network = collector.buildNetworkRequests(finalUrl);
     const omittedRequests = collector.getOmittedRequestCount();
     if (omittedRequests > 0) {
       probes.network = { status: "partial", reason: "request-cap-reached", omittedCount: omittedRequests };
+    }
+    const omittedWs = collector.getOmittedWebSocketCount();
+    if (omittedWs > 0) {
+      probes.websockets = { status: "partial", reason: "websocket-cap-reached", omittedCount: omittedWs };
+    }
+    if (collected.omittedCookies > 0) {
+      probes.cookies = { status: "partial", reason: "cookie-cap-reached", omittedCount: collected.omittedCookies };
+    }
+    if (collected.omittedStorage > 0) {
+      probes.storage = { status: "partial", reason: "storage-cap-reached", omittedCount: collected.omittedStorage };
     }
     const beacons = summarizeBeaconEventsV3(collector.buildBeaconInputs());
     const websockets = collector.buildWebSockets();
@@ -399,8 +447,11 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
           })
         : [];
 
-    // Complete consent verification with Google Consent Mode beacons & CMP cookies
-    const allGcm = beacons.flatMap((b) => b.consentModeSignals);
+    // Complete consent verification with post-consent Google Consent Mode beacons & CMP cookies
+    const relevantGcmBeacons = consent.interaction.clicked
+      ? beacons.filter((b) => b.phases.some((p) => p !== "passive-load"))
+      : beacons;
+    const allGcm = relevantGcmBeacons.flatMap((b) => b.consentModeSignals);
     if (!consent.banner.cmp) {
       consent.banner.cmp = detectCmpFromDomainsAndCookies(
         network.map((r) => r.domain),
@@ -517,7 +568,9 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
       sentinelsUsed
     };
   } finally {
-    await collector.detach();
+    if (deadlineTimer) clearTimeout(deadlineTimer);
+    options.signal?.removeEventListener("abort", onAbort);
+    if (collector) await collector.detach();
     await context.close().catch(() => {});
   }
 }
@@ -525,14 +578,18 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
 // --- In-page phase helpers --------------------------------------------------
 
 async function runBoundedScroll(page: Page, dwellMs: number): Promise<void> {
-  await page.evaluate(async () => {
-    const docHeight = Math.max(document.body?.scrollHeight ?? 0, document.documentElement?.scrollHeight ?? 0);
-    const steps = [0.35, 0.7, 1.0];
-    for (const frac of steps) {
-      window.scrollTo(0, Math.round(docHeight * frac));
-      await new Promise((r) => setTimeout(r, 200));
-    }
-  });
+  await withEvalTimeout(
+    page.evaluate(async () => {
+      const docHeight = Math.max(document.body?.scrollHeight ?? 0, document.documentElement?.scrollHeight ?? 0);
+      const steps = [0.35, 0.7, 1.0];
+      for (const frac of steps) {
+        window.scrollTo(0, Math.round(docHeight * frac));
+        await new Promise((r) => setTimeout(r, 200));
+      }
+    }),
+    5_000,
+    undefined
+  );
   await sleep(Math.min(dwellMs, 1_500));
 }
 
@@ -546,139 +603,193 @@ async function runConsentPhaseInPage(page: Page, mode: ConsentSummaryV3["mode"])
     secondLayerReject: [...r.secondLayerReject]
   }));
 
-  const inspect = await page.evaluate(
-    (arg: {
-      rules: { cmp: string; accept: string[]; reject: string[]; settings: string[]; secondLayerReject: string[] }[];
-      mode: string;
-    }) => {
-      const isVisible = (el: Element | null): el is HTMLElement => {
-        if (!el || !(el instanceof HTMLElement)) return false;
-        const rect = el.getBoundingClientRect();
-        if (rect.width < 10 || rect.height < 10) return false;
-        const style = window.getComputedStyle(el);
-        return style.visibility !== "hidden" && style.display !== "none" && style.opacity !== "0";
-      };
+  // Inspect main frame first, then accessible CMP iframes (e.g. Sourcepoint, TrustArc)
+  // and open Shadow DOM roots (e.g. Usercentrics).
+  const candidateFrames = [page.mainFrame(), ...page.frames().filter((f) => f !== page.mainFrame()).slice(0, 8)];
+  let activeFrame = page.mainFrame();
+  let inspect: {
+    metrics: BannerInspectionMetricsV3;
+    clicked: boolean;
+    layer: 1 | 2 | null;
+    selector?: string;
+    matchedText?: string;
+    needsSecondLayer: boolean;
+    secondLayerSelectors: string[];
+  } | null = null;
 
-      const areaOf = (el: HTMLElement | null): number | null => {
-        if (!el) return null;
-        const r = el.getBoundingClientRect();
-        return Math.round(r.width * r.height);
-      };
-
-      const findFirst = (selectors: string[]): { el: HTMLElement; selector: string } | null => {
-        for (const sel of selectors) {
-          try {
-            const el = document.querySelector(sel);
-            if (isVisible(el)) return { el, selector: sel };
-          } catch {}
-        }
-        return null;
-      };
-
-      let cmp: string | null = null;
-      let acceptMatch: { el: HTMLElement; selector?: string; text?: string } | null = null;
-      let rejectMatch: { el: HTMLElement; selector?: string; text?: string } | null = null;
-      let settingsMatch: { el: HTMLElement; selector?: string; text?: string } | null = null;
-      let matchedRule: (typeof arg.rules)[number] | null = null;
-
-      for (const rule of arg.rules) {
-        const a = findFirst(rule.accept);
-        const r = findFirst(rule.reject);
-        const s = findFirst(rule.settings);
-        if (a || r || s) {
-          cmp = rule.cmp;
-          matchedRule = rule;
-          if (a) acceptMatch = a;
-          if (r) rejectMatch = r;
-          if (s) settingsMatch = s;
-          break;
-        }
-      }
-
-      // Generic fallback across visible buttons inside consent-like containers
-      if (!acceptMatch && !rejectMatch) {
-        const ACCEPT_RE = /^(accept all|accept cookies|allow all|agree|i agree|got it|accept)$/i;
-        const REJECT_RE = /^(reject all|decline all|deny all|refuse all|reject|decline|necessary only|essential only)$/i;
-        const SETTINGS_RE = /^(cookie settings|manage preferences|manage cookies|customize|preferences|options|settings)$/i;
-        const buttons = Array.from(document.querySelectorAll("button, a[role='button'], input[type='button']")).slice(0, 200);
-        for (const btn of buttons) {
-          if (!isVisible(btn)) continue;
-          const text = (btn.innerText || btn.getAttribute("aria-label") || "").trim();
-          if (!text || text.length > 48) continue;
-          const contextText = (btn.closest("[id*='cookie' i], [class*='cookie' i], [id*='consent' i], [class*='consent' i], [role='dialog']")?.textContent || "").slice(0, 600);
-          if (!contextText || !/cookie|consent|privacy/i.test(contextText)) continue;
-          if (!acceptMatch && ACCEPT_RE.test(text)) acceptMatch = { el: btn, text };
-          else if (!rejectMatch && REJECT_RE.test(text)) rejectMatch = { el: btn, text };
-          else if (!settingsMatch && SETTINGS_RE.test(text)) settingsMatch = { el: btn, text };
-        }
-      }
-
-      const detected = Boolean(acceptMatch || rejectMatch || settingsMatch);
-      const bodyOverflowHidden = window.getComputedStyle(document.body || document.documentElement).overflow === "hidden";
-      const cookieWallDetected = detected && bodyOverflowHidden;
-
-      // Count any visible pre-checked non-essential checkboxes in the banner
-      let preTickedNonEssentialCount = 0;
-      if (detected) {
-        const checks = Array.from(document.querySelectorAll("input[type='checkbox']:checked")).slice(0, 40);
-        for (const cb of checks) {
-          if (!(cb instanceof HTMLInputElement) || cb.disabled) continue;
-          const label = (cb.closest("label")?.textContent || cb.getAttribute("aria-label") || "").toLowerCase();
-          if (/analytics|marketing|advertising|targeting|personalization|performance/.test(label)) {
-            preTickedNonEssentialCount += 1;
+  for (const frame of candidateFrames) {
+    const fUrl = frame.url();
+    if (frame !== page.mainFrame() && !fUrl.startsWith("http://") && !fUrl.startsWith("https://")) continue;
+    const candidate = await withEvalTimeout(
+      frame.evaluate(
+        (arg: {
+          rules: { cmp: string; accept: string[]; reject: string[]; settings: string[]; secondLayerReject: string[] }[];
+          mode: string;
+        }) => {
+          const roots: Array<Document | ShadowRoot> = [document];
+          const ucRoot = document.querySelector("#usercentrics-root");
+          if (ucRoot && ucRoot.shadowRoot) roots.push(ucRoot.shadowRoot);
+          for (const host of Array.from(document.querySelectorAll("[id*='consent' i], [id*='cookie' i], [id*='cmp' i]")).slice(0, 12)) {
+            if (host.shadowRoot && !roots.includes(host.shadowRoot)) roots.push(host.shadowRoot);
           }
-        }
-      }
 
-      let clicked = false;
-      let layer: 1 | 2 | null = null;
-      let selector: string | undefined;
-      let matchedText: string | undefined;
-      let needsSecondLayer = false;
+          const queryAllRoots = (selector: string): Element[] => {
+            const found: Element[] = [];
+            for (const root of roots) {
+              try {
+                found.push(...Array.from(root.querySelectorAll(selector)));
+              } catch {}
+            }
+            return found;
+          };
 
-      if (arg.mode === "accept-all" && acceptMatch) {
-        acceptMatch.el.click();
-        clicked = true;
-        layer = 1;
-        selector = acceptMatch.selector;
-        matchedText = acceptMatch.text;
-      } else if (arg.mode === "reject-all") {
-        if (rejectMatch) {
-          rejectMatch.el.click();
-          clicked = true;
-          layer = 1;
-          selector = rejectMatch.selector;
-          matchedText = rejectMatch.text;
-        } else if (settingsMatch) {
-          settingsMatch.el.click();
-          needsSecondLayer = true;
-        }
-      }
+          const isVisible = (el: Element | null): el is HTMLElement => {
+            if (!el || !(el instanceof HTMLElement)) return false;
+            const rect = el.getBoundingClientRect();
+            if (rect.width < 10 || rect.height < 10) return false;
+            const style = window.getComputedStyle(el);
+            return style.visibility !== "hidden" && style.display !== "none" && style.opacity !== "0";
+          };
 
-      const metrics: BannerInspectionMetricsV3 = {
-        detected,
-        cmp,
-        hasFirstLayerAccept: Boolean(acceptMatch),
-        hasFirstLayerReject: Boolean(rejectMatch),
-        hasSettingsEntry: Boolean(settingsMatch),
-        acceptAreaPx: areaOf(acceptMatch?.el ?? null),
-        rejectAreaPx: areaOf(rejectMatch?.el ?? null),
-        cookieWallDetected,
-        preTickedNonEssentialCount
-      };
+          const areaOf = (el: HTMLElement | null): number | null => {
+            if (!el) return null;
+            const r = el.getBoundingClientRect();
+            return Math.round(r.width * r.height);
+          };
 
-      return {
-        metrics,
-        clicked,
-        layer,
-        selector,
-        matchedText,
-        needsSecondLayer,
-        secondLayerSelectors: matchedRule?.secondLayerReject ?? []
-      };
-    },
-    { rules, mode }
-  );
+          const findFirst = (selectors: string[]): { el: HTMLElement; selector: string } | null => {
+            for (const sel of selectors) {
+              for (const el of queryAllRoots(sel)) {
+                if (isVisible(el)) return { el, selector: sel };
+              }
+            }
+            return null;
+          };
+
+          let cmp: string | null = null;
+          let acceptMatch: { el: HTMLElement; selector?: string; text?: string } | null = null;
+          let rejectMatch: { el: HTMLElement; selector?: string; text?: string } | null = null;
+          let settingsMatch: { el: HTMLElement; selector?: string; text?: string } | null = null;
+          let matchedRule: (typeof arg.rules)[number] | null = null;
+
+          for (const rule of arg.rules) {
+            const a = findFirst(rule.accept);
+            const r = findFirst(rule.reject);
+            const s = findFirst(rule.settings);
+            if (a || r || s) {
+              cmp = rule.cmp;
+              matchedRule = rule;
+              if (a) acceptMatch = a;
+              if (r) rejectMatch = r;
+              if (s) settingsMatch = s;
+              break;
+            }
+          }
+
+          // Generic fallback across visible buttons inside consent-like containers
+          if (!acceptMatch && !rejectMatch) {
+            const ACCEPT_RE = /^(accept all|accept cookies|allow all|agree|i agree|got it|accept|yes, i'm happy|i'm ok with that)$/i;
+            const REJECT_RE = /^(reject all|decline all|deny all|refuse all|reject|decline|necessary only|essential only)$/i;
+            const SETTINGS_RE = /^(cookie settings|manage preferences|manage cookies|manage my cookies|customize|preferences|options|settings)$/i;
+            const buttons = queryAllRoots("button, a[role='button'], input[type='button']").slice(0, 200);
+            for (const btn of buttons) {
+              if (!isVisible(btn)) continue;
+              const text = (btn.innerText || btn.getAttribute("aria-label") || "").trim();
+              if (!text || text.length > 48) continue;
+              const container =
+                btn.closest("[id*='cookie' i], [class*='cookie' i], [id*='consent' i], [class*='consent' i], [id*='sp_message' i], [role='dialog']") ??
+                (window.top !== window ? document.body : null);
+              const contextText = (container?.textContent || "").slice(0, 600);
+              if (!contextText || !/cookie|consent|privacy/i.test(contextText)) continue;
+              if (!acceptMatch && ACCEPT_RE.test(text)) acceptMatch = { el: btn, text };
+              else if (!rejectMatch && REJECT_RE.test(text)) rejectMatch = { el: btn, text };
+              else if (!settingsMatch && SETTINGS_RE.test(text)) settingsMatch = { el: btn, text };
+            }
+          }
+
+          const detected = Boolean(acceptMatch || rejectMatch || settingsMatch);
+          const bodyOverflowHidden =
+            window.top === window &&
+            window.getComputedStyle(document.body || document.documentElement).overflow === "hidden";
+          const cookieWallDetected = detected && bodyOverflowHidden;
+
+          let preTickedNonEssentialCount = 0;
+          if (detected) {
+            const checks = queryAllRoots("input[type='checkbox']:checked").slice(0, 40);
+            for (const cb of checks) {
+              if (!(cb instanceof HTMLInputElement) || cb.disabled) continue;
+              const label = (cb.closest("label")?.textContent || cb.getAttribute("aria-label") || "").toLowerCase();
+              if (/analytics|marketing|advertising|targeting|personalization|performance/.test(label)) {
+                preTickedNonEssentialCount += 1;
+              }
+            }
+          }
+
+          let clicked = false;
+          let layer: 1 | 2 | null = null;
+          let selector: string | undefined;
+          let matchedText: string | undefined;
+          let needsSecondLayer = false;
+
+          if (arg.mode === "accept-all" && acceptMatch) {
+            acceptMatch.el.click();
+            clicked = true;
+            layer = 1;
+            selector = acceptMatch.selector;
+            matchedText = acceptMatch.text;
+          } else if (arg.mode === "reject-all") {
+            if (rejectMatch) {
+              rejectMatch.el.click();
+              clicked = true;
+              layer = 1;
+              selector = rejectMatch.selector;
+              matchedText = rejectMatch.text;
+            } else if (settingsMatch) {
+              settingsMatch.el.click();
+              needsSecondLayer = true;
+            }
+          }
+
+          const metrics: BannerInspectionMetricsV3 = {
+            detected,
+            cmp,
+            hasFirstLayerAccept: Boolean(acceptMatch),
+            hasFirstLayerReject: Boolean(rejectMatch),
+            hasSettingsEntry: Boolean(settingsMatch),
+            acceptAreaPx: areaOf(acceptMatch?.el ?? null),
+            rejectAreaPx: areaOf(rejectMatch?.el ?? null),
+            cookieWallDetected,
+            preTickedNonEssentialCount
+          };
+
+          return {
+            metrics,
+            clicked,
+            layer,
+            selector,
+            matchedText,
+            needsSecondLayer,
+            secondLayerSelectors: matchedRule?.secondLayerReject ?? []
+          };
+        },
+        { rules, mode }
+      ),
+      4_000,
+      null
+    ).catch(() => null);
+
+    if (candidate?.metrics.detected) {
+      inspect = candidate;
+      activeFrame = frame;
+      break;
+    }
+    if (!inspect && candidate) {
+      inspect = candidate;
+      activeFrame = frame;
+    }
+  }
+
+  if (!inspect) return result;
 
   let secondLayerRejectFound = false;
   let finalClicked = inspect.clicked;
@@ -687,40 +798,55 @@ async function runConsentPhaseInPage(page: Page, mode: ConsentSummaryV3["mode"])
   let finalMatchedText = inspect.matchedText;
   if (inspect.needsSecondLayer && mode === "reject-all") {
     await sleep(500);
-    const second = await page.evaluate((selectors: string[]) => {
-      const isVisible = (el: Element | null): el is HTMLElement => {
-        if (!el || !(el instanceof HTMLElement)) return false;
-        const r = el.getBoundingClientRect();
-        return r.width >= 10 && r.height >= 10 && window.getComputedStyle(el).display !== "none";
-      };
-      let preTicked = 0;
-      for (const cb of Array.from(document.querySelectorAll("input[type='checkbox']:checked")).slice(0, 40)) {
-        if (!(cb instanceof HTMLInputElement) || cb.disabled) continue;
-        const label = (cb.closest("label")?.textContent || cb.getAttribute("aria-label") || "").toLowerCase();
-        if (/analytics|marketing|advertising|targeting|personalization|performance/.test(label)) {
-          preTicked += 1;
-        }
-      }
-      for (const sel of selectors) {
-        try {
-          const el = document.querySelector(sel);
-          if (isVisible(el)) {
-            el.click();
-            return { clicked: true, selector: sel, matchedText: undefined as string | undefined, preTicked };
+    const second = await withEvalTimeout(
+      activeFrame.evaluate((selectors: string[]) => {
+        const roots: Array<Document | ShadowRoot> = [document];
+        const ucRoot = document.querySelector("#usercentrics-root");
+        if (ucRoot && ucRoot.shadowRoot) roots.push(ucRoot.shadowRoot);
+        const queryAllRoots = (selector: string): Element[] => {
+          const found: Element[] = [];
+          for (const root of roots) {
+            try {
+              found.push(...Array.from(root.querySelectorAll(selector)));
+            } catch {}
           }
-        } catch {}
-      }
-      const REJECT_OR_SAVE = /^(reject all|refuse all|decline all|confirm my choices|save preferences|save settings|save & exit)$/i;
-      for (const btn of Array.from(document.querySelectorAll("button")).slice(0, 150)) {
-        if (!isVisible(btn)) continue;
-        const text = (btn.innerText || "").trim();
-        if (REJECT_OR_SAVE.test(text)) {
-          btn.click();
-          return { clicked: true, selector: undefined as string | undefined, matchedText: text, preTicked };
+          return found;
+        };
+        const isVisible = (el: Element | null): el is HTMLElement => {
+          if (!el || !(el instanceof HTMLElement)) return false;
+          const r = el.getBoundingClientRect();
+          return r.width >= 10 && r.height >= 10 && window.getComputedStyle(el).display !== "none";
+        };
+        let preTicked = 0;
+        for (const cb of queryAllRoots("input[type='checkbox']:checked").slice(0, 40)) {
+          if (!(cb instanceof HTMLInputElement) || cb.disabled) continue;
+          const label = (cb.closest("label")?.textContent || cb.getAttribute("aria-label") || "").toLowerCase();
+          if (/analytics|marketing|advertising|targeting|personalization|performance/.test(label)) {
+            preTicked += 1;
+          }
         }
-      }
-      return { clicked: false, selector: undefined, matchedText: undefined, preTicked };
-    }, inspect.secondLayerSelectors);
+        for (const sel of selectors) {
+          for (const el of queryAllRoots(sel)) {
+            if (isVisible(el)) {
+              el.click();
+              return { clicked: true, selector: sel, matchedText: undefined as string | undefined, preTicked };
+            }
+          }
+        }
+        const REJECT_OR_SAVE = /^(reject all|refuse all|decline all|confirm my choices|save preferences|save settings|save & exit)$/i;
+        for (const btn of queryAllRoots("button").slice(0, 150)) {
+          if (!isVisible(btn)) continue;
+          const text = (btn.innerText || "").trim();
+          if (REJECT_OR_SAVE.test(text)) {
+            btn.click();
+            return { clicked: true, selector: undefined as string | undefined, matchedText: text, preTicked };
+          }
+        }
+        return { clicked: false, selector: undefined, matchedText: undefined, preTicked };
+      }, inspect.secondLayerSelectors),
+      4_000,
+      { clicked: false, selector: undefined, matchedText: undefined, preTicked: 0 }
+    ).catch(() => ({ clicked: false, selector: undefined, matchedText: undefined, preTicked: 0 }));
 
     inspect.metrics.preTickedNonEssentialCount += second.preTicked;
     if (second.clicked) {
@@ -738,7 +864,8 @@ async function runConsentPhaseInPage(page: Page, mode: ConsentSummaryV3["mode"])
     clicked: finalClicked,
     layer: finalLayer,
     ...(finalSelector ? { selector: finalSelector } : {}),
-    ...(finalMatchedText ? { matchedText: finalMatchedText } : {})
+    ...(finalMatchedText ? { matchedText: finalMatchedText } : {}),
+    ...(activeFrame !== page.mainFrame() && activeFrame.url() ? { frameUrl: activeFrame.url() } : {})
   };
   return result;
 }
@@ -748,15 +875,19 @@ async function collectPolicyLinkCandidates(page: Page): Promise<PolicyLinkCandid
   for (const frame of page.frames()) {
     const isIframe = frame !== page.mainFrame();
     try {
-      const links = await frame.evaluate(() => {
-        const res: { href: string; text: string }[] = [];
-        for (const a of Array.from(document.querySelectorAll("a[href]")).slice(0, 400)) {
-          const anchor = a as HTMLAnchorElement;
-          const text = (anchor.innerText || anchor.getAttribute("aria-label") || "").trim().slice(0, 120);
-          if (anchor.href) res.push({ href: anchor.href, text });
-        }
-        return res;
-      });
+      const links = await withEvalTimeout(
+        frame.evaluate(() => {
+          const res: { href: string; text: string }[] = [];
+          for (const a of Array.from(document.querySelectorAll("a[href]")).slice(0, 400)) {
+            const anchor = a as HTMLAnchorElement;
+            const text = (anchor.innerText || anchor.getAttribute("aria-label") || "").trim().slice(0, 120);
+            if (anchor.href) res.push({ href: anchor.href, text });
+          }
+          return res;
+        }),
+        4_000,
+        []
+      );
       for (const l of links) out.push({ ...l, fromIframe: isIframe });
     } catch {
       // Skip inaccessible frame
@@ -775,10 +906,14 @@ async function fetchPolicyTextShared(
     try {
       const resp = await policyPage.goto(url, { waitUntil: "domcontentloaded", timeout: 10_000 });
       if (!resp || resp.status() >= 400) return null;
-      return await policyPage.evaluate(() => ({
-        text: (document.body?.innerText || "").slice(0, 250_000),
-        language: document.documentElement?.lang || null
-      }));
+      return await withEvalTimeout(
+        policyPage.evaluate(() => ({
+          text: (document.body?.innerText || "").slice(0, 250_000),
+          language: document.documentElement?.lang || null
+        })),
+        4_000,
+        null
+      );
     } catch {
       return null;
     } finally {
@@ -799,15 +934,26 @@ function wrapSharedCnameResolver(
   sharedCaches?: SharedArmCachesV3
 ): CnameResolverFnV3 | undefined {
   if (!sharedCaches) return resolver;
-  return async (host: string) => {
+  return (host: string) => {
     const key = host.toLowerCase();
     const existing = sharedCaches.cnameByHost.get(key);
     if (existing) return existing;
-    const { defaultResolveCnameChainV3 } = await import("../probes/cname-probe");
     const promise = (resolver ?? defaultResolveCnameChainV3)(key);
     sharedCaches.cnameByHost.set(key, promise);
     return promise;
   };
+}
+
+function withEvalTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  return Promise.race([
+    promise.finally(() => {
+      if (timer) clearTimeout(timer);
+    }),
+    new Promise<T>((resolve) => {
+      timer = setTimeout(() => resolve(fallback), ms);
+    })
+  ]);
 }
 
 function sleep(ms: number): Promise<void> {

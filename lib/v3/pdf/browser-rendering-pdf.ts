@@ -147,12 +147,27 @@ export function renderReportV3PrintHtml(report: ScanReportV3): string {
 </html>`;
 }
 
+const inFlightPdfRenders = new Map<string, Promise<RenderPdfResultV3>>();
+const PDF_RENDER_TIMEOUT_MS = 30_000;
+
+function isValidPdfBytes(bytes: Uint8Array): boolean {
+  return (
+    bytes.byteLength >= 5 &&
+    bytes[0] === 0x25 && // %
+    bytes[1] === 0x50 && // P
+    bytes[2] === 0x44 && // D
+    bytes[3] === 0x46 && // F
+    bytes[4] === 0x2d // -
+  );
+}
+
 /**
  * Render (or retrieve cached) PDF bytes for a `ScanReportV3`.
  * Order of execution:
  *  1. R2 cache (`v3/pdfs/{reportId}.pdf`) -> instant O(1) hit
- *  2. Cloudflare Browser Rendering `/browser-rendering/pdf` REST API -> offloads Chromium off container
- *  3. Optional `localHtmlToPdf` fallback for standalone self-hosting
+ *  2. Single-flight deduplication across concurrent requests for the same reportId
+ *  3. Cloudflare Browser Rendering `/browser-rendering/pdf` REST API -> offloads Chromium off container
+ *  4. Optional `localHtmlToPdf` fallback for standalone self-hosting
  */
 export async function renderReportV3Pdf(
   report: ScanReportV3,
@@ -162,54 +177,75 @@ export async function renderReportV3Pdf(
 
   if (options.cacheStore) {
     const cached = await options.cacheStore.getBinary(cacheKey);
-    if (cached && cached.byteLength > 0) {
+    if (cached && isValidPdfBytes(cached)) {
       return { pdf: cached, source: "r2-cache" };
     }
   }
 
-  const html = renderReportV3PrintHtml(report);
+  const inflight = inFlightPdfRenders.get(cacheKey);
+  if (inflight) return inflight;
 
-  if (options.cloudflareBrowserRendering) {
-    const cfg = options.cloudflareBrowserRendering;
-    const base = (cfg.endpointBase ?? "https://api.cloudflare.com/client/v4").replace(/\/+$/, "");
-    const url = `${base}/accounts/${encodeURIComponent(cfg.accountId)}/browser-rendering/pdf`;
-    const fetchFn = options.fetchImpl ?? fetch;
+  const task = (async (): Promise<RenderPdfResultV3> => {
+    const html = renderReportV3PrintHtml(report);
 
-    const resp = await fetchFn(url, {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${cfg.apiToken}`,
-        "content-type": "application/json"
-      },
-      body: JSON.stringify({
-        html,
-        pdfOptions: {
-          format: "a4",
-          printBackground: true,
-          preferCSSPageSize: true
-        }
-      })
-    });
+    if (options.cloudflareBrowserRendering) {
+      const cfg = options.cloudflareBrowserRendering;
+      const base = (cfg.endpointBase ?? "https://api.cloudflare.com/client/v4").replace(/\/+$/, "");
+      const url = `${base}/accounts/${encodeURIComponent(cfg.accountId)}/browser-rendering/pdf`;
+      const fetchFn = options.fetchImpl ?? fetch;
 
-    if (!resp.ok) {
-      throw new Error(`Cloudflare Browser Rendering PDF failed with HTTP ${resp.status}`);
+      const resp = await fetchFn(url, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${cfg.apiToken}`,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          html,
+          pdfOptions: {
+            format: "a4",
+            printBackground: true,
+            preferCSSPageSize: true
+          }
+        }),
+        signal: AbortSignal.timeout(PDF_RENDER_TIMEOUT_MS)
+      });
+
+      if (!resp.ok) {
+        await resp.body?.cancel().catch(() => {});
+        throw new Error(`Cloudflare Browser Rendering PDF failed with HTTP ${resp.status}`);
+      }
+      const contentType = (resp.headers.get("content-type") ?? "").toLowerCase();
+      const pdf = new Uint8Array(await resp.arrayBuffer());
+      if ((contentType && !contentType.includes("application/pdf")) || !isValidPdfBytes(pdf)) {
+        throw new Error("Cloudflare Browser Rendering returned an invalid non-PDF payload");
+      }
+      if (options.cacheStore) {
+        await options.cacheStore.putBinary(cacheKey, pdf, "application/pdf").catch(() => {});
+      }
+      return { pdf, source: "cloudflare-browser-rendering" };
     }
-    const pdf = new Uint8Array(await resp.arrayBuffer());
-    if (options.cacheStore) {
-      await options.cacheStore.putBinary(cacheKey, pdf, "application/pdf").catch(() => {});
+
+    if (options.localHtmlToPdf) {
+      const pdf = await options.localHtmlToPdf(html);
+      if (!isValidPdfBytes(pdf)) {
+        throw new Error("Local PDF renderer returned an invalid non-PDF payload");
+      }
+      if (options.cacheStore) {
+        await options.cacheStore.putBinary(cacheKey, pdf, "application/pdf").catch(() => {});
+      }
+      return { pdf, source: "local-fallback" };
     }
-    return { pdf, source: "cloudflare-browser-rendering" };
+
+    throw new Error("No PDF renderer configured (configure Cloudflare Browser Rendering or localHtmlToPdf fallback)");
+  })();
+
+  inFlightPdfRenders.set(cacheKey, task);
+  try {
+    return await task;
+  } finally {
+    inFlightPdfRenders.delete(cacheKey);
   }
-
-  if (options.localHtmlToPdf) {
-    const pdf = await options.localHtmlToPdf(html);
-    if (options.cacheStore) {
-      await options.cacheStore.putBinary(cacheKey, pdf, "application/pdf").catch(() => {});
-    }
-    return { pdf, source: "local-fallback" };
-  }
-
-  throw new Error("No PDF renderer configured (configure Cloudflare Browser Rendering or localHtmlToPdf fallback)");
 }
 
 function esc(value: string): string {

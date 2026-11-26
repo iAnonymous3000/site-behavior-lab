@@ -88,6 +88,8 @@ export type ComparisonModeFlags = {
   compareConsent?: unknown;
   /** "scroll" asks for the after-scrolling check (lib/scroll-check-request.ts). */
   check?: unknown;
+  /** Optional v3 concurrent comparison axes array (`POST /api/v3/scan`). */
+  comparisons?: unknown;
 };
 
 /**
@@ -107,7 +109,8 @@ export function comparisonModeCount(payload: ComparisonModeFlags): number {
  * two never price a request differently.
  */
 export function scanTokenCost(payload: ComparisonModeFlags): 1 | 2 {
-  return comparisonModeCount(payload) > 0 || payload.check === SCROLL_CHECK_REQUEST_VALUE ? 2 : 1;
+  const hasV3Comparisons = Array.isArray(payload.comparisons) && payload.comparisons.length > 0;
+  return comparisonModeCount(payload) > 0 || payload.check === SCROLL_CHECK_REQUEST_VALUE || hasV3Comparisons ? 2 : 1;
 }
 
 /** The one public sentence for a body naming more than one comparison axis. */

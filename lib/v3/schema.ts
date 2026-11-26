@@ -554,7 +554,11 @@ export function validateScanReportV3(value: unknown): string[] {
   if (typeof report.scannedAt !== "string" || Number.isNaN(Date.parse(report.scannedAt))) {
     issues.push("scannedAt must be a valid ISO timestamp");
   }
-  if (typeof report.canonicalDomain !== "string" || !report.canonicalDomain.includes(".")) {
+  if (
+    typeof report.canonicalDomain !== "string" ||
+    !/^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])$/i.test(report.canonicalDomain) ||
+    !report.canonicalDomain.includes(".")
+  ) {
     issues.push("canonicalDomain must be a valid domain");
   }
   if (!report.provenance || report.provenance.schemaVersion !== SCAN_REPORT_V3_SCHEMA_VERSION) {
@@ -615,3 +619,121 @@ function validateArm(arm: Partial<ScanArmV3>, prefix: string): string[] {
   if (!arm.summary || typeof arm.summary !== "object") issues.push(`${prefix}.summary is required`);
   return issues;
 }
+
+// ---------------------------------------------------------------------------
+// Pure client-safe read-model & regional types (shared by UI and server)
+// ---------------------------------------------------------------------------
+
+export type ScanRegionIdV3 = "auto" | "us-east" | "eu-central" | "ap-northeast";
+
+export type IndexedReportVisibilityV3 = "public" | "unlisted" | "corpus";
+
+export type IndexedReportRowV3 = {
+  reportId: string;
+  canonicalDomain: string;
+  finalUrl: string;
+  scannedAt: string;
+  visibility: IndexedReportVisibilityV3;
+  egressRegion: string;
+  device: string;
+  loadOutcome: string;
+  httpStatus: number | null;
+  totalRequests: number;
+  thirdPartyRequests: number;
+  thirdPartyDomains: number;
+  trackingRequests: number;
+  shieldsBlockedStandard: number;
+  shieldsBlockedAggressive: number;
+  distinctEntities: number;
+  distinctParentOrgs: number;
+  cookiesTotal: number;
+  thirdPartyCookies: number;
+  longLivedCookies: number;
+  partitionedCookies: number;
+  storageKeysTotal: number;
+  websocketsTotal: number;
+  serviceWorkersTotal: number;
+  beaconPlatforms: number;
+  serverSideTaggingEndpoints: number;
+  cnameCloaksCount: number;
+  fingerprintKindsCount: number;
+  keystrokeLeaksCount: number;
+  darkPatternScore: number;
+  topHighlight: string | null;
+  r2Key: string;
+  reportDigest: string;
+  expiresAt: string | null;
+};
+
+export type EntityFootprintResultV3 = {
+  name: string;
+  totalSites: number;
+  corpusSites: number;
+  prevalencePct: number;
+  sites: {
+    canonicalDomain: string;
+    reportId: string;
+    scannedAt: string;
+    category: string;
+    requestCount: number;
+    domainCount: number;
+  }[];
+};
+
+export type CorpusOverviewStatsV3 = {
+  totalReports: number;
+  distinctSites: number;
+  medianThirdPartyDomains: number;
+  sitesWithKeystrokeLeaks: number;
+  sitesWithCnameCloaks: number;
+  sitesWithServerSideTagging: number;
+  sitesWithFingerprinting: number;
+  sitesWithDarkPatterns: number;
+  topEntities: { entity: string; parentOrg: string; category: string; siteCount: number }[];
+  topParentOrgs: { parentOrg: string; siteCount: number }[];
+};
+
+export type WatchRegressionKindV3 =
+  | "new-keystroke-leak"
+  | "new-cname-cloak"
+  | "new-server-side-tagging"
+  | "new-beacon-identifiers"
+  | "new-fingerprint-signal"
+  | "new-tracking-entities"
+  | "third-party-domain-spike"
+  | "dark-pattern-regression"
+  | "policy-disclosure-regression";
+
+export type WatchRegressionAlertV3 = {
+  kind: WatchRegressionKindV3;
+  severity: "critical" | "high" | "medium";
+  title: string;
+  detail: string;
+};
+
+export type TemporalReportDiffV3 = {
+  previousReportId: string;
+  currentReportId: string;
+  previousScannedAt: string;
+  currentScannedAt: string;
+  canonicalDomain: string;
+  metrics: {
+    totalRequestsDelta: number;
+    thirdPartyRequestsDelta: number;
+    thirdPartyDomainsDelta: number;
+    cookiesDelta: number;
+    longLivedCookiesDelta: number;
+    darkPatternScoreDelta: number;
+    keystrokeLeaksDelta: number;
+    cnameCloaksDelta: number;
+    fingerprintKindsDelta: number;
+  };
+  entitiesAdded: string[];
+  entitiesRemoved: string[];
+  beaconsAdded: string[];
+  beaconsRemoved: string[];
+  fingerprintsAdded: string[];
+  fingerprintsRemoved: string[];
+  regressions: WatchRegressionAlertV3[];
+  improvements: string[];
+};

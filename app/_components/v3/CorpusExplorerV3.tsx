@@ -3,9 +3,14 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import styles from "@/app/v3/v3.module.css";
-import type { ComparisonAxisV3, ScanDeviceV3, ScanReportV3 } from "@/lib/v3/schema";
-import type { CorpusOverviewStatsV3, IndexedReportRowV3 } from "@/lib/v3/storage/report-index";
-import type { ScanRegionIdV3 } from "@/lib/v3/runtime/worker-dispatch";
+import type {
+  ComparisonAxisV3,
+  CorpusOverviewStatsV3,
+  IndexedReportRowV3,
+  ScanDeviceV3,
+  ScanRegionIdV3,
+  ScanReportV3
+} from "@/lib/v3/schema";
 import { ReportViewV3 } from "./ReportViewV3";
 
 export function CorpusExplorerV3() {
@@ -23,6 +28,7 @@ export function CorpusExplorerV3() {
   const [items, setItems] = useState<IndexedReportRowV3[]>([]);
   const [total, setTotal] = useState(0);
   const [loadingCorpus, setLoadingCorpus] = useState(true);
+  const [corpusError, setCorpusError] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [entity, setEntity] = useState("");
   const [parentOrg, setParentOrg] = useState("");
@@ -33,43 +39,67 @@ export function CorpusExplorerV3() {
   const [hasFp, setHasFp] = useState(false);
   const [highDarkPattern, setHighDarkPattern] = useState(false);
 
-  const loadCorpus = useCallback(async () => {
-    setLoadingCorpus(true);
+  const loadStats = useCallback(async (signal?: AbortSignal) => {
     try {
-      const qs = new URLSearchParams();
-      if (q.trim()) qs.set("q", q.trim());
-      if (entity.trim()) qs.set("entity", entity.trim());
-      if (parentOrg.trim()) qs.set("parentOrg", parentOrg.trim());
-      if (sort) qs.set("sort", sort);
-      if (hasKeystrokes) qs.set("keystrokes", "1");
-      if (hasCname) qs.set("cname", "1");
-      if (hasSgtm) qs.set("sgtm", "1");
-      if (hasFp) qs.set("fingerprinting", "1");
-      if (highDarkPattern) qs.set("minDarkPatternScore", "35");
-
-      const [statsResp, listResp] = await Promise.all([
-        fetch("/api/v3/corpus?view=stats"),
-        fetch(`/api/v3/corpus?${qs.toString()}`)
-      ]);
-      if (statsResp.ok) {
-        const d = (await statsResp.json()) as { stats?: CorpusOverviewStatsV3 };
+      const resp = await fetch("/api/v3/corpus?view=stats", { signal });
+      if (resp.ok) {
+        const d = (await resp.json()) as { stats?: CorpusOverviewStatsV3 };
         if (d.stats) setStats(d.stats);
       }
-      if (listResp.ok) {
+    } catch {}
+  }, []);
+
+  const loadCorpusList = useCallback(
+    async (signal?: AbortSignal) => {
+      setLoadingCorpus(true);
+      setCorpusError(null);
+      try {
+        const qs = new URLSearchParams();
+        if (q.trim()) qs.set("q", q.trim());
+        if (entity.trim()) qs.set("entity", entity.trim());
+        if (parentOrg.trim()) qs.set("parentOrg", parentOrg.trim());
+        if (sort) qs.set("sort", sort);
+        if (hasKeystrokes) qs.set("keystrokes", "1");
+        if (hasCname) qs.set("cname", "1");
+        if (hasSgtm) qs.set("sgtm", "1");
+        if (hasFp) qs.set("fingerprinting", "1");
+        if (highDarkPattern) qs.set("minDarkPatternScore", "35");
+
+        const listResp = await fetch(`/api/v3/corpus?${qs.toString()}`, { signal });
+        if (!listResp.ok) {
+          setCorpusError(`Corpus query failed (HTTP ${listResp.status}).`);
+          return;
+        }
         const d = (await listResp.json()) as { items?: IndexedReportRowV3[]; total?: number };
         setItems(d.items ?? []);
         setTotal(d.total ?? 0);
+      } catch (err) {
+        if (!(err instanceof DOMException && err.name === "AbortError")) {
+          setCorpusError("Corpus index API is unavailable on this surface.");
+        }
+      } finally {
+        if (!signal?.aborted) setLoadingCorpus(false);
       }
-    } catch {
-      // Static Pages builds without an active API will show empty state gracefully.
-    } finally {
-      setLoadingCorpus(false);
-    }
-  }, [q, entity, parentOrg, sort, hasKeystrokes, hasCname, hasSgtm, hasFp, highDarkPattern]);
+    },
+    [q, entity, parentOrg, sort, hasKeystrokes, hasCname, hasSgtm, hasFp, highDarkPattern]
+  );
 
   useEffect(() => {
-    void loadCorpus();
-  }, [loadCorpus]);
+    const controller = new AbortController();
+    void loadStats(controller.signal);
+    return () => controller.abort();
+  }, [loadStats]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      void loadCorpusList(controller.signal);
+    }, 200);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [loadCorpusList]);
 
   function toggleComparison(axis: ComparisonAxisV3) {
     setComparisons((prev) =>
@@ -104,7 +134,8 @@ export function CorpusExplorerV3() {
         return;
       }
       setLiveResult({ report: data.report, sharePath: data.sharePath ?? `/v3/reports/${data.report.reportId}` });
-      void loadCorpus();
+      void loadStats();
+      void loadCorpusList();
     } catch (err) {
       setScanError(err instanceof Error ? err.message : "Network error submitting v3 scan");
     } finally {
@@ -201,7 +232,7 @@ export function CorpusExplorerV3() {
               Open Permalink
             </Link>
           </div>
-          <ReportViewV3 report={liveResult.report} />
+          <ReportViewV3 key={liveResult.report.reportId} report={liveResult.report} />
         </div>
       )}
 
@@ -303,6 +334,11 @@ export function CorpusExplorerV3() {
         </div>
 
         <div className={styles.tableWrap} style={{ marginTop: 14 }}>
+          {corpusError && (
+            <div className={`${styles.highlightItem} ${styles.hlHigh}`} style={{ marginBottom: 12 }}>
+              {corpusError}
+            </div>
+          )}
           {loadingCorpus ? (
             <div className={styles.emptyState}>Querying D1/SQLite corpus index...</div>
           ) : items.length === 0 ? (

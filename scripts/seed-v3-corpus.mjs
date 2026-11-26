@@ -55,13 +55,15 @@ async function main() {
     const raw = JSON.parse(await readFile(path.join(ROOT, "public/featured-sites.json"), "utf8"));
     const entries = Array.isArray(raw.sites) ? raw.sites : [];
     for (const entry of entries) {
+      if (entry?.scanAvailability?.status === "temporarily-unavailable") continue;
       if (typeof entry?.url === "string") targets.push(entry.url);
       if (targets.length >= opts.limit) break;
     }
   }
 
   // Compile TypeScript sources once into .unit-test-dist so Node executes the exact v3 scanner.
-  execFileSync(path.join(ROOT, "node_modules/.bin/tsc"), ["-p", "tsconfig.test.json"], {
+  const tscBin = path.join(ROOT, "node_modules", ".bin", process.platform === "win32" ? "tsc.cmd" : "tsc");
+  execFileSync(tscBin, ["-p", "tsconfig.test.json"], {
     cwd: ROOT,
     stdio: "inherit"
   });

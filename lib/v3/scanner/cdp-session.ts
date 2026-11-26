@@ -43,7 +43,11 @@ import type {
 
 export const MAX_V3_REQUESTS = 1_500;
 export const MAX_V3_WEBSOCKETS = 64;
+export const MAX_V3_COOKIES = 500;
+export const MAX_V3_STORAGE = 1_000;
 const MAX_TRANSIENT_BODY_CHARS = 64_000;
+const MAX_TOTAL_POST_DATA_BYTES = 12 * 1024 * 1024;
+const FRAME_EVAL_TIMEOUT_MS = 5_000;
 
 type AdblockEngineArg = Parameters<typeof checkAdblockDetailed>[0];
 
@@ -109,28 +113,34 @@ export type CollectedStorageAndCookiesV3 = {
   storage: StorageRecordV3[];
   fingerprintEvents: RawFingerprintEventV3[];
   droppedFingerprintEvents: number;
+  omittedCookies: number;
+  omittedStorage: number;
 };
 
 export class CdpSessionCollectorV3 {
   private readonly page: Page;
   private readonly context: BrowserContext;
-  private readonly firstPartyHost: string;
-  private readonly firstPartyReg: string;
+  private firstPartyHost: string;
+  private firstPartyReg: string;
   private readonly shieldsMode: ShieldsModeV3;
   private readonly adblockEngine: AdblockEngineArg;
   private readonly startedAtEpochMs: number;
 
   private cdp: CDPSession | null = null;
   private currentPhase: ScanPhaseName = "passive-load";
+  private mainFrameId: string | null = null;
   private nextRequestSeq = 1;
   private nextWsSeq = 1;
   private omittedRequests = 0;
+  private omittedWebSockets = 0;
+  private retainedPostDataBytes = 0;
 
   private readonly requestsByCdpId = new Map<string, MutableRequest>();
   private readonly orderedRequests: MutableRequest[] = [];
   private readonly blockedUrlSet = new Set<string>();
   private readonly websocketsById = new Map<string, MutableWebSocket>();
   private readonly wsKeystrokeCandidates: KeystrokePayloadCandidateV3[] = [];
+  private readonly swScopeByRegistrationId = new Map<string, string>();
   private readonly serviceWorkers = new Map<string, ServiceWorkerRecordV3>();
   private readonly attachedWorkers = new Map<string, AttachedWorkerSession>();
   private readonly workerTelemetry: RawFingerprintEventV3[] = [];
@@ -145,16 +155,41 @@ export class CdpSessionCollectorV3 {
     this.startedAtEpochMs = options.startedAtEpochMs;
   }
 
+  /** Recompute first-party classification when initial navigation redirects to a new domain. */
+  updateFirstPartyHost(newHost: string): void {
+    const normalized = newHost.toLowerCase();
+    const newReg = partyKey(normalized).toLowerCase();
+    if (!newReg || newReg === this.firstPartyReg) return;
+    this.firstPartyHost = normalized;
+    this.firstPartyReg = newReg;
+    for (const req of this.orderedRequests) {
+      req.thirdParty = req.registrableDomain !== this.firstPartyReg;
+    }
+    for (const ws of this.websocketsById.values()) {
+      ws.thirdParty = ws.registrableDomain !== this.firstPartyReg;
+    }
+    for (const cand of this.wsKeystrokeCandidates) {
+      cand.thirdParty = cand.registrableDomain !== this.firstPartyReg;
+    }
+  }
+
   setPhase(phase: ScanPhaseName): void {
     this.currentPhase = phase;
   }
 
   markRouteBlocked(url: string): void {
     this.blockedUrlSet.add(url);
+    for (const req of this.orderedRequests) {
+      if (req.rawUrl === url) req.blockedByRoute = true;
+    }
   }
 
   getOmittedRequestCount(): number {
     return this.omittedRequests;
+  }
+
+  getOmittedWebSocketCount(): number {
+    return this.omittedWebSockets;
   }
 
   async attach(): Promise<boolean> {
@@ -231,9 +266,11 @@ export class CdpSessionCollectorV3 {
       this.onLoadingFinished(params as Record<string, unknown>);
     });
     cdp.on("Network.loadingFailed", (params) => {
+      // Do NOT blindly attribute CORS/CSP/ORB network failures to Brave Shields;
+      // only mark Shields blocks when explicitly aborted by our Shields route handler.
       const id = String(params.requestId ?? "");
       const entry = this.requestsByCdpId.get(id);
-      if (entry && params.blockedReason) {
+      if (entry && this.shieldsMode !== "off" && this.blockedUrlSet.has(entry.rawUrl)) {
         entry.blockedByRoute = true;
       }
     });
@@ -254,7 +291,17 @@ export class CdpSessionCollectorV3 {
       if (ws) ws.closedAtMs = Math.max(0, Date.now() - this.startedAtEpochMs);
     });
 
-    // 4. Service Workers
+    // 4. Service Workers (capture true scopeURL from registrations)
+    cdp.on("ServiceWorker.workerRegistrationUpdated", (params) => {
+      const regs = Array.isArray(params.registrations) ? params.registrations : [];
+      for (const reg of regs) {
+        const rec = reg as unknown as Record<string, unknown>;
+        if (typeof rec.registrationId === "string" && typeof rec.scopeURL === "string") {
+          this.swScopeByRegistrationId.set(rec.registrationId, rec.scopeURL);
+        }
+      }
+    });
+
     cdp.on("ServiceWorker.workerVersionUpdated", (params) => {
       const versions = Array.isArray(params.versions) ? params.versions : [];
       for (const v of versions) {
@@ -263,10 +310,11 @@ export class CdpSessionCollectorV3 {
         if (!scriptUrl) continue;
         const host = safeHostname(scriptUrl);
         if (!host) continue;
-        const scope = typeof rec.registrationId === "string" ? scriptUrl : scriptUrl;
+        const regId = typeof rec.registrationId === "string" ? rec.registrationId : "";
+        const scope = (regId && this.swScopeByRegistrationId.get(regId)) || new URL("./", scriptUrl).toString();
         const existing = this.serviceWorkers.get(scriptUrl);
         this.serviceWorkers.set(scriptUrl, {
-          scope: existing?.scope ?? scope,
+          scope,
           scriptUrl,
           domain: host,
           state: typeof rec.status === "string" ? rec.status : "unknown",
@@ -324,10 +372,21 @@ export class CdpSessionCollectorV3 {
     if (!host) return;
     const reg = partyKey(host).toLowerCase();
     const headers = normalizeHeaderMap(req?.headers);
-    const rawPostData =
-      typeof req?.postData === "string"
-        ? req.postData.slice(0, MAX_TRANSIENT_BODY_CHARS)
-        : null;
+    const frameId = typeof params.frameId === "string" ? params.frameId : undefined;
+    const resourceType = normalizeCdpResourceType(typeof params.type === "string" ? params.type : "other");
+    if (!this.mainFrameId && resourceType === "document" && frameId) {
+      this.mainFrameId = frameId;
+    }
+
+    let rawPostData: string | null = null;
+    if (typeof req?.postData === "string" && this.retainedPostDataBytes < MAX_TOTAL_POST_DATA_BYTES) {
+      const clipped = req.postData.slice(0, MAX_TRANSIENT_BODY_CHARS);
+      const byteLen = Buffer.byteLength(clipped, "utf8");
+      if (this.retainedPostDataBytes + byteLen <= MAX_TOTAL_POST_DATA_BYTES) {
+        rawPostData = clipped;
+        this.retainedPostDataBytes += byteLen;
+      }
+    }
 
     const record: MutableRequest = {
       id: this.nextRequestSeq++,
@@ -337,7 +396,7 @@ export class CdpSessionCollectorV3 {
       domain: host,
       registrableDomain: reg,
       method: typeof req?.method === "string" ? req.method.toUpperCase() : "GET",
-      resourceType: normalizeCdpResourceType(typeof params.type === "string" ? params.type : "other"),
+      resourceType,
       status: null,
       thirdParty: reg !== this.firstPartyReg,
       protocol: null,
@@ -348,11 +407,11 @@ export class CdpSessionCollectorV3 {
       redirectChain: [],
       responseHeaders: {},
       requestHeaders: extractAllowlistedRequestHeaders(headers),
-      initiator: parseInitiator(params.initiator, typeof params.frameId === "string" ? params.frameId : undefined),
+      initiator: parseInitiator(params.initiator, frameId),
       rawPostData,
       rawContentType: headers["content-type"] ?? null,
       rawContentEncoding: headers["content-encoding"] ?? null,
-      blockedByRoute: this.blockedUrlSet.has(rawUrl)
+      blockedByRoute: this.shieldsMode !== "off" && this.blockedUrlSet.has(rawUrl)
     };
 
     this.requestsByCdpId.set(requestId, record);
@@ -379,10 +438,13 @@ export class CdpSessionCollectorV3 {
     if (typeof resp.status === "number") entry.status = resp.status;
     if (typeof resp.protocol === "string") entry.protocol = resp.protocol;
     if (resp.fromServiceWorker === true) {
+      let bestSw: ServiceWorkerRecordV3 | null = null;
       for (const sw of this.serviceWorkers.values()) {
-        sw.interceptedRequests += 1;
-        break;
+        if (entry.rawUrl.startsWith(sw.scope)) {
+          if (!bestSw || sw.scope.length > bestSw.scope.length) bestSw = sw;
+        }
       }
+      if (bestSw) bestSw.interceptedRequests += 1;
     }
     const headers = normalizeHeaderMap(resp.headers);
     entry.responseHeaders = {
@@ -415,7 +477,10 @@ export class CdpSessionCollectorV3 {
   }
 
   private onWebSocketCreated(params: Record<string, unknown>): void {
-    if (this.websocketsById.size >= MAX_V3_WEBSOCKETS) return;
+    if (this.websocketsById.size >= MAX_V3_WEBSOCKETS) {
+      this.omittedWebSockets += 1;
+      return;
+    }
     const id = String(params.requestId ?? "");
     const rawUrl = typeof params.url === "string" ? params.url : "";
     const host = safeHostname(rawUrl);
@@ -467,7 +532,8 @@ export class CdpSessionCollectorV3 {
   /** Produce finalized NetworkRequestV3[] with Shields BlockerResult + Entity attribution. */
   buildNetworkRequests(sourcePageUrl: string): NetworkRequestV3[] {
     return this.orderedRequests.map((entry) => {
-      const adblockType = mapRequestType(entry.resourceType);
+      const subFrame = Boolean(this.mainFrameId && entry.initiator?.frameId && entry.initiator.frameId !== this.mainFrameId);
+      const adblockType = mapRequestType(entry.resourceType, { subFrame });
       const shieldsResult = checkAdblockDetailed(
         this.adblockEngine,
         entry.rawUrl,
@@ -476,7 +542,7 @@ export class CdpSessionCollectorV3 {
         entry.method
       );
       const blocked =
-        entry.blockedByRoute ||
+        (this.shieldsMode !== "off" && entry.blockedByRoute) ||
         (this.shieldsMode === "standard" && shieldsResult.shouldBlockStandard) ||
         (this.shieldsMode === "aggressive" && shieldsResult.shouldBlockAggressive);
       const entity = attributeDomainV3(entry.domain, {
@@ -577,7 +643,16 @@ export class CdpSessionCollectorV3 {
     const jsCookieNames = new Set<string>();
     let droppedFingerprintEvents = 0;
     const storage: StorageRecordV3[] = [];
+    let omittedStorage = 0;
     const frameOrigins = new Set<string>();
+
+    const pushStorage = (rec: StorageRecordV3) => {
+      if (storage.length >= MAX_V3_STORAGE) {
+        omittedStorage += 1;
+        return;
+      }
+      storage.push(rec);
+    };
 
     // 1. Read frame telemetry + localStorage/sessionStorage across main frame + accessible iframes
     for (const frame of this.page.frames()) {
@@ -598,43 +673,48 @@ export class CdpSessionCollectorV3 {
       const entity = attributeDomainV3(host, { registrableDomain: reg });
 
       try {
-        const snapshot = await frame.evaluate(
-          (key: string) => {
-            const fp = (globalThis as Record<string, unknown>)[key] as RawFingerprintSnapshotV3 | undefined;
-            const local: { key: string; bytes: number }[] = [];
-            const session: { key: string; bytes: number }[] = [];
-            try {
-              for (let i = 0; i < Math.min(window.localStorage.length, 200); i++) {
-                const k = window.localStorage.key(i);
-                if (k !== null) {
-                  const v = window.localStorage.getItem(k) ?? "";
-                  local.push({ key: k, bytes: v.length });
+        const snapshot = await raceTimeout(
+          frame.evaluate(
+            (key: string) => {
+              const fp = (globalThis as Record<string, unknown>)[key] as RawFingerprintSnapshotV3 | undefined;
+              const local: { key: string; bytes: number }[] = [];
+              const session: { key: string; bytes: number }[] = [];
+              try {
+                for (let i = 0; i < Math.min(window.localStorage.length, 200); i++) {
+                  const k = window.localStorage.key(i);
+                  if (k !== null) {
+                    const v = window.localStorage.getItem(k) ?? "";
+                    local.push({ key: k, bytes: v.length });
+                  }
                 }
-              }
-            } catch {}
-            try {
-              for (let i = 0; i < Math.min(window.sessionStorage.length, 200); i++) {
-                const k = window.sessionStorage.key(i);
-                if (k !== null) {
-                  const v = window.sessionStorage.getItem(k) ?? "";
-                  session.push({ key: k, bytes: v.length });
+              } catch {}
+              try {
+                for (let i = 0; i < Math.min(window.sessionStorage.length, 200); i++) {
+                  const k = window.sessionStorage.key(i);
+                  if (k !== null) {
+                    const v = window.sessionStorage.getItem(k) ?? "";
+                    session.push({ key: k, bytes: v.length });
+                  }
                 }
-              }
-            } catch {}
-            return {
-              fp: fp ?? { events: [], jsCookieNames: [], droppedEvents: 0 },
-              local,
-              session
-            };
-          },
-          FINGERPRINT_V3_GLOBAL_KEY
+              } catch {}
+              return {
+                fp: fp ?? { events: [], jsCookieNames: [], droppedEvents: 0 },
+                local,
+                session
+              };
+            },
+            FINGERPRINT_V3_GLOBAL_KEY
+          ),
+          FRAME_EVAL_TIMEOUT_MS,
+          null
         );
+        if (!snapshot) continue;
 
         fingerprintEvents.push(...snapshot.fp.events);
         droppedFingerprintEvents += snapshot.fp.droppedEvents;
         for (const name of snapshot.fp.jsCookieNames) jsCookieNames.add(name);
         for (const item of snapshot.local) {
-          storage.push({
+          pushStorage({
             origin,
             domain: host,
             thirdParty,
@@ -646,7 +726,7 @@ export class CdpSessionCollectorV3 {
           });
         }
         for (const item of snapshot.session) {
-          storage.push({
+          pushStorage({
             origin,
             domain: host,
             thirdParty,
@@ -662,6 +742,24 @@ export class CdpSessionCollectorV3 {
       }
     }
 
+    // 1b. Read dedicated worker fingerprint telemetry via Playwright's worker API
+    for (const worker of this.page.workers()) {
+      try {
+        const wSnap = await raceTimeout(
+          worker.evaluate(
+            (key: string) => (globalThis as Record<string, unknown>)[key] as RawFingerprintSnapshotV3 | undefined,
+            FINGERPRINT_V3_GLOBAL_KEY
+          ),
+          2_000,
+          undefined
+        );
+        if (wSnap?.events?.length) {
+          fingerprintEvents.push(...wSnap.events);
+          droppedFingerprintEvents += wSnap.droppedEvents ?? 0;
+        }
+      } catch {}
+    }
+
     // 2. Collect IndexedDB + CacheStorage names via CDP across all observed frame origins
     if (this.cdp) {
       for (const origin of frameOrigins) {
@@ -672,11 +770,15 @@ export class CdpSessionCollectorV3 {
         const entity = attributeDomainV3(host, { registrableDomain: reg });
 
         try {
-          const idb = (await this.cdp.send("IndexedDB.requestDatabaseNames", { securityOrigin: origin })) as {
-            databaseNames?: string[];
-          };
-          for (const dbName of (idb.databaseNames ?? []).slice(0, 50)) {
-            storage.push({
+          const idb = await raceTimeout(
+            this.cdp.send("IndexedDB.requestDatabaseNames", { securityOrigin: origin }) as Promise<{
+              databaseNames?: string[];
+            }>,
+            2_500,
+            null
+          );
+          for (const dbName of (idb?.databaseNames ?? []).slice(0, 50)) {
+            pushStorage({
               origin,
               domain: host,
               thirdParty,
@@ -692,12 +794,16 @@ export class CdpSessionCollectorV3 {
         }
 
         try {
-          const caches = (await this.cdp.send("CacheStorage.requestCacheNames", { securityOrigin: origin })) as {
-            caches?: { cacheName?: string }[];
-          };
-          for (const cache of (caches.caches ?? []).slice(0, 50)) {
+          const caches = await raceTimeout(
+            this.cdp.send("CacheStorage.requestCacheNames", { securityOrigin: origin }) as Promise<{
+              caches?: { cacheName?: string }[];
+            }>,
+            2_500,
+            null
+          );
+          for (const cache of (caches?.caches ?? []).slice(0, 50)) {
             if (!cache.cacheName) continue;
-            storage.push({
+            pushStorage({
               origin,
               domain: host,
               thirdParty,
@@ -750,7 +856,8 @@ export class CdpSessionCollectorV3 {
       }
     }
 
-    for (const raw of cdpCookies.slice(0, 500)) {
+    const omittedCookies = Math.max(0, cdpCookies.length - MAX_V3_COOKIES);
+    for (const raw of cdpCookies.slice(0, MAX_V3_COOKIES)) {
       const name = String(raw.name ?? "");
       const domain = String(raw.domain ?? "").replace(/^\./, "").toLowerCase();
       if (!name || !domain) continue;
@@ -799,9 +906,23 @@ export class CdpSessionCollectorV3 {
       rawCmpCookies,
       storage,
       fingerprintEvents,
-      droppedFingerprintEvents
+      droppedFingerprintEvents,
+      omittedCookies,
+      omittedStorage
     };
   }
+}
+
+function raceTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  return Promise.race([
+    promise.finally(() => {
+      if (timer) clearTimeout(timer);
+    }),
+    new Promise<T>((resolve) => {
+      timer = setTimeout(() => resolve(fallback), ms);
+    })
+  ]);
 }
 
 // --- Pure helper utilities --------------------------------------------------

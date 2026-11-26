@@ -38,12 +38,13 @@ test("every public scan and watch body read in the Worker uses that limit", () =
   // read is a public one and must use the shared limit.
   assert.deepEqual(
     reads.map((read) => read.limit).sort(),
-    ["MAX_BODY_BYTES", "MAX_BODY_BYTES", "MAX_BODY_BYTES", "MAX_COORDINATOR_BODY_BYTES"],
+    ["MAX_BODY_BYTES", "MAX_BODY_BYTES", "MAX_BODY_BYTES", "MAX_BODY_BYTES", "MAX_COORDINATOR_BODY_BYTES"],
     `${WORKER} body reads changed; each public read must use MAX_BODY_BYTES`
   );
-  // Each public path, named by the code that leads to its read: durable
-  // admission, the phase 1 compatibility path, and watch creation.
+  // Each public path, named by the code that leads to its read: v3 scan,
+  // durable admission, the phase 1 compatibility path, and watch creation.
   const anchors: Array<[string, string]> = [
+    ["v3 scan", 'if (request.method === "POST" && decodedPathname === "/api/v3/scan") {'],
     ["durable admission", "return await withDurableScanJobAdmissionDeadline(async (signal, commitNotAfter) => {"],
     ["phase 1 scan", "// Phase 1 remains a separate compatibility path, but its public body read"],
     ["watch creation", 'if (encryptedWatchesFlagState(env[ENCRYPTED_WATCHES_ENV]) !== "enabled") {\n    return encryptedWatchNotFoundResponse(request, env);\n  }\n\n  const body = await readRequestBodyWithinLimit(']

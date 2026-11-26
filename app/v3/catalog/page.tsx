@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import styles from "@/app/v3/v3.module.css";
-import { CatalogExplorerV3 } from "@/components/v3/CatalogExplorerV3";
-import { V3Nav } from "@/components/v3/V3Nav";
+import { CatalogExplorerV3 } from "@/app/_components/v3/CatalogExplorerV3";
+import { V3Nav } from "@/app/_components/v3/V3Nav";
 import { getCatalogDirectoryV3 } from "@/lib/v3/dev-mode";
 
 export const metadata: Metadata = {

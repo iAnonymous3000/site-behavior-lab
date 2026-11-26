@@ -27,6 +27,82 @@ import type {
   WebSocketRecordV3
 } from "../schema";
 
+export type ArmEntityRollupV3 = {
+  entity: string;
+  parentOrg: string;
+  category: NonNullable<NetworkRequestV3["entity"]>["category"];
+  requests: number;
+  domains: number;
+};
+
+/**
+ * Extract the COMPLETE deduplicated entity list for a scan arm (including
+ * CNAME-uncloaked trackers, deduplicated so an uncloaked host isn't counted
+ * twice under a shields-list fallback).
+ */
+export function extractAllArmEntitiesV3(input: {
+  network: readonly NetworkRequestV3[];
+  cnameCloaks: readonly CnameCloakV3[];
+}): ArmEntityRollupV3[] {
+  const cloakedHosts = new Set(input.cnameCloaks.map((c) => c.host.toLowerCase()));
+  const entities = new Map<
+    string,
+    {
+      entity: string;
+      parentOrg: string;
+      category: NonNullable<NetworkRequestV3["entity"]>["category"];
+      requests: number;
+      domains: Set<string>;
+    }
+  >();
+
+  for (const req of input.network) {
+    if (cloakedHosts.has(req.domain.toLowerCase())) continue;
+    if (!req.entity) continue;
+    if (req.thirdParty || isTrackingCategoryV3(req.entity.category)) {
+      const existing = entities.get(req.entity.entity);
+      if (existing) {
+        existing.requests += 1;
+        existing.domains.add(req.domain);
+      } else {
+        entities.set(req.entity.entity, {
+          entity: req.entity.entity,
+          parentOrg: req.entity.parentOrg,
+          category: req.entity.category,
+          requests: 1,
+          domains: new Set([req.domain])
+        });
+      }
+    }
+  }
+
+  for (const cloak of input.cnameCloaks) {
+    const existing = entities.get(cloak.entity.entity);
+    if (existing) {
+      existing.requests += cloak.requestCount;
+      existing.domains.add(cloak.host);
+    } else {
+      entities.set(cloak.entity.entity, {
+        entity: cloak.entity.entity,
+        parentOrg: cloak.entity.parentOrg,
+        category: cloak.entity.category,
+        requests: cloak.requestCount,
+        domains: new Set([cloak.host])
+      });
+    }
+  }
+
+  return [...entities.values()]
+    .map((e) => ({
+      entity: e.entity,
+      parentOrg: e.parentOrg,
+      category: e.category,
+      requests: e.requests,
+      domains: e.domains.size
+    }))
+    .sort((a, b) => b.requests - a.requests || a.entity.localeCompare(b.entity));
+}
+
 export function buildArmSummaryV3(input: {
   network: readonly NetworkRequestV3[];
   websockets: readonly WebSocketRecordV3[];
@@ -40,11 +116,6 @@ export function buildArmSummaryV3(input: {
   consent: ConsentSummaryV3;
 }): ArmSummaryV3 {
   const thirdPartyDomains = new Set<string>();
-  const entities = new Map<
-    string,
-    { entity: string; parentOrg: string; category: NonNullable<NetworkRequestV3["entity"]>["category"]; requests: number; domains: Set<string> }
-  >();
-  const parentOrgs = new Set<string>();
 
   let thirdPartyRequests = 0;
   let trackingRequests = 0;
@@ -65,59 +136,25 @@ export function buildArmSummaryV3(input: {
       if (isTrackingCategoryV3(req.entity.category) || req.shields.shouldBlockAggressive) {
         trackingRequests += 1;
       }
-      if (req.thirdParty || isTrackingCategoryV3(req.entity.category)) {
-        parentOrgs.add(req.entity.parentOrg);
-        const existing = entities.get(req.entity.entity);
-        if (existing) {
-          existing.requests += 1;
-          existing.domains.add(req.domain);
-        } else {
-          entities.set(req.entity.entity, {
-            entity: req.entity.entity,
-            parentOrg: req.entity.parentOrg,
-            category: req.entity.category,
-            requests: 1,
-            domains: new Set([req.domain])
-          });
-        }
-      }
     } else if (req.shields.shouldBlockAggressive) {
       trackingRequests += 1;
     }
   }
 
-  for (const cloak of input.cnameCloaks) {
-    parentOrgs.add(cloak.entity.parentOrg);
-    const existing = entities.get(cloak.entity.entity);
-    if (existing) {
-      existing.requests += cloak.requestCount;
-      existing.domains.add(cloak.host);
-    } else {
-      entities.set(cloak.entity.entity, {
-        entity: cloak.entity.entity,
-        parentOrg: cloak.entity.parentOrg,
-        category: cloak.entity.category,
-        requests: cloak.requestCount,
-        domains: new Set([cloak.host])
-      });
-    }
-  }
-
-  const topEntities = [...entities.values()]
-    .map((e) => ({
-      entity: e.entity,
-      parentOrg: e.parentOrg,
-      category: e.category,
-      requests: e.requests,
-      domains: e.domains.size
-    }))
-    .sort((a, b) => b.requests - a.requests || a.entity.localeCompare(b.entity))
-    .slice(0, 15);
+  const allEntities = extractAllArmEntitiesV3({
+    network: input.network,
+    cnameCloaks: input.cnameCloaks
+  });
+  const parentOrgs = new Set(allEntities.map((e) => e.parentOrg));
+  const topEntities = allEntities.slice(0, 15);
 
   const thirdPartyCookies = input.cookies.filter((c) => c.thirdParty).length;
   const longLivedCookies = input.cookies.filter((c) => c.ttlDays !== null && c.ttlDays > 30).length;
   const partitionedCookies = input.cookies.filter((c) => c.partitionKey !== null).length;
   const serverSideTaggingEndpoints = input.beacons.filter((b) => b.serverSideTagging).length;
+  // Plain JS document.cookie writes are kept in telemetry for cookie provenance,
+  // but must NOT be counted as browser fingerprinting.
+  const fingerprintKindsCount = input.fingerprinting.filter((f) => f.kind !== "document-cookie-writes").length;
 
   return {
     totalRequests: input.network.length,
@@ -127,7 +164,7 @@ export function buildArmSummaryV3(input: {
     shieldsMatchedRequests,
     shieldsBlockedStandard,
     shieldsBlockedAggressive,
-    distinctEntities: entities.size,
+    distinctEntities: allEntities.length,
     distinctParentOrgs: parentOrgs.size,
     cookiesTotal: input.cookies.length,
     thirdPartyCookies,
@@ -139,7 +176,7 @@ export function buildArmSummaryV3(input: {
     beaconPlatforms: new Set(input.beacons.map((b) => b.platform)).size,
     serverSideTaggingEndpoints,
     cnameCloaksCount: input.cnameCloaks.length,
-    fingerprintKindsCount: input.fingerprinting.length,
+    fingerprintKindsCount,
     keystrokeLeaksCount: input.keystrokes.leaks.length,
     darkPatternScore: input.consent.banner.darkPatternScore,
     topEntities
@@ -151,8 +188,14 @@ export function buildComparisonDeltaV3(
   variant: ScanArmV3,
   axis: ComparisonAxisV3
 ): ComparisonDeltaV3 {
-  const baseEntities = new Set(baseline.summary.topEntities.map((e) => e.entity));
-  const variantEntities = new Set(variant.summary.topEntities.map((e) => e.entity));
+  const baseAll = extractAllArmEntitiesV3(baseline);
+  const variantAll = extractAllArmEntitiesV3(variant);
+  const baseEntities = new Set(
+    baseAll.length > 0 ? baseAll.map((e) => e.entity) : baseline.summary.topEntities.map((e) => e.entity)
+  );
+  const variantEntities = new Set(
+    variantAll.length > 0 ? variantAll.map((e) => e.entity) : variant.summary.topEntities.map((e) => e.entity)
+  );
   const entitiesRemoved = [...baseEntities].filter((e) => !variantEntities.has(e)).sort();
   const entitiesAdded = [...variantEntities].filter((e) => !baseEntities.has(e)).sort();
   const shieldsBlockedCount = variant.network.filter((r) => r.shields.blocked).length;

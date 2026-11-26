@@ -76,6 +76,18 @@ const PHASE_LABELS: Record<ScanPhaseName, string> = {
 };
 
 /**
+ * Resolve the root originating script domain for a network request, preferring
+ * the outermost frame of its initiator call stack so both the Causality Graph
+ * and request log filtering stay 100% consistent.
+ */
+export function rootInitiatorDomainV3(req: NetworkRequestV3): string {
+  const init = req.initiator;
+  const stack = init?.callStack ?? [];
+  const rootFrame = stack.length > 0 ? stack[stack.length - 1] : null;
+  return (rootFrame?.domain || init?.scriptDomain || "document-parser").toLowerCase();
+}
+
+/**
  * Group third-party requests under their root originating script / tag manager /
  * parser initiator so both the on-screen Causality Graph and Developer Mode can
  * pinpoint *what* caused each tracker to load.
@@ -121,7 +133,7 @@ export function buildInitiatorCausalityTreeV3(arm: ScanArmV3): CausalityRootNode
     const stack = init?.callStack ?? [];
     const rootFrame = stack.length > 0 ? stack[stack.length - 1] : null;
     const scriptUrl = rootFrame?.url || init?.scriptUrl || null;
-    const scriptDomain = (rootFrame?.domain || init?.scriptDomain || "document-parser").toLowerCase();
+    const scriptDomain = rootInitiatorDomainV3(req);
     const initType = init?.type ?? "other";
     const line = typeof rootFrame?.line === "number" ? rootFrame.line : null;
     const isFirstPartyScript =

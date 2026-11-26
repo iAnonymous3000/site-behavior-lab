@@ -1,11 +1,13 @@
+import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
 import { assertScanAccess } from "@/lib/access-control";
+import { readRequestBodyWithinLimit } from "@/lib/edge-scan-gate";
 import { PublicScanError, toPublicError } from "@/lib/public-errors";
 import {
   acquireScanSlot,
   assertRateLimit,
-  assertRequestBodySize,
-  clientKeyFromRequest
+  clientKeyFromRequest,
+  MAX_BODY_BYTES
 } from "@/lib/scan-limits";
 import { getV3RuntimeContext } from "@/lib/v3/runtime/store-context";
 import { dispatchScanV3, type ScanRegionIdV3 } from "@/lib/v3/runtime/worker-dispatch";
@@ -43,12 +45,26 @@ async function handleScanV3(request: Request): Promise<Response> {
   let releaseSlot: (() => void) | null = null;
   try {
     assertScanAccess(request);
-    assertRequestBodySize(request);
+    // Stream-bounded body read prevents Transfer-Encoding: chunked memory exhaustion
+    const rawBody = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES, { signal: request.signal });
+    if (rawBody === null) {
+      throw new PublicScanError("Request body is too large.", 413, "request-rejected");
+    }
 
-    const raw = (await request.json().catch(() => null)) as Record<string, unknown> | null;
-    if (!raw || typeof raw !== "object" || typeof raw.url !== "string" || !raw.url.trim()) {
+    let raw: Record<string, unknown> | null = null;
+    try {
+      const parsed = JSON.parse(rawBody) as unknown;
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        raw = parsed as Record<string, unknown>;
+      }
+    } catch {
+      raw = null;
+    }
+    if (!raw || typeof raw.url !== "string" || !raw.url.trim()) {
       throw new PublicScanError("A valid http(s) URL is required.", 400, "request-rejected");
     }
+
+    const isOperatorAuthenticated = Boolean(process.env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?.trim());
 
     const device: ScanDeviceV3 =
       typeof raw.device === "string" && VALID_DEVICES.has(raw.device as ScanDeviceV3)
@@ -66,10 +82,15 @@ async function handleScanV3(request: Request): Promise<Response> {
       typeof raw.region === "string" && VALID_REGIONS.has(raw.region as ScanRegionIdV3)
         ? (raw.region as ScanRegionIdV3)
         : "auto";
-    const visibility: IndexedReportVisibilityV3 =
+
+    let visibility: IndexedReportVisibilityV3 =
       typeof raw.visibility === "string" && VALID_VISIBILITY.has(raw.visibility as IndexedReportVisibilityV3)
         ? (raw.visibility as IndexedReportVisibilityV3)
-        : "public";
+        : "unlisted";
+    // Prevent unauthenticated callers from poisoning the curated "corpus" tier.
+    if (visibility === "corpus" && !isOperatorAuthenticated) {
+      throw new PublicScanError("Curated corpus visibility requires operator authorization.", 403, "request-rejected");
+    }
 
     const comparisons: ComparisonAxisV3[] = [];
     if (Array.isArray(raw.comparisons)) {
@@ -80,8 +101,13 @@ async function handleScanV3(request: Request): Promise<Response> {
         }
       }
     }
-    if (comparisons.length > 4) {
-      throw new PublicScanError("At most 4 comparison arms may be requested per scan.", 400, "request-rejected");
+    const maxComparisons = isOperatorAuthenticated ? 4 : 2;
+    if (comparisons.length > maxComparisons) {
+      throw new PublicScanError(
+        `At most ${maxComparisons} comparison arms may be requested per scan.`,
+        400,
+        "request-rejected"
+      );
     }
 
     const clientKey = clientKeyFromRequest(request);
@@ -103,11 +129,20 @@ async function handleScanV3(request: Request): Promise<Response> {
     };
 
     const ctx = await getV3RuntimeContext();
-    const { report, backend } = await dispatchScanV3(scanRequest, {
+    const { report: dispatchedReport, backend } = await dispatchScanV3(scanRequest, {
       region,
       upstreams: ctx.regionalUpstreams,
-      defaultExecutor: (req) => scanSiteV3(req)
+      signal: request.signal,
+      defaultExecutor: (req) => scanSiteV3(req, { signal: request.signal })
     });
+
+    // Always mint a coordinator-owned reportId for regional-worker results so a
+    // remote worker can never overwrite an existing report in R2 or D1.
+    const ymd = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    const report =
+      backend === "regional-http-worker"
+        ? { ...dispatchedReport, reportId: `${ymd}-${randomBytes(16).toString("hex")}` }
+        : dispatchedReport;
 
     const r2Key = await saveReportV3(ctx.blobStore, report);
     await ctx.reportIndex.indexReport(report, {

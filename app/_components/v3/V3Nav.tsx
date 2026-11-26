@@ -1,11 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "@/app/v3/v3.module.css";
 
 export function V3Nav({ active }: { active: "explorer" | "catalog" | "report" | "site" }) {
-  const [theme, setTheme] = useState<"auto" | "light" | "dark">("auto");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    const current = document.documentElement.dataset.theme;
+    if (current === "dark" || current === "light") {
+      setTheme(current);
+    } else if (window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
+      setTheme("dark");
+    }
+  }, []);
 
   function toggleTheme() {
     const next = theme === "dark" ? "light" : "dark";

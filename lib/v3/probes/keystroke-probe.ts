@@ -41,23 +41,38 @@ export function createKeystrokeCanaryV3(randomHex = randomBytes(8).toString("hex
 }
 
 export function buildSentinelEncodingsV3(canary: string): SentinelEncodingV3[] {
-  const buf = Buffer.from(canary, "utf8");
-  const base64 = buf.toString("base64").replace(/=+$/, "");
-  const base64Encoded = encodeURIComponent(base64);
-  const base64url = buf.toString("base64url");
-  const urlEncoded = encodeURIComponent(canary);
-  const raw: SentinelEncodingV3[] = [
-    { encoding: "plain", value: canary, caseSensitive: false },
-    ...(urlEncoded !== canary ? [{ encoding: "url-encoded", value: urlEncoded, caseSensitive: false }] : []),
-    { encoding: "hex", value: buf.toString("hex"), caseSensitive: false },
-    { encoding: "base64", value: base64, caseSensitive: true },
-    ...(base64Encoded !== base64 ? [{ encoding: "base64-url", value: base64Encoded, caseSensitive: true }] : []),
-    ...(base64url !== base64 ? [{ encoding: "base64url", value: base64url, caseSensitive: true }] : []),
-    { encoding: "md5", value: createHash("md5").update(canary).digest("hex"), caseSensitive: false },
-    { encoding: "sha1", value: createHash("sha1").update(canary).digest("hex"), caseSensitive: false },
-    { encoding: "sha256", value: createHash("sha256").update(canary).digest("hex"), caseSensitive: false }
+  const candidates: Array<{ suffix: string; value: string }> = [
+    { suffix: "", value: canary },
+    { suffix: "-email", value: `${canary}@example.invalid` }
   ];
-  return raw.filter((item) => item.value.length >= 8);
+  const raw: SentinelEncodingV3[] = [];
+  const seenValues = new Set<string>();
+
+  for (const { suffix, value } of candidates) {
+    const buf = Buffer.from(value, "utf8");
+    const base64 = buf.toString("base64").replace(/=+$/, "");
+    const base64Encoded = encodeURIComponent(base64);
+    const base64url = buf.toString("base64url");
+    const urlEncoded = encodeURIComponent(value);
+    const variants: SentinelEncodingV3[] = [
+      { encoding: `plain${suffix}`, value, caseSensitive: false },
+      ...(urlEncoded !== value ? [{ encoding: `url-encoded${suffix}`, value: urlEncoded, caseSensitive: false }] : []),
+      { encoding: `hex${suffix}`, value: buf.toString("hex"), caseSensitive: false },
+      { encoding: `base64${suffix}`, value: base64, caseSensitive: true },
+      ...(base64Encoded !== base64 ? [{ encoding: `base64-url${suffix}`, value: base64Encoded, caseSensitive: true }] : []),
+      ...(base64url !== base64 ? [{ encoding: `base64url${suffix}`, value: base64url, caseSensitive: true }] : []),
+      { encoding: `md5${suffix}`, value: createHash("md5").update(value).digest("hex"), caseSensitive: false },
+      { encoding: `sha1${suffix}`, value: createHash("sha1").update(value).digest("hex"), caseSensitive: false },
+      { encoding: `sha256${suffix}`, value: createHash("sha256").update(value).digest("hex"), caseSensitive: false }
+    ];
+    for (const item of variants) {
+      if (item.value.length >= 8 && !seenValues.has(item.value)) {
+        seenValues.add(item.value);
+        raw.push(item);
+      }
+    }
+  }
+  return raw;
 }
 
 /**
