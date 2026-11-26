@@ -9,41 +9,12 @@ function source(relative: string): string {
   return readFileSync(path.join(root, relative), "utf8");
 }
 
-test("every static publication lane runs the exact remediation check before publishing", () => {
-  assert.match(source(".github/workflows/scan-featured.yml"), /npm run reports:remediate -- --check/);
-  for (const script of [
-    "scripts/build-github-pages.mjs",
-    "scripts/run-ci-scan.mjs",
-    "scripts/run-featured-scans.mjs"
-  ]) {
-    const contents = source(script);
-    assert.equal(contents.includes('"reports:remediate", "--", "--check"'), true, script);
-  }
+test("static Pages publication runs the exact historical remediation check before publishing", () => {
+  const pagesBuilder = source("scripts/build-github-pages.mjs");
+  assert.equal(pagesBuilder.includes('"reports:remediate", "--", "--check"'), true, "scripts/build-github-pages.mjs");
 });
 
-test("featured scans defer only the repeated corpus-wide check to their trusted parent", () => {
-  const ci = source("scripts/run-ci-scan.mjs");
-  const featured = source("scripts/run-featured-scans.mjs");
-
-  assert.match(ci, /process\.env\.CI_SCAN_DEFER_CORPUS_CHECK !== "1"/);
-  assert.match(featured, /CI_SCAN_DEFER_CORPUS_CHECK: "1"/);
-  const main = featured.slice(
-    featured.indexOf("async function main"),
-    featured.indexOf("export function featuredRunPlan")
-  );
-  assert.ok(
-    main.indexOf("for (const [index, site] of sites.entries())") <
-      main.indexOf('"reports:remediate", "--", "--check"'),
-    "the parent must run its full-corpus check after all deferred children"
-  );
-});
-
-test("scan artifacts and commits include provenance sidecars", () => {
-  const featured = source(".github/workflows/scan-featured.yml");
-  assert.match(featured, /reports:publication-artifact -- \\\n\s+--prepare/);
-  assert.match(featured, /reports:publication-artifact -- \\\n\s+--publish/);
-  assert.match(featured, /git add public\/reports public\/corpus-stats\.json/);
-
+test("historical publication artifact validator pairs report JSON and provenance sidecars", () => {
   const artifact = source("lib/report-publication-artifact.ts");
   assert.match(artifact, /const sidecarRelative = `reports\/\$\{id\}\.provenance\.json`/);
   assert.match(artifact, /Publication artifact report and sidecar ids do not pair exactly/);
@@ -85,89 +56,39 @@ test("Dependabot covers every tracked dependency ecosystem at its manifest path"
   assert.equal(config.match(/interval: "weekly"/g)?.length, configuredPaths.length);
 });
 
-test("automation logs do not print raw scan URLs, page titles, rules, or local input paths", () => {
-  const ci = source("scripts/run-ci-scan.mjs");
-  assert.equal(ci.includes("Skipping ${targetUrl}"), false);
-  assert.equal(ci.includes("for ${targetUrl}"), false);
-  assert.equal(ci.includes('landing page title "${title}"'), false);
-
-  const featured = source("scripts/run-featured-scans.mjs");
-  assert.equal(featured.includes("${site.url}"), false);
-
+test("automation logs do not print raw local input paths or filter rules", () => {
   const pageGraph = source("lib/pagegraph-corpus-cli.ts");
   assert.equal(pageGraph.includes("path.basename(file)"), false);
   assert.equal(pageGraph.includes("JSON.stringify(options.rule)"), false);
 });
 
-test("featured refresh failures publish only validated successes, stay loud, and remain tracked", () => {
-  const workflow = source(".github/workflows/scan-featured.yml");
-  const runner = source("scripts/run-featured-scans.mjs");
+test("scheduled v3 corpus refresh isolates untrusted scanning, keeps the Chromium sandbox enabled, and proposes updates via PR", () => {
+  const workflow = source(".github/workflows/seed-v3-corpus.yml");
+  const scanStart = workflow.indexOf("\n  seed-v3-corpus:");
+  const proposeStart = workflow.indexOf("\n  propose-update:");
+  assert.ok(scanStart >= 0 && proposeStart > scanStart);
+  const scanJob = workflow.slice(scanStart, proposeStart);
+  const proposeJob = workflow.slice(proposeStart);
 
-  assert.match(runner, /featuredMinimumSuccessRate\(process\.env\.FEATURED_MIN_SUCCESS_RATE, 0\.9, 0\.8\)/);
-  assert.match(workflow, /FEATURED_MIN_SUCCESS_RATE: \$\{\{ vars\.FEATURED_MIN_SUCCESS_RATE \|\| '0\.8' \}\}/);
-  assert.match(workflow, /permissions:[\s\S]*?issues: write/);
-  assert.match(workflow, /id: featured_scan\n\s+continue-on-error: true/);
-  assert.match(workflow, /--classify-publication/);
-  assert.match(
-    workflow,
-    /- name: Apply retention policy and rebuild trusted aggregate outputs[\s\S]*?npm run reports:prune[\s\S]*?npm run reports:remediate -- --check[\s\S]*?npm run reports:manifest[\s\S]*?npm run corpus:stats/
-  );
-  assert.match(workflow, /- name: Verify report redaction and provenance[\s\S]*?steps\.refresh_policy\.outputs\.publishable == 'true'/);
-  assert.match(workflow, /- name: Build corpus stats[\s\S]*?steps\.report_manifest\.outcome == 'success'/);
-  assert.match(workflow, /- name: Apply retention policy and rebuild trusted aggregate outputs[\s\S]*?- name: Commit static reports/);
-  assert.match(workflow, /steps\.refresh_alert\.outputs\.authoritative == 'true'/);
-  assert.match(workflow, /site-behavior-lab:featured-corpus-refresh/);
-  assert.match(workflow, /MANAGED_ISSUE_LABEL: site-behavior-lab-featured-refresh/);
-  assert.match(workflow, /issue\.user\?\.login === "github-actions\[bot\]"/);
-  assert.match(workflow, /issue\.user\?\.type === "Bot"/);
-  assert.match(workflow, /labels\.includes\(managedLabel\)/);
-  assert.match(workflow, /issue\.title === process\.env\.ISSUE_TITLE/);
-  assert.match(workflow, /issue_needs_label/);
-  assert.match(workflow, /--add-label "\$MANAGED_ISSUE_LABEL"/);
-  assert.match(workflow, /gh api --silent --method POST "repos\/\$\{GITHUB_REPOSITORY\}\/labels"/);
-  assert.match(workflow, /--label "\$MANAGED_ISSUE_LABEL"/);
-  assert.match(workflow, /gh issue create/);
-  assert.match(workflow, /gh issue edit/);
-  assert.match(workflow, /gh issue reopen/);
-  assert.match(workflow, /gh issue close/);
-  assert.match(workflow, /::error title=Featured corpus refresh failed::/);
-  assert.match(workflow, /- name: Preserve featured-refresh failure[\s\S]*?exit 1/);
-});
-
-test("the featured scan keeps the Chromium sandbox on and makes the runner support it", () => {
-  const workflow = readFileSync(
-    path.join(process.cwd(), ".github", "workflows", "scan-featured.yml"),
-    "utf8"
-  );
-  // Committed-report acquisition is forbidden from launching Chromium without
-  // its sandbox, so the sandbox switch must stay on.
-  assert.match(workflow, /SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1"/);
-  // GitHub-hosted Ubuntu 24.04 restricts unprivileged user namespaces with
-  // AppArmor, which made every scan die at browser launch with "No usable
-  // sandbox!". The remedy must be to let the sandbox initialize, never to
-  // launch without one.
-  assert.match(workflow, /kernel\.apparmor_restrict_unprivileged_userns=0/);
-  assert.match(
-    workflow,
-    /- name: Allow the Chromium sandbox to initialize on the hosted runner\n\s+if: runner\.environment == 'github-hosted'/
-  );
-  assert.match(
-    workflow,
-    /- name: Verify Chromium sandbox support on the controlled runner\n\s+if: runner\.environment == 'self-hosted'/
-  );
-  const selfHostedVerification = workflow.slice(
-    workflow.indexOf("- name: Verify Chromium sandbox support on the controlled runner"),
-    workflow.indexOf("- name: Install Chromium")
-  );
-  assert.match(selfHostedVerification, /refusing to change a host-wide kernel setting from the job/);
-  assert.doesNotMatch(selfHostedVerification, /sudo\s+sysctl\s+-w/);
+  // Untrusted scanning stays strictly read-only with Chromium sandbox enabled.
+  assert.match(scanJob, /permissions:\n\s+contents: read/);
+  assert.doesNotMatch(scanJob, /contents: write|pull-requests: write|issues: write/);
+  assert.match(scanJob, /SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1"/);
+  assert.match(scanJob, /kernel\.apparmor_restrict_unprivileged_userns=0/);
   assert.ok(
-    workflow.indexOf("kernel.apparmor_restrict_unprivileged_userns=0") <
-      workflow.indexOf("npx playwright install --with-deps chromium"),
-    "the sandbox must be made usable before Chromium is installed and launched"
+    scanJob.indexOf("kernel.apparmor_restrict_unprivileged_userns=0") <
+      scanJob.indexOf("npx playwright install --with-deps chromium"),
+    "the hosted runner must allow Chromium user namespaces before Chromium is installed and launched"
   );
   assert.doesNotMatch(workflow, /--no-sandbox/);
   assert.doesNotMatch(workflow, /SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "0"/);
-  // The scanner log stays diagnosable when scans fail for any other reason.
-  assert.match(workflow, /Show scanner log when the scans failed/);
+  assert.match(scanJob, /node bin\/sbl\.mjs verify/);
+
+  // Publisher validates SHA-256 digests, schema, and redaction offline and opens a PR.
+  assert.match(proposeJob, /npm ci --ignore-scripts/);
+  assert.match(proposeJob, /validateScanReportV3/);
+  assert.match(proposeJob, /assertNoUnredactedSecretsV3/);
+  assert.match(proposeJob, /PROPOSAL_BRANCH: automation\/seed-v3-corpus-/);
+  assert.match(proposeJob, /gh pr create/);
+  assert.doesNotMatch(proposeJob, /git push origin main|git push origin HEAD:refs\/heads\/main/);
 });

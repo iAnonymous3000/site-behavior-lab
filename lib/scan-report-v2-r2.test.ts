@@ -240,21 +240,6 @@ test("legacy runtime builders remain v1 while the CI publication lane accepts cu
   assert.equal(comparison.schemaVersion, 1);
   assert.equal("schemaRevision" in comparison, false, "v1 wire has no revision field");
 
-  // The CI publication lane delegates persistence to the compiled publisher
-  // boundary and dispatches report success/bot-wall evidence by revision. The
-  // executable entrypoints cannot be imported here, so delegation is asserted
-  // at source level; the pure CI gate and CLI integration have dedicated tests.
-  const ciScanSource = readFileSync(path.join(process.cwd(), "scripts", "run-ci-scan.mjs"), "utf8");
-  const ciReportGateSource = readFileSync(
-    path.join(process.cwd(), "scripts", "run-ci-scan-report.mjs"),
-    "utf8"
-  );
-  assert.equal(ciScanSource.includes("publish-scan-report-cli"), true);
-  assert.equal(ciScanSource.includes("isPublishableScanReport"), true);
-  assert.equal(ciScanSource.includes("botBlockReason"), true);
-  assert.equal(ciReportGateSource.includes("response.schemaRevision === 2"), true);
-  assert.equal(ciReportGateSource.includes("run.summary?.counts?.totalRequests"), true);
-  assert.equal(ciReportGateSource.includes("report.experiment.supportingPairs"), true);
   const publisherSource = readFileSync(path.join(process.cwd(), "lib", "publish-scan-report-cli.ts"), "utf8");
   assert.equal(publisherSource.includes("readScanTransportPayload"), true);
   assert.equal(publisherSource.includes("publicWireForExportOrPersistence"), true);

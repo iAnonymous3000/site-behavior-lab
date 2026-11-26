@@ -49,6 +49,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Allow the Chromium sandbox to initialize on the hosted runner
+        if: runner.environment == 'github-hosted'
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 

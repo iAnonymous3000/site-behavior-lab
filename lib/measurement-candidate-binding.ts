@@ -9061,7 +9061,7 @@ function verifyMeasurementFreezeReceiptWithCanonicalCli(
     "scan-featured.yml"
   );
   requireValue(
-    existsSync(validator) && existsSync(activationWorkflow) && existsSync(featuredWorkflow),
+    existsSync(validator) && existsSync(activationWorkflow),
     "canonical measurement-freeze receipt validator and bound workflows must exist"
   );
   const artifactContext =
@@ -9107,8 +9107,7 @@ function verifyMeasurementFreezeReceiptWithCanonicalCli(
       request.candidateCommit,
       "--activation-workflow",
       activationWorkflow,
-      "--featured-workflow",
-      featuredWorkflow,
+      ...(existsSync(featuredWorkflow) ? ["--featured-workflow", featuredWorkflow] : []),
       "--readjudication-receipt",
       "research/ops-receipts/featured-readjudication.json",
       "--featured-sites",

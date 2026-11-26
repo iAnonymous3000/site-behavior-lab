@@ -759,11 +759,9 @@ jobs:
           SCAN_BASE_URL: https://scan.sitebehavior.org
           PRODUCTION_SYNTHETIC_MONITOR_TOKEN: ${{ secrets.PRODUCTION_SYNTHETIC_MONITOR_TOKEN }}
           PRODUCTION_SYNTHETIC_REQUEST_TIMEOUT_MS: "15000"
-          PRODUCTION_SYNTHETIC_TOTAL_TIMEOUT_MS: "300000"
         run: |
-          npm run test:smoke:production-synthetic
           npm run test:smoke:production-v3-synthetic
-          echo "- Operator-only synthetic: **passed** (fixed v2 and v3 scan contracts, persisted reports, HTML renders, and v3 PDF readback)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Operator-only synthetic: **passed** (fixed v3 scan contract, persisted report, HTML render, and PDF readback)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Resolve R2 delete-canary activation
         id: r2_delete_canary

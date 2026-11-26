@@ -71,13 +71,13 @@ test("both promotion paths reserve production writes for one dedicated App throu
   assert.match(fallbackCheckout, /persist-credentials: false/);
 });
 
-test("Docker smoke preserves v1 and explicitly proves public v2/r2 bundles", () => {
+test("Docker smoke proves filesystem and public v3/R2 bundles plus historical printable PDF export", () => {
   const smoke = readFileSync(path.join(root, "scripts", "smoke-docker.mjs"), "utf8");
   const seccomp = JSON.parse(
     readFileSync(path.join(root, "scripts", "playwright-seccomp-profile.json"), "utf8")
   ) as { defaultAction?: string; syscalls?: Array<{ names?: string[]; action?: string }> };
 
-  assert.match(smoke, /await runV1ImageSmoke\(\)/);
+  assert.match(smoke, /await runFilesystemImageSmoke\(\)/);
   assert.match(smoke, /"--init"/);
   assert.match(smoke, /"--ipc=host"/);
   assert.match(smoke, /`seccomp=\$\{seccompProfile\}`/);
@@ -90,11 +90,11 @@ test("Docker smoke preserves v1 and explicitly proves public v2/r2 bundles", () 
   assert.match(smoke, /SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS=1/);
   assert.match(smoke, /SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND=r2/);
   assert.match(smoke, /scripts\/smoke-deployed-scanner\.mjs/);
-  assert.match(smoke, /report\.schemaVersion !== 2 \|\| report\.schemaRevision !== 2/);
-  assert.match(smoke, /savedReportRetainsScreenshot\(report\)/);
-  assert.match(smoke, /missing its provenance sidecar/);
+  assert.match(smoke, /v3\\\/reports\\\//);
+  assert.match(smoke, /v3\\\/pdfs\\\//);
+  assert.match(smoke, /report\.schemaVersion !== 3 \|\| savedReportRetainsScreenshot\(report\)/);
   assert.match(smoke, /startSmokeR2Server\(\{ bucket, host: await dockerR2BindHost\(\) \}\)/);
-  assert.match(smoke, /const expectedRequestRows = singleReportTotalRequests\(storedSingle\.report\)/);
+  assert.match(smoke, /const expectedRequestRows = historicalReportExpectedRequestRows\(report\)/);
   assert.match(smoke, /const renderedRows = renderedRequestRowCount\(html\)/);
   assert.match(smoke, /renderedRows !== expectedRequestRows/);
   assert.doesNotMatch(smoke, /renderedRows < 2/);
@@ -107,6 +107,7 @@ test("Docker smoke preserves v1 and explicitly proves public v2/r2 bundles", () 
   // The promote gate must not hard-depend on ONE third party: an ordered
   // candidate list lets a single target's outage or bot wall fall through to
   // an independent target, while an all-candidates failure stays red.
+  assert.match(deployedSmoke, /\/api\/v3\/scan/);
   assert.match(deployedSmoke, /"https:\/\/www\.iana\.org\/ https:\/\/www\.w3\.org\/"/);
   assert.match(deployedSmoke, /shieldsUrlCandidates/);
   assert.match(deployedSmoke, /tolerateScanFailure: true/);

@@ -180,14 +180,4 @@ test("the scheduled refresh does not queue behind the featured-scan writer group
   // Cancelling a refresh already in progress would abandon a pushed proposal
   // branch, so only the queueing behaviour changes.
   assert.match(concurrency, /cancel-in-progress: false/);
-
-  const featured = readFileSync(
-    path.join(process.cwd(), ".github", "workflows", "scan-featured.yml"),
-    "utf8"
-  );
-  const schedules = [...featured.matchAll(/- cron: "([^"]+)"/g)].map((match) => match[1]);
-  assert.ok(
-    schedules.length >= 2,
-    "this guard exists because scan-featured runs more than one scheduled leg"
-  );
 });

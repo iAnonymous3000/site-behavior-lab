@@ -47,7 +47,7 @@ export default async function StatusPage() {
         </p>
         <ul>
           <li><a href={ACTIONS_URL + "/workflows/production-health.yml"}>Production health history</a></li>
-          <li><a href={ACTIONS_URL + "/workflows/scan-featured.yml"}>Featured-corpus refresh history</a></li>
+          <li><a href={ACTIONS_URL + "/workflows/seed-v3-corpus.yml"}>V3 corpus refresh history</a></li>
           <li><a href={ACTIONS_URL + "/workflows/update-brave-lists.yml"}>Measurement-input refresh history</a></li>
           <li><a href={ISSUES_URL}>Open project issues and managed incidents</a></li>
         </ul>

@@ -47,13 +47,10 @@ test("Node scan clients emit the exact browser admission commitment contract", a
   });
 });
 
-test("every durable-capable operator scan client uses canonical admission headers and body", () => {
+test("every remaining durable-capable operator scan client uses canonical admission headers and body", () => {
   const clients = [
     "scripts/toolchain-canary.mjs",
-    "scripts/smoke-durable-job-replay.mjs",
-    "scripts/smoke-deployed-scanner.mjs",
-    "scripts/run-ci-scan.mjs",
-    "scripts/smoke-production-synthetic.mjs"
+    "scripts/smoke-durable-job-replay.mjs"
   ];
   for (const client of clients) {
     const source = readFileSync(path.join(process.cwd(), client), "utf8");

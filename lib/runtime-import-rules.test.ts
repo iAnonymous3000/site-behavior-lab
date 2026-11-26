@@ -151,7 +151,7 @@ test("extensions: no lib module a script loads by type stripping imports a runti
   const files = modules.map((module) => module.file).sort();
   t.diagnostic(`${files.length} lib modules loaded by type stripping: ${files.join(", ")}`);
   // Two modules the production health smoke loads, so an empty walk fails here.
-  assert.ok(files.includes("lib/strict-json.ts") && files.includes("lib/gpc-injection.ts"), files.join(", "));
+  assert.ok(files.includes("lib/strict-json.ts") && files.includes("lib/production-synthetic.ts"), files.join(", "));
   assert.deepEqual(problems, []);
 });
 

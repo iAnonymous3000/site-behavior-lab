@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
@@ -268,13 +268,7 @@ test("featured request selection is exact-SHA catalog bounded and honors filters
   );
 });
 
-test("featured publication binding mirrors the harness GPC lane contract", async () => {
-  // The binding and scripts/run-featured-scans.mjs each state half of one
-  // contract: the harness sends GPC only on the lane that measures it, and
-  // the binding must expect exactly that state from every produced report.
-  // Pin both halves together so they cannot silently diverge again.
-  const harness = await readFile(path.join(process.cwd(), "scripts", "run-featured-scans.mjs"), "utf8");
-  assert.match(harness, /SCAN_GPC_ENABLED: compareGpc \? "true" : "false"/);
+test("featured publication binding sets GPC only on the GPC comparison lane", async () => {
   for (const [axisEnv, expectedAxis, expectedGpc] of [
     [{ FEATURED_COMPARE_SHIELDS: "true" }, "shields", false],
     [{ FEATURED_COMPARE_CONSENT: "true" }, "consent", false],

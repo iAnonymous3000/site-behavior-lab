@@ -192,6 +192,88 @@ test("deployed smoke helpers accept only a concrete failed URL-safety job", asyn
   assert.equal(adapter.ssrfGuardRefusalReason({ status: "cancelled", error: "Cancelled" }), null);
 });
 
+test("deployed smoke helpers support v3 single reports, Shields comparisons, and screenshot-free enforcement", async () => {
+  const adapter = await helpers;
+  const v3Single = {
+    schemaVersion: 3,
+    reportId: "20261126-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    scannedAt: "2026-11-26T00:00:00.000Z",
+    canonicalDomain: "iana.org",
+    provenance: {
+      schemaVersion: 3,
+      egressRegion: "us-east",
+      engineVersions: {
+        chromium: "139.0",
+        playwright: "1.65.1",
+        adblockRust: "0.10.2",
+        filterListsDigest: "abc123",
+        entityCatalogDigest: "def456"
+      }
+    },
+    leadArm: {
+      armId: "baseline",
+      loadOutcome: "ok",
+      conditions: { shieldsMode: "off" },
+      summary: { totalRequests: 12, shieldsBlockedStandard: 3, shieldsBlockedAggressive: 4 }
+    },
+    comparisonArms: [],
+    comparisons: []
+  };
+
+  assert.equal(adapter.isSupportedDeployedReport(v3Single), true);
+  assert.equal(adapter.singleReportTotalRequests(v3Single), 12);
+  assert.equal(adapter.isShieldsComparisonReport(v3Single), false);
+  assert.equal(adapter.savedReportRetainsScreenshot(v3Single), false);
+  assert.equal(adapter.savedReportRetainsScreenshot({ ...v3Single, screenshot: "data:image/png;base64,x" }), true);
+  assert.equal(
+    adapter.savedReportRetainsScreenshot({
+      ...v3Single,
+      leadArm: { ...v3Single.leadArm, screenshot: null }
+    }),
+    true
+  );
+
+  const v3Shields = {
+    ...v3Single,
+    comparisonArms: [
+      {
+        armId: "shields-standard",
+        loadOutcome: "ok",
+        conditions: { shieldsMode: "standard" },
+        summary: { totalRequests: 9, shieldsBlockedStandard: 3, shieldsBlockedAggressive: 4 }
+      }
+    ],
+    comparisons: [
+      {
+        baselineArmId: "baseline",
+        variantArmId: "shields-standard",
+        axis: "shields-standard",
+        requestsDelta: -3,
+        thirdPartyRequestsDelta: -3,
+        shieldsBlockedCount: 3
+      }
+    ]
+  };
+
+  assert.equal(adapter.isSupportedDeployedReport(v3Shields), true);
+  assert.equal(adapter.isShieldsComparisonReport(v3Shields), true);
+  assert.equal(adapter.hasShieldsComparisonDiff(v3Shields), true);
+  assert.equal(adapter.shieldsEngineActive(v3Shields), true);
+  assert.deepEqual(adapter.shieldsBlockedCounts(v3Shields), { baseline: 3, variant: 3 });
+
+  const v3ShieldsFailedArm = structuredClone(v3Shields);
+  v3ShieldsFailedArm.comparisonArms[0].loadOutcome = "timeout";
+  assert.equal(adapter.shieldsEngineActive(v3ShieldsFailedArm), false);
+
+  const v3ShieldsMissingEngine = structuredClone(v3Shields);
+  v3ShieldsMissingEngine.provenance.engineVersions.adblockRust = "";
+  assert.equal(adapter.shieldsEngineActive(v3ShieldsMissingEngine), false);
+
+  const v3ShieldsWithArmScreenshot = structuredClone(v3Shields);
+  Object.assign(v3ShieldsWithArmScreenshot.comparisonArms[0], { screenshot: "data:image/png;base64,x" });
+  assert.equal(adapter.savedReportRetainsScreenshot(v3ShieldsWithArmScreenshot), true);
+});
+
 test("every external-target leg of the deployed smoke falls through to an ordered candidate list", () => {
   // The Shields leg gained ordered candidates when a single third party's
   // outage was found to block promotion, but the single-scan leg kept one

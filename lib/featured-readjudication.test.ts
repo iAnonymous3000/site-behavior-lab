@@ -904,40 +904,40 @@ test("artifact ZIP extraction rejects extras, multiple files, symlinks, traversa
   }
 });
 
-test("featured workflow always uploads the gallery-only sanitized artifact with at least 30 days retention", async () => {
+test("featured re-adjudication workflow validator enforces gallery-only condition and >= 30 days retention", async () => {
   const module = await readjudicationModule();
-  const source = readFileSync(
-    path.join(process.cwd(), ".github", "workflows", "scan-featured.yml"),
-    "utf8"
-  );
-  assert.deepEqual(module.featuredReadjudicationWorkflowIssues(source), []);
-
   const galleryOnlyCondition =
     "if: always() && github.event_name == 'schedule' && github.event.schedule == '23 5 * * 1'";
-  assert.equal(source.split(galleryOnlyCondition).length - 1, 2);
-  const uploadBlock = source.match(
-    /- name: Upload featured re-adjudication outcomes[\s\S]*?retention-days:\s*(\d+)/
-  );
-  assert.ok(uploadBlock, "re-adjudication upload step must exist");
-  assert.ok(Number(uploadBlock[1]) >= 30);
-  assert.match(
-    source,
-    /- name: Canonicalize featured re-adjudication outcomes[\s\S]*?FEATURED_SITES_FILE: public\/featured-sites\.json/
-  );
-  assert.doesNotMatch(
-    uploadBlock[0],
-    /github\.event\.schedule == '23 7 \* \* 1'/
-  );
+  const validFixture = [
+    "on:",
+    "  schedule:",
+    '    - cron: "23 5 * * 1"',
+    "- name: Canonicalize featured re-adjudication outcomes",
+    `  ${galleryOnlyCondition}`,
+    "  env:",
+    "    FEATURED_SITES_FILE: public/featured-sites.json",
+    "    FEATURED_READJUDICATION_OUTPUT: ${{ runner.temp }}/featured-readjudication-outcomes.json",
+    "  run: node scripts/featured-readjudication.mjs --cycle",
+    "- name: Upload featured re-adjudication outcomes",
+    `  ${galleryOnlyCondition}`,
+    "  uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2",
+    "  with:",
+    "    name: featured-readjudication-outcomes-${{ github.run_id }}-${{ github.run_attempt }}",
+    "    path: ${{ runner.temp }}/featured-readjudication-outcomes.json",
+    "    if-no-files-found: error",
+    "    retention-days: 45"
+  ].join("\n");
 
+  assert.deepEqual(module.featuredReadjudicationWorkflowIssues(validFixture), []);
   assert.notDeepEqual(
     module.featuredReadjudicationWorkflowIssues(
-      source.replaceAll(galleryOnlyCondition, "if: success()")
+      validFixture.replaceAll(galleryOnlyCondition, "if: success()")
     ),
     []
   );
   assert.notDeepEqual(
     module.featuredReadjudicationWorkflowIssues(
-      source.replace("retention-days: 45", "retention-days: 29")
+      validFixture.replace("retention-days: 45", "retention-days: 29")
     ),
     []
   );

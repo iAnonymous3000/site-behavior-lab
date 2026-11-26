@@ -4,12 +4,11 @@ import path from "node:path";
 import { test } from "node:test";
 import { spawnSyncBounded } from "./bounded-spawn";
 
-// Four reconcile steps hold issues:write and pick the one canonical issue they
+// Three reconcile steps hold issues:write and pick the one canonical issue they
 // may rewrite, retitle, reopen or close by running an inline node program over
 // every issue in the public tracker. The trust predicate lives only inside
 // those programs, so this suite extracts each one from the shipped YAML and
-// executes it: two of the four copies carried no author check at all while a
-// grep for the marker string passed on every workflow.
+// executes it.
 
 const OPENER = "match=$(printf '%s' \"$candidates\" | node -e '\n";
 
@@ -81,20 +80,6 @@ const reconcilers: Reconciler[] = [
       ISSUE_TITLE: "Repair the production health monitor",
       MANAGED_ISSUE_LABEL: "site-behavior-lab-production-health",
       COVERAGE_MARKER_PREFIX: "<!-- site-behavior-lab:production-health-required-lanes: "
-    }
-  },
-  {
-    file: "scan-featured.yml",
-    programs: 1,
-    index: 0,
-    marker: "<!-- site-behavior-lab:featured-corpus-refresh:gallery -->",
-    title: "Repair the weekly featured corpus refresh (gallery)",
-    label: "site-behavior-lab-featured-refresh-gallery",
-    env: {
-      ISSUE_TITLE: "Repair the weekly featured corpus refresh (gallery)",
-      MANAGED_ISSUE_LABEL: "site-behavior-lab-featured-refresh-gallery",
-      REFRESH_MARKER: "<!-- site-behavior-lab:featured-corpus-refresh:gallery -->",
-      REFRESH_CATALOG: "gallery"
     }
   }
 ];

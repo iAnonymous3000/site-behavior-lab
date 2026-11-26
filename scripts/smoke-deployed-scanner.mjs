@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 
-// Production smoke test for a DEPLOYED full Node/Playwright scanner, the
+// Production smoke test for a DEPLOYED full Node/Playwright v3 scanner, the
 // Cloudflare Containers path (docs/deploy-cloudflare-containers.md) or any
-// always-on Node deployment. It is API-only (no browser), so it runs anywhere,
-// and it tolerates async scan mode (the container sets SITE_BEHAVIOR_LAB_ASYNC_SCANS=1,
-// so /api/scan returns 202 + a jobId to poll) as well as synchronous responses.
+// always-on Node deployment. It is API-only (no browser), so it runs anywhere
+// against the synchronous POST /api/v3/scan contract.
 //
 // Usage:
 //   SCAN_BASE_URL=https://scan.sitebehavior.org \
@@ -14,18 +13,18 @@
 //   npm run test:smoke:scanner
 //
 // Turnstile note: an OPEN scanner that enforces Turnstile cannot be smoked
-// automatically, Turnstile exists to block exactly this kind of unattended
-// request, and the script has no token to submit. Run this against a deployment
-// configured with an access token and pass SMOKE_SCAN_ACCESS_TOKEN: a matching
-// token is checked *before* Turnstile (see gateScanRequest in container-worker.ts),
-// so it bypasses the challenge. Validate the open public origin's Turnstile path
-// by hand instead (complete the challenge in a browser).
+// automatically — Turnstile exists to block unattended requests. Run this
+// against a deployment configured with an access token and pass
+// SMOKE_SCAN_ACCESS_TOKEN: a matching token is checked *before* Turnstile
+// (see gateScanRequest in container-worker.ts).
 //
 // It verifies the things that distinguish a finished live scanner from the
 // static corpus: health advertises live Shields and an enabled Chromium sandbox,
-// a real scan completes and is stored without a screenshot, a Shields comparison
-// actually runs the ad-block engine, and a link-local SSRF target is refused.
+// a real v3 scan completes and is persisted durably (JSON, HTML, and PDF), a
+// Shields comparison actually runs the ad-block engine, and a link-local SSRF
+// target is refused by the URL-safety guard.
 
+import { REPORT_PDF_MAX_BYTES } from "../lib/report-pdf-limits.ts";
 import {
   hasShieldsComparisonDiff,
   healthMatchesExpectedReportStore,
@@ -37,8 +36,8 @@ import {
   singleReportTotalRequests,
   ssrfGuardRefusalReason
 } from "./smoke-deployed-scanner-report.mjs";
-import { prepareScanAdmission } from "./scan-admission.mjs";
 import {
+  readResponseBytesWithinLimit,
   readResponseJsonWithinLimit,
   readResponseTextWithinLimit,
   withHttpOperationDeadline
@@ -46,8 +45,7 @@ import {
 
 const baseUrl = (process.env.SCAN_BASE_URL || "").trim().replace(/\/+$/, "");
 const token = (process.env.SMOKE_SCAN_ACCESS_TOKEN || process.env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN || "").trim();
-// r2 verification requires at least one subresource to reach the engine. Use
-// neutral, independently hosted standards sites so a sitebehavior.org outage
+// Neutral, independently hosted standards sites so a sitebehavior.org outage
 // cannot block promotion of the commit that repairs that outage. The list is
 // ordered: a later candidate runs only after an earlier candidate's SCAN
 // failed (target-side unavailability), so no single third party's outage or
@@ -57,13 +55,6 @@ const shieldsUrlCandidates = (process.env.SMOKE_SHIELDS_URL || "https://www.iana
   .trim()
   .split(/\s+/)
   .filter(Boolean);
-// The single-scan leg needs the same ordered fallback, and for the same
-// reason: it proves the scanner, not any one target's availability. It kept a
-// single hardcoded target when the Shields leg gained candidates, so one
-// example.com outage failed the whole gate (net::ERR_FAILED, run 30835720588)
-// on a commit that touched nothing in that path. Each candidate is scanned
-// with a query string and fragment appended, so the leg still proves the
-// report scrubs both.
 const singleScanUrlCandidates = (
   process.env.SMOKE_SINGLE_SCAN_URL || "https://example.com/ https://www.iana.org/ https://www.w3.org/"
 )
@@ -71,12 +62,12 @@ const singleScanUrlCandidates = (
   .split(/\s+/)
   .filter(Boolean);
 const expectedStorage = (process.env.SMOKE_EXPECTED_STORAGE || "r2").trim();
-const POLL_INTERVAL_MS = 2000;
-const MAX_POLLS = 120; // ~4 min ceiling for a Shields comparison (two visits)
 const requestTimeoutMs = boundedIntegerEnv("SMOKE_SCANNER_REQUEST_TIMEOUT_MS", 30_000, 1_000, 60_000);
+const scanTimeoutMs = boundedIntegerEnv("SMOKE_SCANNER_SCAN_TIMEOUT_MS", 180_000, 10_000, 300_000);
+const pdfTimeoutMs = boundedIntegerEnv("SMOKE_SCANNER_PDF_TIMEOUT_MS", 60_000, 5_000, 120_000);
 const controlResponseMaxBytes = 256 * 1024;
 const reportResponseMaxBytes = 32 * 1024 * 1024;
-const htmlResponseMaxBytes = 2 * 1024 * 1024;
+const htmlResponseMaxBytes = 4 * 1024 * 1024;
 
 if (!baseUrl) {
   fail("Set SCAN_BASE_URL to the deployed scanner origin, e.g. https://scan.sitebehavior.org");
@@ -104,81 +95,107 @@ function boundedIntegerEnv(name, fallback, minimum, maximum) {
   return value;
 }
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function authHeaders(extra = {}) {
   const headers = { ...extra };
   if (token) headers["x-site-behavior-lab-access-token"] = token;
   return headers;
 }
 
-async function requestJson(url, init, label, maxBytes = reportResponseMaxBytes) {
-  return guardedRequest(url, init, label, async (response) => {
-    const contentType = response.headers.get("content-type") || "";
-    if (!contentType.includes("application/json")) {
-      fail(`${label} returned ${response.status} with non-JSON content`);
-    }
-    try {
-      return await readResponseJsonWithinLimit(response, { maxBytes, label });
-    } catch (error) {
-      if (error instanceof RangeError) fail(error.message);
-      if (error instanceof SyntaxError) fail(`${label} returned malformed JSON`);
-      throw error;
-    }
-  });
-}
-
-async function requestText(url, init, label) {
-  return guardedRequest(url, init, label, (response) =>
-    readResponseTextWithinLimit(response, { maxBytes: htmlResponseMaxBytes, label })
+async function requestJson(url, init, label, maxBytes = reportResponseMaxBytes, timeoutMs = requestTimeoutMs) {
+  return guardedRequest(
+    url,
+    init,
+    label,
+    async (response) => {
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        fail(`${label} returned ${response.status} with non-JSON content`);
+      }
+      try {
+        return await readResponseJsonWithinLimit(response, { maxBytes, label });
+      } catch (error) {
+        if (error instanceof RangeError) fail(error.message);
+        if (error instanceof SyntaxError) fail(`${label} returned malformed JSON`);
+        throw error;
+      }
+    },
+    timeoutMs
   );
 }
 
-async function guardedRequest(url, init, label, read) {
+async function requestText(url, init, label, timeoutMs = requestTimeoutMs) {
+  return guardedRequest(
+    url,
+    init,
+    label,
+    (response) => readResponseTextWithinLimit(response, { maxBytes: htmlResponseMaxBytes, label }),
+    timeoutMs
+  );
+}
+
+async function requestBytes(url, init, label, maxBytes = REPORT_PDF_MAX_BYTES, timeoutMs = pdfTimeoutMs) {
+  return guardedRequest(
+    url,
+    init,
+    label,
+    (response) => readResponseBytesWithinLimit(response, { maxBytes, label }),
+    timeoutMs
+  );
+}
+
+async function guardedRequest(url, init, label, read, timeoutMs = requestTimeoutMs) {
   try {
-    return await withHttpOperationDeadline(
-      { timeoutMs: requestTimeoutMs, label },
-      async (signal) => {
-        const response = await fetch(url, { ...init, redirect: "error", signal });
-        return { response, value: await read(response) };
-      }
-    );
+    return await withHttpOperationDeadline({ timeoutMs, label }, async (signal) => {
+      const response = await fetch(url, { ...init, redirect: "error", signal });
+      return { response, value: await read(response) };
+    });
   } catch (error) {
     if (error instanceof RangeError) fail(error.message);
-    fail(`${label} request failed or exceeded its ${requestTimeoutMs}ms deadline`);
+    fail(`${label} request failed or exceeded its ${timeoutMs}ms deadline`);
   }
 }
 
-// Submit a scan and return the raw API payload (a report, or an async submission).
 async function submitScan(body) {
-  const admission = prepareScanAdmission(body);
   const { response, value: payload } = await requestJson(
-    `${baseUrl}/api/scan`,
+    `${baseUrl}/api/v3/scan`,
     {
       method: "POST",
-      headers: authHeaders({ "content-type": "application/json", ...admission.headers }),
-      body: JSON.stringify(admission.body)
+      headers: authHeaders({ "content-type": "application/json" }),
+      body: JSON.stringify(body)
     },
-    "/api/scan"
+    "/api/v3/scan",
+    reportResponseMaxBytes,
+    scanTimeoutMs
   );
   return { status: response.status, payload };
 }
 
-function isAsyncSubmission(payload) {
-  return Boolean(payload && payload.ok && payload.status === "queued" && typeof payload.statusPath === "string");
-}
-
-function isReport(payload) {
-  return isSupportedDeployedReport(payload);
-}
-
-// Resolve a submission to a finished report, polling the job status if async.
-async function resolveReport(submission, label, { tolerateScanFailure = false } = {}) {
-  const { payload } = submission;
-  if (isReport(payload)) return { report: payload };
-  if (isAsyncSubmission(payload)) return pollJob(payload.statusPath, label, { tolerateScanFailure });
+function resolveReport(submission, label, { tolerateScanFailure = false } = {}) {
+  const { status, payload } = submission;
+  if (status === 200 && payload?.ok === true && isSupportedDeployedReport(payload.report)) {
+    const report = payload.report;
+    const leadOutcome = report.leadArm?.loadOutcome;
+    if (leadOutcome && leadOutcome !== "ok") {
+      const reason = `leadArm loadOutcome=${leadOutcome} (httpStatus=${report.leadArm?.httpStatus ?? "n/a"})`;
+      if (tolerateScanFailure) return { scanFailure: reason };
+      fail(`${label}: ${reason}`);
+    }
+    if (Array.isArray(report.comparisonArms)) {
+      const failedComparison = report.comparisonArms.find((arm) => arm?.loadOutcome && arm.loadOutcome !== "ok");
+      if (failedComparison) {
+        const reason = `comparison arm ${failedComparison.armId} loadOutcome=${failedComparison.loadOutcome}`;
+        if (tolerateScanFailure) return { scanFailure: reason };
+        fail(`${label}: ${reason}`);
+      }
+    }
+    return {
+      report,
+      reportId: payload.reportId,
+      apiPath: payload.apiPath,
+      sharePath: payload.sharePath,
+      pdfPath: payload.pdfPath
+    };
+  }
   const errorText = payload && typeof payload.error === "string" ? payload.error : "";
   if (/turnstile/i.test(errorText)) {
     fail(
@@ -187,49 +204,18 @@ async function resolveReport(submission, label, { tolerateScanFailure = false } 
         "(a valid token bypasses Turnstile); an open Turnstile-gated public origin cannot be smoked automatically."
     );
   }
+  if ((status === 502 || status === 504) && tolerateScanFailure) {
+    return { scanFailure: `HTTP ${status} (${errorText || "upstream target failure"})` };
+  }
   fail(`${label}: scan was not accepted (${errorText || JSON.stringify(payload)})`);
 }
 
-async function pollJob(statusPath, label, { tolerateScanFailure = false } = {}) {
-  const url = /^https?:\/\//i.test(statusPath) ? statusPath : `${baseUrl}${statusPath}`;
-  for (let attempt = 0; attempt < MAX_POLLS; attempt += 1) {
-    const { response, value: data } = await requestJson(
-      url,
-      { headers: authHeaders(), cache: "no-store" },
-      "/api/scans/:id"
-    );
-    if (!data.ok) fail(`${label}: job poll failed (${data.error || response.status})`);
-    if (data.status === "succeeded") {
-      if (data.report) return { report: data.report };
-      fail(`${label}: job succeeded without a report`);
-    }
-    if (data.status === "failed" || data.status === "expired" || data.status === "cancelled") {
-      // The scanner infrastructure answered every poll; only the SCAN of this
-      // particular target failed. That is attributable to the target when a
-      // caller has an independent fallback target to prove the scanner with.
-      const reason = `job ${data.status} (${data.error || "no reason given"})`;
-      if (tolerateScanFailure) return { scanFailure: reason };
-      fail(`${label}: ${reason}`);
-    }
-    await sleep(POLL_INTERVAL_MS);
-  }
-  const timeoutReason = `job did not finish within ${(MAX_POLLS * POLL_INTERVAL_MS) / 1000}s`;
-  if (tolerateScanFailure) return { scanFailure: timeoutReason };
-  fail(`${label}: ${timeoutReason}`);
-}
-
-async function fetchSavedReport(jsonPath) {
-  const url = /^https?:\/\//i.test(jsonPath) ? jsonPath : `${baseUrl}${jsonPath}`;
-  const { value } = await requestJson(
-    url,
-    { headers: authHeaders(), cache: "no-store" },
-    jsonPath
-  );
+async function fetchSavedReport(apiPath) {
+  const url = /^https?:\/\//i.test(apiPath) ? apiPath : `${baseUrl}${apiPath}`;
+  const { value } = await requestJson(url, { headers: authHeaders(), cache: "no-store" }, apiPath);
   return value;
 }
 
-// Fetch the human-shareable HTML report page (the thing the Share button links
-// to). JSON readback alone does not prove a deployment can render this page.
 async function fetchReportPage(pagePath) {
   const url = /^https?:\/\//i.test(pagePath) ? pagePath : `${baseUrl}${pagePath}`;
   const { response, value: body } = await requestText(
@@ -239,6 +225,17 @@ async function fetchReportPage(pagePath) {
   );
   const contentType = response.headers.get("content-type") || "";
   return { ok: response.ok, status: response.status, contentType, body };
+}
+
+async function fetchReportPdf(pdfPath) {
+  const url = /^https?:\/\//i.test(pdfPath) ? pdfPath : `${baseUrl}${pdfPath}`;
+  const { response, value: bytes } = await requestBytes(
+    url,
+    { headers: authHeaders({ accept: "application/pdf" }), cache: "no-store" },
+    pdfPath
+  );
+  const contentType = response.headers.get("content-type") || "";
+  return { ok: response.ok, status: response.status, contentType, bytes };
 }
 
 async function checkHealth() {
@@ -256,7 +253,7 @@ async function checkHealth() {
   }
   if (!capabilities.savedReports) fail("health does not advertise durable savedReports (bind R2)");
   if (!capabilities.savedReportPages) {
-    fail("health does not advertise savedReportPages, this origin cannot serve human-shareable /reports/:id pages");
+    fail("health does not advertise savedReportPages, this origin cannot serve human-shareable report pages");
   }
   if (!healthMatchesExpectedReportStore(health, expectedStorage)) {
     fail(`health does not prove the expected ${expectedStorage} report store is configured`);
@@ -271,7 +268,7 @@ async function checkHealth() {
 async function checkSingleScan() {
   const candidateFailures = [];
   for (const candidate of singleScanUrlCandidates) {
-    const outcome = await resolveReport(
+    const outcome = resolveReport(
       await submitScan({
         url: `${candidate}?token=smoke-secret#frag`,
         device: "desktop",
@@ -279,9 +276,9 @@ async function checkSingleScan() {
         consentMode: "observe"
       }),
       "single scan",
-      // Same rule as the Shields leg: a target-attributable scan failure falls
-      // through, and only every candidate failing stays red, because that is
-      // what indicates scanner-side breakage rather than one site's outage.
+      // A target-attributable scan failure falls through, and only every
+      // candidate failing stays red, because that is what indicates
+      // scanner-side breakage rather than one site's outage.
       { tolerateScanFailure: true }
     );
     if (outcome.scanFailure) {
@@ -291,43 +288,71 @@ async function checkSingleScan() {
       );
       continue;
     }
-    await assertSingleScanReport(outcome.report);
+    await assertSingleScanReport(outcome);
     return;
   }
   fail(`single scan failed on every candidate target: ${candidateFailures.join("; ")}`);
 }
 
-async function assertSingleScanReport(report) {
+async function assertSingleScanReport(outcome) {
+  const { report, reportId, apiPath, sharePath, pdfPath } = outcome;
+  if (report.schemaVersion !== 3) fail(`single scan returned unexpected schemaVersion ${report.schemaVersion}`);
   const totalRequests = singleReportTotalRequests(report);
   if (totalRequests === null || totalRequests < 1) fail("single scan produced no requests");
-  if (JSON.stringify(report).includes("smoke-secret")) fail("single scan leaked a query-string secret");
-  if (!report.share?.jsonPath?.startsWith("/api/reports/")) fail("single scan did not return a share permalink");
-
-  const saved = await fetchSavedReport(report.share.jsonPath);
-  if (!isSupportedDeployedReport(saved) || saved.share?.id !== report.share.id) {
-    fail("saved report endpoint did not return the scan");
+  if (
+    report.leadArm?.keystrokes?.fieldsTyped === 0 &&
+    report.leadArm?.probes?.keystrokes?.status === "complete"
+  ) {
+    fail("single scan marked probes.keystrokes as complete despite 0 fields typed");
   }
-  if (savedReportRetainsScreenshot(saved)) fail("saved report retained an inline screenshot");
-  pass("single scan completes, is stored durably, and is screenshot-stripped");
+  if (JSON.stringify(report).includes("smoke-secret")) fail("single scan leaked a query-string secret");
+  if (apiPath !== `/api/v3/reports/${reportId}`) fail(`single scan returned unexpected apiPath ${apiPath}`);
+  if (sharePath !== `/v3/reports/${reportId}`) fail(`single scan returned unexpected sharePath ${sharePath}`);
+  if (pdfPath !== `/api/v3/reports/${reportId}/pdf`) fail(`single scan returned unexpected pdfPath ${pdfPath}`);
 
-  // The share permalink is only useful if the HTML page renders, not just the JSON.
-  if (!report.share?.path?.startsWith("/reports/")) fail("single scan did not return a shareable report page path");
-  const page = await fetchReportPage(report.share.path);
-  if (!page.ok) fail(`shareable report page ${report.share.path} returned ${page.status}`);
-  if (!page.contentType.includes("text/html")) fail(`shareable report page returned non-HTML content (${page.contentType})`);
-  if (!page.body.includes(report.share.id)) fail("shareable report page did not render the scanned report");
-  pass("shareable report page renders the saved report as HTML");
+  const saved = await fetchSavedReport(apiPath);
+  if (!isSupportedDeployedReport(saved) || saved.reportId !== reportId) {
+    fail("saved v3 report endpoint did not return the scan");
+  }
+  if (savedReportRetainsScreenshot(saved)) fail("saved v3 report retained screenshot material");
+  pass("single v3 scan completes, is stored durably, and is screenshot-free");
+
+  const page = await fetchReportPage(sharePath);
+  if (!page.ok) fail(`shareable v3 report page ${sharePath} returned ${page.status}`);
+  if (!page.contentType.includes("text/html")) {
+    fail(`shareable v3 report page returned non-HTML content (${page.contentType})`);
+  }
+  if (!page.body.includes(reportId)) fail("shareable v3 report page did not render the scanned report");
+  pass("shareable v3 report page renders the saved report as HTML");
+
+  const pdf = await fetchReportPdf(pdfPath);
+  if (!pdf.ok) fail(`v3 report PDF ${pdfPath} returned ${pdf.status}`);
+  if (!pdf.contentType.toLowerCase().includes("application/pdf")) {
+    fail(`v3 report PDF returned unexpected content-type (${pdf.contentType})`);
+  }
+  if (
+    pdf.bytes.byteLength < 5 ||
+    pdf.bytes[0] !== 0x25 ||
+    pdf.bytes[1] !== 0x50 ||
+    pdf.bytes[2] !== 0x44 ||
+    pdf.bytes[3] !== 0x46 ||
+    pdf.bytes[4] !== 0x2d
+  ) {
+    fail("v3 report PDF did not start with %PDF- magic bytes");
+  }
+  pass(`v3 report PDF export succeeds (${pdf.bytes.byteLength} B)`);
 }
 
 async function checkShieldsComparison() {
   const candidateFailures = [];
   for (const shieldsUrl of shieldsUrlCandidates) {
-    const outcome = await resolveReport(
+    const outcome = resolveReport(
       await submitScan({
         url: shieldsUrl,
         device: "desktop",
-        compareShields: true,
-        consentMode: "observe"
+        gpcEnabled: false,
+        consentMode: "observe",
+        comparisons: ["shields-standard"]
       }),
       "Shields comparison",
       // One target's outage or bot wall is attributable to that target and
@@ -346,17 +371,15 @@ async function checkShieldsComparison() {
     }
     const report = outcome.report;
     if (!isShieldsComparisonReport(report)) {
-      fail("Shields request did not produce a Shields comparison report");
+      fail("Shields request did not produce a v3 Shields comparison report");
     }
     if (!hasShieldsComparisonDiff(report)) fail("Shields comparison is missing its diff");
     if (!shieldsEngineActive(report)) {
       fail(`Shields comparison ran without the ad-block engine active: ${shieldsPostureSummary(report)}`);
     }
-    // Two DIFFERENT measurements, never blended: the variant's engine-aborted
-    // count and the baseline's filter-list matches while loading normally.
     const { baseline: filterMatches, variant: engineBlocked } = shieldsBlockedCounts(report);
     pass(
-      `live Shields comparison ran on ${shieldsUrl} (engine active; engine-blocked: ${engineBlocked ?? "n/a"}, baseline filter matches: ${filterMatches ?? "n/a"})`
+      `live v3 Shields comparison ran on ${shieldsUrl} (engine active; engine-blocked: ${engineBlocked ?? "n/a"}, baseline filter matches: ${filterMatches ?? "n/a"})`
     );
     return;
   }
@@ -364,29 +387,21 @@ async function checkShieldsComparison() {
 }
 
 function shieldsPostureSummary(report) {
-  if (report.schemaVersion === 1) {
-    return JSON.stringify({
-      baseline: { adblock: report.baseline?.conditions?.adblock, shieldsMode: report.baseline?.conditions?.shieldsMode },
-      variant: { adblock: report.variant?.conditions?.adblock, shieldsMode: report.variant?.conditions?.shieldsMode }
-    });
-  }
   return JSON.stringify({
-    baseline: {
-      shields: report.baseline?.conditions?.shields,
-      facts: report.baseline?.verificationFacts?.shields,
-      verification: report.experiment?.verification?.baseline
-    },
-    variant: {
-      shields: report.variant?.conditions?.shields,
-      facts: report.variant?.verificationFacts?.shields,
-      verification: report.experiment?.verification?.variant
-    }
+    engineVersions: report.provenance?.engineVersions,
+    leadShieldsMode: report.leadArm?.conditions?.shieldsMode,
+    comparisonArms: Array.isArray(report.comparisonArms)
+      ? report.comparisonArms.map((arm) => ({
+          armId: arm.armId,
+          shieldsMode: arm.conditions?.shieldsMode,
+          loadOutcome: arm.loadOutcome
+        }))
+      : []
   });
 }
 
 async function checkSsrfRefusal() {
-  // A link-local literal (cloud metadata range) must never be scannable. Refusal
-  // can arrive at submit (URL-shape check) or as a failed job, both are a pass.
+  // A link-local literal (cloud metadata range) must never be scannable.
   const submission = await submitScan({
     url: "http://169.254.169.254/",
     device: "desktop",
@@ -396,50 +411,25 @@ async function checkSsrfRefusal() {
   const { payload } = submission;
   if (payload && payload.ok === false) {
     const reason = typeof payload.error === "string" ? payload.error : "";
-    // A gate rejection (Turnstile / auth / rate limit) stops the request BEFORE it
-    // reaches the URL-safety guard, so it proves nothing about SSRF protection.
-    // Treat it as inconclusive, never a pass. This is the trap that let a
-    // Turnstile "refusal" masquerade as SSRF coverage.
+    // A gate rejection (Turnstile / auth / rate limit) stops the request BEFORE
+    // it reaches the URL-safety guard, so it proves nothing about SSRF
+    // protection. Treat it as inconclusive, never a pass.
     if (/turnstile|unauthorized|access token|not configured for public|rate limit|too many/i.test(reason)) {
       fail(
         `SSRF check inconclusive: a gate stopped the request before the URL-safety guard (${reason || "rejected"}). ` +
           "Run with SMOKE_SCAN_ACCESS_TOKEN against a token-gated deployment so the scan reaches the guard."
       );
     }
-    // Require the refusal to actually name an unsafe-address reason from the URL
-    // guard, so an unrelated 4xx cannot be mistaken for SSRF coverage.
     if (!ssrfGuardRefusalReason({ status: "failed", error: reason })) {
       fail(`link-local target refused, but not by the URL-safety guard (${reason || "no reason given"})`);
     }
     pass(`link-local SSRF target refused by the URL-safety guard (${reason})`);
     return;
   }
-  if (isAsyncSubmission(payload)) {
-    const url = /^https?:\/\//i.test(payload.statusPath) ? payload.statusPath : `${baseUrl}${payload.statusPath}`;
-    for (let attempt = 0; attempt < MAX_POLLS; attempt += 1) {
-      const { value: data } = await requestJson(
-        url,
-        { headers: authHeaders(), cache: "no-store" },
-        "/api/scans/:id"
-      );
-      if (data.status === "failed") {
-        const reason = ssrfGuardRefusalReason(data);
-        if (!reason) fail(`link-local scan job failed, but not at the URL-safety guard (${data.error || "no reason given"})`);
-        pass(`link-local SSRF target refused by the scan job URL-safety guard (${reason})`);
-        return;
-      }
-      if (data.status === "expired" || data.status === "cancelled") {
-        fail(`SSRF check inconclusive: link-local scan job ${data.status} (${data.error || "no reason given"})`);
-      }
-      if (data.status === "succeeded") fail("link-local SSRF target was scanned successfully, guard failed");
-      await sleep(POLL_INTERVAL_MS);
-    }
-    fail("SSRF job neither failed nor completed within the poll window");
-  }
   fail(`link-local SSRF target was not refused: ${JSON.stringify(payload)}`);
 }
 
-console.log(`Smoke-testing deployed scanner at ${baseUrl}${token ? " (authenticated)" : ""}`);
+console.log(`Smoke-testing deployed v3 scanner at ${baseUrl}${token ? " (authenticated)" : ""}`);
 await checkHealth();
 await checkSsrfRefusal();
 await checkSingleScan();

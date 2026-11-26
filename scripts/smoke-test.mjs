@@ -9,7 +9,7 @@ import {
 
 const baseUrl = process.env.BASE_URL || "http://127.0.0.1:3000";
 const scanAccessToken = process.env.SMOKE_SCAN_ACCESS_TOKEN || process.env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN || "";
-const scanReportSchemaVersion = 1;
+const scanReportSchemaVersion = 3;
 const scanOperationTimeoutMs = 5 * 60_000;
 const controlOperationTimeoutMs = 30_000;
 const jsonResponseMaxBytes = 32 * 1024 * 1024;
@@ -27,13 +27,13 @@ async function postScan(body) {
   if (scanAccessToken) headers["x-site-behavior-lab-access-token"] = scanAccessToken;
 
   const { value } = await requestJson(
-    `${baseUrl}/api/scan`,
+    `${baseUrl}/api/v3/scan`,
     {
       method: "POST",
       headers,
       body: JSON.stringify(body)
     },
-    "/api/scan",
+    "/api/v3/scan",
     scanOperationTimeoutMs
   );
   return value;
@@ -44,13 +44,13 @@ async function postRawScan(body) {
   if (scanAccessToken) headers["x-site-behavior-lab-access-token"] = scanAccessToken;
 
   const { value } = await requestJson(
-    `${baseUrl}/api/scan`,
+    `${baseUrl}/api/v3/scan`,
     {
       method: "POST",
       headers,
       body
     },
-    "/api/scan",
+    "/api/v3/scan",
     scanOperationTimeoutMs
   );
   return value;
@@ -93,73 +93,88 @@ async function apiChecks() {
     gpcEnabled: true,
     consentMode: "observe"
   });
-  if (!clean.ok || clean.summary.status !== 200 || clean.summary.totalRequests < 1) {
-    fail(`clean page scan did not produce a successful report: ${smokeResponseSummary(clean)}`);
+  const cleanReport = clean.report;
+  if (
+    !clean.ok ||
+    !cleanReport ||
+    cleanReport.schemaVersion !== scanReportSchemaVersion ||
+    cleanReport.leadArm?.loadOutcome !== "ok" ||
+    cleanReport.leadArm?.httpStatus !== 200 ||
+    cleanReport.leadArm?.summary?.totalRequests < 1
+  ) {
+    fail(`clean page v3 scan did not produce a successful report: ${smokeResponseSummary(clean)}`);
   }
-  if (clean.schemaVersion !== scanReportSchemaVersion) {
-    fail("clean page scan did not include the current report schema version");
+  if (
+    !cleanReport.provenance?.engineVersions?.chromium ||
+    !cleanReport.provenance?.timezone ||
+    cleanReport.provenance?.locale !== "en-US" ||
+    !cleanReport.provenance?.egressRegion
+  ) {
+    fail("v3 scan report did not include deterministic browser conditions and provenance");
   }
-  if (!clean.conditions.chromiumVersion || clean.conditions.timezone !== "UTC" || clean.conditions.locale !== "en-US") {
-    fail("scan report did not include deterministic browser conditions");
-  }
-  if (!clean.conditions.scannerEgress || !clean.conditions.scannerDisclosure.includes(clean.conditions.scannerEgress)) {
-    fail(
-      `scan report did not include scanner egress metadata: ${JSON.stringify({
-        scannerEgress: clean.conditions.scannerEgress,
-        scannerDisclosure: clean.conditions.scannerDisclosure
-      })}`
-    );
+  if (
+    cleanReport.leadArm.keystrokes?.fieldsTyped === 0 &&
+    cleanReport.leadArm.probes?.keystrokes?.status === "complete"
+  ) {
+    fail("v3 scan report marked probes.keystrokes complete despite 0 fields typed");
   }
   if (JSON.stringify(clean).includes("smoke-secret")) {
-    fail("scan report leaked a query string secret");
+    fail("v3 scan report leaked a query string secret");
   }
-  if (!clean.share?.path?.startsWith("/reports/") || !clean.share?.jsonPath?.startsWith("/api/reports/")) {
-    fail("scan report did not include share metadata");
+  if (
+    clean.sharePath !== `/v3/reports/${clean.reportId}` ||
+    clean.apiPath !== `/api/v3/reports/${clean.reportId}` ||
+    clean.pdfPath !== `/api/v3/reports/${clean.reportId}/pdf`
+  ) {
+    fail("v3 scan report did not include expected share, API, and PDF paths");
   }
   const { value: savedClean } = await requestJson(
-    `${baseUrl}${clean.share.jsonPath}`,
+    `${baseUrl}${clean.apiPath}`,
     {},
-    clean.share.jsonPath
+    clean.apiPath
   );
-  if (!savedClean.ok || savedClean.share.id !== clean.share.id) {
-    fail("saved report JSON endpoint did not return the scan report");
+  if (savedClean.schemaVersion !== scanReportSchemaVersion || savedClean.reportId !== clean.reportId) {
+    fail("saved v3 report JSON endpoint did not return the scan report");
   }
-  if (savedClean.schemaVersion !== scanReportSchemaVersion) {
-    fail("saved report JSON did not include the current report schema version");
+  const cleanPdf = await fetch(`${baseUrl}${clean.pdfPath}`, { headers: { accept: "application/pdf" } });
+  const cleanPdfBytes = Buffer.from(await cleanPdf.arrayBuffer());
+  if (!cleanPdf.ok || !cleanPdfBytes.subarray(0, 5).equals(Buffer.from("%PDF-"))) {
+    fail(`saved v3 report PDF endpoint failed (${cleanPdf.status})`);
   }
-  if (savedClean.screenshot !== null) {
-    fail("saved report JSON retained an inline screenshot");
-  }
-  pass("API scans a clean page");
+  pass("API scans a clean page via /api/v3/scan and serves JSON + PDF readback");
 
   const comparison = await postScan({
     url: "https://example.com",
     device: "desktop",
-    compareGpc: true,
-    consentMode: "observe"
+    gpcEnabled: false,
+    consentMode: "observe",
+    comparisons: ["gpc"]
   });
+  const compReport = comparison.report;
   if (
     !comparison.ok ||
-    comparison.reportType !== "comparison" ||
-    comparison.baseline.conditions.gpcEnabled !== false ||
-    comparison.variant.conditions.gpcEnabled !== true ||
-    comparison.schemaVersion !== scanReportSchemaVersion ||
-    comparison.baseline.schemaVersion !== scanReportSchemaVersion ||
-    comparison.variant.schemaVersion !== scanReportSchemaVersion ||
-    !comparison.diff.thirdPartyCookies ||
-    !comparison.share?.path?.startsWith("/reports/")
+    !compReport ||
+    compReport.schemaVersion !== scanReportSchemaVersion ||
+    compReport.leadArm?.conditions?.gpcEnabled !== false ||
+    !Array.isArray(compReport.comparisonArms) ||
+    compReport.comparisonArms.length !== 1 ||
+    compReport.comparisonArms[0]?.conditions?.gpcEnabled !== true ||
+    !Array.isArray(compReport.comparisons) ||
+    compReport.comparisons.length !== 1 ||
+    compReport.comparisons[0]?.axis !== "gpc" ||
+    comparison.sharePath !== `/v3/reports/${comparison.reportId}`
   ) {
-    fail("GPC comparison scan did not produce a saved off/on report");
+    fail(`v3 GPC comparison scan did not produce a saved off/on report: ${smokeResponseSummary(comparison)}`);
   }
   const { value: savedComparison } = await requestJson(
-    `${baseUrl}${comparison.share.jsonPath}`,
+    `${baseUrl}${comparison.apiPath}`,
     {},
-    comparison.share.jsonPath
+    comparison.apiPath
   );
-  if (savedComparison.baseline?.screenshot !== null || savedComparison.variant?.screenshot !== null) {
-    fail("saved comparison JSON retained inline screenshots");
+  if (savedComparison.reportId !== comparison.reportId || savedComparison.comparisonArms?.length !== 1) {
+    fail("saved v3 comparison JSON did not round-trip comparison arms");
   }
-  pass("API runs a GPC comparison");
+  pass("API runs a v3 GPC comparison");
 
   const privateTarget = await postScan({
     url: "http://127.0.0.1:3000",
@@ -200,83 +215,26 @@ async function apiChecks() {
   }
   pass("API rejects malformed JSON cleanly");
 
-  await inspectionApiChecks(health);
-  await scrollCheckApiChecks(health);
-}
-
-const scrollCheckSingleOnlyRefusal = "A check after scrolling runs on a single scan only.";
-const scrollCheckUnknownRefusal = "The only check a scan can ask for is the after-scrolling check.";
-const scrollCheckV1Refusal = "This deployment's scanner cannot carry an after-scrolling check.";
-
-/**
- * A check request the gate refuses never visits anything: one beside a
- * comparison or an inspection, and any value but "scroll", are refused before
- * quota or DNS, and a scanner that writes version 1 reports refuses even a
- * well-formed one with its own sentence. Nothing here scans. A scanner whose
- * health says it writes r2 reports would run a real visit, about a minute
- * long, for a well-formed check, so that request is not sent; the in-process
- * fixture test runs one end to end instead (lib/scroll-check-fixture.test.ts).
- */
-async function scrollCheckApiChecks(health) {
-  const base = { url: "https://example.com/", device: "desktop", gpcEnabled: false, consentMode: "observe" };
-  for (const [label, body, message] of [
-    ["beside a comparison", { ...base, compareGpc: true, check: "scroll" }, scrollCheckSingleOnlyRefusal],
-    ["beside an inspection", { ...base, inspect: "https://cdn.example.net/{seg}", check: "scroll" }, scrollCheckSingleOnlyRefusal],
-    ["of another kind", { ...base, check: "zoom" }, scrollCheckUnknownRefusal]
-  ]) {
-    const refused = await postScan(body);
-    if (refused.ok || refused.error !== message || refused.cause !== "request-rejected") {
-      fail(`a check ${label} was not refused before any visit: ${smokeResponseSummary(refused)}`);
-    }
+  // Historical committed archive permalinks and API readback remain usable.
+  const historicalIndex = JSON.parse(
+    readFileSync(path.join(process.cwd(), "public", "reports", "index.json"), "utf8")
+  );
+  const historicalId = historicalIndex.reports[0]?.id;
+  if (!historicalId) fail("historical report index has no entries");
+  const { value: historicalJson } = await requestJson(
+    `${baseUrl}/api/reports/${historicalId}`,
+    {},
+    `/api/reports/${historicalId}`
+  );
+  if (historicalJson.share?.id !== historicalId && historicalJson.id !== historicalId) {
+    fail(`historical report API readback for ${historicalId} did not match`);
   }
-  const producer = health.checks?.publicR2Reports?.status;
-  if (producer === "disabled") {
-    const refused = await postScan({ ...base, check: "scroll" });
-    if (refused.ok || refused.error !== scrollCheckV1Refusal || refused.cause !== undefined) {
-      fail(`a version 1 scanner did not refuse a check with its sentence: ${smokeResponseSummary(refused)}`);
-    }
-    pass("API refuses malformed checks, and a version 1 scanner refuses every check, before any visit");
-  } else {
-    pass(`API refuses malformed checks before any visit (producer ${producer}: a well-formed check would visit, so none is sent)`);
+  const historicalPage = await fetch(`${baseUrl}/reports/${historicalId}`);
+  const historicalHtml = await historicalPage.text();
+  if (!historicalPage.ok || !historicalHtml.includes(historicalId)) {
+    fail(`historical report permalink /reports/${historicalId} failed (${historicalPage.status})`);
   }
-}
-
-const inspectionRequestMessage =
-  "An inspection must name one address exactly as a report publishes it, query dropped, on a single scan.";
-const inspectionV1Refusal =
-  "Inspecting a connection needs a scanner that writes revision 2 reports, and this one writes version 1 reports, so no visit was made.";
-
-/**
- * An inspection request the gate refuses never visits anything: a value that
- * is not a published address, or one beside a comparison, is refused before
- * quota or DNS, and a scanner that writes version 1 reports refuses even a
- * well-formed one with its own sentence. Nothing here scans. A scanner whose
- * health says it writes r2 reports would run a real visit for a well-formed
- * inspection, so that request is not sent; the in-process fixture test runs
- * one end to end instead (lib/connection-inspection-fixture.test.ts).
- */
-async function inspectionApiChecks(health) {
-  const base = { url: "https://example.com/", device: "desktop", gpcEnabled: true, consentMode: "observe" };
-  const inspect = "https://cdn.example.net/{seg}";
-  for (const [label, body] of [
-    ["a raw URL", { ...base, inspect: "https://cdn.example.net/loader.js?id=1" }],
-    ["a comparison", { ...base, compareGpc: true, inspect }]
-  ]) {
-    const refused = await postScan(body);
-    if (refused.ok || refused.error !== inspectionRequestMessage || refused.cause !== "request-rejected") {
-      fail(`an inspection naming ${label} was not refused before any visit: ${smokeResponseSummary(refused)}`);
-    }
-  }
-  const producer = health.checks?.publicR2Reports?.status;
-  if (producer === "disabled") {
-    const refused = await postScan({ ...base, inspect });
-    if (refused.ok || refused.error !== inspectionV1Refusal || refused.cause !== undefined) {
-      fail(`a version 1 scanner did not refuse an inspection with its sentence: ${smokeResponseSummary(refused)}`);
-    }
-    pass("API refuses malformed inspections, and a version 1 scanner refuses every inspection, before any visit");
-  } else {
-    pass(`API refuses malformed inspections before any visit (producer ${producer}: a well-formed inspection would visit, so none is sent)`);
-  }
+  pass("historical committed report API and permalink remain readable");
 }
 
 function smokeResponseSummary(value) {
@@ -284,10 +242,11 @@ function smokeResponseSummary(value) {
   return JSON.stringify({
     ok: value.ok,
     error: value.error,
-    schemaVersion: value.schemaVersion,
-    status: value.summary?.status,
-    totalRequests: value.summary?.totalRequests,
-    warnings: Array.isArray(value.warnings) ? value.warnings.slice(0, 3) : undefined
+    reportId: value.reportId,
+    schemaVersion: value.report?.schemaVersion ?? value.schemaVersion,
+    loadOutcome: value.report?.leadArm?.loadOutcome,
+    httpStatus: value.report?.leadArm?.httpStatus,
+    totalRequests: value.report?.leadArm?.summary?.totalRequests ?? value.summary?.totalRequests
   });
 }
 

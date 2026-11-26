@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import { chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -17,35 +16,26 @@ import {
 const root = process.cwd();
 
 /**
- * The body the monitor actually posts, produced by the real admission helper
- * rather than restated here. `scripts/smoke-production-synthetic.mjs` submits
- * `prepareScanAdmission(...).body` verbatim, so this is the exact wire the
- * Worker's synthetic allowlist has to accept.
+ * The fixed harmless synthetic body that `scripts/smoke-production-v3-synthetic.mjs`
+ * submits to `POST /api/v3/scan`, matching the Worker's synthetic allowlist.
  */
-function productionSyntheticAdmissionBody(url: string): Record<string, unknown> {
-  const program = `
-    import { prepareScanAdmission } from "./scripts/scan-admission.mjs";
-    const bytes = Uint8Array.from({ length: 32 }, (_value, index) => index);
-    console.log(JSON.stringify(prepareScanAdmission({
-      url: ${JSON.stringify(url)},
-      device: "desktop",
-      gpcEnabled: true,
-      consentMode: "observe"
-    }, () => bytes).body));
-  `;
-  const result = spawnSync(process.execPath, ["--input-type=module", "-e", program], {
-    cwd: root,
-    encoding: "utf8"
-  });
-  assert.equal(result.status, 0, result.stderr);
-  return JSON.parse(result.stdout) as Record<string, unknown>;
+function productionSyntheticPayload(url: string): Record<string, unknown> {
+  return {
+    url,
+    device: "desktop",
+    gpcEnabled: true,
+    compareGpc: false,
+    compareShields: false,
+    compareConsent: false,
+    consentMode: "observe"
+  };
 }
 const WORKFLOW = ".github/workflows/production-health.yml";
 const WORKER = "cloudflare/container-worker.ts";
 const workflow = readFileSync(path.join(root, ".github", "workflows", "production-health.yml"), "utf8");
 const containerConfig = readFileSync(path.join(root, "wrangler.container.jsonc"), "utf8");
 const containerWorker = readFileSync(path.join(root, "cloudflare", "container-worker.ts"), "utf8");
-const synthetic = readFileSync(path.join(root, "scripts", "smoke-production-synthetic.mjs"), "utf8");
+const synthetic = readFileSync(path.join(root, "scripts", "smoke-production-v3-synthetic.mjs"), "utf8");
 
 test("production health accepts only reviewed scanner-egress configurations", () => {
   assert.match(
@@ -263,49 +253,31 @@ test("production health supports independent dispatch and reconciles failures in
   assert.match(workflow, /- name: Preserve production-health failure[\s\S]*?exit 1/);
 });
 
-test("the activated production synthetic proves scan execution plus remote report readback", () => {
+test("the activated production synthetic proves v3 scan execution plus remote report readback", () => {
   assert.match(workflow, /secrets\.PRODUCTION_SYNTHETIC_MONITOR_TOKEN/);
   assert.match(workflow, /vars\.PRODUCTION_SYNTHETIC_MONITOR_REQUIRED/);
-  assert.match(workflow, /npm run test:smoke:production-synthetic/);
+  assert.match(workflow, /npm run test:smoke:production-v3-synthetic/);
+  assert.doesNotMatch(workflow, /npm run test:smoke:production-synthetic\b/);
+  assert.match(synthetic, /OPTIONS \/api\/v3\/scan/);
   assert.match(synthetic, /POST/);
-  assert.match(synthetic, /\/api\/scan/);
-  assert.match(synthetic, /singleReportTotalRequests/);
-  assert.match(synthetic, /function assertFixedSyntheticReport/);
-  assert.match(synthetic, /report\.schemaVersion !== 2 \|\| report\.schemaRevision !== 2/);
-  assert.match(synthetic, /report\.run\?\.subject\?\.observed/);
-  assert.match(
-    synthetic,
-    /const \{ runId, startedAt \} = assertFixedSyntheticReport\(report, target, submissionStartedAt, resolved\.queuedReportId\)/
-  );
-  assert.match(synthetic, /savedReportRetainsScreenshot/);
-  assert.match(synthetic, /assertFixedSyntheticReport\(saved, target, submissionStartedAt, report\.share\.id, startedAt\)/);
-  // The ordered fallback stays bounded to the fixed candidates and only a
-  // target-attributable scan failure may fall through.
+  assert.match(synthetic, /\/api\/v3\/scan/);
+  assert.match(synthetic, /function assertFreshV3ReportContract/);
+  assert.match(synthetic, /report\.schemaVersion !== 3/);
+  assert.match(synthetic, /lead\.keystrokes\?\.fieldsTyped === 0 && lead\.probes\?\.keystrokes\?\.status === "complete"/);
   assert.match(synthetic, /class TargetScanFailure extends Error/);
-  assert.match(synthetic, /const syntheticTargets = \[/);
-  assert.match(synthetic, /https:\/\/www\.iana\.org\/domains\/reserved/);
-  assert.match(synthetic, /https:\/\/www\.w3\.org\/TR\//);
+  assert.match(synthetic, /import \{ PRODUCTION_SYNTHETIC_TARGETS \} from "\.\.\/lib\/production-synthetic\.ts"/);
   assert.match(synthetic, /failed on every candidate target/);
-  assert.match(synthetic, /savedRunId !== runId/);
-  assert.match(synthetic, /submissionResponse\.status/);
-  assert.match(synthetic, /response\.status !== 200/);
-  assert.match(synthetic, /startedAtMs < submissionStartedAt - runStartedAtClockSkewMs/);
-  assert.match(synthetic, /startedAtMs > Date\.now\(\) \+ runStartedAtClockSkewMs/);
-  assert.match(synthetic, /singleReportTotalRequests\(saved\)/);
-  assert.match(synthetic, /report\.share\.jsonPath/);
-  assert.match(synthetic, /report\.share\.path/);
-  assert.match(synthetic, /redirect: "error"/);
-  assert.match(synthetic, /sameOriginUrl\(payload\.statusPath/);
-  assert.match(synthetic, /sameOriginUrl\(report\.share\.jsonPath/);
-  assert.match(synthetic, /sameOriginUrl\(report\.share\.path/);
-  assert.match(synthetic, /canonical contract gate/);
-  assert.match(synthetic, /withHttpOperationDeadline\([\s\S]*timeoutMs: timeout/);
-  assert.match(synthetic, /fetch\(url,[\s\S]*redirect: "error",[\s\S]*signal/);
+  assert.match(synthetic, /scannedAtMs < submissionStartedAt - clockSkewMs/);
+  assert.match(synthetic, /scannedAtMs > Date\.now\(\) \+ clockSkewMs/);
+  assert.match(synthetic, /GET \/api\/v3\/reports\/\$\{reportId\}/);
+  assert.match(synthetic, /GET \/v3\/reports\/\$\{reportId\}/);
+  assert.match(synthetic, /GET \/api\/v3\/reports\/\$\{reportId\}\/pdf/);
+  assert.match(synthetic, /%PDF- magic bytes/);
+  assert.match(synthetic, /redirect: "manual"/);
+  assert.match(synthetic, /withHttpOperationDeadline\(/);
   assert.match(synthetic, /PRODUCTION_SYNTHETIC_REQUEST_TIMEOUT_MS/);
-  assert.match(synthetic, /PRODUCTION_SYNTHETIC_TOTAL_TIMEOUT_MS/);
+  assert.match(synthetic, /PRODUCTION_V3_SYNTHETIC_SCAN_TIMEOUT_MS/);
   assert.match(workflow, /timeout-minutes: 12/);
-  assert.equal(synthetic.includes("PRODUCTION_SYNTHETIC_TARGET"), false);
-  assert.match(synthetic, new RegExp(PRODUCTION_SYNTHETIC_TARGET.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
 
   assert.match(containerWorker, /SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN/);
   assert.match(containerWorker, /constantTimeEqual\(suppliedMonitorToken, expectedMonitorToken\)/);
@@ -316,13 +288,7 @@ test("the activated production synthetic proves scan execution plus remote repor
   const centralForwarder = sliceBetween(containerWorker, "function forwardToContainer(", "function frontDoorOrigin(", WORKER);
   assert.match(centralForwarder, /headers\.delete\(SYNTHETIC_MONITOR_TOKEN_HEADER\)/);
 
-  // Build the fixture with the SAME producer the monitor posts with, never by
-  // hand. A hand-written payload is how this gate and its producer drifted
-  // apart once already: prepareScanAdmission always writes the three
-  // comparison flags, so a four-key literal agreed with the allowlist about a
-  // shape nothing submits, and every activated synthetic would have been
-  // refused with a 400 that no test could see.
-  const exactPayload = productionSyntheticAdmissionBody(PRODUCTION_SYNTHETIC_TARGET);
+  const exactPayload = productionSyntheticPayload(PRODUCTION_SYNTHETIC_TARGET);
   assert.deepEqual(Object.keys(exactPayload).sort(), [
     "compareConsent",
     "compareGpc",
@@ -333,14 +299,10 @@ test("the activated production synthetic proves scan execution plus remote repor
     "url"
   ]);
   assert.equal(isProductionSyntheticScanPayload(exactPayload), true);
-  // Every fixed candidate target is authorized, and nothing else: the ordered
-  // fallback never widens the credential beyond the allowlisted pages.
   assert.equal(PRODUCTION_SYNTHETIC_TARGETS[0], PRODUCTION_SYNTHETIC_TARGET);
   assert.equal(PRODUCTION_SYNTHETIC_TARGETS.length >= 2, true);
   for (const url of PRODUCTION_SYNTHETIC_TARGETS) {
-    // Each candidate goes through the producer too, so a target the monitor
-    // could not actually canonicalize can never look authorized here.
-    assert.equal(isProductionSyntheticScanPayload(productionSyntheticAdmissionBody(url)), true);
+    assert.equal(isProductionSyntheticScanPayload(productionSyntheticPayload(url)), true);
   }
   assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, url: "https://example.com/" }), false);
   assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, url: "https://www.w3.org/" }), false);
@@ -350,8 +312,6 @@ test("the activated production synthetic proves scan execution plus remote repor
   assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, device: "mobile" }), false);
   assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, gpcEnabled: false }), false);
   assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, consentMode: "accept-all" }), false);
-  // This credential bypasses Turnstile, so a request carrying a Turnstile token
-  // is not its fixed contract even though admission would accept the field.
   assert.equal(isProductionSyntheticScanPayload({ ...exactPayload, turnstileToken: "t" }), false);
   for (const key of Object.keys(exactPayload)) {
     const missing = { ...exactPayload };

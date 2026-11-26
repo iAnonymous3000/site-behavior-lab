@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - main
-  # Dispatched by the data workflows (scan, scan-featured, update-brave-lists)
+  # Dispatched by the data workflows (update-brave-lists, seed-v3-corpus)
   # after their GITHUB_TOKEN pushes, which never fire `on: push`: the corpus
   # commit gets a real CI run. This workflow promotes its own tested SHA because
   # a token-dispatched run does not reliably cascade into a third workflow via

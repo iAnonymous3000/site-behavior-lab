@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFile, spawn } from "node:child_process";
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import net from "node:net";
 import path from "node:path";
@@ -13,13 +13,10 @@ import {
   readResponseTextWithinLimit,
   withHttpOperationDeadline
 } from "./http-response.mjs";
-import {
-  savedReportRetainsScreenshot,
-  singleReportTotalRequests
-} from "./smoke-deployed-scanner-report.mjs";
+import { savedReportRetainsScreenshot } from "./smoke-deployed-scanner-report.mjs";
 import { REPORT_PDF_MAX_BYTES } from "../lib/report-pdf-limits.ts";
 import { pdfPageCount, pdfText, pdfTextIncludes } from "./pdf-text-lib.mjs";
-import { assertReportExportAcceptance } from "./report-export-acceptance.mjs";
+import { assertReportExportAcceptance, PDF_EXPORT_WITNESSES } from "./report-export-acceptance.mjs";
 import { startSmokeR2Server } from "./smoke-r2-server.mjs";
 
 process.on("uncaughtException", (error) => {
@@ -89,7 +86,7 @@ try {
     ]);
   }
 
-  await runV1ImageSmoke();
+  await runFilesystemImageSmoke();
   if (publicR2Smoke) await runPublicR2ImageSmoke();
 } finally {
   for (const containerId of runningContainers) {
@@ -98,24 +95,23 @@ try {
   await smokeR2?.close().catch(() => undefined);
 }
 
-async function runV1ImageSmoke() {
+async function runFilesystemImageSmoke() {
   const scanner = await startScannerContainer([
-    // This label is in the frozen v1 redaction allowlist; an invented suffix
-    // would be intentionally generalized and make the smoke test its own
-    // source of invalid methodology metadata.
+    // This label is in the redaction allowlist; an invented suffix would be
+    // generalized and make the smoke test its own source of invalid metadata.
     "SITE_BEHAVIOR_LAB_SCANNER_EGRESS=docker-smoke",
     "SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1"
   ]);
   try {
     assertSandboxEnabled(scanner.health);
     if (scanner.health.storage !== "filesystem") {
-      throw new Error("Default Docker smoke did not retain the filesystem/v1 report lane.");
+      throw new Error("Default Docker smoke did not retain the filesystem report lane.");
     }
     await run("node", ["scripts/smoke-test.mjs"], {
       BASE_URL: scanner.baseUrl,
       SMOKE_SCAN_ACCESS_TOKEN: token
     });
-    console.log(`Docker v1/filesystem smoke passed for ${image} at ${scanner.baseUrl}.`);
+    console.log(`Docker filesystem/v3 smoke passed for ${image} at ${scanner.baseUrl}.`);
   } catch (error) {
     await printScannerLogs(scanner.containerId);
     throw error;
@@ -152,17 +148,17 @@ async function runPublicR2ImageSmoke() {
       scanner.health.checks?.publicR2Reports?.status !== "enabled" ||
       scanner.health.checks?.consentVerification !== "enabled"
     ) {
-      throw new Error("Docker health did not confirm the production public-v2/R2 posture.");
+      throw new Error("Docker health did not confirm the production R2 posture.");
     }
     await run("node", ["scripts/smoke-deployed-scanner.mjs"], {
       SCAN_BASE_URL: scanner.baseUrl,
       SMOKE_SCAN_ACCESS_TOKEN: token,
       SMOKE_EXPECTED_STORAGE: "r2"
     });
-    assertPublicR2Bundles(smokeR2.snapshot());
-    await assertPrintableReportRoute(scanner.baseUrl, smokeR2.snapshot());
+    assertPublicR2V3Bundles(smokeR2.snapshot());
+    await assertPrintableReportRoute(scanner.baseUrl);
     await assertV3RuntimeEndpoints(scanner.baseUrl, smokeR2);
-    console.log(`Docker public-v2/R2 smoke passed for ${image} at ${scanner.baseUrl}.`);
+    console.log(`Docker public-v3/R2 smoke passed for ${image} at ${scanner.baseUrl}.`);
   } catch (error) {
     await printScannerLogs(scanner.containerId);
     throw error;
@@ -230,30 +226,47 @@ async function printScannerLogs(containerId) {
 }
 
 /**
- * The printable route, rendered by the real container.
+ * The historical printable route and PDF export, rendered by the real
+ * container against a committed report from public/reports/.
  *
  * Everything else that covers this route reads source text or drives a
  * hand-written fixture, so the route could throw at runtime, or ReportRenderer's
- * printComplete path could regress, with every gate still green. It is also the
- * only surface where the container and the static export deliberately differ,
- * and it exists on exactly one of them.
+ * printComplete path could regress, with every gate still green. Running it
+ * against a committed historical report proves historical permalinks, exact
+ * wire-digest receipts, and PDF export stay intact after moving live scanning
+ * to v3.
  */
-async function assertPrintableReportRoute(baseUrl, objects) {
-  const storedReports = objects
-    .filter(({ key }) => /^reports\/[0-9]{8}-[0-9a-f]{32}\.json$/.test(key))
-    .map((object) => ({ ...object, report: JSON.parse(object.body) }));
-  const storedSingle = storedReports.find(
-    ({ report }) => singleReportTotalRequests(report) !== null
-  );
-  if (!storedSingle) {
-    throw new Error("Printable-route smoke found no persisted single report to render.");
+function historicalReportExpectedRequestRows(report) {
+  if (report?.reportType === "comparison") {
+    const baseline = report.baseline?.evidence?.requests ?? report.baseline?.requests;
+    const variant = report.variant?.evidence?.requests ?? report.variant?.requests;
+    if (Array.isArray(baseline) && Array.isArray(variant)) {
+      return baseline.length + variant.length;
+    }
+    return null;
   }
-  const reportKey = storedSingle.key;
-  const reportId = reportKey.slice("reports/".length, -".json".length);
-  const expectedRequestRows = singleReportTotalRequests(storedSingle.report);
+  const single = report?.run?.evidence?.requests ?? report?.requests;
+  return Array.isArray(single) ? single.length : null;
+}
+
+async function assertPrintableReportRoute(baseUrl) {
+  const reportId = PDF_EXPORT_WITNESSES[0]?.id;
+  if (!reportId) {
+    throw new Error("Printable-route smoke found no committed historical witness to render.");
+  }
+  const reportPath = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "..",
+    "public",
+    "reports",
+    `${reportId}.json`
+  );
+  const wire = readFileSync(reportPath, "utf8");
+  const report = JSON.parse(wire);
+  const expectedRequestRows = historicalReportExpectedRequestRows(report);
   if (
     !Number.isSafeInteger(expectedRequestRows) ||
-    expectedRequestRows < 0
+    expectedRequestRows < 1
   ) {
     throw new Error(
       `Printable-route smoke report records an invalid request count: ${String(expectedRequestRows)}.`
@@ -261,11 +274,7 @@ async function assertPrintableReportRoute(baseUrl, objects) {
   }
 
   // Bounded in time as well as bytes: a container that returns headers and
-  // then stalls its body would otherwise hang CI rather than fail it. The
-  // health probe below uses the same deadline wrapper.
-  // Both the headers AND the body inside one deadline: reading the body after
-  // the wrapper returns leaves a stalled body unbounded in time, which is the
-  // hang this was meant to prevent.
+  // then stalls its body would otherwise hang CI rather than fail it.
   const html = await withHttpOperationDeadline(
     { timeoutMs: 30_000, label: "printable report route" },
     async (signal) => {
@@ -305,20 +314,19 @@ async function assertPrintableReportRoute(baseUrl, objects) {
     throw new Error("Printable report route is missing its noindex robots directive.");
   }
 
-  // Count the request-table body, not every table header on the page. The
-  // report's recorded request count is the completeness contract: a route that
-  // rendered two token rows would satisfy the old floor while silently losing
-  // almost all of its printable evidence.
+  // Count every request-table body across rendered arms. The report's retained
+  // request count is the completeness contract: a route that rendered a
+  // truncated table would silently drop printable evidence.
   const renderedRows = renderedRequestRowCount(html);
   if (renderedRows !== expectedRequestRows) {
     throw new Error(
       `Printable report route rendered ${renderedRows} request rows; ` +
-        `the stored report records ${expectedRequestRows}.`
+        `the committed report records ${expectedRequestRows}.`
     );
   }
-  console.log(`Printable report route rendered all ${renderedRows} request rows for ${reportId}.`);
+  console.log(`Printable report route rendered all ${renderedRows} request rows for historical report ${reportId}.`);
 
-  await assertReportPdfRoute(baseUrl, reportId, storedSingle.body, expectedRequestRows);
+  await assertReportPdfRoute(baseUrl, reportId, wire, expectedRequestRows);
 }
 
 /**
@@ -536,19 +544,24 @@ function committedReportIdCandidates() {
 }
 
 function renderedRequestRowCount(html) {
-  const requestTableStart = html.search(
-    /<div\b[^>]*class="[^"]*\brequest-table\b[^"]*"[^>]*>/i
-  );
-  if (requestTableStart < 0) {
+  const tablePattern = /<div\b[^>]*class="[^"]*\brequest-table\b[^"]*"[^>]*>/gi;
+  let totalRows = 0;
+  let tablesFound = 0;
+  let match;
+  while ((match = tablePattern.exec(html)) !== null) {
+    tablesFound += 1;
+    const bodyStart = html.indexOf("<tbody", match.index);
+    const bodyOpenEnd = bodyStart < 0 ? -1 : html.indexOf(">", bodyStart);
+    const bodyEnd = bodyOpenEnd < 0 ? -1 : html.indexOf("</tbody>", bodyOpenEnd + 1);
+    if (bodyStart < 0 || bodyOpenEnd < 0 || bodyEnd < 0) {
+      throw new Error("Printable report route rendered an incomplete request table body.");
+    }
+    totalRows += (html.slice(bodyOpenEnd + 1, bodyEnd).match(/<tr\b/gi) ?? []).length;
+  }
+  if (tablesFound === 0) {
     throw new Error("Printable report route did not render the request table.");
   }
-  const bodyStart = html.indexOf("<tbody", requestTableStart);
-  const bodyOpenEnd = bodyStart < 0 ? -1 : html.indexOf(">", bodyStart);
-  const bodyEnd = bodyOpenEnd < 0 ? -1 : html.indexOf("</tbody>", bodyOpenEnd + 1);
-  if (bodyStart < 0 || bodyOpenEnd < 0 || bodyEnd < 0) {
-    throw new Error("Printable report route rendered an incomplete request table body.");
-  }
-  return (html.slice(bodyOpenEnd + 1, bodyEnd).match(/<tr\b/gi) ?? []).length;
+  return totalRows;
 }
 
 function assertSandboxEnabled(health) {
@@ -746,19 +759,28 @@ async function assertV3RuntimeEndpoints(baseUrl, r2Fixture) {
   );
 }
 
-function assertPublicR2Bundles(objects) {
-  const reports = objects.filter(({ key }) => /^reports\/[0-9]{8}-[0-9a-f]{32}\.json$/.test(key));
+function assertPublicR2V3Bundles(objects) {
+  const reports = objects.filter(({ key }) => /^v3\/reports\/[0-9]{8}-[0-9a-f]{16,64}\.json$/.test(key));
   if (reports.length < 2) {
-    throw new Error("Public-v2/R2 Docker smoke did not persist both single and comparison reports.");
+    throw new Error("Public-v3/R2 Docker smoke did not persist both single and Shields comparison v3 reports.");
   }
-  const keys = new Set(objects.map(({ key }) => key));
+  const pdfs = objects.filter(({ key }) => /^v3\/pdfs\/[0-9]{8}-[0-9a-f]{16,64}\.pdf$/.test(key));
+  if (pdfs.length < 1) {
+    throw new Error("Public-v3/R2 Docker smoke did not cache a rendered v3 PDF in R2.");
+  }
   for (const object of reports) {
     const report = JSON.parse(object.body);
-    if (report.schemaVersion !== 2 || report.schemaRevision !== 2 || savedReportRetainsScreenshot(report)) {
-      throw new Error(`R2 smoke object ${object.key} was not a screenshot-free public v2/r2 report.`);
+    if (report.schemaVersion !== 3 || savedReportRetainsScreenshot(report)) {
+      throw new Error(`R2 smoke object ${object.key} was not a screenshot-free ScanReportV3.`);
     }
-    if (!keys.has(`${object.key}.provenance.json`)) {
-      throw new Error(`R2 smoke object ${object.key} is missing its provenance sidecar.`);
+    if (
+      report.leadArm?.keystrokes?.fieldsTyped === 0 &&
+      report.leadArm?.probes?.keystrokes?.status === "complete"
+    ) {
+      throw new Error(`R2 smoke object ${object.key} marked probes.keystrokes complete despite 0 fields typed.`);
+    }
+    if (!report.provenance?.engineVersions?.adblockRust) {
+      throw new Error(`R2 smoke object ${object.key} is missing v3 provenance engineVersions.adblockRust.`);
     }
   }
 }

@@ -391,14 +391,13 @@ function productionHealthRule() {
       ".github/workflows/production-health.yml"
     ]),
     trustedSourcePaths: Object.freeze([
-      "lib/gpc-injection.ts",
+      "lib/production-synthetic.ts",
+      "lib/report-pdf-limits.ts",
       "lib/strict-json.ts",
       "package.json",
       "scripts/http-response.mjs",
-      "scripts/scan-admission.mjs",
-      "scripts/smoke-deployed-scanner-report.mjs",
       "scripts/smoke-production-r2-delete.mjs",
-      "scripts/smoke-production-synthetic.mjs"
+      "scripts/smoke-production-v3-synthetic.mjs"
     ]),
     events: Object.freeze([
       "schedule",
