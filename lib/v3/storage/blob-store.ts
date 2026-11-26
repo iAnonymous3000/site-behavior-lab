@@ -229,3 +229,72 @@ export function createFsBlobStoreV3(rootDir: string): BlobStoreV3 {
     }
   };
 }
+
+const SEED_REPORT_KEY_RE = /^v3\/reports\/(\d{8}-[a-f0-9]{16,64})\.json$/;
+
+/**
+ * Read-only blob store backed by committed redacted v3 seed reports under
+ * `public/v3/reports/`. Strictly scoped to canonical `v3/reports/<id>.json` keys.
+ */
+export function createReadOnlySeedBlobStoreV3(seedV3Dir: string): BlobStoreV3 {
+  const reportsRoot = path.resolve(seedV3Dir, "reports");
+
+  return {
+    async putJson() {
+      throw new Error("Read-only v3 seed blob store does not accept writes.");
+    },
+    async getJson(key) {
+      const match = SEED_REPORT_KEY_RE.exec(key);
+      if (!match) return null;
+      const reportId = match[1];
+      assertSafeReportIdV3(reportId);
+      const target = path.resolve(reportsRoot, `${reportId}.json`);
+      if (!target.startsWith(`${reportsRoot}${path.sep}`)) {
+        throw new Error(`Refusing path traversal key: ${key}`);
+      }
+      try {
+        return await readFile(target, "utf8");
+      } catch (err) {
+        if ((err as NodeJS.ErrnoException)?.code === "ENOENT") return null;
+        throw err;
+      }
+    },
+    async putBinary() {
+      throw new Error("Read-only v3 seed blob store does not accept writes.");
+    },
+    async getBinary() {
+      return null;
+    },
+    async delete() {
+      throw new Error("Read-only v3 seed blob store does not accept deletes.");
+    }
+  };
+}
+
+/**
+ * Layered blob store: all mutations go strictly to `primary` (R2 or writable FS),
+ * while reads check `primary` first and fall back to `fallbackReadOnly` (committed seed files).
+ */
+export function createLayeredBlobStoreV3(primary: BlobStoreV3, fallbackReadOnly: BlobStoreV3): BlobStoreV3 {
+  return {
+    async putJson(key, body) {
+      await primary.putJson(key, body);
+    },
+    async getJson(key) {
+      const primaryHit = await primary.getJson(key);
+      if (primaryHit !== null) return primaryHit;
+      return fallbackReadOnly.getJson(key);
+    },
+    async putBinary(key, bytes, contentType) {
+      await primary.putBinary(key, bytes, contentType);
+    },
+    async getBinary(key) {
+      const primaryHit = await primary.getBinary(key);
+      if (primaryHit !== null) return primaryHit;
+      return fallbackReadOnly.getBinary(key);
+    },
+    async delete(key) {
+      await primary.delete(key);
+    }
+  };
+}

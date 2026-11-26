@@ -53,7 +53,7 @@ test("scan artifacts and commits include provenance sidecars", () => {
 test("official actions are pinned to reviewed Node-24-compatible releases", () => {
   const approvedPins = new Map([
     ["actions/checkout", "3d3c42e5aac5ba805825da76410c181273ba90b1"],
-    ["actions/create-github-app-token", "64ab729a6294000f5aa4a4bc0b73d1f32bc45510"],
+    ["actions/create-github-app-token", "f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc"],
     ["actions/setup-node", "949feb2413d6458794dcd2491c4babbbce0c15c1"],
     ["actions/upload-artifact", "cf430e030ddbb5b0abf93d22962f4752f3646cd9"]
   ]);

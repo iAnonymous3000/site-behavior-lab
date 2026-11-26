@@ -33,6 +33,88 @@ const V3_LOCATION = {
   basePath: STATIC_BASE_PATH
 };
 
+type StaticCorpusSnapshotV3 = {
+  schemaVersion: 1;
+  generatedAt: string;
+  stats: CorpusOverviewStatsV3;
+  items: IndexedReportRowV3[];
+  entityDomains?: Record<string, string[]>;
+  parentOrgDomains?: Record<string, string[]>;
+};
+
+let cachedStaticSnapshotPromise: Promise<StaticCorpusSnapshotV3 | null> | null = null;
+
+function loadStaticCorpusSnapshot(): Promise<StaticCorpusSnapshotV3 | null> {
+  if (!cachedStaticSnapshotPromise) {
+    const url = `${STATIC_BASE_PATH}/v3/corpus-snapshot.json`;
+    cachedStaticSnapshotPromise = fetch(url)
+      .then(async (resp) => {
+        if (!resp.ok) return null;
+        const parsed = (await resp.json()) as Partial<StaticCorpusSnapshotV3>;
+        if (parsed?.schemaVersion !== 1 || !parsed.stats || !Array.isArray(parsed.items)) return null;
+        return parsed as StaticCorpusSnapshotV3;
+      })
+      .catch(() => null);
+  }
+  return cachedStaticSnapshotPromise;
+}
+
+function filterStaticSnapshotItems(
+  snapshot: StaticCorpusSnapshotV3,
+  filters: {
+    q: string;
+    entity: string;
+    parentOrg: string;
+    sort: string;
+    hasKeystrokes: boolean;
+    hasCname: boolean;
+    hasSgtm: boolean;
+    hasFp: boolean;
+    highDarkPattern: boolean;
+  }
+): IndexedReportRowV3[] {
+  const qNorm = filters.q.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "");
+  const entityKey = filters.entity.trim().toLowerCase();
+  const parentKey = filters.parentOrg.trim().toLowerCase();
+  const entitySet = entityKey
+    ? new Set(
+        Object.entries(snapshot.entityDomains ?? {})
+          .filter(([name]) => name.toLowerCase() === entityKey)
+          .flatMap(([, domains]) => domains)
+      )
+    : null;
+  const parentSet = parentKey
+    ? new Set(
+        Object.entries(snapshot.parentOrgDomains ?? {})
+          .filter(([name]) => name.toLowerCase() === parentKey)
+          .flatMap(([, domains]) => domains)
+      )
+    : null;
+
+  const matched = snapshot.items.filter((row) => {
+    if (qNorm) {
+      const hay = `${row.canonicalDomain} ${row.finalUrl} ${row.topHighlight ?? ""}`.toLowerCase();
+      if (!hay.includes(qNorm)) return false;
+    }
+    if (entitySet && !entitySet.has(row.canonicalDomain)) return false;
+    if (parentSet && !parentSet.has(row.canonicalDomain)) return false;
+    if (filters.hasKeystrokes && row.keystrokeLeaksCount <= 0) return false;
+    if (filters.hasCname && row.cnameCloaksCount <= 0) return false;
+    if (filters.hasSgtm && row.serverSideTaggingEndpoints <= 0) return false;
+    if (filters.hasFp && row.fingerprintKindsCount <= 0) return false;
+    if (filters.highDarkPattern && row.darkPatternScore < 35) return false;
+    return true;
+  });
+
+  return matched.sort((a, b) => {
+    if (filters.sort === "third-parties") return b.thirdPartyDomains - a.thirdPartyDomains;
+    if (filters.sort === "dark-patterns") return b.darkPatternScore - a.darkPatternScore;
+    if (filters.sort === "tracking-requests") return b.trackingRequests - a.trackingRequests;
+    if (filters.sort === "cookies") return b.cookiesTotal - a.cookiesTotal;
+    return b.scannedAt.localeCompare(a.scannedAt);
+  });
+}
+
 export function CorpusExplorerV3() {
   // Live scanner form state
   const [scanUrl, setScanUrl] = useState("");
@@ -87,9 +169,15 @@ export function CorpusExplorerV3() {
       const resp = await fetch(resolveV3ApiUrl("/api/v3/corpus?view=stats", LIVE_SCAN_API_BASE), { signal });
       if (resp.ok) {
         const d = (await resp.json()) as { stats?: CorpusOverviewStatsV3 };
-        if (d.stats) setStats(d.stats);
+        if (d.stats) {
+          setStats(d.stats);
+          return;
+        }
       }
     } catch {}
+    if (signal?.aborted) return;
+    const fallback = await loadStaticCorpusSnapshot();
+    if (fallback && !signal?.aborted) setStats(fallback.stats);
   }, []);
 
   const loadCorpusList = useCallback(
@@ -112,15 +200,40 @@ export function CorpusExplorerV3() {
           resolveV3ApiUrl(`/api/v3/corpus?${qs.toString()}`, LIVE_SCAN_API_BASE),
           { signal }
         );
-        if (!listResp.ok) {
-          setCorpusError(`Corpus query failed (HTTP ${listResp.status}).`);
+        if (listResp.ok) {
+          const d = (await listResp.json()) as { items?: IndexedReportRowV3[]; total?: number };
+          if (!signal?.aborted) {
+            setItems(d.items ?? []);
+            setTotal(d.total ?? 0);
+          }
           return;
         }
-        const d = (await listResp.json()) as { items?: IndexedReportRowV3[]; total?: number };
-        setItems(d.items ?? []);
-        setTotal(d.total ?? 0);
       } catch (err) {
-        if (!(err instanceof DOMException && err.name === "AbortError")) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+      } finally {
+        if (!signal?.aborted) setLoadingCorpus(false);
+      }
+
+      if (signal?.aborted) return;
+      setLoadingCorpus(true);
+      try {
+        const fallback = await loadStaticCorpusSnapshot();
+        if (fallback && !signal?.aborted) {
+          const filtered = filterStaticSnapshotItems(fallback, {
+            q,
+            entity,
+            parentOrg,
+            sort,
+            hasKeystrokes,
+            hasCname,
+            hasSgtm,
+            hasFp,
+            highDarkPattern
+          });
+          setItems(filtered);
+          setTotal(filtered.length);
+          setStats((prev) => prev ?? fallback.stats);
+        } else if (!signal?.aborted) {
           setCorpusError("Corpus index API is unavailable on this surface.");
         }
       } finally {

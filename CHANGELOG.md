@@ -8,6 +8,17 @@ for 1.0.0; no 1.0.0 release has been declared.
 
 ## Unreleased
 
+### Added
+
+- **Site Behavior Lab v3 scanner and report schema (`ScanReportV3`):** concurrent CDP multi-arm browser scanning (`baseline`, `shields-standard`, `shields-aggressive`, `gpc`, `consent-reject`), detailed rule-attributed `adblock-wasm`, 187-entity global tracker catalog (`US`/`EU`/`UK`/`APAC`/`CN`/`RU`/`LATAM`), 18-protocol beacon and server-side tagging (`sGTM` / Meta CAPI / Google Consent Mode v2) decoder, parallel DNS CNAME uncloaking, 11-kind fingerprinting and DOM-replay probe, Shadow DOM / gzip / WebSocket keystroke exfiltration auditing, 2-layer CMP dark-pattern scoring, and multilingual privacy-policy disclosure matching.
+- **v3 storage, APIs, and corpus seeding:** Cloudflare D1 HTTP REST and local `node:sqlite` corpus index (`lib/v3/storage/report-index.ts`), O(1) R2 / layered read-through blob storage (`lib/v3/storage/blob-store.ts`), cold-start SHA-verified hydration of curated redacted public seed scans under `public/v3/`, Cloudflare Browser Rendering offloaded PDF generation, HMAC-signed regional worker dispatch, temporal regression diffs, v3 REST endpoints (`/api/v3/*`), and a weekly scheduled seeding workflow (`.github/workflows/seed-v3-corpus.yml`).
+- **v3 web UI (`/v3/`):** live cross-origin Turnstile-gated scanner and searchable corpus explorer, layered report viewer with Developer Mode and SVG causality graph, reverse vendor catalog and block-impact simulator (`/v3/catalog/`), and site history timeline with temporal regression diffs (`/v3/sites/[domain]`).
+- **Standalone CLI (`sbl`) and CI Action:** `bin/sbl.mjs` (`scan`, `diff`, `verify`, `catalog`) with SARIF 2.1.0 output and `--fail-on` policy gates, plus composite GitHub Action (`action.yml`).
+
+### Security & Infrastructure
+
+- Replaced the unverified TypeScript CIDR blocklist with the live Verus-verified `trust-kernel` WASM IP safety check (79% smaller binary), fixed pre-Turnstile global DoS rate accounting and container shard capacity caps, separated `investigation/` tests into `.github/workflows/investigation.yml`, removed retired legacy ceremony workflows, and updated `actions/create-github-app-token` to `v3.4.0`.
+
 ## [1.0.0-rc.1] - 2026-11-24
 
 Release candidate for 1.0.0 under the `investigative-v1` contract

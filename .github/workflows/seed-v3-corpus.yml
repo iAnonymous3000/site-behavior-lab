@@ -1,0 +1,178 @@
+name: Seed v3 Corpus
+
+on:
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: Maximum curated public websites to scan into public/v3/
+        required: false
+        default: "20"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seed-v3-corpus
+  cancel-in-progress: false
+
+env:
+  CI: "1"
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  # Untrusted website scanning runs strictly read-only with no write authority.
+  seed-v3-corpus:
+    name: Scan curated websites into redacted v3 seed bundle
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.14.1
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run curated v3 corpus seed
+        env:
+          SEED_LIMIT: ${{ github.event.inputs.limit || '20' }}
+        run: |
+          set -euo pipefail
+          node scripts/seed-v3-corpus.mjs --public-seed --limit "$SEED_LIMIT" --out-dir "$RUNNER_TEMP/v3-seed"
+
+      - name: Verify every seeded v3 report offline
+        run: |
+          set -euo pipefail
+          for f in "$RUNNER_TEMP"/v3-seed/reports/*.json; do
+            node bin/sbl.mjs verify "$f"
+          done
+
+      - name: Upload redacted v3 seed bundle
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: v3-corpus-seed-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/v3-seed/
+          if-no-files-found: error
+          retention-days: 7
+
+  # Separate publisher job validates the bundle offline before opening a PR.
+  propose-update:
+    name: Validate and propose public/v3 corpus update
+    needs: seed-v3-corpus
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.14.1
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install locked dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts
+
+      - name: Download redacted v3 seed bundle
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: v3-corpus-seed-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/v3-seed
+
+      - name: Validate manifest digests, schema, and redaction before copying into public/v3
+        run: |
+          set -euo pipefail
+          npx tsc -p tsconfig.test.json
+          node - <<'NODE'
+          const crypto = require("node:crypto");
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const { validateScanReportV3 } = require("./.unit-test-dist/lib/v3/schema.js");
+          const { assertNoUnredactedSecretsV3 } = require("./.unit-test-dist/lib/v3/redaction.js");
+
+          const srcDir = path.join(process.env.RUNNER_TEMP, "v3-seed");
+          const manifest = JSON.parse(fs.readFileSync(path.join(srcDir, "manifest.json"), "utf8"));
+          if (manifest?.schemaVersion !== 1 || !Array.isArray(manifest.reports) || manifest.reports.length === 0) {
+            throw new Error("Invalid v3 seed manifest.");
+          }
+          const reportIdRe = /^\d{8}-[a-f0-9]{16,64}$/;
+          const destDir = path.resolve("public", "v3");
+          const destReports = path.join(destDir, "reports");
+          fs.rmSync(destReports, { recursive: true, force: true });
+          fs.mkdirSync(destReports, { recursive: true });
+
+          let totalBytes = 0;
+          for (const entry of manifest.reports) {
+            if (!reportIdRe.test(entry.reportId) || entry.file !== `reports/${entry.reportId}.json`) {
+              throw new Error(`Invalid manifest entry: ${entry.reportId}`);
+            }
+            const raw = fs.readFileSync(path.join(srcDir, entry.file), "utf8");
+            const sha = crypto.createHash("sha256").update(raw, "utf8").digest("hex");
+            if (sha !== entry.sha256) {
+              throw new Error(`SHA-256 mismatch for ${entry.reportId}`);
+            }
+            const report = JSON.parse(raw);
+            const schemaIssues = validateScanReportV3(report);
+            if (schemaIssues.length > 0) throw new Error(`Schema invalid for ${entry.reportId}: ${schemaIssues.join("; ")}`);
+            assertNoUnredactedSecretsV3(report);
+            totalBytes += Buffer.byteLength(raw, "utf8");
+            fs.writeFileSync(path.join(destReports, `${entry.reportId}.json`), raw, "utf8");
+          }
+          if (totalBytes > 25 * 1024 * 1024) {
+            throw new Error(`v3 seed bundle exceeds 25 MiB cap (${totalBytes} bytes).`);
+          }
+          fs.copyFileSync(path.join(srcDir, "manifest.json"), path.join(destDir, "manifest.json"));
+          fs.copyFileSync(path.join(srcDir, "corpus-snapshot.json"), path.join(destDir, "corpus-snapshot.json"));
+          console.log(`Validated ${manifest.reports.length} reports (${(totalBytes / 1024 / 1024).toFixed(2)} MiB).`);
+          NODE
+
+      - name: Open pull request if public/v3 changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROPOSAL_BRANCH: automation/seed-v3-corpus-${{ github.run_id }}-${{ github.run_attempt }}
+          BASE_BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- public/v3 && [ -z "$(git ls-files --others --exclude-standard -- public/v3)" ]; then
+            echo "No changes to public/v3."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/v3
+          git commit -m "Refresh v3 public seed corpus"
+          git push origin "HEAD:refs/heads/$PROPOSAL_BRANCH"
+          gh pr create \
+            --base "$BASE_BRANCH" \
+            --head "$PROPOSAL_BRANCH" \
+            --title "Refresh v3 public seed corpus" \
+            --body "Automated refresh of redacted v3 seed reports and corpus snapshot under public/v3/."

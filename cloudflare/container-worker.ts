@@ -329,6 +329,12 @@ type Env = {
   SITE_BEHAVIOR_LAB_R2_ENDPOINT?: string;
   SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID?: string;
   SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY?: string;
+  // Optional v3 persistent D1 index, offloaded Browser Rendering PDF, and regional worker dispatch.
+  CLOUDFLARE_ACCOUNT_ID?: string;
+  CLOUDFLARE_D1_DATABASE_ID?: string;
+  CLOUDFLARE_D1_API_TOKEN?: string;
+  CLOUDFLARE_BROWSER_RENDERING_API_TOKEN?: string;
+  SITE_BEHAVIOR_LAB_REGIONAL_WORKERS_JSON?: string;
 };
 
 // Mirrors the scan fields the edge gate needs from the request body.
@@ -638,7 +644,13 @@ export class ScannerContainer extends Container<Env> {
     SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS: this.env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS ?? "",
     SITE_BEHAVIOR_LAB_R2_ENDPOINT: this.env.SITE_BEHAVIOR_LAB_R2_ENDPOINT ?? "",
     SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID: this.env.SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID ?? "",
-    SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY: this.env.SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY ?? ""
+    SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY: this.env.SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY ?? "",
+    // Optional v3 D1 HTTP metadata index, Browser Rendering PDFs, and regional workers.
+    CLOUDFLARE_ACCOUNT_ID: this.env.CLOUDFLARE_ACCOUNT_ID ?? "",
+    CLOUDFLARE_D1_DATABASE_ID: this.env.CLOUDFLARE_D1_DATABASE_ID ?? "",
+    CLOUDFLARE_D1_API_TOKEN: this.env.CLOUDFLARE_D1_API_TOKEN ?? "",
+    CLOUDFLARE_BROWSER_RENDERING_API_TOKEN: this.env.CLOUDFLARE_BROWSER_RENDERING_API_TOKEN ?? "",
+    SITE_BEHAVIOR_LAB_REGIONAL_WORKERS_JSON: this.env.SITE_BEHAVIOR_LAB_REGIONAL_WORKERS_JSON ?? ""
   };
 
   private durableEncryptionKeyPromise?: Promise<DurableScanJobEncryptionKey>;

@@ -30,12 +30,23 @@ export type {
   IndexedReportVisibilityV3
 };
 
-/** Minimal subset shared by Cloudflare D1 bindings and our Node `node:sqlite` adapter. */
+/** Minimal subset shared by Cloudflare D1 bindings, D1 HTTP REST, and Node `node:sqlite`. */
 export type SqlExecutorV3 = {
+  /** Whether the backing SQL engine accepts explicit `BEGIN IMMEDIATE` / `COMMIT` statements. */
+  supportsTransactions?: boolean;
   exec(sql: string): Promise<void> | void;
   run(sql: string, params?: readonly unknown[]): Promise<{ changes: number }> | { changes: number };
   all<T = Record<string, unknown>>(sql: string, params?: readonly unknown[]): Promise<T[]> | T[];
   first<T = Record<string, unknown>>(sql: string, params?: readonly unknown[]): Promise<T | null> | T | null;
+};
+
+export type CloudflareD1HttpConfigV3 = {
+  accountId: string;
+  databaseId: string;
+  apiToken: string;
+  endpointBase?: string;
+  timeoutMs?: number;
+  fetchImpl?: typeof fetch;
 };
 
 export type CorpusQueryFiltersV3 = {
@@ -157,11 +168,13 @@ export class D1ReportIndexStoreV3 {
       report.leadArm.network.length > 0 ? extractAllArmEntitiesV3(report.leadArm) : s.topEntities;
 
     let inTxn = false;
-    try {
-      await this.db.exec("BEGIN IMMEDIATE");
-      inTxn = true;
-    } catch {
-      // Cloudflare D1 disallows explicit SQL BEGIN; proceed statement-by-statement.
+    if (this.db.supportsTransactions !== false) {
+      try {
+        await this.db.exec("BEGIN IMMEDIATE");
+        inTxn = true;
+      } catch {
+        // Cloudflare D1 disallows explicit SQL BEGIN; proceed statement-by-statement.
+      }
     }
 
     try {
@@ -269,6 +282,14 @@ export class D1ReportIndexStoreV3 {
       [reportId]
     );
     return row ? mapRow(row) : null;
+  }
+
+  /** Lightweight ID listing used for idempotent cold-start seed hydration. */
+  async listIndexedReportIds(visibility?: IndexedReportVisibilityV3): Promise<Set<string>> {
+    const rows = visibility
+      ? await this.db.all<{ report_id: string }>(`SELECT report_id FROM reports WHERE visibility = ?`, [visibility])
+      : await this.db.all<{ report_id: string }>(`SELECT report_id FROM reports`);
+    return new Set(rows.map((r) => String(r.report_id)));
   }
 
   async queryCorpus(filters: CorpusQueryFiltersV3 = {}): Promise<CorpusQueryResultV3> {
@@ -546,6 +567,7 @@ export function wrapCloudflareD1(d1: {
   };
 }): SqlExecutorV3 {
   return {
+    supportsTransactions: false,
     async exec(sql: string) {
       await d1.exec(sql);
     },
@@ -561,6 +583,92 @@ export function wrapCloudflareD1(d1: {
       return await d1.prepare(sql).bind(...params).first<T>();
     }
   };
+}
+
+/**
+ * Cloudflare D1 HTTP REST executor for Node containers and CI workers that do
+ * not hold an in-isolate Workers D1 binding. Uses the official `/d1/database/:id/query`
+ * endpoint so all container instances share one persistent D1 metadata index.
+ */
+export function createCloudflareD1HttpExecutorV3(config: CloudflareD1HttpConfigV3): SqlExecutorV3 {
+  const base = (config.endpointBase?.trim() || "https://api.cloudflare.com/client/v4").replace(/\/+$/, "");
+  const queryUrl = `${base}/accounts/${encodeURIComponent(config.accountId)}/d1/database/${encodeURIComponent(config.databaseId)}/query`;
+  const timeoutMs = Math.max(1_000, Math.min(60_000, config.timeoutMs ?? 15_000));
+  const doFetch = config.fetchImpl ?? fetch;
+
+  async function executeQuery<T = Record<string, unknown>>(
+    sql: string,
+    params: readonly unknown[] = []
+  ): Promise<{ results: T[]; changes: number }> {
+    const body = params.length > 0 ? JSON.stringify({ sql, params: [...params] }) : JSON.stringify({ sql });
+    const resp = await doFetch(queryUrl, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${config.apiToken}`,
+        "content-type": "application/json"
+      },
+      body,
+      signal: AbortSignal.timeout(timeoutMs)
+    });
+
+    const rawText = await resp.text();
+    type D1RestPayload = {
+      success?: boolean;
+      errors?: Array<{ code?: number; message?: string }>;
+      result?: Array<{ success?: boolean; results?: T[]; meta?: { changes?: number } }>;
+    };
+    let payload: D1RestPayload | null = null;
+    try {
+      payload = JSON.parse(rawText) as D1RestPayload;
+    } catch {
+      payload = null;
+    }
+
+    if (!resp.ok || !payload?.success) {
+      const apiErr = payload?.errors?.[0]?.message || `HTTP ${resp.status}`;
+      throw new Error(`Cloudflare D1 query failed: ${apiErr}`);
+    }
+
+    const first = Array.isArray(payload.result) ? payload.result[0] : undefined;
+    if (first && first.success === false) {
+      throw new Error("Cloudflare D1 statement returned success=false");
+    }
+
+    return {
+      results: Array.isArray(first?.results) ? first.results : [],
+      changes: Number(first?.meta?.changes ?? 0)
+    };
+  }
+
+  return {
+    supportsTransactions: false,
+    async exec(sql: string) {
+      await executeQuery(sql);
+    },
+    async run(sql: string, params: readonly unknown[] = []) {
+      const res = await executeQuery(sql, params);
+      return { changes: res.changes };
+    },
+    async all<T = Record<string, unknown>>(sql: string, params: readonly unknown[] = []) {
+      const res = await executeQuery<T>(sql, params);
+      return res.results;
+    },
+    async first<T = Record<string, unknown>>(sql: string, params: readonly unknown[] = []) {
+      const res = await executeQuery<T>(sql, params);
+      return res.results[0] ?? null;
+    }
+  };
+}
+
+/** Open and initialize a Cloudflare D1 HTTP-backed report index store. */
+export async function openCloudflareD1HttpReportIndex(config: CloudflareD1HttpConfigV3): Promise<{
+  store: D1ReportIndexStoreV3;
+  close: () => void;
+}> {
+  const executor = createCloudflareD1HttpExecutorV3(config);
+  const store = new D1ReportIndexStoreV3(executor);
+  await store.init();
+  return { store, close: () => {} };
 }
 
 /** Local Node `node:sqlite` executor for standalone, CLI, dev, and unit tests. */

@@ -24,7 +24,7 @@ test("direct promotion reserves production writes for one dedicated App through 
   );
 
   const tokenMints = direct.match(
-    /actions\/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510/g
+    /actions\/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc/g
   );
   assert.equal(tokenMints?.length, 2, "promotion must carry both exclusive App-token inputs");
   assert.match(direct, /client-id: \$\{\{ vars\.PROMOTION_APP_CLIENT_ID \}\}/);
