@@ -51,10 +51,10 @@ export class ScanAdmissionPathHarness extends DurableObject {
       realIp: request.headers.get("x-real-ip")
     });
     const sequence = this.forwarded.length.toString(16).padStart(31, "0");
-    const jobId = `20260101-a${sequence}`;
+    const reportId = `20260101-b${sequence}`;
     return Response.json(
-      { ok: true, jobId, status: "queued", statusPath: `/api/scans/${jobId}`, reportId: `20260101-b${sequence}` },
-      { status: 202 }
+      { ok: true, reportId, sharePath: `/v3/reports/${reportId}`, apiPath: `/api/v3/reports/${reportId}` },
+      { status: 200 }
     );
   }
 

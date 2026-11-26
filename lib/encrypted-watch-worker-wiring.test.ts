@@ -8,7 +8,6 @@ import { Log, LogLevel, Miniflare, Response as MiniflareResponse, type Request a
 import { assertOrdered, requireIndex, requireLastIndex, sliceBetween, sliceToNext } from "./source-markers";
 
 const WORKER = "cloudflare/container-worker.ts";
-const RESCANS_UI = "app/_components/scheduled-rescans.tsx";
 
 async function workerSource(): Promise<string> {
   return readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
@@ -151,44 +150,6 @@ test("scheduled-rescan creation has one caller-composed deadline through its fin
     method,
     /commitPublicScanRateLimitedOperation\([\s\S]*admitEncryptedWatch\([\s\S]*\(\) => assertDurableAdmissionCommitActive\(commitNotAfter\)/
   );
-});
-
-test("the public scheduled-rescan UI uses Turnstile and never receives the operator second factor", async () => {
-  const source = await readFile(
-    path.join(process.cwd(), "app/_components/scheduled-rescans.tsx"),
-    "utf8"
-  );
-  const creation = sliceToNext(
-    source,
-    "const created = await createEncryptedWatch({",
-    "pendingCreationRef.current = null",
-    RESCANS_UI
-  );
-  assert.match(creation, /accessToken,/);
-  assert.match(creation, /turnstileToken: createTurnstileToken/);
-  assert.doesNotMatch(creation, /watchAccessToken\s*:/);
-  assert.match(source, /health hides this UI when it is set/);
-});
-
-test("scheduled-rescan UI fences every network action behind one latest-operation epoch", async () => {
-  const source = await readFile(
-    path.join(process.cwd(), "app/_components/scheduled-rescans.tsx"),
-    "utf8"
-  );
-  assert.match(source, /import \{ LatestClientOperation \} from "@\/lib\/client-fetch-policy"/);
-  assert.match(source, /requestOperationRef = useRef\(new LatestClientOperation\(\)\)/);
-  assert.equal((source.match(/requestOperationRef\.current\.run\(/g) ?? []).length, 4);
-  assert.match(source, /requestOperationRef\.current\.cancel\(\)/);
-  assert.match(source, /createNetworkAttemptedRef/);
-  assert.match(source, /settleActiveCreate/);
-  assert.doesNotMatch(source, /requestControllerRef/);
-  const fragmentRecovery = sliceBetween(
-    source,
-    "async function recoverFromFragment()",
-    "if (recovered && !(await scheduledRescanCredentialsMatchDerivedId(recovered)))",
-    RESCANS_UI
-  );
-  assert.match(fragmentRecovery, /requestOperationRef\.current\.cancel\(\)/);
 });
 
 test("watch reads and idempotent deletes rate-limit before capability work and never decrypt", async () => {

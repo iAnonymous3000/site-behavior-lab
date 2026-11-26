@@ -40,7 +40,6 @@ import { privacyReplaceReport, remediateReports } from "./remediate-reports-cli"
 import { buildStaticReportShare } from "./report-locator";
 import { prepareScanReportBundle, readStoredScanReportById, saveScanReport } from "./report-store";
 import { BUILD_COMMIT_ENV, PUBLIC_R2_REPORTS_ENV } from "./runtime-scan-report";
-import { executePreparedScan, type PreparedScanRequest, type ScanRunner } from "./scan-api";
 import { resetScanLimitStateForTests } from "./scan-limits";
 import { readStoredScanReport } from "./scan-report-reader";
 import { toPublicScanReportV1 } from "./scan-report-v1-projection";
@@ -572,115 +571,8 @@ test("options that carry the seam's field are refused, whether the key is their 
   assert.doesNotThrow(() => refuseSeamOption({ publicUrlAlreadyVerified: true, scrollCheck: true }));
 });
 
-// The places a seam visit is refused: the scan API, both runtime builders,
+// The places a seam visit is refused: both runtime builders,
 // the report store and the shadow store.
-
-test("the scan API refuses a seam visit and every copy of one, before anything is built, saved or announced", async () => {
-  const { envelope } = seamEnvelope();
-  const returned: [string, NodeScanMeasurementEnvelope][] = [
-    ["the visit's own envelope", envelope],
-    ...COPIES.map(([what, copy]): [string, NodeScanMeasurementEnvelope] => [`an envelope around ${what} of its result`, envelopeAround(copy(envelope.result))])
-  ];
-  for (const [what, handedBack] of returned) {
-    let saves = 0;
-    let announced = 0;
-    await assert.rejects(
-      executePreparedScan(SINGLE, async () => handedBack, async (report) => {
-        saves += 1;
-        return report;
-      }, undefined, false, {
-        beforeSave: () => {
-          announced += 1;
-        }
-      }),
-      isRefusal,
-      what
-    );
-    assert.deepEqual([saves, announced], [0, 0], what);
-  }
-
-  // A comparison stops at the arm that handed one back: the other never runs.
-  for (const mode of [{ compareGpc: true }, { compareShields: true }, { compareConsent: true }]) {
-    let visits = 0;
-    let saves = 0;
-    const scan: ScanRunner = async () => {
-      visits += 1;
-      return envelope;
-    };
-    await assert.rejects(
-      executePreparedScan({ ...SINGLE, ...mode }, scan, async (report) => {
-        saves += 1;
-        return report;
-      }, undefined, false, { drawComparisonFirstArm: () => "baseline" }),
-      isRefusal
-    );
-    assert.deepEqual([visits, saves], [1, 0], JSON.stringify(mode));
-  }
-
-  // The same path with a visit that used no seam goes through.
-  const saved: unknown[] = [];
-  const report = await executePreparedScan(SINGLE, async () => cleanEnvelope(), async (ordinary) => {
-    saved.push(ordinary);
-    return ordinary;
-  }, undefined, false);
-  assert.equal(report.schemaVersion, 1);
-  assert.equal(saved.length, 1);
-});
-
-test("the scan API starts no visit whose options carry the seam, however the key got there", async () => {
-  // The public path builds its own options, so the only way a test can make
-  // them carry the key is from underneath: every object inherits it here.
-  let visits = 0;
-  const scan: ScanRunner = async () => {
-    visits += 1;
-    return cleanEnvelope();
-  };
-  Object.defineProperty(Object.prototype, "investigationSeam", { value: {}, configurable: true, enumerable: false, writable: true });
-  let outcome: unknown;
-  try {
-    outcome = await executePreparedScan(SINGLE, scan, async (report) => report, undefined, false).then(
-      () => "the visit ran",
-      (error: unknown) => error
-    );
-  } finally {
-    delete (Object.prototype as Record<string, unknown>).investigationSeam;
-  }
-  assert.equal("investigationSeam" in {}, false, "the test left its key behind");
-  assert.ok(outcome instanceof SeamVisitRefusal, String(outcome));
-  assert.match(outcome.message, /Refusing to start a public visit whose options carry the investigation seam/);
-  assert.equal(visits, 0, "the runner was called");
-});
-
-test("the public path hands a runner exactly the options it always did, in every mode", async () => {
-  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
-  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
-  process.env[CONSENT_VERIFICATION_ENV] = "1";
-  const stop = new Error("the test stops each visit once it has its options");
-  const cancel = new AbortController();
-  const keysOf = async (prepared: PreparedScanRequest, first: "baseline" | "variant" = "baseline"): Promise<string[]> => {
-    let seen: ScanSiteOptions | undefined;
-    await assert.rejects(
-      executePreparedScan(prepared, async (_payload, options) => {
-        seen = options;
-        throw stop;
-      }, async (report) => report, undefined, false, { signal: cancel.signal, drawComparisonFirstArm: () => first }),
-      (error) => error === stop
-    );
-    resetScanLimitStateForTests();
-    assert.ok(seen);
-    return Object.keys(seen).sort();
-  };
-  const ordinary = ["onProgress", "publicUrlAlreadyVerified", "signal"];
-  assert.deepEqual(await keysOf(SINGLE), ordinary);
-  assert.deepEqual(await keysOf({ ...SINGLE, inspect: "https://cdn.example.net/collect" }), ["inspect", ...ordinary]);
-  assert.deepEqual(await keysOf({ ...SINGLE, check: "scroll", rateLimitCost: 2 }), [...ordinary, "scrollCheck"].sort());
-  for (const first of ["baseline", "variant"] as const) {
-    assert.deepEqual(await keysOf({ ...SINGLE, compareGpc: true }, first), ordinary);
-    assert.deepEqual(await keysOf({ ...SINGLE, compareConsent: true }, first), ordinary);
-  }
-  assert.deepEqual(await keysOf({ ...SINGLE, compareShields: true }, "baseline"), ordinary);
-  assert.deepEqual(await keysOf({ ...SINGLE, compareShields: true }, "variant"), [...ordinary, "shieldsBlockingEnabled"].sort());
-});
 
 test("both runtime builders refuse a seam visit and every copy of one", () => {
   const { envelope } = seamEnvelope();

@@ -266,8 +266,10 @@ test("both producers emit the cause on the wire", () => {
   // One contract, two producers. If either stops sending `cause`, the client
   // silently falls back to verbatim prose for that whole surface and the
   // regression is invisible in the other producer's tests.
-  const node = readFileSync(path.join(root, "app", "api", "scan", "route.ts"), "utf8");
-  assert.match(node, /cause:\s*publicError\.cause/);
+  const nodeV3 = readFileSync(path.join(root, "app", "api", "v3", "scan", "route.ts"), "utf8");
+  assert.match(nodeV3, /publicErrorBody\(publicError\)/);
+  const retiredV1 = readFileSync(path.join(root, "app", "api", "scan", "route.ts"), "utf8");
+  assert.match(retiredV1, /cause:\s*"feature-unavailable"/);
   // The Worker's bodies come from the one builder, which also carries a quota
   // refusal's wait. A hand-written body there would drop `retryAfterSeconds`
   // while still passing the `cause` check above.
@@ -372,10 +374,13 @@ test("every cause in the vocabulary is declared by a producer or listed as undec
     // "already finished", scan-client-orchestration.test.ts), and a durable
     // preparation replayed after a definitive refusal ("already refused"),
     // which an honest client reaches only when that refusal's response was
-    // lost, because it clears the admission on any 4xx. Lease and activation
-    // 409s in lib/scan-jobs.ts reach only the private coordinator, and the
-    // Node jobs route drops `cause` from the wire anyway.
-    "scan-conflict"
+    // lost, because it clears the admission on any 4xx.
+    "scan-conflict",
+    // Retired v1/v2 /api/scan (lib/scan-api.ts) subject/redaction causes kept
+    // in the client failure vocabulary for backwards compatibility.
+    "public-suffix-target",
+    "generalized-tenant-target",
+    "report-redaction-unstable"
   ]);
   const declared = producerDeclaredCauses();
   for (const cause of ALL_CAUSES) {

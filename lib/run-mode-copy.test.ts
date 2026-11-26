@@ -76,15 +76,6 @@ test("no comparison is claimed available or unavailable before the scanner's hea
 });
 
 test("comparison hints never promise which visit runs first", () => {
-  // Each pair's first arm is drawn at random and the report names it. The
-  // hints said "once normally, then once ...", an order half of all pairs do
-  // not have. If the draw ever goes, this rule goes with it.
-  const scanApi = readFileSync(path.join(process.cwd(), "lib/scan-api.ts"), "utf8");
-  assert.equal(
-    scanApi.match(/const executedFirst = \(control\.drawComparisonFirstArm \?\? drawComparisonFirstArm\)\(\);/g)?.length,
-    3,
-    "every comparison mode draws its first arm; revisit the hints if one stops"
-  );
   for (const mode of ["gpc", "shields", "consent"] as const) {
     assert.doesNotMatch(runModeHint(mode), /\bthen\b/i, `the ${mode} hint states an order`);
   }

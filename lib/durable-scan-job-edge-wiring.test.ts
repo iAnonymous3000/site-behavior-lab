@@ -518,14 +518,10 @@ test("durable quota is deferred into admission while Phase 1 keeps immediate edg
   assert.match(submit, /return gateErrorResponse\(admissionError, request, env\)/);
 });
 
-test("public scan-admission recovery charges its dedicated limiter before capability lookup", async () => {
+test("DO scan-admission recovery helper charges its dedicated limiter before capability lookup", async () => {
   const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
   const containerMethod = sliceBetween(source, "recoverCommittedScanAdmission(input:", "async admitEncryptedWatchPreparation(", "source");
-  const publicRecovery = sliceBetween(source, "async function recoverCommittedScanAdmission(request:", "async function authorizeScanAdmissionRecovery(", "source");
   assert.match(containerMethod, /transactionSync\([\s\S]*findScanAdmissionRateLimited\(/);
-  assert.match(publicRecovery, /recoverCommittedScanAdmission\(\{[\s\S]*clientHash: await publicClientHash/);
-  assert.match(publicRecovery, /result\.status === "rate-limited"[\s\S]*429/);
-  assert.doesNotMatch(publicRecovery, /\.findCommittedScanAdmission\(/);
 });
 
 test("active scan, watch, and private coordinator body reads are finite and caller-cancellable", async () => {
@@ -690,22 +686,14 @@ test("a publishing durable job is refused as still saving, not as finished", asy
   );
 });
 
-test("durable preparation is isolated from the public Phase-1 scan route", async () => {
+test("retired legacy public scan route returns 410 Gone and internal durable prepare route is removed", async () => {
   const publicRoute = await readFile(path.join(process.cwd(), "app/api/scan/route.ts"), "utf8");
-  const privateRoute = await readFile(
-    path.join(process.cwd(), "app/api/internal/durable-scans/prepare/route.ts"),
-    "utf8"
+  assert.match(publicRoute, /status:\s*410/);
+  assert.match(publicRoute, /migration:\s*"\/api\/v3\/scan"/);
+  assert.doesNotMatch(publicRoute, /prepareDurableScanJobRequest|DURABLE_SCAN_JOB_PREPARED_HEADER|submitScanJobRequest|runScanRequest/);
+  await assert.rejects(
+    readFile(path.join(process.cwd(), "app/api/internal/durable-scans/prepare/route.ts"), "utf8")
   );
-  assert.doesNotMatch(publicRoute, /prepareDurableScanJobRequest|DURABLE_SCAN_JOB_PREPARED_HEADER/);
-  assert.match(publicRoute, /if \(durableScanJobsEnabled\(\)\)/);
-  assert.ok(
-    requireIndex(publicRoute, "if (durableScanJobsEnabled())", "publicRoute") < requireIndex(publicRoute, "submitScanJobRequest(request)", "publicRoute"),
-    "public durable mode must refuse before Phase-1 enqueue"
-  );
-  assert.match(privateRoute, /assertDurableScanJobInternalRequest\(request\)/);
-  assert.match(privateRoute, /prepareDurableScanJobRequest\(request\)/);
-  assert.match(privateRoute, /DURABLE_SCAN_JOB_PREPARED_HEADER/);
-  assert.doesNotMatch(privateRoute, /submitScanJobRequest|runScanRequest|enqueuePreparedScanJob/);
 });
 
 test("Worker health performs the edge key upgrade and fail-closed downgrade", async () => {
@@ -815,12 +803,6 @@ test("the status and admission-recovery quota refusals carry their wait, and eve
     statusRead,
     /new EdgeScanGateError\(\s*`Too many report requests\.[^`]*`,\s*429,\s*undefined,\s*polled\.charge\.retryAfterSeconds\s*\)/,
     "the status read's refusal must pass its wait"
-  );
-  const recovery = sliceBetween(source, "async function recoverCommittedScanAdmission(request:", "async function authorizeScanAdmissionRecovery(", "source");
-  assert.match(
-    recovery,
-    /new EdgeScanGateError\(\s*`Too many scan-admission recovery requests\.[^`]*`,\s*429,\s*undefined,\s*result\.retryAfterSeconds\s*\)/,
-    "the admission-recovery refusal must pass its wait"
   );
   const gate = sliceBetween(source, "function gateErrorResponse(", "function refuseDurableAdmittedAtSkew(", "source");
   assert.match(gate, /\.\.\.publicErrorHeaders\(publicError\)/, "gateErrorResponse must send the wait as Retry-After");

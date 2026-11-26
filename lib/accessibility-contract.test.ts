@@ -123,8 +123,7 @@ test("links that retarget the tab say so in their accessible name", () => {
     "app/site-behavior-app.tsx",
     "app/_components/report-header.tsx",
     "app/_components/report-overview.tsx",
-    "app/_components/report-page-context.tsx",
-    "app/_components/scheduled-rescans.tsx"
+    "app/_components/report-page-context.tsx"
   ];
 
   let announced = 0;
@@ -135,11 +134,10 @@ test("links that retarget the tab say so in their accessible name", () => {
     announced += (contents.match(/className="visually-hidden">[^<]*opens in a new tab/g) ?? []).length;
   }
 
-  // 10 with the evidence package beside the permalink PDF preview. Both open a
-  // new tab: the response is now Content-Disposition: inline, so the tab shows
-  // the document in the browser's viewer, and a render that takes tens of
-  // seconds or refuses outright never costs the reader the page they were on.
-  assert.equal(retargeted, 10, "the set of tab-retargeting links changed; announce the new one too");
+  // 9 with the evidence package beside the permalink PDF preview (scheduled-rescans
+  // retired). Both open a new tab: the response is now Content-Disposition: inline,
+  // so the tab shows the document in the browser's viewer.
+  assert.equal(retargeted, 9, "the set of tab-retargeting links changed; announce the new one too");
   assert.equal(announced, retargeted, "every target=\"_blank\" link needs a new-tab announcement");
 });
 
@@ -200,19 +198,14 @@ test("saved-report comparison failures are announced", () => {
   assert.match(gallery, /className="static-compare-error" role="alert"/);
 });
 
-test("dynamic archive, watch, and gallery replacements relocate keyboard focus", () => {
+test("dynamic archive and gallery replacements relocate keyboard focus", () => {
   const home = source("app/site-behavior-app.tsx");
   const gallery = source("app/_components/static-gallery.tsx");
-  const watches = source("app/_components/scheduled-rescans.tsx");
 
   assert.match(home, /if \(archiveRequested\) archiveToolsRef\.current\?\.focus\(\)/);
   assert.match(home, /aria-label="Saved-report tools" ref=\{archiveToolsRef\} tabIndex=\{-1\}/);
   assert.match(gallery, /pendingFocusIndexRef\.current = visibleReports\.length/);
   assert.match(gallery, /newlyRevealedReportRef\.current\?\.focus\(\)/);
-  assert.match(watches, /pendingFocusRef\.current = "management"/);
-  assert.match(watches, /managementHeadingRef\.current\?\.focus\(\)/);
-  assert.match(watches, /pendingFocusRef\.current = "create"/);
-  assert.match(watches, /createButtonRef\.current\?\.focus\(\)/);
 });
 
 test("theme controls track OS preference changes only before an explicit override", () => {

@@ -46,7 +46,6 @@ test("one comparison rule prices, admits, and validates a scan", () => {
   assert.equal(comparisonModeCount({ compareGpc: "yes", compareShields: 1 }), 0);
 
   const sources = [
-    "lib/scan-gate.ts",
     "lib/scan-admission-capability.ts",
     "cloudflare/container-worker.ts",
     "lib/durable-scan-job-contract.ts"

@@ -755,13 +755,14 @@ test("the below-the-fold entry says a check after scrolling shows first-contacte
   assert.match(sentence, /\bin its immediate result only: never in a report, an export or a printed copy\b/);
   assert.equal(MAX_SCROLL_CHECK_SCREENS, 8, "the entry says 8 screens");
   // The evidence travels only in the ephemeral block, which persistence
-  // drops, and the scan API saves nothing from a check visit.
+  // drops, and the legacy v1/v2 scan API route is retired (410 Gone).
   const runtimeBuilder = readFileSync(path.join(root, "lib", "scan-report-v2-runtime-builder.ts"), "utf8");
   assert.match(runtimeBuilder, /\.\.\.\(scrollCheck === undefined \? \{\} : \{ scrollCheck: structuredClone\(scrollCheck\)/);
   const projection = readFileSync(path.join(root, "lib", "scan-report-v2-r2-projection.ts"), "utf8");
   assert.ok(!/scrollCheck|scroll-check/.test(projection), "the public projection must name no check");
-  const api = readFileSync(path.join(root, "lib", "scan-api.ts"), "utf8");
-  assert.match(api, /return buildRuntimeScanReportV2R2\(envelope, acquisition\);/, "a check's result is the unsaved immediate shell");
+  assert.equal(existsSync(path.join(root, "lib", "scan-api.ts")), false, "retired legacy scan-api producer is removed");
+  const legacyScanRoute = readFileSync(path.join(root, "app", "api", "scan", "route.ts"), "utf8");
+  assert.match(legacyScanRoute, /status:\s*410/, "retired legacy /api/scan route returns 410 Gone");
   // The scanner runs the check only after the envelope is built.
   const scanner = readFileSync(path.join(root, "lib", "scanner.ts"), "utf8");
   const built = scanner.indexOf("const envelope = createNodeScanMeasurementEnvelope(");

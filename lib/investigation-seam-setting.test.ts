@@ -28,7 +28,6 @@ import {
 import { redactScanReportV1, redactScanResultV1 } from "./redact-scan-report-v1";
 import { prepareScanReportBundle } from "./report-store";
 import { BUILD_COMMIT_ENV } from "./runtime-scan-report";
-import { executePreparedScan, type PreparedScanRequest } from "./scan-api";
 import { MAX_SCAN_DURATION_MS } from "./scan-deadlines";
 import { resetScanLimitStateForTests } from "./scan-limits";
 import { readStoredScanReport } from "./scan-report-reader";
@@ -717,23 +716,6 @@ async function markRefusals(): Promise<void> {
   const cleanEnvelope = createNodeScanMeasurementEnvelope(cleanResult, unmarked(envelope.measurement) as NodeScanMeasurement);
   const jsonEnvelope = createNodeScanMeasurementEnvelope(json, JSON.parse(JSON.stringify(envelope.measurement)) as NodeScanMeasurement);
   assert.equal(isSeamVisit(cleanResult) || isSeamVisit(cleanEnvelope), false, "the control still carries the mark");
-
-  // The scan API, at its one call of a runner: nothing is saved or announced.
-  for (const [what, handedBack] of [["the visit's own envelope", envelope], ["an envelope around a JSON copy", jsonEnvelope]] as const) {
-    let saves = 0;
-    let announced = 0;
-    await assert.rejects(
-      executePreparedScan(SINGLE, async () => handedBack, async (report) => ((saves += 1), report), undefined, false, { beforeSave: () => void (announced += 1) }),
-      refusedAt("the scan API"),
-      what
-    );
-    assert.deepEqual([saves, announced], [0, 0], what);
-    resetScanLimitStateForTests();
-  }
-  const saved: unknown[] = [];
-  await executePreparedScan(SINGLE, async () => cleanEnvelope, async (report) => (saved.push(report), report), undefined, false);
-  resetScanLimitStateForTests();
-  assert.equal(saved.length, 1, "the scan API did not take the control");
 
   // The runtime builders.
   for (const [what, one, oneOn] of [["the visit's own envelope", envelope, envelopeOn], ["an envelope around a JSON copy", jsonEnvelope, jsonEnvelopeOn]] as const) {

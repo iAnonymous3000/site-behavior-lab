@@ -196,15 +196,37 @@ test("the production Worker refuses concurrent malformed requests before contain
     });
     // Warm only the runtime with an edge-only OPTIONS request; it must not
     // consume one of the ten attempts or invoke a nonexistent container.
-    assert.equal((await mf.dispatchFetch("https://scanner.invalid/api/scan/admission", { method: "OPTIONS" })).status, 204);
-    const responses = await Promise.all(Array.from({ length: 40 }, (_, n) =>
-      mf!.dispatchFetch(`https://scanner.invalid${n % 2 ? "/api/scan" : "/api/scan/admission"}`, {
-        method: n % 2 ? "POST" : "GET", ...(n % 2 ? { body: "invalid JSON" } : {}),
+    assert.equal((await mf.dispatchFetch("https://scanner.invalid/api/v3/scan", { method: "OPTIONS" })).status, 204);
+    // Retired legacy scan routes return 410 Gone at the edge without touching
+    // quota or invoking the container.
+    for (const [method, retiredPath] of [
+      ["POST", "/api/scan"],
+      ["GET", "/api/scan/admission"],
+      ["GET", "/api/scans/20260101-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
+    ] as const) {
+      const retired = await mf.dispatchFetch(`https://scanner.invalid${retiredPath}`, {
+        method,
+        ...(method === "POST" ? { body: "{}" } : {}),
+        headers: { "cf-connecting-ip": "203.0.113.10", origin: "https://sitebehavior.org" }
+      });
+      assert.equal(retired.status, 410, `${method} ${retiredPath}`);
+      assert.equal(retired.headers.get("access-control-allow-origin"), "https://sitebehavior.org");
+      assert.deepEqual(await retired.json(), {
+        ok: false,
+        error: "The legacy v1/v2 scan endpoint has been retired. Submit scans to POST /api/v3/scan.",
+        migration: "/api/v3/scan",
+        cause: "feature-unavailable"
+      });
+    }
+    const responses = await Promise.all(Array.from({ length: 40 }, () =>
+      mf!.dispatchFetch("https://scanner.invalid/api/v3/scan", {
+        method: "POST",
+        body: "invalid JSON",
         headers: { "cf-connecting-ip": "203.0.113.10" }
       })
     ));
     assert.equal(responses.filter((response) => response.status === 429).length, 30);
-    assert.equal(responses.filter((response) => [400, 404].includes(response.status)).length, 10);
+    assert.equal(responses.filter((response) => response.status === 400).length, 10);
     for (const response of responses) {
       if (response.status === 429) assert.match(response.headers.get("retry-after") ?? "", /^(?:[1-9]|10)$/);
       await response.text();
@@ -240,7 +262,7 @@ test("the production Worker admits a scan once per client, and Cloudflare's addr
     });
     let token = 0;
     const scan = (headers: Record<string, string>, solved = true) =>
-      mf!.dispatchFetch("https://scanner.invalid/api/scan", {
+      mf!.dispatchFetch("https://scanner.invalid/api/v3/scan", {
         method: "POST",
         headers: { "content-type": "application/json", ...headers },
         body: JSON.stringify({ url: "https://example.org/", ...(solved ? { turnstileToken: `token-${(token += 1)}` } : {}) })
@@ -264,6 +286,18 @@ test("the production Worker admits a scan once per client, and Cloudflare's addr
     assert.deepEqual(await state(), { forwarded: [], clientMinuteCharges: [] });
     assert.deepEqual(siteverifyAddresses, []);
 
+    // Retired POST /api/scan is refused with 410 Gone before Siteverify, quota,
+    // and container forwarding.
+    const retired = await mf!.dispatchFetch("https://scanner.invalid/api/scan", {
+      method: "POST",
+      headers: { "content-type": "application/json", "cf-connecting-ip": subscriber(1) },
+      body: JSON.stringify({ url: "https://example.org/", turnstileToken: "unused" })
+    });
+    assert.equal(retired.status, 410);
+    assert.equal(((await retired.json()) as { migration?: string }).migration, "/api/v3/scan");
+    assert.deepEqual(await state(), { forwarded: [], clientMinuteCharges: [] });
+    assert.deepEqual(siteverifyAddresses, []);
+
     // One admitted scan is charged once and forwarded once. The container is
     // handed Cloudflare's address as the only X-Forwarded-For entry, whatever
     // forwarding headers the caller sent, and Siteverify the full address.
@@ -272,10 +306,10 @@ test("the production Worker admits a scan once per client, and Cloudflare's addr
       "x-forwarded-for": "198.51.100.1, 198.51.100.2",
       "x-real-ip": "198.51.100.3"
     });
-    assert.equal(admitted.status, 202);
+    assert.equal(admitted.status, 200);
     await admitted.text();
     assert.deepEqual(await state(), {
-      forwarded: [{ path: "/api/scan", forwardedFor: subscriber(1), realIp: subscriber(1) }],
+      forwarded: [{ path: "/api/v3/scan", forwardedFor: subscriber(1), realIp: subscriber(1) }],
       clientMinuteCharges: [1]
     });
     assert.deepEqual(siteverifyAddresses, [subscriber(1)]);
@@ -284,7 +318,7 @@ test("the production Worker admits a scan once per client, and Cloudflare's addr
     // six a minute, and a seventh from yet another of its addresses is refused.
     for (let host = 2; host <= 6; host += 1) {
       const next = await scan({ "cf-connecting-ip": subscriber(host) });
-      assert.equal(next.status, 202, `scan ${host} of the subscriber`);
+      assert.equal(next.status, 200, `scan ${host} of the subscriber`);
       await next.text();
     }
     const seventh = await scan({ "cf-connecting-ip": subscriber(7) });
@@ -292,7 +326,7 @@ test("the production Worker admits a scan once per client, and Cloudflare's addr
     assert.equal(((await seventh.json()) as { cause?: string }).cause, "request-limit");
     // The neighbouring /64 is another client with its own allowance.
     const neighbour = await scan({ "cf-connecting-ip": "2001:db8:aaaa:bbbc::1" });
-    assert.equal(neighbour.status, 202);
+    assert.equal(neighbour.status, 200);
     await neighbour.text();
     assert.deepEqual((await state()).clientMinuteCharges, [1, 6]);
 
@@ -308,7 +342,7 @@ test("the production Worker admits a scan once per client, and Cloudflare's addr
       unnamed.push(response.status);
       await response.text();
     }
-    assert.deepEqual(unnamed, [202, 202, 202, 202, 202, 202, 429]);
+    assert.deepEqual(unnamed, [200, 200, 200, 200, 200, 200, 429]);
     const final = await state();
     assert.deepEqual(final.clientMinuteCharges, [1, 6, 6]);
     assert.equal(final.forwarded.length, 13);

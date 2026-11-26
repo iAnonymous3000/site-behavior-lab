@@ -24,9 +24,6 @@ const NODE_ONLY_MODULES = new Set([
   "lib/public-scan-proxy.ts",
   "lib/report-store.ts",
   "lib/runtime-status.ts",
-  "lib/scan-api.ts",
-  "lib/scan-gate.ts",
-  "lib/scan-jobs.ts",
   "lib/scan-limits.ts",
   "lib/scan-result-v2-r2-builder.ts",
   "lib/scanner.ts",
@@ -171,7 +168,6 @@ const SEAM_DEFINERS: ReadonlySet<string> = new Set([...SEAM_MODULES, "lib/scanne
 const SEAM_HELPER_USERS: Readonly<Record<string, readonly string[]>> = {
   "lib/redact-scan-report-v1.ts": ["refuseSeamVisit"],
   "lib/report-store.ts": ["refuseSeamVisit"],
-  "lib/scan-api.ts": ["refuseSeamOption", "refuseSeamVisit"],
   "lib/scan-report-reader.ts": ["isSeamVisit"],
   "lib/scan-report-v1-projection.ts": ["refuseSeamVisit"],
   "lib/scan-report-v2-runtime-builder.ts": ["refuseSeamVisit"],
@@ -285,8 +281,7 @@ test("no public module names the investigation seam, its mark or anything its mo
   assert.deepEqual(unswept, [], "a public entry point reaches a module the sweep does not read");
   for (const caller of [
     "app/api/scan/route.ts",
-    "lib/scan-api.ts",
-    "lib/scan-jobs.ts",
+    "app/api/v3/scan/route.ts",
     "lib/calibration-scan-runtime.ts",
     "lib/redact-scan-report-v1.ts",
     "lib/report-store.ts",
@@ -299,7 +294,8 @@ test("no public module names the investigation seam, its mark or anything its mo
   ]) {
     assert.ok(sources.includes(caller), `${caller} could not be located`);
   }
-  assert.ok(reached.has("lib/scan-api.ts") && reached.has("lib/scanner.ts") && reached.has("lib/investigation-seam.ts"));
+  assert.equal(reached.has("lib/scanner.ts"), false, "no public entrypoint should reach legacy lib/scanner.ts");
+  assert.equal(reached.has("lib/investigation-seam.ts"), false, "no public entrypoint should reach lib/investigation-seam.ts");
 
   // The check finds each way to name it. A file outside both lists may name
   // nothing; a listed module may name its helpers and still not the key, the
@@ -443,7 +439,7 @@ test("the documented refusing steps and catching functions are the functions tha
   const docsFile = "docs/runtime-boundaries.md";
   const docs = await readFile(path.join(PROJECT_ROOT, docsFile), "utf8");
   const steps = refusingSteps(docs);
-  assert.ok(steps.length >= 8, `${docsFile} lists ${steps.length} refusing steps, so its table was not read`);
+  assert.ok(steps.length >= 7, `${docsFile} lists ${steps.length} refusing steps, so its table was not read`);
   const documented = steps.flatMap((step) => step.functions).sort();
   assert.equal(new Set(documented).size, documented.length, "one function is listed as two steps");
 

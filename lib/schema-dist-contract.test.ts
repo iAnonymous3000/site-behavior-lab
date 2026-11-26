@@ -80,8 +80,9 @@ test("every schema module an automation entrypoint executes is emitted by the sc
 
   assert.ok(referenced.size >= 5, `expected to find schema module references, found ${referenced.size}`);
   assert.ok(
-    referenced.has("lib/scan-report-acquisition.ts"),
-    "the regression case must still be covered by a real reference"
+    referenced.has("lib/verify-published-report-cli.ts") &&
+      referenced.has("lib/publication-transparency-log-cli.ts"),
+    "active schema CLI modules must still be covered by real references"
   );
 
   const missing: string[] = [];

@@ -2981,6 +2981,34 @@ export default {
       return handleContainerHealthRequest(request, env);
     }
 
+    // Decode path segments once so percent-encoded variants (e.g. /%61pi/v3/scan
+    // or /api/sc%61n) cannot bypass Worker edge gates or retirement responses.
+    const decodedPathname = decodeCanonicalPathname(url.pathname);
+    if (decodedPathname === null) {
+      return gateErrorResponse(
+        new EdgeScanGateError("Malformed request path.", 400, "request-rejected"),
+        request,
+        env
+      );
+    }
+
+    // Legacy v1/v2 live scan routes are retired at the edge without waking the
+    // container, touching Turnstile Siteverify, or charging scan quota.
+    if (
+      decodedPathname === "/api/scan" ||
+      decodedPathname === SCAN_ADMISSION_RECOVERY_PATH ||
+      decodedPathname === "/api/scans" ||
+      decodedPathname.startsWith("/api/scans/")
+    ) {
+      if (request.method === "OPTIONS") {
+        return new Response(null, {
+          status: 204,
+          headers: scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN)
+        });
+      }
+      return retiredLegacyScanApiResponse(request, env);
+    }
+
     // Charge attempts before parsing even invalid requests or consulting
     // Siteverify. WAF propagation delays cannot bypass this atomic ceiling.
     if (isAdmissionAttempt(request.method, url.pathname)) {
@@ -2990,34 +3018,6 @@ export default {
         (clientHash) => getContainer(env.SCANNER).chargeAdmissionAttempt({ clientHash })
       );
       if (refusal) return refusal;
-    }
-
-    const isScanAdmissionRecovery = url.pathname === SCAN_ADMISSION_RECOVERY_PATH && !url.search;
-    if (isScanAdmissionRecovery) {
-      if (request.method === "OPTIONS") {
-        return new Response(null, {
-          status: 204,
-          headers: scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN)
-        });
-      }
-      if (request.method === "GET") {
-        return recoverCommittedScanAdmission(request, env);
-      }
-      return new Response(null, {
-        status: 404,
-        headers: scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN)
-      });
-    }
-
-    // Decode path segments once so percent-encoded variants (e.g. /%61pi/v3/scan
-    // or /api/sc%61n) cannot bypass Worker edge gates and reach Next.js uncharged.
-    const decodedPathname = decodeCanonicalPathname(url.pathname);
-    if (decodedPathname === null) {
-      return gateErrorResponse(
-        new EdgeScanGateError("Malformed request path.", 400, "request-rejected"),
-        request,
-        env
-      );
     }
 
     const isScan = request.method === "POST" && decodedPathname === "/api/scan";
@@ -4565,6 +4565,26 @@ function malformedScanJobPathResponse(request: Request, env: Env): Response {
   });
 }
 
+function retiredLegacyScanApiResponse(request: Request, env: Env): Response {
+  return new Response(
+    JSON.stringify({
+      ok: false,
+      error: "The legacy v1/v2 scan endpoint has been retired. Submit scans to POST /api/v3/scan.",
+      migration: "/api/v3/scan",
+      cause: "feature-unavailable"
+    }),
+    {
+      status: 410,
+      headers: {
+        ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff"
+      }
+    }
+  );
+}
+
 function privateRouteNotFound(): Response {
   return new Response(null, { status: 404, headers: { "cache-control": "no-store" } });
 }
@@ -4654,72 +4674,6 @@ function scanAdmissionResponse(
       "cache-control": "no-store"
     }
   });
-}
-
-async function recoverCommittedScanAdmission(request: Request, env: Env): Promise<Response> {
-  try {
-    await authorizeScanAdmissionRecovery(request, env);
-    const key = await scanAdmissionStoreKeyFromRecoveryHeaders(request.headers);
-    if (!key) throw new EdgeScanGateError("A canonical scan-admission capability is required.", 400);
-    const result = await getContainer(env.SCANNER).recoverCommittedScanAdmission({
-      key,
-      clientHash: await publicClientHash(request.headers)
-    });
-    if (result.status === "rate-limited") {
-      // Uncaused: a recovery lookup is not a scan submission, and the client
-      // renders recovery failures as the server's own words. The wait still
-      // travels as data, so the refusal also carries it as Retry-After.
-      throw new EdgeScanGateError(
-        `Too many scan-admission recovery requests. Try again in about ${formatPublicScanRetryAfter(result.retryAfterSeconds)}.`,
-        429,
-        undefined,
-        result.retryAfterSeconds
-      );
-    }
-    if (result.status === "conflict") throw new ScanAdmissionConflictGateError();
-    if (result.status === "found") return scanAdmissionResponse(result.admission, request, env, 200);
-    return new Response(JSON.stringify({ ok: false, error: "No committed scan admission was found." }), {
-      status: 404,
-      headers: {
-        ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),
-        "content-type": "application/json; charset=utf-8",
-        "cache-control": "no-store"
-      }
-    });
-  } catch (error) {
-    return gateErrorResponse(error, request, env);
-  }
-}
-
-async function authorizeScanAdmissionRecovery(request: Request, env: Env): Promise<void> {
-  const expectedMonitorToken = env.SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN?.trim();
-  const suppliedMonitorToken = request.headers.get(SYNTHETIC_MONITOR_TOKEN_HEADER)?.trim();
-  if (
-    isProductionSyntheticMonitorToken(expectedMonitorToken) &&
-    suppliedMonitorToken &&
-    (await constantTimeEqual(suppliedMonitorToken, expectedMonitorToken))
-  ) {
-    return;
-  }
-
-  const expectedToken = env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?.trim();
-  if (expectedToken) {
-    if (!(await scanAccessTokenMatches(request.headers, expectedToken))) {
-      throw new EdgeScanGateError("Unauthorized scan request.", 401, "access-key-required");
-    }
-    return;
-  }
-  if (env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS !== "1") {
-    throw new EdgeScanGateError("This scanner is not configured for public scans.", 503);
-  }
-  if (
-    openScanBlockedForMissingTurnstile({
-      turnstileSecret: env.TURNSTILE_SECRET_KEY?.trim(),
-      acceptNoTurnstileRisk: env.SITE_BEHAVIOR_LAB_ACCEPT_NO_TURNSTILE_RISK
-    })
-  ) {
-    throw new EdgeScanGateError("Public scans require Turnstile.", 503);
-  }
 }
 
 function durableUnavailableResponse(request: Request, env: Env): Response {
