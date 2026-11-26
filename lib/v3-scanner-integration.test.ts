@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
 import http from "node:http";
+import path from "node:path";
 import { test } from "node:test";
 import { closeSharedBrowserV3, scanSiteV3 } from "./v3/scanner";
 import { validateScanReportV3 } from "./v3/schema";
@@ -186,9 +188,10 @@ test("v3 CDP-native scanner executes concurrent multi-arm scans against a live f
   assert.ok(fpKinds.includes("mutation-observer-replay"));
   assert.ok(fpKinds.includes("document-cookie-writes"));
 
-  // 6. Shadow DOM input typed cleanly
+  // 6. Shadow DOM input typed cleanly and keystroke probe recorded complete
   assert.equal(lead.keystrokes.fieldsTyped, 1);
   assert.equal(lead.keystrokes.shadowDomFieldsTyped, 1);
+  assert.equal(lead.probes.keystrokes.status, "complete");
 
   // 7. Consent dark-pattern audit on baseline + 2nd-layer reject on comparison arm!
   assert.equal(lead.consent.banner.detected, true);
@@ -208,4 +211,174 @@ test("v3 CDP-native scanner executes concurrent multi-arm scans against a live f
   assert.ok(lead.policy);
   assert.ok(lead.policy.claims.some((c) => c.kind === "no-selling-or-sharing"));
   assert.ok(lead.policy.claims.some((c) => c.kind === "honors-gpc"));
+});
+
+test("v3 scanner marks probes.keystrokes as skipped when a page has zero eligible input fields", async (t) => {
+  const server = http.createServer((_req, res) => {
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(`<!doctype html>
+<html lang="en">
+<head><title>No-Form Fixture</title></head>
+<body>
+  <h1>Static Article</h1>
+  <form role="search"><input type="search" name="q" placeholder="Search" /></form>
+  <p>No email, contact, or account form fields exist on this page.</p>
+</body>
+</html>`);
+  });
+
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const addr = server.address();
+  assert.ok(addr && typeof addr !== "string");
+  const baseUrl = `http://127.0.0.1:${addr.port}/`;
+
+  t.after(async () => {
+    await closeSharedBrowserV3();
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  });
+
+  const report = await scanSiteV3(
+    { url: baseUrl, activeInputProbe: true, policyCheck: false, scrollCheck: false },
+    { allowLoopbackFixture: true, passiveDwellMs: 300, resolveCnameChain: async () => ({ chain: [], terminated: true }) }
+  );
+
+  assert.deepEqual(validateScanReportV3(report), []);
+  assert.equal(report.leadArm.keystrokes.fieldsTyped, 0);
+  assert.equal(report.leadArm.probes.keystrokes.status, "skipped");
+  assert.equal(report.leadArm.probes.keystrokes.reason, "no-eligible-input-fields");
+  assert.ok(
+    report.leadArm.phases.some(
+      (p) => p.name === "active-input" && p.status === "skipped" && p.reason === "no-eligible-input-fields"
+    )
+  );
+  assert.equal(report.leadArm.probes.policy.status, "skipped");
+  assert.equal(report.leadArm.probes.policy.reason, "probe-disabled");
+});
+
+test("production v3 synthetic smoke verifies fresh POST /api/v3/scan, persistence, HTML, PDF, and probe coverage", async (t) => {
+  const REPORT_ID = "20261126-abcdef0123456789abcdef0123456789";
+  const TOKEN = "production-v3-synthetic-test-token-123456";
+  let keystrokeStatusToReturn: "skipped" | "complete" = "skipped";
+  let submittedPayload: unknown = null;
+
+  const makeMockReport = () => ({
+    schemaVersion: 3,
+    reportId: REPORT_ID,
+    canonicalDomain: "iana.org",
+    finalUrl: "https://www.iana.org/domains/reserved",
+    scannedAt: new Date().toISOString(),
+    leadArm: {
+      loadOutcome: "ok",
+      httpStatus: 200,
+      summary: { totalRequests: 4 },
+      keystrokes: { fieldsTyped: 0, leaks: [] },
+      probes: {
+        keystrokes:
+          keystrokeStatusToReturn === "skipped"
+            ? { status: "skipped", reason: "no-eligible-input-fields" }
+            : { status: "complete" }
+      }
+    }
+  });
+
+  const server = http.createServer((req, res) => {
+    if (req.method === "OPTIONS" && req.url === "/api/v3/scan") {
+      res.writeHead(204, { "access-control-allow-origin": "https://sitebehavior.org" });
+      res.end();
+      return;
+    }
+    if (req.method === "POST" && req.url === "/api/v3/scan") {
+      let body = "";
+      req.on("data", (c) => {
+        body += String(c);
+      });
+      req.on("end", () => {
+        submittedPayload = JSON.parse(body);
+        const report = makeMockReport();
+        res.writeHead(200, {
+          "content-type": "application/json",
+          "access-control-allow-origin": "https://sitebehavior.org"
+        });
+        res.end(
+          JSON.stringify({
+            ok: true,
+            reportId: REPORT_ID,
+            sharePath: `/v3/reports/${REPORT_ID}`,
+            apiPath: `/api/v3/reports/${REPORT_ID}`,
+            pdfPath: `/api/v3/reports/${REPORT_ID}/pdf`,
+            report
+          })
+        );
+      });
+      return;
+    }
+    if (req.method === "GET" && req.url === `/api/v3/reports/${REPORT_ID}`) {
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify(makeMockReport()));
+      return;
+    }
+    if (req.method === "GET" && req.url === `/v3/reports/${REPORT_ID}`) {
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      res.end(`<html><body><h1>iana.org</h1><div>${REPORT_ID}</div></body></html>`);
+      return;
+    }
+    if (req.method === "GET" && req.url === `/api/v3/reports/${REPORT_ID}/pdf`) {
+      res.writeHead(200, { "content-type": "application/pdf" });
+      res.end(Buffer.from("%PDF-1.7\n%%EOF\n"));
+      return;
+    }
+    res.writeHead(404);
+    res.end();
+  });
+
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const addr = server.address();
+  assert.ok(addr && typeof addr !== "string");
+  const origin = `http://127.0.0.1:${addr.port}`;
+
+  t.after(async () => {
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  });
+
+  const runScript = () =>
+    new Promise<{ code: number | null; stdout: string; stderr: string }>((resolve, reject) => {
+      const child = spawn(process.execPath, [path.join(process.cwd(), "scripts/smoke-production-v3-synthetic.mjs")], {
+        env: {
+          ...process.env,
+          SCAN_BASE_URL: origin,
+          PRODUCTION_SYNTHETIC_MONITOR_TOKEN: TOKEN
+        },
+        stdio: ["ignore", "pipe", "pipe"]
+      });
+      let stdout = "";
+      let stderr = "";
+      child.stdout.on("data", (c) => {
+        stdout += String(c);
+      });
+      child.stderr.on("data", (c) => {
+        stderr += String(c);
+      });
+      child.on("error", reject);
+      child.on("close", (code) => resolve({ code, stdout, stderr }));
+    });
+
+  // 1. Honest skipped keystroke probe passes full E2E check
+  const okRun = await runScript();
+  assert.equal(okRun.code, 0, okRun.stderr);
+  assert.match(okRun.stdout, /PASS production v3 synthetic completed.*keystroke-probe=skipped\[0 fields\]/);
+  assert.deepEqual(submittedPayload, {
+    url: "https://www.iana.org/domains/reserved",
+    device: "desktop",
+    gpcEnabled: true,
+    compareGpc: false,
+    compareShields: false,
+    compareConsent: false,
+    consentMode: "observe"
+  });
+
+  // 2. Dishonest "complete" keystroke probe with 0 fields typed fails loudly
+  keystrokeStatusToReturn = "complete";
+  const badRun = await runScript();
+  assert.notEqual(badRun.code, 0);
+  assert.match(badRun.stderr, /marked probes\.keystrokes as complete despite 0 fields typed/);
 });

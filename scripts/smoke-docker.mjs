@@ -161,7 +161,7 @@ async function runPublicR2ImageSmoke() {
     });
     assertPublicR2Bundles(smokeR2.snapshot());
     await assertPrintableReportRoute(scanner.baseUrl, smokeR2.snapshot());
-    await assertV3RuntimeEndpoints(scanner.baseUrl);
+    await assertV3RuntimeEndpoints(scanner.baseUrl, smokeR2);
     console.log(`Docker public-v2/R2 smoke passed for ${image} at ${scanner.baseUrl}.`);
   } catch (error) {
     await printScannerLogs(scanner.containerId);
@@ -557,7 +557,7 @@ function assertSandboxEnabled(health) {
   }
 }
 
-async function assertV3RuntimeEndpoints(baseUrl) {
+async function assertV3RuntimeEndpoints(baseUrl, r2Fixture) {
   const stats = await withHttpOperationDeadline(
     { timeoutMs: 10_000, label: "v3 corpus stats" },
     async (signal) => {
@@ -628,7 +628,122 @@ async function assertV3RuntimeEndpoints(baseUrl) {
   ) {
     throw new Error(`v3 report PDF ${reportId} did not start with %PDF- magic bytes.`);
   }
-  console.log(`Docker v3 runtime endpoints passed (${stats.stats.distinctSites} seeded sites, JSON ${elapsedMs}ms, PDF ${pdfBytes.byteLength} B).`);
+
+  // Exercise a fresh end-to-end POST /api/v3/scan -> R2 persistence -> JSON/HTML/PDF readback.
+  const freshTargets = ["https://www.iana.org/domains/reserved", "https://www.w3.org/TR/"];
+  let freshResult = null;
+  const freshErrors = [];
+  for (const targetUrl of freshTargets) {
+    const submitted = await withHttpOperationDeadline(
+      { timeoutMs: 120_000, label: `POST /api/v3/scan (${targetUrl})` },
+      async (signal) => {
+        const response = await fetch(`${baseUrl}/api/v3/scan`, {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-site-behavior-lab-access-token": token
+          },
+          body: JSON.stringify({
+            url: targetUrl,
+            device: "desktop",
+            gpcEnabled: true,
+            consentMode: "observe",
+            visibility: "unlisted"
+          }),
+          signal
+        });
+        const body = await readResponseJsonWithinLimit(response, {
+          maxBytes: 16 * 1024 * 1024,
+          label: `POST /api/v3/scan (${targetUrl})`
+        });
+        return { status: response.status, body };
+      }
+    );
+    if (submitted.status === 200 && submitted.body?.ok && submitted.body?.report?.leadArm?.loadOutcome === "ok") {
+      freshResult = submitted.body;
+      break;
+    }
+    freshErrors.push(
+      `${targetUrl}: status=${submitted.status} outcome=${submitted.body?.report?.leadArm?.loadOutcome ?? submitted.body?.error ?? "unknown"}`
+    );
+  }
+  if (!freshResult) {
+    throw new Error(`Fresh POST /api/v3/scan failed on all targets: ${freshErrors.join("; ")}`);
+  }
+
+  const freshId = freshResult.reportId;
+  if (typeof freshId !== "string" || !/^\d{8}-[a-f0-9]{16,64}$/.test(freshId)) {
+    throw new Error("Fresh POST /api/v3/scan did not return a valid reportId.");
+  }
+  if (
+    freshResult.report.leadArm.keystrokes.fieldsTyped === 0 &&
+    freshResult.report.leadArm.probes.keystrokes.status === "complete"
+  ) {
+    throw new Error("Fresh v3 scan marked probes.keystrokes as complete despite 0 fields typed.");
+  }
+
+  if (r2Fixture) {
+    const r2Keys = new Set(r2Fixture.snapshot().map((o) => o.key));
+    if (!r2Keys.has(`v3/reports/${freshId}.json`)) {
+      throw new Error(`Fresh v3 scan did not persist v3/reports/${freshId}.json to R2.`);
+    }
+  }
+
+  const freshReadback = await withHttpOperationDeadline(
+    { timeoutMs: 10_000, label: `fresh v3 report JSON ${freshId}` },
+    async (signal) => {
+      const response = await fetch(`${baseUrl}/api/v3/reports/${freshId}`, { signal });
+      if (response.status !== 200) throw new Error(`GET /api/v3/reports/${freshId} answered ${response.status}.`);
+      return readResponseJsonWithinLimit(response, { maxBytes: 16 * 1024 * 1024, label: `fresh v3 report JSON ${freshId}` });
+    }
+  );
+  if (freshReadback?.schemaVersion !== 3 || freshReadback?.reportId !== freshId) {
+    throw new Error(`Fresh v3 report readback failed for ${freshId}.`);
+  }
+
+  const freshHtml = await withHttpOperationDeadline(
+    { timeoutMs: 10_000, label: `fresh v3 report HTML ${freshId}` },
+    async (signal) => {
+      const response = await fetch(`${baseUrl}/v3/reports/${freshId}`, { signal });
+      if (response.status !== 200) throw new Error(`GET /v3/reports/${freshId} answered ${response.status}.`);
+      return readResponseTextWithinLimit(response, { maxBytes: 4 * 1024 * 1024, label: `fresh v3 report HTML ${freshId}` });
+    }
+  );
+  if (!freshHtml.includes(freshId)) {
+    throw new Error(`Fresh v3 report page /v3/reports/${freshId} did not render reportId.`);
+  }
+
+  const freshPdfBytes = await withHttpOperationDeadline(
+    { timeoutMs: 45_000, label: `fresh v3 report PDF ${freshId}` },
+    async (signal) => {
+      const response = await fetch(`${baseUrl}/api/v3/reports/${freshId}/pdf`, {
+        headers: { accept: "application/pdf" },
+        signal
+      });
+      if (response.status !== 200) throw new Error(`GET /api/v3/reports/${freshId}/pdf answered ${response.status}.`);
+      return readResponseBytesWithinLimit(response, { maxBytes: reportPdfMaxBytes, label: `fresh v3 report PDF ${freshId}` });
+    }
+  );
+  if (
+    freshPdfBytes.byteLength < 5 ||
+    freshPdfBytes[0] !== 0x25 ||
+    freshPdfBytes[1] !== 0x50 ||
+    freshPdfBytes[2] !== 0x44 ||
+    freshPdfBytes[3] !== 0x46 ||
+    freshPdfBytes[4] !== 0x2d
+  ) {
+    throw new Error(`Fresh v3 report PDF ${freshId} did not start with %PDF- magic bytes.`);
+  }
+  if (r2Fixture) {
+    const r2Keys = new Set(r2Fixture.snapshot().map((o) => o.key));
+    if (!r2Keys.has(`v3/pdfs/${freshId}.pdf`)) {
+      throw new Error(`Fresh v3 report PDF did not cache v3/pdfs/${freshId}.pdf in R2.`);
+    }
+  }
+
+  console.log(
+    `Docker v3 runtime endpoints passed (${stats.stats.distinctSites} seeded sites, seeded JSON ${elapsedMs}ms, seeded PDF ${pdfBytes.byteLength} B, fresh scan ${freshId} PDF ${freshPdfBytes.byteLength} B).`
+  );
 }
 
 function assertPublicR2Bundles(objects) {

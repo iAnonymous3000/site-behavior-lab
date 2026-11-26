@@ -108,9 +108,13 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
     beacons: { status: "complete" },
     cname: { status: "complete" },
     fingerprinting: { status: "complete" },
-    keystrokes: { status: options.conditions.activeInputProbe ? "complete" : "skipped" },
+    keystrokes: options.conditions.activeInputProbe
+      ? { status: "complete" }
+      : { status: "skipped", reason: "probe-disabled" },
     consent: { status: "complete" },
-    policy: { status: options.conditions.policyCheck ? "complete" : "skipped" }
+    policy: options.conditions.policyCheck
+      ? { status: "complete" }
+      : { status: "skipped", reason: "probe-disabled" }
   };
 
   if (options.signal?.aborted) {
@@ -389,13 +393,22 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
           // Trigger visibilitychange/pagehide beacons gently only after short dwell
           await sleep(inputDwellMs);
           await collector.snapshotPhaseState();
+          phases.push({
+            name: "active-input",
+            startedAtMs: inputStart,
+            endedAtMs: Date.now() - startedAt,
+            status: "completed"
+          });
+        } else {
+          probes.keystrokes = { status: "skipped", reason: "no-eligible-input-fields" };
+          phases.push({
+            name: "active-input",
+            startedAtMs: inputStart,
+            endedAtMs: Date.now() - startedAt,
+            status: "skipped",
+            reason: "no-eligible-input-fields"
+          });
         }
-        phases.push({
-          name: "active-input",
-          startedAtMs: inputStart,
-          endedAtMs: Date.now() - startedAt,
-          status: "completed"
-        });
       } catch {
         assertNotAborted();
         probes.keystrokes = { status: "partial", reason: "input-probe-error" };
@@ -407,15 +420,18 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
         });
       }
     } else {
-      if (deadlineExceeded && options.conditions.activeInputProbe) {
-        probes.keystrokes = { status: "skipped", reason: "arm-deadline-exceeded" };
-      }
+      const skipReason = !options.conditions.activeInputProbe
+        ? "probe-disabled"
+        : deadlineExceeded
+          ? "arm-deadline-exceeded"
+          : loadOutcome;
+      probes.keystrokes = { status: "skipped", reason: skipReason };
       phases.push({
         name: "active-input",
         startedAtMs: inputStart,
         endedAtMs: Date.now() - startedAt,
         status: "skipped",
-        ...(deadlineExceeded ? { reason: "arm-deadline-exceeded" } : {})
+        reason: skipReason
       });
     }
 
@@ -569,15 +585,18 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
         });
       }
     } else {
-      if (deadlineExceeded && options.conditions.policyCheck) {
-        probes.policy = { status: "skipped", reason: "arm-deadline-exceeded" };
-      }
+      const skipReason = !options.conditions.policyCheck
+        ? "probe-disabled"
+        : deadlineExceeded
+          ? "arm-deadline-exceeded"
+          : loadOutcome;
+      probes.policy = { status: "skipped", reason: skipReason };
       phases.push({
         name: "policy-check",
         startedAtMs: policyStart,
         endedAtMs: Date.now() - startedAt,
         status: "skipped",
-        ...(deadlineExceeded ? { reason: "arm-deadline-exceeded" } : {})
+        reason: skipReason
       });
     }
 
@@ -587,6 +606,12 @@ export async function runScanArmV3(options: RunArmOptionsV3): Promise<RunArmResu
       for (const probeName of Object.keys(probes) as ProbeName[]) {
         if (probes[probeName].status === "complete") {
           probes[probeName] = { status: "partial", reason: "arm-deadline-exceeded" };
+        }
+      }
+    } else if (loadOutcome !== "ok") {
+      for (const probeName of Object.keys(probes) as ProbeName[]) {
+        if (probes[probeName].status === "complete") {
+          probes[probeName] = { status: "partial", reason: loadOutcome };
         }
       }
     }

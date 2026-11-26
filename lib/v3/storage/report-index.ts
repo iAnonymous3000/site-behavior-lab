@@ -105,6 +105,7 @@ export const V3_INDEX_SCHEMA_STATEMENTS: readonly string[] = [
     cname_cloaks_count INTEGER NOT NULL DEFAULT 0,
     fingerprint_kinds_count INTEGER NOT NULL DEFAULT 0,
     keystroke_leaks_count INTEGER NOT NULL DEFAULT 0,
+    keystroke_fields_typed INTEGER NOT NULL DEFAULT 0,
     dark_pattern_score INTEGER NOT NULL DEFAULT 0,
     top_highlight TEXT,
     r2_key TEXT NOT NULL,
@@ -155,6 +156,13 @@ export class D1ReportIndexStoreV3 {
     for (const stmt of V3_INDEX_SCHEMA_STATEMENTS) {
       await this.db.exec(stmt);
     }
+    // Idempotent additive migration for existing SQLite / Cloudflare D1 tables
+    // created before `keystroke_fields_typed` was recorded.
+    try {
+      await this.db.exec(`ALTER TABLE reports ADD COLUMN keystroke_fields_typed INTEGER NOT NULL DEFAULT 0`);
+    } catch {
+      // Column already exists.
+    }
   }
 
   async indexReport(
@@ -187,9 +195,9 @@ export class D1ReportIndexStoreV3 {
           distinct_parent_orgs, cookies_total, third_party_cookies, long_lived_cookies,
           partitioned_cookies, storage_keys_total, websockets_total, service_workers_total,
           beacon_platforms, server_side_tagging_endpoints, cname_cloaks_count,
-          fingerprint_kinds_count, keystroke_leaks_count, dark_pattern_score, top_highlight,
+          fingerprint_kinds_count, keystroke_leaks_count, keystroke_fields_typed, dark_pattern_score, top_highlight,
           r2_key, report_digest, expires_at
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           report.reportId,
           report.canonicalDomain.toLowerCase(),
@@ -220,6 +228,7 @@ export class D1ReportIndexStoreV3 {
           s.cnameCloaksCount,
           s.fingerprintKindsCount,
           s.keystrokeLeaksCount,
+          report.leadArm.keystrokes.fieldsTyped,
           s.darkPatternScore,
           topHighlight,
           meta.r2Key,
@@ -499,6 +508,7 @@ export class D1ReportIndexStoreV3 {
          (SELECT COUNT(*) FROM reports WHERE visibility IN ('public', 'corpus')) AS total_reports,
          COUNT(*) AS distinct_sites,
          SUM(CASE WHEN keystroke_leaks_count > 0 THEN 1 ELSE 0 END) AS ks,
+         SUM(CASE WHEN keystroke_fields_typed > 0 THEN 1 ELSE 0 END) AS ks_tested,
          SUM(CASE WHEN cname_cloaks_count > 0 THEN 1 ELSE 0 END) AS cname,
          SUM(CASE WHEN server_side_tagging_endpoints > 0 THEN 1 ELSE 0 END) AS sgtm,
          SUM(CASE WHEN fingerprint_kinds_count > 0 THEN 1 ELSE 0 END) AS fp,
@@ -541,6 +551,7 @@ export class D1ReportIndexStoreV3 {
       distinctSites: Number(totals?.distinct_sites ?? 0),
       medianThirdPartyDomains,
       sitesWithKeystrokeLeaks: Number(totals?.ks ?? 0),
+      sitesWithKeystrokeProbeExercised: Number(totals?.ks_tested ?? 0),
       sitesWithCnameCloaks: Number(totals?.cname ?? 0),
       sitesWithServerSideTagging: Number(totals?.sgtm ?? 0),
       sitesWithFingerprinting: Number(totals?.fp ?? 0),
@@ -808,6 +819,7 @@ function mapRow(r: Record<string, unknown>): IndexedReportRowV3 {
     cnameCloaksCount: Number(r.cname_cloaks_count ?? 0),
     fingerprintKindsCount: Number(r.fingerprint_kinds_count ?? 0),
     keystrokeLeaksCount: Number(r.keystroke_leaks_count ?? 0),
+    keystrokeFieldsTyped: Number(r.keystroke_fields_typed ?? 0),
     darkPatternScore: Number(r.dark_pattern_score ?? 0),
     topHighlight: r.top_highlight === null || r.top_highlight === undefined ? null : String(r.top_highlight),
     r2Key: String(r.r2_key),

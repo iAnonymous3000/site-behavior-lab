@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS reports (
   cname_cloaks_count INTEGER NOT NULL DEFAULT 0,
   fingerprint_kinds_count INTEGER NOT NULL DEFAULT 0,
   keystroke_leaks_count INTEGER NOT NULL DEFAULT 0,
+  keystroke_fields_typed INTEGER NOT NULL DEFAULT 0,
   dark_pattern_score INTEGER NOT NULL DEFAULT 0,
   top_highlight TEXT,
   r2_key TEXT NOT NULL,

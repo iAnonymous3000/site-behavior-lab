@@ -1460,11 +1460,14 @@ report facts, and RC-A holds the activity slice with them in it.
 ## Claims from the trust kernel
 
 `tools/trust-kernel` is a Rust crate, compiled to a WebAssembly module the
-scanner loads. `lib/ip-safety.ts` still decides where a scan may connect.
-The kernel's address functions answer beside it for the same address,
-given as a value, and the scanner counts where they differ. No row here
-says that a scan's decision rests on the kernel. Nothing calls the kernel's
-canonical JSON.
+scanner loads. In live scans, `lib/address-kernel-comparison.ts` treats an
+address as public only when both `lib/ip-safety.ts` and the kernel's address
+functions answer public for the same address value (`tsDecision &&
+outcome.record === "agreed"`), failing closed on any load failure, reader
+mismatch, or disagreement while counting where they differ. The rows below
+state what Verus accepted for the Rust value functions alone; URL parsing,
+DNS resolution, redirects, browser egress, and the TypeScript spelling checks
+lie outside these rows. Nothing calls the kernel's canonical JSON.
 
 ### TK-A4. An IPv4 value is public exactly when the written table says so
 
@@ -1474,7 +1477,7 @@ canonical JSON.
 - **Bounds:** none
 - **Axioms:** none of the environment. The method's trust is stated under Methods.
 - **Method:** machine-checked argument
-- **Not claimed:** That the table is what the IANA registries list: that is a human reading, dated in the source. The table follows `lib/ip-safety.ts` where they part: it refuses the addresses of OPEN-IP4.1. The WebAssembly bytes: the argument is about the Rust function. How a text becomes a value: Node reads it for the scanner, and the kernel's own text reader is ordinary Rust. That the scanner acts on this answer.
+- **Not claimed:** That the table is what the IANA registries list: that is a human reading, dated in the source. The table follows `lib/ip-safety.ts` where they part: it refuses the addresses of OPEN-IP4.1. The WebAssembly bytes: the argument is about the Rust function. How a text becomes a value: Node reads it for the scanner, and the kernel's own text reader is ordinary Rust. That URL parsing, DNS resolution, redirects, or browser egress follow the same rule; live scans require both the kernel and `lib/ip-safety.ts` to agree and fail closed otherwise.
 - **Checked by:** `scripts/trust-kernel-verus.mjs`, which pins the statement word for word and the specification by digest, refuses source that would let a claim through unchecked, and requires Verus to refuse each seeded break. It runs in the workflow `.github/workflows/trust-kernel.yml`.
 - **Tests:**
   - `lib/address-kernel.test.ts`: "the IPv4 entry point answers as the reference on both sides of every block edge"

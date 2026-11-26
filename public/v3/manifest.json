@@ -1,158 +1,158 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-26T05:18:24.526Z",
+  "generatedAt": "2026-11-26T10:25:38.771Z",
   "reports": [
     {
-      "reportId": "20261126-d0a00c08f2139f7bc0283f8d7011ad30",
+      "reportId": "20261126-f9ad797c40c309e002068ff38d8e3da5",
       "canonicalDomain": "example.com",
-      "scannedAt": "2026-11-26T05:16:03.761Z",
-      "file": "reports/20261126-d0a00c08f2139f7bc0283f8d7011ad30.json",
-      "sha256": "f8350642c3182f54f3c1b535657e597814cca0a7e55e3c6f14abaaa77a204ebc",
-      "bytes": 13327
+      "scannedAt": "2026-11-26T10:23:15.461Z",
+      "file": "reports/20261126-f9ad797c40c309e002068ff38d8e3da5.json",
+      "sha256": "b8e8bb32a00bd812ebd04f2c4735409272c5840b3a09fb24d3cc2ec45ef00ed6",
+      "bytes": 13583
     },
     {
-      "reportId": "20261126-703258eccba1d0d14c9db5bce9371303",
+      "reportId": "20261126-b953d94941722c5133bdc1332f1aa21e",
       "canonicalDomain": "mozilla.org",
-      "scannedAt": "2026-11-26T05:16:10.999Z",
-      "file": "reports/20261126-703258eccba1d0d14c9db5bce9371303.json",
-      "sha256": "de2f47bc58c2154b3c94c5d140cbf0ec907ca686108c4281add82170b824615c",
-      "bytes": 194920
+      "scannedAt": "2026-11-26T10:23:22.828Z",
+      "file": "reports/20261126-b953d94941722c5133bdc1332f1aa21e.json",
+      "sha256": "04b165fc92510670ef7d83570a754811635dfa4c8b484e59dc4425461c97a7d0",
+      "bytes": 191292
     },
     {
-      "reportId": "20261126-4e6003cbb665b0e2120fde45dee60808",
+      "reportId": "20261126-cc052a875553683eb549a234f2d682ef",
       "canonicalDomain": "wikipedia.org",
-      "scannedAt": "2026-11-26T05:16:15.426Z",
-      "file": "reports/20261126-4e6003cbb665b0e2120fde45dee60808.json",
-      "sha256": "9e11006ff8655afb63e595b19a9207e58c04c4e08c857027dadad88f97e591e6",
-      "bytes": 28955
+      "scannedAt": "2026-11-26T10:23:27.205Z",
+      "file": "reports/20261126-cc052a875553683eb549a234f2d682ef.json",
+      "sha256": "793c5d862b0730d7aa81ee75a86c9da30a232667005aad2a7bcfd2caca7fc515",
+      "bytes": 29304
     },
     {
-      "reportId": "20261126-404ee8b77506abe3c0070e6258773663",
+      "reportId": "20261126-f2ec4a7a4554f5c2b81cff1758292713",
       "canonicalDomain": "duckduckgo.com",
-      "scannedAt": "2026-11-26T05:16:21.902Z",
-      "file": "reports/20261126-404ee8b77506abe3c0070e6258773663.json",
-      "sha256": "892b688e52c33407e7c2719f226ba16afc620106b3a698d200f110dce0ae27d6",
-      "bytes": 306989
+      "scannedAt": "2026-11-26T10:23:33.642Z",
+      "file": "reports/20261126-f2ec4a7a4554f5c2b81cff1758292713.json",
+      "sha256": "3755862d978b3e5908baaca51cb700a108eb4b8019a87704b139afef52ca841f",
+      "bytes": 306982
     },
     {
-      "reportId": "20261126-8f754c500d05239574e7c56f25349d3f",
+      "reportId": "20261126-f4f3bbb47023c1920be54d1be47bb29c",
       "canonicalDomain": "theguardian.com",
-      "scannedAt": "2026-11-26T05:16:28.154Z",
-      "file": "reports/20261126-8f754c500d05239574e7c56f25349d3f.json",
-      "sha256": "87b3ed87e709cd3b1f80f4dfbb93e968caf3ba87cf027710407583640e788027",
-      "bytes": 601239
+      "scannedAt": "2026-11-26T10:23:40.303Z",
+      "file": "reports/20261126-f4f3bbb47023c1920be54d1be47bb29c.json",
+      "sha256": "a2edcbe9817293fe6500b0244455ac33d035e9c27dabeb012f27fb9c465bcf5b",
+      "bytes": 612461
     },
     {
-      "reportId": "20261126-2885bd52f6991e64fd44334a6715e0aa",
+      "reportId": "20261126-471198371b87764e00c40624dd2fd768",
       "canonicalDomain": "bbc.com",
-      "scannedAt": "2026-11-26T05:16:35.054Z",
-      "file": "reports/20261126-2885bd52f6991e64fd44334a6715e0aa.json",
-      "sha256": "dcd8057092353efdadfa1f2c7f24af4748188f55c77bfafd4ca94992bf2f4ac7",
-      "bytes": 907454
+      "scannedAt": "2026-11-26T10:23:47.435Z",
+      "file": "reports/20261126-471198371b87764e00c40624dd2fd768.json",
+      "sha256": "678771e5ad4854093767217e66201cb1a59f71f666a026e0faa5b36a69de88e1",
+      "bytes": 908209
     },
     {
-      "reportId": "20261126-36f3578227b4850fa3a3fd4b0d8af2ad",
+      "reportId": "20261126-08566d656dc6db72cc9dc05f0a8941a1",
       "canonicalDomain": "npr.org",
-      "scannedAt": "2026-11-26T05:16:46.371Z",
-      "file": "reports/20261126-36f3578227b4850fa3a3fd4b0d8af2ad.json",
-      "sha256": "063341ea7a6a9cb4e55aa4631c58ea0618cd7c281dbadc16cb2968d635f22cb7",
-      "bytes": 3056094
+      "scannedAt": "2026-11-26T10:23:57.824Z",
+      "file": "reports/20261126-08566d656dc6db72cc9dc05f0a8941a1.json",
+      "sha256": "379aa6e5bece9ef450bbf3cfc399440260fbc49aecccaff466f0bb9e7442bbcc",
+      "bytes": 2040038
     },
     {
-      "reportId": "20261126-ef74307348d4773485c19ddbd8e14d98",
+      "reportId": "20261126-9666e5228d009ff2cce798ee3abdbbdf",
       "canonicalDomain": "usatoday.com",
-      "scannedAt": "2026-11-26T05:16:58.165Z",
-      "file": "reports/20261126-ef74307348d4773485c19ddbd8e14d98.json",
-      "sha256": "eca2274d92d00b79b4cbf00cd8dec17ca2cecd109690b2ef949f731510ba4b7e",
-      "bytes": 1758417
+      "scannedAt": "2026-11-26T10:24:11.118Z",
+      "file": "reports/20261126-9666e5228d009ff2cce798ee3abdbbdf.json",
+      "sha256": "3bc24000bd773a4be1ba2b46f474ed743bf9ca948c319dd38a95a9e37a10ee5b",
+      "bytes": 2003264
     },
     {
-      "reportId": "20261126-64310955ad2aae88987811bf33c88819",
+      "reportId": "20261126-3d225e053b2d250434eabde46b050aa4",
       "canonicalDomain": "cnn.com",
-      "scannedAt": "2026-11-26T05:17:05.676Z",
-      "file": "reports/20261126-64310955ad2aae88987811bf33c88819.json",
-      "sha256": "b498a4b108b62e75314a8f48327632bf551be595b9273d89bb0c9b5d2a306be9",
-      "bytes": 3528100
+      "scannedAt": "2026-11-26T10:24:18.509Z",
+      "file": "reports/20261126-3d225e053b2d250434eabde46b050aa4.json",
+      "sha256": "f03a2573634e6979e34fb761fca69053b90770ce627b4b338f7e9419fc19ff82",
+      "bytes": 294983
     },
     {
-      "reportId": "20261126-a585e97c638e489897176349d550155f",
+      "reportId": "20261126-cc6703f461cd775041ba8ff41f152363",
       "canonicalDomain": "webmd.com",
-      "scannedAt": "2026-11-26T05:17:14.893Z",
-      "file": "reports/20261126-a585e97c638e489897176349d550155f.json",
-      "sha256": "e93d3c12e1e127f82840837b35ada469eb960d3768a43e3aac05c5e41b5f3850",
-      "bytes": 2280321
+      "scannedAt": "2026-11-26T10:24:27.786Z",
+      "file": "reports/20261126-cc6703f461cd775041ba8ff41f152363.json",
+      "sha256": "96b826fd9a4ffac79627220887eb68e6101b33680ae09fc04b932df4fc2d4570",
+      "bytes": 2280624
     },
     {
-      "reportId": "20261126-4821f9c31429fb7085c65da241f22f9f",
+      "reportId": "20261126-852e7d8c0bd0fe14f01eecda32fef44e",
       "canonicalDomain": "healthline.com",
-      "scannedAt": "2026-11-26T05:17:23.153Z",
-      "file": "reports/20261126-4821f9c31429fb7085c65da241f22f9f.json",
-      "sha256": "296531a183bee051a7091c074f9853369822326c4e10b68ec4110dca01b13de5",
-      "bytes": 1225450
+      "scannedAt": "2026-11-26T10:24:36.238Z",
+      "file": "reports/20261126-852e7d8c0bd0fe14f01eecda32fef44e.json",
+      "sha256": "3334fa9dc5b7b8048a23d10fbb91ba84d40d79785398ff399646e254868a9fd2",
+      "bytes": 1209088
     },
     {
-      "reportId": "20261126-502034f4a3e4fce51a0167a6306cbc03",
+      "reportId": "20261126-c5b4b0805bbeaa84aa1ba141afc45dab",
       "canonicalDomain": "clevelandclinic.org",
-      "scannedAt": "2026-11-26T05:17:29.682Z",
-      "file": "reports/20261126-502034f4a3e4fce51a0167a6306cbc03.json",
-      "sha256": "ed7b38dd799381b2ed30cc86a6956016e371d33edca7ca468dd3817ca1b14fb2",
-      "bytes": 289515
+      "scannedAt": "2026-11-26T10:24:43.965Z",
+      "file": "reports/20261126-c5b4b0805bbeaa84aa1ba141afc45dab.json",
+      "sha256": "1df9bf673eb08cccbf9a3f964f9cdbd0ddeec4b6ce2ce0509ebaedc7f688e167",
+      "bytes": 281748
     },
     {
-      "reportId": "20261126-6520f218bbff43ebd1a7ee18b8fce98c",
+      "reportId": "20261126-e5abf742fec4d16d4dc7cb865f506fb5",
       "canonicalDomain": "cdc.gov",
-      "scannedAt": "2026-11-26T05:17:38.781Z",
-      "file": "reports/20261126-6520f218bbff43ebd1a7ee18b8fce98c.json",
-      "sha256": "48c3132cc2bc8076c42bcb183f5f7329b2c2b170c8f1b640838b6651e5589284",
-      "bytes": 180783
+      "scannedAt": "2026-11-26T10:24:51.041Z",
+      "file": "reports/20261126-e5abf742fec4d16d4dc7cb865f506fb5.json",
+      "sha256": "289b2a54ce4fa1d09480c85b211402fec9aa80d4609e76ba3970a164d1dc8c64",
+      "bytes": 180119
     },
     {
-      "reportId": "20261126-c49552795264c6fd4881080dcb316fd7",
+      "reportId": "20261126-09ca3f4a390e57b404b9b8c36442fd37",
       "canonicalDomain": "nasa.gov",
-      "scannedAt": "2026-11-26T05:17:44.373Z",
-      "file": "reports/20261126-c49552795264c6fd4881080dcb316fd7.json",
-      "sha256": "5f7fb01856d17a206f6cabb077589bc8d1318dceacb957629ab76f5f8d19f60c",
-      "bytes": 423302
+      "scannedAt": "2026-11-26T10:24:57.311Z",
+      "file": "reports/20261126-09ca3f4a390e57b404b9b8c36442fd37.json",
+      "sha256": "1902a31d4e6708fe394c25e7cc529bb34fafb879d4f1878c8264de59e36f8c94",
+      "bytes": 496045
     },
     {
-      "reportId": "20261126-fcb98fac084153dfb0b6d5ac423d5568",
+      "reportId": "20261126-210f7132ce4d124090e153b240d6c10d",
       "canonicalDomain": "weather.gov",
-      "scannedAt": "2026-11-26T05:17:51.076Z",
-      "file": "reports/20261126-fcb98fac084153dfb0b6d5ac423d5568.json",
-      "sha256": "36270f190be7c2a210a72fc531239ea1205e4c05ae7b1969dc03014482597a50",
-      "bytes": 170383
+      "scannedAt": "2026-11-26T10:25:03.936Z",
+      "file": "reports/20261126-210f7132ce4d124090e153b240d6c10d.json",
+      "sha256": "b5e33d7f39f2b896bbe32abc14a594a42b99862d1cf1881f0c29ac915ed1ac08",
+      "bytes": 170818
     },
     {
-      "reportId": "20261126-ce02d27396d06eefdb4b2f19725529cd",
+      "reportId": "20261126-3b86233df9615591cb550016ae758ba5",
       "canonicalDomain": "medicare.gov",
-      "scannedAt": "2026-11-26T05:17:59.988Z",
-      "file": "reports/20261126-ce02d27396d06eefdb4b2f19725529cd.json",
-      "sha256": "d1dcba889f2c7f9b1df6280007e2c4c86bd30c03e6f05ebc2a385ee5ea39b9e6",
-      "bytes": 1359981
+      "scannedAt": "2026-11-26T10:25:13.238Z",
+      "file": "reports/20261126-3b86233df9615591cb550016ae758ba5.json",
+      "sha256": "7fd21c253bdaf4b483248e0dfaaf8b35543076b8f46973ed4f7741a8a0f9192b",
+      "bytes": 1395295
     },
     {
-      "reportId": "20261126-f050a51521d95bcba50e702f84030983",
+      "reportId": "20261126-b9947193b48452be6ffc58287873020a",
       "canonicalDomain": "target.com",
-      "scannedAt": "2026-11-26T05:18:10.464Z",
-      "file": "reports/20261126-f050a51521d95bcba50e702f84030983.json",
-      "sha256": "9d968fb1f7f60f7bf02b2cb36cf041bbe9f5d188e1be350723e0f8ed813ec07e",
-      "bytes": 1522253
+      "scannedAt": "2026-11-26T10:25:24.316Z",
+      "file": "reports/20261126-b9947193b48452be6ffc58287873020a.json",
+      "sha256": "c5b53e0c9e63a27fcb3535d83ffe6089990ff66527879e636ae3436071ab402e",
+      "bytes": 1480887
     },
     {
-      "reportId": "20261126-e0ac58ef2a722926de29067373915c60",
+      "reportId": "20261126-3c691114c8728eb97354702a97663910",
       "canonicalDomain": "khanacademy.org",
-      "scannedAt": "2026-11-26T05:18:18.359Z",
-      "file": "reports/20261126-e0ac58ef2a722926de29067373915c60.json",
-      "sha256": "095072cca800d9f7afee107a328f8e1ba315deab3ed4932a09fdc8806dd5849a",
-      "bytes": 1007654
+      "scannedAt": "2026-11-26T10:25:32.257Z",
+      "file": "reports/20261126-3c691114c8728eb97354702a97663910.json",
+      "sha256": "8304281e2259f4888fda55d075fb4dfc366bc0dc82537374e0407ce013401b58",
+      "bytes": 1010468
     },
     {
-      "reportId": "20261126-1fc4665f593b1fe417dbf4c3f6a73e28",
+      "reportId": "20261126-46c889bfe18df3310f87680a4241107b",
       "canonicalDomain": "pbskids.org",
-      "scannedAt": "2026-11-26T05:18:24.424Z",
-      "file": "reports/20261126-1fc4665f593b1fe417dbf4c3f6a73e28.json",
-      "sha256": "94f83009666105f88c1f7cba90ca92a74971789e28bd206a4d7e27267cdd7500",
-      "bytes": 797645
+      "scannedAt": "2026-11-26T10:25:38.652Z",
+      "file": "reports/20261126-46c889bfe18df3310f87680a4241107b.json",
+      "sha256": "44d49e7cc8b24e2887087460c96e5b124e97c647efa6aa2d3e0d2bd13296e2d0",
+      "bytes": 792594
     }
   ]
 }

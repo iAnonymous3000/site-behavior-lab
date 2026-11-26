@@ -658,6 +658,7 @@ export type IndexedReportRowV3 = {
   cnameCloaksCount: number;
   fingerprintKindsCount: number;
   keystrokeLeaksCount: number;
+  keystrokeFieldsTyped?: number;
   darkPatternScore: number;
   topHighlight: string | null;
   r2Key: string;
@@ -685,6 +686,7 @@ export type CorpusOverviewStatsV3 = {
   distinctSites: number;
   medianThirdPartyDomains: number;
   sitesWithKeystrokeLeaks: number;
+  sitesWithKeystrokeProbeExercised?: number;
   sitesWithCnameCloaks: number;
   sitesWithServerSideTagging: number;
   sitesWithFingerprinting: number;

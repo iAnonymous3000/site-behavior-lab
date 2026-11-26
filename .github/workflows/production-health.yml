@@ -762,7 +762,8 @@ jobs:
           PRODUCTION_SYNTHETIC_TOTAL_TIMEOUT_MS: "300000"
         run: |
           npm run test:smoke:production-synthetic
-          echo "- Operator-only synthetic: **passed** (fixed scan contract, persisted report, and render readback)" >> "$GITHUB_STEP_SUMMARY"
+          npm run test:smoke:production-v3-synthetic
+          echo "- Operator-only synthetic: **passed** (fixed v2 and v3 scan contracts, persisted reports, HTML renders, and v3 PDF readback)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Resolve R2 delete-canary activation
         id: r2_delete_canary

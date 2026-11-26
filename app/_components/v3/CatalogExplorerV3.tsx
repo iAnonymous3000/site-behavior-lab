@@ -4,11 +4,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { LIVE_SCAN_API_BASE, STATIC_BASE_PATH, STATIC_EXPORT } from "@/app/client-runtime";
 import styles from "@/app/v3/v3.module.css";
 import { resolveV3ApiUrl, resolveV3DynamicPageUrl } from "@/lib/v3/client-urls";
+import {
+  buildVendorFootprintFromSnapshotV3,
+  loadStaticCorpusSnapshotV3
+} from "@/lib/v3/corpus-snapshot-client";
 import type { CatalogVendorEntryV3 } from "@/lib/v3/dev-mode";
 import type {
   EntityFootprintResultV3,
   EntityRegionV3,
-  IndexedReportRowV3,
   ServiceCategoryV3
 } from "@/lib/v3/schema";
 
@@ -17,106 +20,6 @@ const V3_LOCATION = {
   scanApiBase: LIVE_SCAN_API_BASE,
   basePath: STATIC_BASE_PATH
 };
-
-type StaticVendorSiteStat = {
-  domain: string;
-  requests: number;
-  domains: number;
-  category?: string;
-};
-
-type StaticCorpusSnapshotForCatalog = {
-  schemaVersion: 1;
-  items: IndexedReportRowV3[];
-  entityDomains?: Record<string, string[]>;
-  parentOrgDomains?: Record<string, string[]>;
-  entitySiteStats?: Record<string, StaticVendorSiteStat[]>;
-  parentOrgSiteStats?: Record<string, StaticVendorSiteStat[]>;
-};
-
-let cachedCatalogSnapshotPromise: Promise<StaticCorpusSnapshotForCatalog | null> | null = null;
-
-function loadCatalogSnapshotFallback(): Promise<StaticCorpusSnapshotForCatalog | null> {
-  if (!cachedCatalogSnapshotPromise) {
-    cachedCatalogSnapshotPromise = fetch(`${STATIC_BASE_PATH}/v3/corpus-snapshot.json`)
-      .then(async (resp) => {
-        if (!resp.ok) return null;
-        const parsed = (await resp.json()) as Partial<StaticCorpusSnapshotForCatalog>;
-        if (parsed?.schemaVersion !== 1 || !Array.isArray(parsed.items)) return null;
-        return parsed as StaticCorpusSnapshotForCatalog;
-      })
-      .catch(() => null);
-  }
-  return cachedCatalogSnapshotPromise;
-}
-
-function footprintFromSnapshot(
-  snapshot: StaticCorpusSnapshotForCatalog,
-  vendorName: string
-): EntityFootprintResultV3 {
-  const target = vendorName.trim().toLowerCase();
-  const byDomain = new Map(snapshot.items.map((row) => [row.canonicalDomain, row]));
-  const statByDomain = new Map<string, { requests: number; domains: number; category: string }>();
-
-  for (const source of [snapshot.entitySiteStats, snapshot.parentOrgSiteStats]) {
-    if (!source) continue;
-    for (const [k, entries] of Object.entries(source)) {
-      if (k.toLowerCase() !== target) continue;
-      for (const entry of entries) {
-        const cur = statByDomain.get(entry.domain);
-        if (!cur || entry.requests > cur.requests) {
-          statByDomain.set(entry.domain, {
-            requests: Math.max(0, entry.requests),
-            domains: Math.max(1, entry.domains),
-            category: entry.category ?? "tracked"
-          });
-        }
-      }
-    }
-  }
-
-  if (statByDomain.size === 0) {
-    const domainSet = new Set<string>();
-    for (const [k, domains] of Object.entries(snapshot.entityDomains ?? {})) {
-      if (k.toLowerCase() === target) {
-        for (const d of domains) domainSet.add(d);
-      }
-    }
-    for (const [k, domains] of Object.entries(snapshot.parentOrgDomains ?? {})) {
-      if (k.toLowerCase() === target) {
-        for (const d of domains) domainSet.add(d);
-      }
-    }
-    for (const domain of domainSet) {
-      statByDomain.set(domain, { requests: 0, domains: 1, category: "tracked" });
-    }
-  }
-
-  const sites = [...statByDomain.entries()]
-    .map(([domain, stat]) => {
-      const row = byDomain.get(domain);
-      if (!row) return null;
-      return {
-        canonicalDomain: row.canonicalDomain,
-        reportId: row.reportId,
-        scannedAt: row.scannedAt,
-        category: stat.category,
-        requestCount: stat.requests,
-        domainCount: stat.domains
-      };
-    })
-    .filter((s): s is NonNullable<typeof s> => s !== null)
-    .sort((a, b) => b.requestCount - a.requestCount || a.canonicalDomain.localeCompare(b.canonicalDomain));
-
-  const corpusSites = snapshot.items.length;
-  return {
-    name: vendorName.trim(),
-    totalSites: sites.length,
-    corpusSites,
-    prevalencePct: corpusSites > 0 ? Math.min(100, Math.round((sites.length / corpusSites) * 1000) / 10) : 0,
-    sites
-  };
-}
 
 export function CatalogExplorerV3({
   entries,
@@ -190,8 +93,8 @@ export function CatalogExplorerV3({
             } catch (err) {
               if (err instanceof DOMException && err.name === "AbortError") throw err;
             }
-            const fallback = await loadCatalogSnapshotFallback();
-            return fallback ? ([name, footprintFromSnapshot(fallback, name)] as const) : null;
+            const fallback = await loadStaticCorpusSnapshotV3(STATIC_BASE_PATH);
+            return fallback ? ([name, buildVendorFootprintFromSnapshotV3(fallback, name)] as const) : null;
           })
         );
         if (cancelled) return;

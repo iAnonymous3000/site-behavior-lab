@@ -4,6 +4,12 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { formatReportMarkdownV3, verifyReportV3Json } from "./v3/cli/formatters";
+import {
+  buildVendorFootprintFromSnapshotV3,
+  filterStaticCorpusSnapshotV3,
+  type StaticCorpusSnapshotV3
+} from "./v3/corpus-snapshot-client";
 import { renderReportV3Pdf, renderReportV3PrintHtml } from "./v3/pdf/browser-rendering-pdf";
 import {
   getV3RuntimeContext,
@@ -940,4 +946,245 @@ test("hardening: S3 R2 blob store drains 404 XML fast without awaiting body.canc
     close();
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+test("v3 PDF HTML, Markdown formatter, and corpus index distinguish unexercised keystroke probes from tested zeros", async () => {
+  const untested = makeReport({
+    reportId: "20261126-77777777777777777777777777777777",
+    canonicalDomain: "untested.example",
+    scannedAt: "2026-11-26T00:00:00.000Z"
+  });
+  untested.leadArm.keystrokes.fieldsTyped = 0;
+  untested.leadArm.probes.keystrokes = { status: "skipped", reason: "no-eligible-input-fields" };
+
+  const tested = makeReport({
+    reportId: "20261126-88888888888888888888888888888888",
+    canonicalDomain: "tested.example",
+    scannedAt: "2026-11-26T00:00:00.000Z"
+  });
+  tested.leadArm.keystrokes.fieldsTyped = 2;
+  tested.leadArm.probes.keystrokes = { status: "complete" };
+
+  const untestedHtml = renderReportV3PrintHtml(untested);
+  assert.match(untestedHtml, /not exercised \(0 eligible input fields/);
+  assert.match(untestedHtml, /no-eligible-input-fields/);
+  const testedHtml = renderReportV3PrintHtml(tested);
+  assert.match(testedHtml, /complete \(2 fields exercised; no pre-submission keystroke transmission observed\)/);
+
+  const untestedMd = formatReportMarkdownV3(untested);
+  assert.match(untestedMd, /n\/t \(0 fields\)/);
+  assert.match(untestedMd, /keystrokes: skipped \(no-eligible-input-fields\)/);
+  const testedMd = formatReportMarkdownV3(tested);
+  assert.match(testedMd, /0 \(2 fields\)/);
+
+  const { store, close } = await openNodeSqliteReportIndex(":memory:");
+  try {
+    await store.indexReport(untested, { r2Key: reportBlobKeyV3(untested.reportId), visibility: "corpus" });
+    await store.indexReport(tested, { r2Key: reportBlobKeyV3(tested.reportId), visibility: "corpus" });
+    const stats = await store.getCorpusOverviewStats();
+    assert.equal(stats.distinctSites, 2);
+    assert.equal(stats.sitesWithKeystrokeLeaks, 0);
+    assert.equal(stats.sitesWithKeystrokeProbeExercised, 1);
+
+    const rows = await store.queryCorpus({ latestPerSite: true });
+    const untestedRow = rows.items.find((r) => r.canonicalDomain === "untested.example");
+    const testedRow = rows.items.find((r) => r.canonicalDomain === "tested.example");
+    assert.equal(untestedRow?.keystrokeFieldsTyped, 0);
+    assert.equal(testedRow?.keystrokeFieldsTyped, 2);
+  } finally {
+    close();
+  }
+});
+
+test("sbl verify supports external --expected-sha256 and --manifest integrity checks with explicit scope", () => {
+  const report = makeReport({
+    reportId: "20261126-99999999999999999999999999999999",
+    canonicalDomain: "verify.example",
+    scannedAt: "2026-11-26T00:00:00.000Z"
+  });
+  const raw = JSON.stringify(report);
+  const rawSha = createHash("sha256").update(raw, "utf8").digest("hex");
+
+  // Default mode: internal consistency only
+  const base = verifyReportV3Json(raw);
+  assert.equal(base.ok, true);
+  assert.equal(base.rawDigest, rawSha);
+  assert.equal(base.digestMatched, null);
+  assert.equal(base.manifestMatched, null);
+  assert.match(base.verificationScope, /internal-consistency-only/);
+
+  // Expected canonical SHA-256 match & raw SHA-256 match
+  assert.equal(verifyReportV3Json(raw, { expectedSha256: base.digest! }).ok, true);
+  const rawMatch = verifyReportV3Json(raw, { expectedSha256: rawSha });
+  assert.equal(rawMatch.ok, true);
+  assert.equal(rawMatch.digestMatched, true);
+  assert.match(rawMatch.verificationScope, /internal-consistency-and-digest-match/);
+
+  // Expected SHA-256 mismatch fails
+  const wrongHash = verifyReportV3Json(raw, { expectedSha256: "0".repeat(64) });
+  assert.equal(wrongHash.ok, false);
+  assert.equal(wrongHash.digestMatched, false);
+
+  // Manifest exact match & mismatch (matching public/v3/manifest.json shape: `reports` + `bytes`)
+  const manifest = JSON.stringify({
+    schemaVersion: 1,
+    reports: [
+      {
+        reportId: report.reportId,
+        canonicalDomain: report.canonicalDomain,
+        sha256: rawSha,
+        bytes: Buffer.byteLength(raw, "utf8")
+      }
+    ]
+  });
+  const okManifest = verifyReportV3Json(raw, { manifestJson: manifest });
+  assert.equal(okManifest.ok, true);
+  assert.equal(okManifest.manifestMatched, true);
+
+  const badManifest = JSON.stringify({
+    schemaVersion: 1,
+    reports: [
+      {
+        reportId: report.reportId,
+        canonicalDomain: report.canonicalDomain,
+        sha256: "f".repeat(64),
+        bytes: Buffer.byteLength(raw, "utf8")
+      }
+    ]
+  });
+  const failManifest = verifyReportV3Json(raw, { manifestJson: badManifest });
+  assert.equal(failManifest.ok, false);
+  assert.equal(failManifest.manifestMatched, false);
+});
+
+test("shared static corpus snapshot filter and vendor footprint builder stay deterministic", () => {
+  const snapshot: StaticCorpusSnapshotV3 = {
+    schemaVersion: 1,
+    generatedAt: "2026-11-26T00:00:00.000Z",
+    stats: {
+      totalReports: 2,
+      distinctSites: 2,
+      medianThirdPartyDomains: 5,
+      sitesWithKeystrokeLeaks: 0,
+      sitesWithKeystrokeProbeExercised: 1,
+      sitesWithCnameCloaks: 1,
+      sitesWithServerSideTagging: 1,
+      sitesWithFingerprinting: 0,
+      sitesWithDarkPatterns: 1,
+      topEntities: [],
+      topParentOrgs: []
+    },
+    items: [
+      {
+        reportId: "20261126-11111111111111111111111111111111",
+        canonicalDomain: "alpha.example",
+        finalUrl: "https://alpha.example/",
+        scannedAt: "2026-11-26T01:00:00.000Z",
+        visibility: "corpus",
+        egressRegion: "us",
+        device: "desktop",
+        loadOutcome: "ok",
+        httpStatus: 200,
+        totalRequests: 20,
+        thirdPartyRequests: 8,
+        thirdPartyDomains: 4,
+        trackingRequests: 5,
+        shieldsBlockedStandard: 3,
+        shieldsBlockedAggressive: 5,
+        distinctEntities: 2,
+        distinctParentOrgs: 1,
+        cookiesTotal: 3,
+        thirdPartyCookies: 1,
+        longLivedCookies: 1,
+        partitionedCookies: 0,
+        storageKeysTotal: 2,
+        websocketsTotal: 0,
+        serviceWorkersTotal: 0,
+        beaconPlatforms: 1,
+        serverSideTaggingEndpoints: 1,
+        cnameCloaksCount: 1,
+        fingerprintKindsCount: 0,
+        keystrokeLeaksCount: 0,
+        keystrokeFieldsTyped: 1,
+        darkPatternScore: 45,
+        topHighlight: "CNAME cloak",
+        r2Key: "v3/reports/20261126-11111111111111111111111111111111.json",
+        reportDigest: "a".repeat(64),
+        expiresAt: null
+      },
+      {
+        reportId: "20261126-22222222222222222222222222222222",
+        canonicalDomain: "beta.example",
+        finalUrl: "https://beta.example/",
+        scannedAt: "2026-11-26T02:00:00.000Z",
+        visibility: "corpus",
+        egressRegion: "us",
+        device: "desktop",
+        loadOutcome: "ok",
+        httpStatus: 200,
+        totalRequests: 10,
+        thirdPartyRequests: 2,
+        thirdPartyDomains: 8,
+        trackingRequests: 1,
+        shieldsBlockedStandard: 1,
+        shieldsBlockedAggressive: 1,
+        distinctEntities: 1,
+        distinctParentOrgs: 1,
+        cookiesTotal: 1,
+        thirdPartyCookies: 0,
+        longLivedCookies: 0,
+        partitionedCookies: 0,
+        storageKeysTotal: 0,
+        websocketsTotal: 0,
+        serviceWorkersTotal: 0,
+        beaconPlatforms: 0,
+        serverSideTaggingEndpoints: 0,
+        cnameCloaksCount: 0,
+        fingerprintKindsCount: 0,
+        keystrokeLeaksCount: 0,
+        keystrokeFieldsTyped: 0,
+        darkPatternScore: 10,
+        topHighlight: null,
+        r2Key: "v3/reports/20261126-22222222222222222222222222222222.json",
+        reportDigest: "b".repeat(64),
+        expiresAt: null
+      }
+    ],
+    entityDomains: { "Google Analytics": ["alpha.example"] },
+    entitySiteStats: {
+      "Google Analytics": [{ domain: "alpha.example", requests: 5, domains: 2, category: "analytics" }]
+    }
+  };
+
+  const sorted = filterStaticCorpusSnapshotV3(snapshot, {
+    q: "",
+    entity: "",
+    parentOrg: "",
+    sort: "third-parties",
+    hasKeystrokes: false,
+    hasCname: false,
+    hasSgtm: false,
+    hasFp: false,
+    highDarkPattern: false
+  });
+  assert.deepEqual(sorted.map((r) => r.canonicalDomain), ["beta.example", "alpha.example"]);
+
+  const filtered = filterStaticCorpusSnapshotV3(snapshot, {
+    q: "",
+    entity: "google analytics",
+    parentOrg: "",
+    sort: "newest",
+    hasKeystrokes: false,
+    hasCname: true,
+    hasSgtm: true,
+    hasFp: false,
+    highDarkPattern: true
+  });
+  assert.deepEqual(filtered.map((r) => r.canonicalDomain), ["alpha.example"]);
+
+  const fp = buildVendorFootprintFromSnapshotV3(snapshot, "Google Analytics");
+  assert.equal(fp.totalSites, 1);
+  assert.equal(fp.corpusSites, 2);
+  assert.equal(fp.prevalencePct, 50);
+  assert.equal(fp.sites[0]?.requestCount, 5);
 });

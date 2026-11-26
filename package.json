@@ -117,6 +117,7 @@
     "test:smoke:scanner-fidelity": "node scripts/smoke-scanner-fidelity.mjs",
     "test:smoke:scanner": "node scripts/smoke-deployed-scanner.mjs",
     "test:smoke:production-synthetic": "node scripts/smoke-production-synthetic.mjs",
+    "test:smoke:production-v3-synthetic": "node scripts/smoke-production-v3-synthetic.mjs",
     "test:smoke:durable-job-replay": "node scripts/smoke-durable-job-replay.mjs",
     "test:smoke:encrypted-watches": "node scripts/smoke-encrypted-watches.mjs",
     "toolchain:canary": "node scripts/run-schema-cli.mjs toolchain-canary",

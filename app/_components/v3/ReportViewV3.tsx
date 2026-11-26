@@ -51,10 +51,15 @@ export function ReportViewV3({
   const devRules = useMemo(() => buildDeveloperRuleBreakdownV3(activeArm), [activeArm]);
 
   const probeStats = useMemo(() => {
-    const entries = Object.entries(activeArm.probes) as [ProbeName, { status: string; reason?: string }][];
+    const entries = Object.entries(activeArm.probes) as [
+      ProbeName,
+      { status: string; reason?: string; omittedCount?: number }
+    ][];
     const complete = entries.filter(([, p]) => p.status === "complete").length;
     const partial = entries.filter(([, p]) => p.status === "partial").length;
-    return { total: entries.length, complete, partial, entries };
+    const skipped = entries.filter(([, p]) => p.status === "skipped").length;
+    const unavailable = entries.filter(([, p]) => p.status === "unavailable").length;
+    return { total: entries.length, complete, partial, skipped, unavailable, entries };
   }, [activeArm]);
 
   const filteredRequests = useMemo(() => {
@@ -156,8 +161,15 @@ export function ReportViewV3({
           <span className={styles.chip}>
             Phases: {activeArm.phases.filter((p) => p.status === "completed").length}/{activeArm.phases.length} completed
           </span>
-          <span className={`${styles.chip} ${probeStats.partial > 0 ? styles.chipWarn : styles.chipOk}`}>
+          <span
+            className={`${styles.chip} ${
+              probeStats.partial > 0 || probeStats.unavailable > 0 ? styles.chipWarn : styles.chipOk
+            }`}
+          >
             Probes: {probeStats.complete}/{probeStats.total} complete
+            {probeStats.skipped > 0 ? ` · ${probeStats.skipped} skipped` : ""}
+            {probeStats.partial > 0 ? ` · ${probeStats.partial} partial` : ""}
+            {probeStats.unavailable > 0 ? ` · ${probeStats.unavailable} unavailable` : ""}
           </span>
           <span className={`${styles.chip} ${styles.chipOk}`}>Redaction verified (v3)</span>
           <button
@@ -250,11 +262,15 @@ export function ReportViewV3({
         </div>
         <div className={styles.kpiCard}>
           <div className={styles.kpiValue}>
-            {s.keystrokeLeaksCount} / {s.cnameCloaksCount} / {s.fingerprintKindsCount}
+            {activeArm.keystrokes.fieldsTyped === 0 ? "n/t" : s.keystrokeLeaksCount} / {s.cnameCloaksCount} /{" "}
+            {s.fingerprintKindsCount}
           </div>
           <div className={styles.kpiLabel}>Keystroke / CNAME / FP</div>
           <div className={styles.kpiSub}>
-            {s.websocketsTotal} WS · {s.serviceWorkersTotal} SW
+            {activeArm.keystrokes.fieldsTyped === 0
+              ? "Keystrokes: 0 fields (untested)"
+              : `Keystrokes: ${activeArm.keystrokes.fieldsTyped} ${activeArm.keystrokes.fieldsTyped === 1 ? "field" : "fields"}`}{" "}
+            · {s.websocketsTotal} WS · {s.serviceWorkersTotal} SW
           </div>
         </div>
       </section>
@@ -494,7 +510,7 @@ export function ReportViewV3({
               ["cookies", `Cookies (${activeArm.cookies.length}) & Storage (${activeArm.storage.length})`],
               [
                 "privacy-signals",
-                `Consent, CNAME (${activeArm.cnameCloaks.length}), FP (${activeArm.fingerprinting.length}) & Keystrokes (${activeArm.keystrokes.leaks.length})`
+                `Consent, CNAME (${activeArm.cnameCloaks.length}), FP (${activeArm.fingerprinting.length}) & Keystrokes (${activeArm.keystrokes.fieldsTyped === 0 ? "n/t" : activeArm.keystrokes.leaks.length})`
               ],
               ["policy", "Privacy Policy"]
             ] as [EvidenceTab, string][]
@@ -518,6 +534,15 @@ export function ReportViewV3({
 
         {activeTab === "requests" && (
           <>
+            {activeArm.probes.network.status !== "complete" && (
+              <div className={`${styles.highlightItem} ${styles.hlMedium}`} style={{ marginBottom: 12 }}>
+                Network capture coverage: <strong>{activeArm.probes.network.status}</strong>
+                {activeArm.probes.network.reason ? ` (${activeArm.probes.network.reason})` : ""}
+                {activeArm.probes.network.omittedCount
+                  ? ` — ${activeArm.probes.network.omittedCount} record(s) omitted or dropped.`
+                  : "."}
+              </div>
+            )}
             <div className={styles.formGrid} style={{ marginBottom: 12 }}>
               <label className={styles.fieldLabel}>
                 Search host, path, entity, or Shields rule
@@ -809,6 +834,13 @@ export function ReportViewV3({
                 Consent Banner Audit — Score {activeArm.consent.banner.darkPatternScore}/100 (
                 {activeArm.consent.banner.cmp ?? "No CMP detected"})
               </strong>
+              {activeArm.probes.consent.status !== "complete" && (
+                <p className={styles.subtitle}>
+                  Consent probe {activeArm.probes.consent.status}
+                  {activeArm.probes.consent.reason ? ` (${activeArm.probes.consent.reason})` : ""}; banner audit may be
+                  incomplete.
+                </p>
+              )}
               <div className={styles.chipsRow}>
                 <span className={styles.chip}>
                   Layer 1 Accept: {activeArm.consent.banner.hasFirstLayerAccept ? "Yes" : "No"}
@@ -890,14 +922,33 @@ export function ReportViewV3({
               </div>
             )}
 
+            {activeArm.probes.cname.status !== "complete" && (
+              <div className={`${styles.highlightItem} ${styles.hlMedium}`}>
+                CNAME uncloaking probe {activeArm.probes.cname.status}
+                {activeArm.probes.cname.reason ? ` (${activeArm.probes.cname.reason})` : ""}
+                {activeArm.probes.cname.omittedCount
+                  ? ` — ${activeArm.probes.cname.omittedCount} host lookup(s) omitted or failed.`
+                  : "."}
+              </div>
+            )}
+
+            {activeArm.probes.fingerprinting.status !== "complete" && (
+              <div className={`${styles.highlightItem} ${styles.hlMedium}`}>
+                Fingerprinting probe {activeArm.probes.fingerprinting.status}
+                {activeArm.probes.fingerprinting.reason ? ` (${activeArm.probes.fingerprinting.reason})` : ""}
+                {activeArm.probes.fingerprinting.omittedCount
+                  ? ` — ${activeArm.probes.fingerprinting.omittedCount} event(s) omitted.`
+                  : "."}
+              </div>
+            )}
+
             <div className={styles.causalityCard}>
               <strong>
-                Active Keystroke Probe ({activeArm.keystrokes.fieldsTyped} fields typed —{" "}
+                Active Keystroke Probe ({activeArm.keystrokes.fieldsTyped}{" "}
+                {activeArm.keystrokes.fieldsTyped === 1 ? "field" : "fields"} typed —{" "}
                 {activeArm.keystrokes.iframeFieldsTyped} iframe, {activeArm.keystrokes.shadowDomFieldsTyped} Shadow DOM)
               </strong>
-              {activeArm.keystrokes.leaks.length === 0 ? (
-                <p className={styles.subtitle}>No pre-submission keystroke exfiltration observed.</p>
-              ) : (
+              {activeArm.keystrokes.leaks.length > 0 ? (
                 <ul style={{ margin: "8px 0 0", paddingLeft: 18 }}>
                   {activeArm.keystrokes.leaks.map((l, idx) => (
                     <li key={idx} className={styles.mono}>
@@ -906,6 +957,29 @@ export function ReportViewV3({
                     </li>
                   ))}
                 </ul>
+              ) : activeArm.keystrokes.fieldsTyped === 0 ? (
+                <p className={styles.subtitle}>
+                  No eligible input fields were exercised during this visit, so pre-submission keystroke transmission
+                  could not be tested
+                  {activeArm.probes.keystrokes.reason &&
+                  activeArm.probes.keystrokes.reason !== "no-eligible-input-fields"
+                    ? ` (${activeArm.probes.keystrokes.reason})`
+                    : ""}
+                  .
+                </p>
+              ) : activeArm.probes.keystrokes.status === "partial" ? (
+                <p className={styles.subtitle}>
+                  Active keystroke probe was partial
+                  {activeArm.probes.keystrokes.reason ? ` (${activeArm.probes.keystrokes.reason})` : ""};{" "}
+                  {activeArm.keystrokes.fieldsTyped}{" "}
+                  {activeArm.keystrokes.fieldsTyped === 1 ? "field was" : "fields were"} exercised with no observed
+                  pre-submission transmission, but capture may be incomplete.
+                </p>
+              ) : (
+                <p className={styles.subtitle}>
+                  No pre-submission keystroke transmission observed across {activeArm.keystrokes.fieldsTyped} exercised
+                  input {activeArm.keystrokes.fieldsTyped === 1 ? "field" : "fields"}.
+                </p>
               )}
             </div>
           </div>
@@ -914,7 +988,9 @@ export function ReportViewV3({
         {activeTab === "policy" && (
           <div>
             {!activeArm.policy ? (
-              <div className={styles.emptyState}>No privacy policy page was discovered during this visit.</div>
+              <div className={styles.emptyState}>
+                {formatMissingPolicyNotice(activeArm.probes.policy)}
+              </div>
             ) : (
               <div style={{ display: "grid", gap: 14 }}>
                 <div>
@@ -954,6 +1030,22 @@ export function ReportViewV3({
       </section>
     </>
   );
+}
+
+function formatMissingPolicyNotice(probe: { status: string; reason?: string }): string {
+  if (probe.reason === "policy-fetch-failed") {
+    return "A privacy policy link was discovered, but fetching the policy page failed during this visit.";
+  }
+  if (probe.reason === "policy-text-unreadable") {
+    return "A privacy policy page was fetched, but readable policy text could not be extracted.";
+  }
+  if (probe.status === "skipped") {
+    return `Privacy policy check was skipped during this visit${probe.reason ? ` (${probe.reason})` : ""}.`;
+  }
+  if (probe.reason === "policy-probe-error") {
+    return "Privacy policy inspection could not complete due to an error during this visit.";
+  }
+  return "No privacy policy link was discovered on this page during this visit.";
 }
 
 function signed(n: number): string {

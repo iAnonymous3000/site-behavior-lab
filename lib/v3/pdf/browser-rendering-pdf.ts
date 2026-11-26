@@ -69,6 +69,25 @@ export function renderReportV3PrintHtml(report: ScanReportV3): string {
     )
     .join("");
 
+  const ks = report.leadArm.keystrokes;
+  const ksProbe = report.leadArm.probes.keystrokes;
+  const keystrokeCoverageLine =
+    ks.leaks.length > 0
+      ? `Active keystroke probe: ${ks.fieldsTyped} ${ks.fieldsTyped === 1 ? "field" : "fields"} exercised; ${ks.leaks.length} pre-submission transmission(s) observed.`
+      : ks.fieldsTyped === 0
+        ? `Active keystroke probe: not exercised (0 eligible input fields, so pre-submission keystroke transmission could not be tested${ksProbe.reason && ksProbe.reason !== "no-eligible-input-fields" ? ` — ${ksProbe.reason}` : ""}).`
+        : ksProbe.status === "partial"
+          ? `Active keystroke probe: partial (${ksProbe.reason ?? "incomplete"}) across ${ks.fieldsTyped} ${ks.fieldsTyped === 1 ? "field" : "fields"}; no pre-submission transmission observed, but capture may be incomplete.`
+          : `Active keystroke probe: complete (${ks.fieldsTyped} ${ks.fieldsTyped === 1 ? "field" : "fields"} exercised; no pre-submission keystroke transmission observed).`;
+
+  const nonCompleteProbes = Object.entries(report.leadArm.probes)
+    .filter(([, p]) => p.status !== "complete")
+    .map(
+      ([name, p]) =>
+        `<li><code>${esc(name)}</code>: <strong>${esc(p.status)}</strong>${p.reason ? ` (${esc(p.reason)})` : ""}${p.omittedCount ? ` — ${p.omittedCount} omitted` : ""}</li>`
+    )
+    .join("");
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -136,6 +155,14 @@ export function renderReportV3PrintHtml(report: ScanReportV3): string {
       ? `<h2>Intervention Comparisons (vs. Baseline)</h2>
   <table><thead><tr><th>Intervention</th><th class="num">Requests Δ</th><th class="num">3P Domains Δ</th><th class="num">Cookies Δ</th><th class="num">Shields Blocked</th></tr></thead><tbody>${comparisonRows}</tbody></table>`
       : ""
+  }
+
+  <h2>Probe Coverage &amp; Measurement Scope</h2>
+  <p>${esc(keystrokeCoverageLine)}</p>
+  ${
+    nonCompleteProbes
+      ? `<ul>${nonCompleteProbes}</ul>`
+      : `<p>All ${Object.keys(report.leadArm.probes).length} probes reported complete coverage for this visit.</p>`
   }
 
   <footer>

@@ -55,7 +55,7 @@ Usage:
   sbl scan <url> [options]
   sbl diff <before.json> <after.json> [options]
   sbl summary <report.json>
-  sbl verify <report.json> [--json]
+  sbl verify <report.json> [--expected-sha256 <hex>] [--manifest <manifest.json>] [--json]
   sbl catalog [query] [--json]
 
 Scan options:
@@ -330,19 +330,42 @@ async function handleVerifyCommand(
 ): Promise<number> {
   const filePath = args[0] && !args[0].startsWith("-") ? args[0] : "";
   if (!filePath) {
-    err("Usage: sbl verify <report.json> [--json]\n");
+    err("Usage: sbl verify <report.json> [--expected-sha256 <hex>] [--manifest <manifest.json>] [--json]\n");
     return 1;
   }
-  const asJson = args.includes("--json");
+  let asJson = false;
+  let expectedSha256: string | null = null;
+  let manifestPath: string | null = null;
+  for (let i = 1; i < args.length; i += 1) {
+    const flag = args[i];
+    if (flag === "--json") {
+      asJson = true;
+    } else if (flag === "--expected-sha256" && args[i + 1]) {
+      expectedSha256 = args[++i];
+    } else if (flag === "--manifest" && args[i + 1]) {
+      manifestPath = args[++i];
+    } else {
+      err(`Unknown verify option: ${flag}\n`);
+      return 1;
+    }
+  }
 
   try {
     const raw = await readFile(filePath, "utf8");
-    const result = verifyReportV3Json(raw);
+    const manifestJson = manifestPath ? await readFile(manifestPath, "utf8") : null;
+    const result = verifyReportV3Json(raw, { expectedSha256, manifestJson });
     if (asJson) {
       out(`${JSON.stringify(result, null, 2)}\n`);
     } else if (result.ok) {
+      const externalParts: string[] = [];
+      if (result.digestMatched) externalParts.push("expected SHA-256 matched");
+      if (result.manifestMatched) externalParts.push("manifest entry matched");
+      const scopeSuffix =
+        externalParts.length > 0
+          ? externalParts.join(" + ")
+          : "internal consistency only (no external digest or publisher signature checked)";
       out(
-        `OK ${result.reportId} (${result.canonicalDomain}) · SHA-256 ${result.digest} · redaction fixed-point verified\n`
+        `OK ${result.reportId} (${result.canonicalDomain}) · canonical SHA-256 ${result.digest} · raw SHA-256 ${result.rawDigest} · ${scopeSuffix}\n`
       );
     } else {
       err(`INVALID ${filePath}:\n${result.issues.map((x) => `  - ${x}`).join("\n")}\n`);

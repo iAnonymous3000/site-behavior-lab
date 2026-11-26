@@ -19,12 +19,26 @@ export type PolicyGateViolationV3 = {
   message: string;
 };
 
+export type VerifyReportOptionsV3 = {
+  /** Expected canonical JSON SHA-256 or raw UTF-8 file SHA-256 (64 lowercase hex chars). */
+  expectedSha256?: string | null;
+  /** Optional raw JSON contents of a v3 corpus manifest (`public/v3/manifest.json`) to verify against. */
+  manifestJson?: string | null;
+};
+
 export type VerifyReportResultV3 = {
   ok: boolean;
   reportId: string | null;
   canonicalDomain: string | null;
+  /** Canonical JSON SHA-256 digest (`reportV3Digest`). */
   digest: string | null;
+  /** Raw UTF-8 serialized JSON SHA-256 digest (matches `manifest.json` entry `sha256`). */
+  rawDigest: string | null;
   redactionIdempotent: boolean;
+  expectedSha256: string | null;
+  digestMatched: boolean | null;
+  manifestMatched: boolean | null;
+  verificationScope: string;
   issues: string[];
 };
 
@@ -186,7 +200,19 @@ export function formatReportMarkdownV3(
   lines.push(`| Cookies (>30d / CHIPS) | ${s.cookiesTotal} (${s.longLivedCookies} / ${s.partitionedCookies}) |`);
   lines.push(`| Beacons (1st-party sGTM) | ${s.beaconPlatforms} (${s.serverSideTaggingEndpoints}) |`);
   lines.push(`| CMP dark-pattern score | **${s.darkPatternScore}/100** |`);
-  lines.push(`| Keystroke leaks / CNAME cloaks / Fingerprinting | ${s.keystrokeLeaksCount} / ${s.cnameCloaksCount} / ${s.fingerprintKindsCount} |`);
+  const keystrokeCell =
+    report.leadArm.keystrokes.fieldsTyped === 0
+      ? "n/t (0 fields)"
+      : `${s.keystrokeLeaksCount} (${report.leadArm.keystrokes.fieldsTyped} ${report.leadArm.keystrokes.fieldsTyped === 1 ? "field" : "fields"})`;
+  lines.push(`| Keystroke leaks / CNAME cloaks / Fingerprinting | ${keystrokeCell} / ${s.cnameCloaksCount} / ${s.fingerprintKindsCount} |`);
+
+  const nonCompleteProbes = Object.entries(report.leadArm.probes)
+    .filter(([, p]) => p.status !== "complete")
+    .map(([name, p]) => `${name}: ${p.status}${p.reason ? ` (${p.reason})` : ""}`);
+  if (nonCompleteProbes.length > 0) {
+    lines.push("");
+    lines.push(`- **Probe coverage notes:** ${nonCompleteProbes.join("; ")}`);
+  }
 
   if (report.highlights.length > 0) {
     lines.push("");
@@ -280,9 +306,27 @@ export function formatDiffMarkdownV3(diff: TemporalReportDiffV3): string {
   return `${lines.join("\n")}\n`;
 }
 
-/** Offline verification of a serialized `ScanReportV3` JSON document. */
-export function verifyReportV3Json(rawJson: string): VerifyReportResultV3 {
+/**
+ * Offline verification of a serialized `ScanReportV3` JSON document.
+ *
+ * Always checks schema validity, absence of unredacted secrets, redaction
+ * fixed-point idempotency, and computes both canonical and raw-file SHA-256
+ * digests. When `expectedSha256` or `manifestJson` is supplied, also verifies
+ * exact digest/manifest agreement; publisher authenticity depends on how that
+ * expected digest or manifest was obtained.
+ */
+export function verifyReportV3Json(
+  rawJson: string,
+  options: VerifyReportOptionsV3 = {}
+): VerifyReportResultV3 {
   const issues: string[] = [];
+  const rawDigest = sha256Hex(rawJson);
+  const expectedNorm = options.expectedSha256 ? options.expectedSha256.trim().toLowerCase() : null;
+  const hasExternalCheck = Boolean(expectedNorm || options.manifestJson);
+  const verificationScope = hasExternalCheck
+    ? "internal-consistency-and-digest-match (schema, redaction fixed-point, and caller-supplied digest/manifest checked; publisher authenticity depends on trust in the supplied digest or manifest)"
+    : "internal-consistency-only (schema, redaction fixed-point, and canonical/raw SHA-256 computed; no external digest, manifest, or publisher signature checked)";
+
   let parsed: ScanReportV3;
   try {
     parsed = JSON.parse(rawJson) as ScanReportV3;
@@ -292,7 +336,12 @@ export function verifyReportV3Json(rawJson: string): VerifyReportResultV3 {
       reportId: null,
       canonicalDomain: null,
       digest: null,
+      rawDigest,
       redactionIdempotent: false,
+      expectedSha256: expectedNorm,
+      digestMatched: expectedNorm ? false : null,
+      manifestMatched: options.manifestJson ? false : null,
+      verificationScope,
       issues: [`Invalid JSON: ${err instanceof Error ? err.message : String(err)}`]
     };
   }
@@ -309,14 +358,94 @@ export function verifyReportV3Json(rawJson: string): VerifyReportResultV3 {
     } catch (err) {
       issues.push(err instanceof Error ? err.message : String(err));
     }
-    const rawDigest = sha256Hex(canonicalJsonV3(parsed));
+    const canonicalDigest = sha256Hex(canonicalJsonV3(parsed));
     const afterRedacted = redactScanReportV3(parsed);
     const afterDigest = sha256Hex(canonicalJsonV3(afterRedacted));
-    redactionIdempotent = rawDigest === afterDigest;
+    redactionIdempotent = canonicalDigest === afterDigest;
     if (!redactionIdempotent) {
       issues.push("Report is not a redaction fixed point (re-redacting changes canonical SHA-256 digest).");
     }
-    digest = rawDigest;
+    digest = canonicalDigest;
+  }
+
+  let digestMatched: boolean | null = null;
+  if (expectedNorm !== null) {
+    if (!/^[a-f0-9]{64}$/.test(expectedNorm)) {
+      digestMatched = false;
+      issues.push(`Invalid --expected-sha256 value (must be 64 lowercase hex characters).`);
+    } else {
+      digestMatched = expectedNorm === digest || expectedNorm === rawDigest;
+      if (!digestMatched) {
+        issues.push(
+          `SHA-256 mismatch: expected ${expectedNorm}, got canonical ${digest ?? "n/a"} and raw ${rawDigest}.`
+        );
+      }
+    }
+  }
+
+  let manifestMatched: boolean | null = null;
+  if (options.manifestJson !== undefined && options.manifestJson !== null) {
+    try {
+      const manifest = JSON.parse(options.manifestJson) as {
+        schemaVersion?: number;
+        reports?: Array<{
+          reportId?: string;
+          canonicalDomain?: string;
+          sha256?: string;
+          bytes?: number;
+          byteLength?: number;
+        }>;
+        entries?: Array<{
+          reportId?: string;
+          canonicalDomain?: string;
+          sha256?: string;
+          bytes?: number;
+          byteLength?: number;
+        }>;
+      };
+      const manifestRows = Array.isArray(manifest?.reports)
+        ? manifest.reports
+        : Array.isArray(manifest?.entries)
+          ? manifest.entries
+          : null;
+      if (!manifestRows) {
+        manifestMatched = false;
+        issues.push("Manifest JSON does not contain a reports array.");
+      } else {
+        const entry = manifestRows.find((e) => e.reportId === parsed.reportId);
+        if (!entry) {
+          manifestMatched = false;
+          issues.push(`Report ${parsed.reportId ?? "(missing id)"} was not found in the supplied manifest.`);
+        } else {
+          const entryHash = typeof entry.sha256 === "string" ? entry.sha256.trim().toLowerCase() : "";
+          const byteLen = Buffer.byteLength(rawJson, "utf8");
+          const expectedBytes =
+            typeof entry.bytes === "number"
+              ? entry.bytes
+              : typeof entry.byteLength === "number"
+                ? entry.byteLength
+                : null;
+          const hashOk = entryHash === rawDigest || entryHash === digest;
+          const domainOk =
+            typeof entry.canonicalDomain !== "string" ||
+            entry.canonicalDomain.toLowerCase() === String(parsed.canonicalDomain ?? "").toLowerCase();
+          const lenOk = expectedBytes === null || expectedBytes === byteLen;
+          manifestMatched = hashOk && domainOk && lenOk;
+          if (!hashOk) {
+            issues.push(`Manifest SHA-256 mismatch for ${parsed.reportId}: manifest has ${entryHash || "(none)"}, file raw SHA-256 is ${rawDigest}.`);
+          }
+          if (!domainOk) {
+            issues.push(`Manifest domain mismatch for ${parsed.reportId}: manifest has ${entry.canonicalDomain}, report has ${parsed.canonicalDomain}.`);
+          }
+          if (!lenOk) {
+            issues.push(`Manifest byte size mismatch for ${parsed.reportId}: manifest has ${expectedBytes}, file is ${byteLen} bytes.`);
+          }
+        }
+      }
+    } catch (err) {
+      manifestMatched = false;
+      issues.push(`Invalid manifest JSON: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
   return {
@@ -324,7 +453,12 @@ export function verifyReportV3Json(rawJson: string): VerifyReportResultV3 {
     reportId: typeof parsed?.reportId === "string" ? parsed.reportId : null,
     canonicalDomain: typeof parsed?.canonicalDomain === "string" ? parsed.canonicalDomain : null,
     digest,
+    rawDigest,
     redactionIdempotent,
+    expectedSha256: expectedNorm,
+    digestMatched,
+    manifestMatched,
+    verificationScope,
     issues
   };
 }
